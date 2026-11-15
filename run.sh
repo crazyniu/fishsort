@@ -23,6 +23,7 @@ usage() {
 
   (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
                         FISHSORT_LEVEL=65 ./run.sh 直接跳到第 65 关（仅试玩模式）
+                        FISHSORT_AUTOPLAY=1 ./run.sh 机器人代打（仅调试构建，验收用）
   real                  启动游戏，按真实存档进度玩，不加资源
   editor                打开 Godot 编辑器
   test                  跑 src/core 单元测试

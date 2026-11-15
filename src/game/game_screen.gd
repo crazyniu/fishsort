@@ -48,6 +48,10 @@ var _auto: bool = false
 ## 提示光圈：玩家一段时间没操作时指出一条能进缸的鱼
 var _hint: Control
 var _idle: float = 0.0
+## 调试用：FISHSORT_AUTOPLAY=1 时由贪心机器人代打（只在调试构建里生效，验收结算、宝箱等画面用）
+var _autoplay: bool = OS.is_debug_build() and OS.get_environment("FISHSORT_AUTOPLAY") == "1"
+var _bot_wait: float = 1.5
+var _bot_rng := Rng.new(7)
 
 
 func _ready() -> void:
@@ -130,6 +134,13 @@ func _show_tips(id: int) -> void:
 func _process(delta: float) -> void:
 	if _s == null or _over or _has_popup():
 		return
+	if _autoplay and not _auto and not _net_mode:
+		_bot_wait -= delta
+		if _bot_wait <= 0.0:
+			_bot_wait = 0.35
+			var pick: Array = Bots.next_tap(_s, _bot_rng)
+			if not pick.is_empty():
+				_tap(pick[0], pick[1])
 	_idle += delta
 	# 前几关是教学，提示来得快；之后发呆久了才提示
 	var hint: Dictionary = GameCfg.d()["hint"]
