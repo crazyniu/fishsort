@@ -412,6 +412,32 @@ part('path_dot', 24, 24, `<circle cx="12" cy="12" r="9" fill="#fff" stroke="#2F6
   part('flag', 64, 72, `<defs>${d}</defs><path d="M14 6 V68" stroke="${C.navy}" stroke-width="7" stroke-linecap="round"/><path d="M14 6 V68" stroke="#E6ECF3" stroke-width="3" stroke-linecap="round"/><path d="M16 8 L58 18 L16 34 Z" fill="url(#${g})" stroke="${C.navy}" stroke-width="4" stroke-linejoin="round"/>`);
 }
 
+// ---------------------------------------------------------------- 收藏册封面（一册一个海域，颜色各不同；鱼由代码叠上去）
+function book(name, col) {
+  const [g, d] = lin([[0, col[0]], [1, col[1]]], 0, 0, 1, 1);
+  const [gw, dw] = lin([[0, '#FFFFFF', 0.55], [1, '#FFFFFF', 0.12]]);
+  const rings = [36, 76, 116]
+    .map((y) => `<rect x="4" y="${y}" width="26" height="14" rx="7" fill="#FFD23F" stroke="#B8770A" stroke-width="3"/>`)
+    .join('');
+  part(
+    name,
+    150,
+    160,
+    `<defs>${d}${dw}</defs>
+    <rect x="22" y="12" width="122" height="144" rx="16" fill="#000" opacity="0.2"/>
+    <rect x="16" y="6" width="124" height="144" rx="16" fill="${col[2]}"/>
+    <rect x="16" y="4" width="124" height="138" rx="16" fill="url(#${g})" stroke="${col[2]}" stroke-width="4"/>
+    <rect x="32" y="18" width="94" height="110" rx="12" fill="url(#${gw})" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="3"/>
+    ${rings}`,
+  );
+}
+book('book_1', ['#5FD3FF', '#2A86E8', '#165AB0']);
+book('book_2', ['#FF9BD0', '#E0479A', '#9C1F66']);
+book('book_3', ['#8EE86A', '#33A83A', '#1D6E25']);
+book('book_4', ['#FFC07A', '#D9772A', '#8F4512']);
+book('book_5', ['#D6A8FF', '#8E4DE8', '#5A23A6']);
+book('book_6', ['#FFE680', '#E8B020', '#9A6C05']);
+
 // ---------------------------------------------------------------- 特效、杂项
 {
   const [g, d] = rad([[0, '#fff', 0.95], [0.25, '#FFF6B0', 0.7], [1, '#FFD84A', 0]]);

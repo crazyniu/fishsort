@@ -375,7 +375,7 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
 
 // ---------------------------------------------------------------- 新收藏卡
 
-const RARITY_GLOW: Record<string, Color> = {
+export const RARITY_GLOW: Record<string, Color> = {
   common: new Color(220, 230, 245),
   uncommon: new Color(140, 240, 110),
   rare: new Color(110, 190, 255),

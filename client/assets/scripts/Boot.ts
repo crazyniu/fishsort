@@ -5,6 +5,7 @@ import { DEBUG } from 'cc/env';
 import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
+import { CollectPage } from './pages/collect';
 import { LevelsPage } from './pages/levels';
 import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
@@ -57,7 +58,7 @@ export class Boot extends Component {
     ui.register('lock', () => new LockPage());
     ui.register('shop', () => new ShopPage());
     ui.register('base', () => new TodoPage('base', 'homeBase'));
-    ui.register('collect', () => new TodoPage('collect', 'album'));
+    ui.register('collect', () => new CollectPage());
     ui.register('rank', () => new TodoPage('rank', 'rank'));
     ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new TodoPage(null, 'daily'));

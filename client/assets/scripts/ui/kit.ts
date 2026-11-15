@@ -13,6 +13,7 @@ import {
   Tween,
   UIOpacity,
   UITransform,
+  Vec2,
   Vec3,
   VerticalTextAlignment,
   tween,
@@ -208,6 +209,9 @@ export function setTapSound(f: (name: string) => void): void {
   onTapSound = f;
 }
 
+/** 按下到松开移动超过这么多（设计单位）就不算点 */
+export const TAP_SLOP = 14;
+
 /** 点击：按下缩 0.95，松手回弹（docs/09 第 6 节）。手指滑出节点再松开不算 */
 export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): void {
   const press = o.press ?? 0.95;
@@ -224,6 +228,8 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
   const release = (fire: boolean, e?: EventTouch) => {
     if (!down) return;
     down = false;
+    // 手指滑动过（在滚动列表里拖）就不算点
+    if (e && Vec2.distance(e.getUILocation(), e.getUIStartLocation()) > TAP_SLOP) fire = false;
     if (press > 0) {
       Tween.stopAllByTarget(n);
       tween(n)
@@ -348,6 +354,28 @@ export function capsule(parent: Node, w: number, h: number, iconPath: string | n
   const label = text(n, s, fontSize);
   label.node.setPosition(iconPath ? h * 0.3 : 0, 0, 0);
   return { node: n, label, icon, set: (v: string) => (label.string = v) };
+}
+
+// ---------------------------------------------------------------- 进度条
+
+export interface Bar {
+  node: Node;
+  set(frac: number): void;
+}
+
+/** 进度条：底槽 + 从左往右长的填充（填充最短也有一个高度宽，圆头不变形） */
+export function progressBar(parent: Node, w: number, h: number, color: 'green' | 'yellow' | 'blue' | 'purple' = 'green'): Bar {
+  const track = slice(parent, 'kit/bar_track', w, h, 'bar');
+  const fill = slice(track, `kit/bar_${color}`, w, h, 'fill');
+  const set = (frac: number) => {
+    const f = Math.max(0, Math.min(1, frac));
+    fill.active = f > 0;
+    const fw = Math.max(h, w * f);
+    resizeSlice(fill, fw, h);
+    fill.setPosition(-w / 2 + fw / 2, 0, 0);
+  };
+  set(0);
+  return { node: track, set };
 }
 
 /** 红点（右上角），可脉动 */
