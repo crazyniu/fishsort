@@ -224,16 +224,18 @@ export class CollectPage extends Page {
     const strip = slice(v, 'kit/panel_glass', 690, 150, 'prize');
     at(strip, 0, top - 220);
     const items = prizeItems(Album.grant(clonePreview(), b.reward, 0));
-    const cellW = 100;
+    const cellW = 88;
     items.forEach((it, k) => {
       const c = box('it', strip, cellW, 130);
-      at(c, -290 + cellW / 2 + k * cellW, 0);
-      const icon = img(c, it.icon, 70, 70, 'icon');
+      at(c, -322 + cellW / 2 + k * cellW, 0);
+      const icon = img(c, it.icon, 66, 66, 'icon');
       at(icon, 0, 14);
       at(text(c, it.amount, 26).node, 0, -40);
     });
     const have = Album.have(s, eco, i);
-    const right = 230;
+    const right = 238;
+    const sep = img(strip, 'kit/tab_divider', 4, 100, 'sep');
+    at(sep, right - 98, 0);
     if (Album.canClaim(s, eco, i)) {
       const btn = button(strip, { color: 'green', w: 170, h: 84, label: tr('ALBUM_TAKE'), fontSize: 40, onTap: () => this.claimBook(i) });
       at(btn.node, right, 0);
@@ -242,7 +244,7 @@ export class CollectPage extends Page {
       at(text(strip, tr('ALBUM_CLAIMED'), 34, { color: COLOR.yellow }).node, right, 0);
     } else {
       at(text(strip, `${have}/${b.cards.length}`, 40).node, right, 22);
-      const bar = progressBar(strip, 170, 24, 'green');
+      const bar = progressBar(strip, 160, 24, 'green');
       at(bar.node, right, -28);
       bar.set(have / b.cards.length);
     }
