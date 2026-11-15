@@ -25,7 +25,7 @@ const TAB_ICONS: Array[String] = [
 ## 每个页签对应的功能开放项，空串 = 始终开放
 const TAB_FEATURES: Array[String] = ["", "homeBase", "", "album", "dex", "wheel", "rank", "daily"]
 ## 已经排了开放关、但页面还没做的功能：开放后先显示「即将开放」
-const COMING_SOON: Array[String] = ["homeBase"]
+const COMING_SOON: Array[String] = []
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -261,7 +261,7 @@ func _build_tabs() -> void:
 			lock.position = Vector2(46, 42)
 			icon.add_child(lock)
 		elif _tab_has_prize(TAB_FEATURES[i]):
-			# 收藏或图鉴有奖可领：页签上亮红点
+			# 收藏或图鉴有奖可领、家园能建下一步：页签上亮红点
 			var dot := UiKit.badge("dot_red", 30)
 			dot.position = Vector2(56, -4)
 			icon.add_child(dot)
@@ -277,6 +277,8 @@ func _build_tabs() -> void:
 func _tab_has_prize(feature: String) -> bool:
 	if feature == "album":
 		return Album.claimable(Save.data, Config.eco) > 0
+	if feature == "homeBase":
+		return HomeBase.can_build(Save.data, Config.eco)
 	return feature == "dex" and Dex.claimable(Save.data, Config.eco) > 0
 
 
@@ -322,6 +324,7 @@ func _on_tab(i: int) -> void:
 func _make_page(tab: int) -> HomePage:
 	var pages: Dictionary = {
 		TAB_SHOP: ShopPage,
+		TAB_BASE: BasePage,
 		TAB_WHEEL: WheelPage,
 		TAB_RANK: RankPage,
 		TAB_COLLECTION: CollectionPage,

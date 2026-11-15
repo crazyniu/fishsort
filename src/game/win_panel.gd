@@ -172,7 +172,7 @@ func _star_flash(at: Vector2) -> void:
 
 
 ## 奖励只有一排：图标在上、数字在下，不写说明文字。
-## 金币是总数（过关 + 连击 + 宝箱开出的），后面依次是技能、图鉴卡、首胜的抽奖次数和无限生命
+## 金币是总数（过关 + 连击 + 宝箱开出的），后面依次是技能、家园星星、图鉴卡、首胜的抽奖次数和无限生命
 func _rewards(animate: bool, coins_from: int) -> void:
 	var items: Array = []
 	var total: int = _coins + _chest_coins()
@@ -183,6 +183,9 @@ func _rewards(animate: bool, coins_from: int) -> void:
 			items.append(
 				["res://assets/ui/tool_%s.png" % chest["skill"], "+%d" % int(chest["count"])]
 			)
+	# 家园星星：首次过关 1 颗，挑战关 2 颗
+	if int(_result.get("stars", 0)) > 0:
+		items.append(["res://assets/ui/star.png", "+%d" % int(_result["stars"])])
 	for card: Dictionary in _cards():
 		items.append(
 			["res://assets/fish/%s.png" % card["id"], tr("UI_NEW") if card["is_new"] else ""]

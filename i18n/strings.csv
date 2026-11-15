@@ -224,3 +224,41 @@ RANK_PRIZE_REST,第 2 / 3 名 %d / %d 金币 + 技能 · 4–10 名 %d · 其余
 RANK_WEEK_PRIZE,上周排名第 %d,Last week: No.%d
 H_PRIZE_FRAME,头像框,Avatar frame
 UI_CARD_OWNED,已拥有，换 %d 金币,Already owned: +%d coins
+BASE_AREA_SHORE,晨光沙滩,Sunrise Shore
+BASE_AREA_CORAL,珊瑚花园,Coral Garden
+BASE_AREA_WRECK,沉船湾,Shipwreck Cove
+BASE_AREA_CRYSTAL,水晶洞窟,Crystal Grotto
+BASE_AREA_PALACE,海底宫殿,Sea Palace
+BASE_STEP_SHORE_1,修好栈桥,Fix the pier
+BASE_STEP_SHORE_2,挂起彩旗,Hang the bunting
+BASE_STEP_SHORE_3,铺贝壳小路,Lay a shell path
+BASE_STEP_SHORE_4,搭沙滩小屋,Build a beach hut
+BASE_STEP_SHORE_5,点亮灯塔,Light the lighthouse
+BASE_STEP_CORAL_1,种下珊瑚丛,Plant the corals
+BASE_STEP_CORAL_2,铺海葵花床,Grow an anemone bed
+BASE_STEP_CORAL_3,立起石拱门,Raise a stone arch
+BASE_STEP_CORAL_4,放上珍珠蚌,Place the pearl clam
+BASE_STEP_CORAL_5,挂起泡泡灯,Hang bubble lamps
+BASE_STEP_WRECK_1,扶正船身,Right the hull
+BASE_STEP_WRECK_2,立起桅杆,Raise the mast
+BASE_STEP_WRECK_3,挂上船帆,Hoist the sail
+BASE_STEP_WRECK_4,擦亮船锚,Polish the anchor
+BASE_STEP_WRECK_5,打开宝藏舱,Open the treasure hold
+BASE_STEP_CRYSTAL_1,点亮水晶簇,Light the crystals
+BASE_STEP_CRYSTAL_2,凿出石阶,Carve stone steps
+BASE_STEP_CRYSTAL_3,引来泡泡泉,Start the bubble spring
+BASE_STEP_CRYSTAL_4,种发光海草,Plant glowing kelp
+BASE_STEP_CRYSTAL_5,挂起星星灯,Hang star lanterns
+BASE_STEP_PALACE_1,重建宫门,Rebuild the gate
+BASE_STEP_PALACE_2,立起廊柱,Raise the pillars
+BASE_STEP_PALACE_3,修好喷泉,Fix the fountain
+BASE_STEP_PALACE_4,铺珊瑚地毯,Roll out a coral carpet
+BASE_STEP_PALACE_5,升起穹顶,Raise the dome
+BASE_BUILD,建造,Build
+BASE_PROGRESS,区域 %d/%d,Area %d/%d
+BASE_STEP_OF,第 %d/%d 步：%s,Step %d/%d: %s
+BASE_NEED_STARS,星星不够：首次过关得星星,Need more stars: clear new levels
+BASE_NEXT_AREA,下一个区域,Next area
+BASE_ALL_DONE,海湾已全部重建,The bay is rebuilt!
+BASE_AREA_DONE,区域重建完成！,Area rebuilt!
+BASE_CHEST,区域宝箱,Area chest
