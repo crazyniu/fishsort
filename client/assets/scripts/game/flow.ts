@@ -55,7 +55,7 @@ export function startDaily(): void {
 export function onLevelStart(g: GamePage): void {
   playMusic();
   const s = App.save.data;
-  if (g.arg.daily) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
+  if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
   const mech = App.config.eco.mechanicIntro[String(lvl)];
@@ -71,7 +71,11 @@ export function onLevelStart(g: GamePage): void {
     if (PlayerData.tipSeen(s, key)) return show(i + 1);
     PlayerData.markTip(s, key);
     App.save.write();
-    tipPopup(key, () => show(i + 1));
+    g.paused = true;
+    tipPopup(key, () => {
+      g.paused = false;
+      show(i + 1);
+    });
   };
   fx.delay(g.node, App.config.ui.tutorial.delay, () => show(0));
 }

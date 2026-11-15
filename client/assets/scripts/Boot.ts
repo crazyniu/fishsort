@@ -64,7 +64,7 @@ export class Boot extends Component {
     ui.register('adtest', () => new TodoPage(null, 'wheel'));
     onLanguage(() => ui.rebuild(topActions));
     // 调试：?level=N 直接进关
-    if (App.flags.level > 0 && App.flags.autoplay) ui.go('game', { level: App.flags.level });
+    if (App.flags.level > 0 && App.flags.play) ui.go('game', { level: App.flags.level });
     else ui.go('home');
     // 顶栏的生命倒计时、无限生命每秒走一次
     tween(this.node)

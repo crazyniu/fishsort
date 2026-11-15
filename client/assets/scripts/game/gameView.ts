@@ -20,6 +20,7 @@ import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
 import { COLOR, Capsule, at, box, capsule, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
+import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
@@ -669,7 +670,8 @@ export class GamePage extends Page {
 
   private update(dt: number): void {
     if (!this.node?.active || !this.s || this.ended) return;
-    if (this.paused || ui.currentName !== 'game') return;
+    // 弹窗开着（提示、开缸位、买技能…）时局内暂停：限时缸不走、代打不点
+    if (this.paused || ui.currentName !== 'game' || popupCount() > 0) return;
     this.clock += dt;
     // 连击倒计时细条
     if (this.comboRow.active) {
