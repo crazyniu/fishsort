@@ -28,6 +28,8 @@ static func apply(s: GameState, action: Dictionary) -> Array[Dictionary]:
 			return use_blow(s)
 		"shuffle":
 			return use_shuffle(s, action["seed"])
+		"current":
+			return use_current(s)
 		"revive":
 			return revive(s)
 	return []
@@ -179,6 +181,52 @@ static func use_net(s: GameState, slot: int) -> Array[Dictionary]:
 	_settle(s, ev)
 	_finish(s, ev)
 	return ev
+
+
+## 洋流：场上所有能直接进缸的鱼依次自动入缸。每放进一条就重新判断一次，
+## 所以满缸换新缸后，新缸要的鱼也会继续进。发出的就是普通的 fish_to_bowl 等事件，
+## 表现层和连击计数不用改。
+static func use_current(s: GameState) -> Array[Dictionary]:
+	var ev: Array[Dictionary] = []
+	while s.status == GameState.Status.PLAYING:
+		var pick: Vector2i = _current_target(s)
+		if pick.x == -2:
+			break
+		ev.append_array(tap(s, pick.x, pick.y))
+	return ev
+
+
+## 找下一条能直接进缸的鱼 (气泡, 序号)；没有返回 (-2, -2)。
+## 结伴鱼只有两条都有地方去时才放行，避免洋流把鱼送进暂存槽
+static func _current_target(s: GameState) -> Vector2i:
+	for k: int in s.return_fish.size():
+		if find_slot(s, s.return_fish[k]) >= 0:
+			return Vector2i(GameState.RETURN_BUBBLE, k)
+	for b: int in open_bubbles(s):
+		var bub: GameState.Bubble = s.bubbles[b]
+		for k: int in bub.fish.size():
+			var sp: int = bub.fish[k]
+			if sp < 0 or find_slot(s, sp) < 0:
+				continue
+			var partner: int = bub.partner_of(k)
+			if partner >= 0 and bub.fish[partner] >= 0 and not _pair_fits(s, bub, k, partner):
+				continue
+			return Vector2i(b, k)
+	return Vector2i(-2, -2)
+
+
+static func _pair_fits(s: GameState, bub: GameState.Bubble, k: int, partner: int) -> bool:
+	var a: int = bub.fish[k]
+	var b: int = bub.fish[partner]
+	var slot_a: int = find_slot(s, a)
+	var slot_b: int = find_slot(s, b)
+	if slot_b < 0:
+		# 第一条入缸若恰好满缸，下一张订单可能是第二条要的，这里保守地不放行
+		return false
+	if slot_a == slot_b:
+		var bowl: GameState.Bowl = s.slots[slot_a]
+		return bowl.cap - bowl.count >= 2
+	return true
 
 
 ## 吹泡：暂存槽的鱼全部回到回流位
