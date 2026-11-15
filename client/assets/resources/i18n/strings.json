@@ -297,7 +297,10 @@
   "PRIZE_HOURS": "%d 小时",
   "LV_CURRENT": "当前",
   "LV_LOCKED": "先通过前面的关卡",
-  "LV_REPLAY_LEFT": "今日重玩奖励 %d/%d"
+  "LV_REPLAY_LEFT": "今日重玩奖励 %d/%d",
+  "SHOP_AD_LEFT": "今日 %d/%d",
+  "SHOP_AD_DONE": "今天的免费金币领完了",
+  "UI_FULL": "已满"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -597,6 +600,9 @@
   "PRIZE_HOURS": "%dh",
   "LV_CURRENT": "Now",
   "LV_LOCKED": "Clear the earlier levels first",
-  "LV_REPLAY_LEFT": "Replay rewards today %d/%d"
+  "LV_REPLAY_LEFT": "Replay rewards today %d/%d",
+  "SHOP_AD_LEFT": "Today %d/%d",
+  "SHOP_AD_DONE": "No more free coins today",
+  "UI_FULL": "Full"
  }
 }

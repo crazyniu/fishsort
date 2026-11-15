@@ -6,6 +6,7 @@ import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { LevelsPage } from './pages/levels';
+import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx } from './services/audio';
@@ -54,7 +55,7 @@ export class Boot extends Component {
     ui.register('game', () => new GamePage());
     ui.register('result', () => new ResultPage());
     ui.register('lock', () => new LockPage());
-    ui.register('shop', () => new TodoPage('shop', 'wheel'));
+    ui.register('shop', () => new ShopPage());
     ui.register('base', () => new TodoPage('base', 'homeBase'));
     ui.register('collect', () => new TodoPage('collect', 'album'));
     ui.register('rank', () => new TodoPage('rank', 'rank'));

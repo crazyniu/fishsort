@@ -448,11 +448,12 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   onTap(p.root, () => ready && p.close(), { press: 0, sound: null });
 }
 
-export function coinsFly(from: [number, number], label?: Label): void {
+/** 金币从 from 飞向 to（默认顶栏金币，ui.fx 坐标） */
+export function coinsFly(from: [number, number], label?: Label, to: [number, number] = [-60, Screen.top - 64]): void {
   for (let i = 0; i < 8; i++) {
     const c = img(ui.fx, 'icon/coin', 48, 48, 'coin');
     at(c, from[0] + (Math.random() - 0.5) * 60, from[1] + (Math.random() - 0.5) * 60);
-    fx.flyArc(c, -60, Screen.top - 64, 0.5 + i * 0.04, 80, 'quadIn', () => {
+    fx.flyArc(c, to[0], to[1], 0.5 + i * 0.04, 80, 'quadIn', () => {
       c.destroy();
       if (i === 0) sfx('coin');
     });
