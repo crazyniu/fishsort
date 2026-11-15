@@ -48,7 +48,7 @@ func _build_deco() -> void:
 func _build_entries() -> void:
 	# 主页两侧只留签到和抽奖；选关在底栏，技能在商店
 	var left: Array = [["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin]]
-	var right: Array = [["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel]]
+	var right: Array = [["wheel", "res://assets/ui/chest_closed.png", "H_FEAT_WHEEL", _open_wheel]]
 	for i: int in left.size():
 		_entry(left[i], Vector2(30, 190 + i * 170))
 	for i: int in right.size():
