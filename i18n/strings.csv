@@ -200,14 +200,13 @@ H_PRIZE_SPIN,抽奖次数,Spin
 H_MIN,%d 分钟,%d min
 H_ENTRY_LEVELS,选关,Levels
 H_TODAY_COUNT,今日 %d/%d,Today %d/%d
-H_SPINS_LEFT,剩余抽奖 %d 次,Spins left: %d
-H_SPIN,抽奖,Spin
-H_SPIN_ONE,抽一次,Spin once
+H_SPINS_LEFT,剩余开箱 %d 次,Chests left: %d
+H_SPIN,开箱,Open
+H_SPIN_ONE,开一个,Open one
 H_SHARE_PLUS,分享 +1,Share +1
 H_AD_PLUS,看广告 +1,Ad +1
-H_TEN_PULL,十连,Ten pulls
+H_TEN_PULL,十连开箱,Open ten
 H_BACK,返回,Back
-H_BACK_ARROW,‹ 返回,‹ Back
 H_REPLAY_HINT,重玩奖励 今日 %d/%d,Replay rewards %d/%d
 H_YOU_ARE_HERE,当前,Now
 UI_STAT_CLEAR,过关,Clear
