@@ -60,8 +60,7 @@ func start_level(id: int) -> void:
 	# 关卡数有限，超出后循环使用
 	_lv = Config.load_level((id - 1) % LEVEL_COUNT + 1, ease)
 	_s = GameState.from_level(_lv)
-	if id <= int(Config.eco["freeBowlSlotUntil"]):
-		_s.open_slots = 3
+	_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
 	Rules.start(_s)
 	_species = GameSpecies.pick(_lv.level_seed, _lv.palette)
 	_tool_uses = {}
@@ -283,8 +282,17 @@ func _unlock_slot() -> void:
 	_play(Rules.unlock_bowl(_s))
 
 
+## 点了还没解锁的技能：按钮晃一下加错误音，不弹提示。返回是否拦下了这次点击
+func _tap_locked(tool: String) -> bool:
+	if not _hud.tool_locked(tool):
+		return false
+	Audio.sfx(&"error")
+	_hud.shake_tool(tool)
+	return true
+
+
 func _on_tool(tool: String) -> void:
-	if _over:
+	if _over or _tap_locked(tool):
 		return
 	if _net_mode:
 		_net_mode = false
@@ -327,8 +335,6 @@ func _on_tool(tool: String) -> void:
 
 ## 这个技能现在不能用的原因（给玩家看的一句话）；能用返回空串
 func _tool_blocked(tool: String, seed_value: int) -> String:
-	if _hud.tool_locked(tool):
-		return tr("UI_SKILL_LOCKED") % Skills.unlock_level(Config.eco, tool)
 	if int(_tool_uses[tool]) >= int(Config.eco["toolMaxPerLevel"]):
 		return tr("UI_TOOL_LIMIT")
 	var idle: Dictionary = {

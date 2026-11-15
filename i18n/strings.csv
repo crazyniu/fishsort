@@ -12,8 +12,6 @@ UI_LOSE_BUFFER,暂存槽满了,The tray is full
 UI_LOSE_TIMEOUT,限时缸超时了,Time ran out
 UI_LOSE_STUCK,没有可以点的鱼了,No fish left to tap
 UI_COINS_GAIN,金币 +%d,Coins +%d
-UI_STARS_GAIN,星星 +%d,Stars +%d
-UI_TICKETS_GAIN,鱼票 +%d,Tickets +%d
 UI_CARD_NEW,新图鉴卡：%s,New card: %s
 UI_CARD_DUPE,重复卡 %s，换成金币 +%d,Duplicate %s: coins +%d
 UI_DOUBLE_COINS,看广告 双倍金币,Watch ad: double coins
@@ -43,17 +41,12 @@ UI_CLAIM_DOUBLE,看广告 双倍领取,Watch ad: claim double
 UI_CLAIMED,今天已领取,Claimed today
 UI_AD_TEST,广告测试,Ad test
 UI_TAB_SHOP,商店,Shop
-UI_TAB_SCENE,家园,Home
 UI_TAB_MAIN,主页,Play
 UI_TAB_RANK,排行,Rank
 UI_TAB_COLLECTION,图鉴,Album
 UI_FREE_COINS,免费金币 +%d,Free coins +%d
 UI_WATCH_AD_LEFT,看广告（今日剩 %d 次）,Watch ad (%d left today)
 UI_OWNED,已有 %d,Owned %d
-UI_BUILD,建造 ★%d,Build ★%d
-UI_BUILD_DONE,海湾已全部建好，更多场景敬请期待,All scenes are built. More coming soon
-UI_NEED_STARS,星星不够，过关可得星星,Not enough stars. Clear levels to earn more
-UI_SCENE_CHEST,场景建成！获得宝箱,Scene complete! You got a chest
 UI_RANK_TITLE,本周过关榜,Weekly ranking
 UI_RANK_RESET,%d 天后重置,Resets in %d days
 UI_RANK_LEVELS,%d 关,%d
@@ -62,18 +55,8 @@ UI_RARITY_UNCOMMON,精良,Uncommon
 UI_RARITY_RARE,稀有,Rare
 UI_RARITY_EPIC,史诗,Epic
 UI_RARITY_LEGEND,传说,Legend
-UI_PACK,珍稀卡包（%d 鱼票）,Rare pack (%d tickets)
-UI_NEED_TICKETS,鱼票不够,Not enough tickets
-UI_PACK_RATES,珍稀卡包概率：精良 60% 稀有 28% 史诗 10% 传说 2% · 过关卡：普通 80% 精良 17% 稀有 3%,Rare pack: Uncommon 60% Rare 28% Epic 10% Legend 2% · Level card: Common 80% Uncommon 17% Rare 3%
 UI_UNKNOWN,？？？,???
-SCENE_CORAL_TOWN,珊瑚小镇,Coral Town
-SCENE_WRECK_MARKET,沉船集市,Wreck Market
-SCENE_KELP_FOREST,海藻森林,Kelp Forest
-SCENE_PEARL_LIGHTHOUSE,珍珠灯塔,Pearl Lighthouse
-UI_NEED_STARS_TITLE,星星不够,Not enough stars
-UI_NEED_STARS_MORE,还差 %d 颗星星，每过一关得 1 颗,You need %d more stars. Each level gives 1
 UI_GO_PLAY,去闯关,Play a level
-UI_STARS_HAVE,我的星星 %d,My stars: %d
 UI_COMBO_WORD,连击,COMBO
 UI_COMBO_T1,不错！,Good!
 UI_COMBO_T2,漂亮！,Nice!
@@ -82,10 +65,7 @@ UI_COMBO_T4,无敌！,Unstoppable!
 UI_FINISH_TITLE,过关！,Cleared!
 UI_FINISH_POPUP,游戏结束,Level complete
 UI_COLLECTED,已收集 %d/%d,Collected %d/%d
-UI_PACK_NAME,珍稀卡包,Rare pack
 UI_RATES_TITLE,概率公示,Drop rates
-UI_RATES_PACK_1,珍稀卡包,Rare pack
-UI_RATES_PACK_2,精良 60% · 稀有 28% · 史诗 10% · 传说 2%,Uncommon 60% · Rare 28% · Epic 10% · Legend 2%
 UI_RATES_LEVEL_1,过关卡,Level card
 UI_RATES_LEVEL_2,每次过关随机得 1 张普通图鉴，每 3 关至少 1 张新的,Each clear gives 1 random common card; a new one at least every 3 clears
 UI_RATES_PITY,连续没出新卡时会保底一张新卡,A new card is guaranteed after a dry streak
@@ -97,7 +77,6 @@ UI_COMBO_COINS,连击金币 +%d,Combo coins +%d
 UI_BEST_COMBO,最高连击 %d，奖励金币 +%d,Best combo %d: coins +%d
 UI_COMBO_CARD,连击送图鉴！,Combo card!
 UI_LEVEL_COINS,过关金币 +%d,Clear coins +%d
-UI_DOUBLE_TICKETS,首胜鱼票翻倍,Double first-win tickets
 TIP_LAYER,被压住的气泡要先点开上面的,Pop the bubbles on top first
 TIP_CHAIN,锁链泡：每装满一缸，数字减 1,Chained: each full tank lowers the number
 TIP_TIMER,限时缸：倒计时归零前装满它,Timed tank: fill it before time runs out
@@ -108,7 +87,6 @@ TIP_PAIR,结伴鱼：点一条，两条一起走,Buddies: tap one and both go
 UI_PRAISE_1,不错！,Good!
 UI_PRAISE_2,真棒！,Great!
 UI_PRAISE_3,太强了！,Awesome!
-UI_SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
 UI_COMBO_GOLD,金币 +%d,Coins +%d
 UI_TOOL_CURRENT,洋流,Current
 UI_SKILL_FREE,免费,Free
@@ -124,7 +102,6 @@ UI_GIVEUP_COST,放弃会失去 1 条生命,Giving up costs 1 life
 UI_NO_LIVES,生命用完了,Out of lives
 UI_NO_LIVES_WAIT,%d 分钟后恢复 1 条,Next life in %d min
 UI_BUY_LIFE,%d 金币买 1 条,Buy 1 for %d coins
-UI_CHEST_AGAIN,看广告 再开一个,Watch ad: one more
 UI_SHARE_SHOW,分享炫耀,Share
 UI_SKILL_GAIN,%s +1,%s +1
 UI_WIN_BASE,过关 %d,Clear %d

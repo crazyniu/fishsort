@@ -253,6 +253,11 @@ func tool_locked(tool: String) -> bool:
 	return not Skills.is_unlocked(Config.eco, tool, int(Save.data["level"]))
 
 
+## 点了锁住的技能键：按钮自己晃一下，不弹提示
+func shake_tool(tool: String) -> void:
+	Anim.shake(_tool_btns[tool], 6.0)
+
+
 func tool_name(tool: String) -> String:
 	return _stage.tr(TOOL_NAMES[tool])
 
