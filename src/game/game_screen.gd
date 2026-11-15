@@ -650,6 +650,8 @@ func _enter(id: int) -> bool:
 
 ## 过关演出，播完再弹结算
 func _celebrate() -> void:
+	# 技能教学没走完就过关了（例如只剩一种鱼时自动收尾）：提示一起收掉
+	_hud.end_tutorial()
 	Anim.shake(_stage, 16.0)
 	_shelf.nudge_all(true)
 	_hud.set_rescued(_total_fish, false)

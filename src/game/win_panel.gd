@@ -180,9 +180,8 @@ func _rewards(animate: bool, coins_from: int) -> void:
 		items.append(["res://assets/ui/coin.png", "+%d" % total])
 	for chest: Dictionary in [_chest]:
 		if not chest.is_empty() and chest["kind"] == "skill":
-			items.append(
-				["res://assets/ui/tool_%s.png" % chest["skill"], "+%d" % int(chest["count"])]
-			)
+			# 宝箱一次只给 1 个技能（LevelChest 的结果里没有数量字段）
+			items.append(["res://assets/ui/tool_%s.png" % chest["skill"], "+1"])
 	# 家园星星：首次过关 1 颗，挑战关 2 颗
 	if int(_result.get("stars", 0)) > 0:
 		items.append(["res://assets/ui/star.png", "+%d" % int(_result["stars"])])
