@@ -70,3 +70,13 @@ SCENE_CORAL_TOWN,珊瑚小镇,Coral Town
 SCENE_WRECK_MARKET,沉船集市,Wreck Market
 SCENE_KELP_FOREST,海藻森林,Kelp Forest
 SCENE_PEARL_LIGHTHOUSE,珍珠灯塔,Pearl Lighthouse
+UI_NEED_STARS_TITLE,星星不够,Not enough stars
+UI_NEED_STARS_MORE,还差 %d 颗星星，每过一关得 1 颗,You need %d more stars. Each level gives 1
+UI_GO_PLAY,去闯关,Play a level
+UI_STARS_HAVE,我的星星 %d,My stars: %d
+UI_COMBO,连击 ×%d,Combo ×%d
+UI_COMBO_NICE,漂亮！,Nice!
+UI_COMBO_GREAT,太强了！,Great!
+UI_COMBO_SUPER,无敌！,Unstoppable!
+UI_FINISH_TITLE,过关！,Cleared!
+UI_FINISH_POPUP,游戏结束,Level complete

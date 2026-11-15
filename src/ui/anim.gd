@@ -71,6 +71,68 @@ static func wiggle(node: Control, degrees: float, period: float, phase: float = 
 	)
 
 
+## 在原位附近缓慢游动一小圈，循环（气泡里的鱼）
+static func drift(node: Control, amp: float, period: float, phase: float = 0.0) -> void:
+	var home: Vector2 = node.position
+	var tw: Tween = node.create_tween().set_loops()
+	tw.tween_method(
+		func(t: float) -> void:
+			var a: float = (t + phase) * TAU
+			node.position = home + Vector2(cos(a), sin(a * 2.0) * 0.5) * amp,
+		0.0,
+		1.0,
+		period
+	)
+
+
+## 被撞了一下的挤压回弹：先压扁再拉长再复原
+static func squash(node: Control, amount: float = 0.14) -> void:
+	var tw: Tween = node.create_tween()
+	tw.tween_property(node, "scale", Vector2(1.0 + amount, 1.0 - amount), 0.07)
+	tw.tween_property(node, "scale", Vector2(1.0 - amount * 0.5, 1.0 + amount * 0.6), 0.09)
+	tw.tween_property(node, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
+
+
+## 抛物线飞溅的小颗粒，飞完自己消失
+static func burst(
+	parent: Control,
+	center: Vector2,
+	count: int,
+	path: String,
+	speed: float,
+	gravity: float,
+	side: Vector2,
+	life: float,
+	z: int = 44,
+	upward: bool = false
+) -> void:
+	for i: int in count:
+		var bit := UiKit.icon(path, randf_range(side.x, side.y))
+		bit.z_index = z
+		bit.position = center - bit.size / 2.0
+		parent.add_child(bit)
+		var angle: float = (
+			randf_range(-PI * 0.85, -PI * 0.15) if upward else TAU * i / count + randf() * 0.5
+		)
+		var v: Vector2 = Vector2.from_angle(angle) * speed * randf_range(0.6, 1.2)
+		var start: Vector2 = bit.position
+		var tw: Tween = bit.create_tween().set_parallel()
+		tw.tween_method(
+			func(t: float) -> void:
+				bit.position = start + v * t + Vector2(0, gravity) * t * t * 0.5,
+			0.0,
+			life,
+			life
+		)
+		tw.tween_property(bit, "modulate:a", 0.0, life).set_ease(Tween.EASE_IN).set_trans(
+			Tween.TRANS_QUAD
+		)
+		tw.tween_property(bit, "scale", Vector2(0.4, 0.4), life)
+		tw.chain().tween_callback(bit.queue_free)
+
+
 ## 呼吸式缩放，循环（引导玩家去点）
 static func pulse(node: Control, amount: float = 1.06, period: float = 1.1) -> void:
 	var tw: Tween = node.create_tween().set_loops()

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dvunhuubsvi4a"
-path="res://.godot/imported/slot.png-dd6f921b030f8a7680aa185d0c921f5e.ctex"
+uid="uid://c4eubwjg3y3sq"
+path="res://.godot/imported/fade.png-98e2a08e0fe958569040492f880c1fb5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/slot.png"
-dest_files=["res://.godot/imported/slot.png-dd6f921b030f8a7680aa185d0c921f5e.ctex"]
+source_file="res://assets/kit/fade.png"
+dest_files=["res://.godot/imported/fade.png-98e2a08e0fe958569040492f880c1fb5.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d3j26lf1hspdo"
-path="res://.godot/imported/dot_green.png-cf04a0b6d0e174ecbd535e10ed2a2c9e.ctex"
+uid="uid://cnhnwwfa18q3t"
+path="res://.godot/imported/glass.png-8ca691320265bc738841c49f56bf81df.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/kit/dot_green.png"
-dest_files=["res://.godot/imported/dot_green.png-cf04a0b6d0e174ecbd535e10ed2a2c9e.ctex"]
+source_file="res://assets/kit/glass.png"
+dest_files=["res://.godot/imported/glass.png-8ca691320265bc738841c49f56bf81df.ctex"]
 
 [params]
 

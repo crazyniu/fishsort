@@ -1,18 +1,15 @@
 class_name KitButton
 extends Button
-## 贴图按钮：立体果冻面 + 文字。按下时变暗并下沉，禁用时变灰。
+## 贴图按钮：按下时变暗并下沉，禁用时变灰。
 
-var face: Slice3
+var face: Patch
 
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_NONE
 	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
-		var empty := StyleBoxEmpty.new()
-		# 贴图底边较厚，文字稍微上移才居中
-		empty.content_margin_bottom = 10
-		add_theme_stylebox_override(state, empty)
-	face = Slice3.new()
+		add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	face = Patch.new()
 	face.show_behind_parent = true
 	add_child(face)
 	resized.connect(_fit)
@@ -30,15 +27,15 @@ func _fit() -> void:
 
 
 func _set_pressed_look(down: bool) -> void:
-	face.position.y = 4.0 if down else 0.0
+	face.position.y = 3.0 if down else 0.0
 	_tint(down)
 
 
 func _tint(down: bool = false) -> void:
 	if disabled:
-		face.modulate = Color(0.62, 0.66, 0.7)
+		face.modulate = Color(0.66, 0.7, 0.74, 0.9)
 	else:
-		face.modulate = Color(0.82, 0.84, 0.9) if down else Color.WHITE
+		face.modulate = Color(0.86, 0.88, 0.93) if down else Color.WHITE
 
 
 func _draw() -> void:
