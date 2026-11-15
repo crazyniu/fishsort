@@ -15,6 +15,9 @@ import {
   view,
   Widget,
 } from 'cc';
+import * as Meta from './core/meta/meta';
+import * as Seas from './core/meta/seas';
+import { App } from './services/app';
 
 const { ccclass } = _decorator;
 
@@ -28,10 +31,33 @@ const DESIGN_HEIGHT = 1334;
  */
 @ccclass('Boot')
 export class Boot extends Component {
-  protected onLoad(): void {
+  protected override onLoad(): void {
     view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_WIDTH);
     const canvas = this.createCanvas();
-    this.drawPlaceholder(canvas);
+    const info = this.drawPlaceholder(canvas);
+    App.start()
+      .then(() => this.showLoaded(info))
+      .catch((e: unknown) => {
+        info.string = `启动失败：${String(e)}`;
+        console.error(e);
+      });
+  }
+
+  /** 第 2 步的自检：配置、关卡、存档都读得到。占位画面，第 5 步换成主页 */
+  private async showLoaded(info: Label): Promise<void> {
+    const { config, save, flags } = App;
+    const lv = save.data.level;
+    const file = Meta.levelFile(lv, config.levelCount);
+    const level = await config.loadLevel(file, 0);
+    const sea = config.eco.seas?.[Seas.forLevel(config.eco, file)]?.id ?? '?';
+    info.string = [
+      'fishsort · Cocos Creator 3.8.8',
+      `配置 OK：生物 ${config.species.length} 种，${config.eco.album.books.length} 册，家园 ${config.eco.homeBase.areas.length} 区`,
+      `存档 v${save.data.version}：第 ${lv} 关，金币 ${save.data.coins}`,
+      `关卡文件 ${file}：${level.bubbles.length} 个气泡，${level.orders.length} 个缸，海域 ${sea}`,
+      `试玩模式 ${flags.boost ? '开' : '关'}${flags.autoplay ? '，机器人代打' : ''}`,
+    ].join('\n');
+    save.write();
   }
 
   private createCanvas(): Node {
@@ -60,7 +86,7 @@ export class Boot extends Component {
     return canvasNode;
   }
 
-  private drawPlaceholder(canvas: Node): void {
+  private drawPlaceholder(canvas: Node): Label {
     const bubble = new Node('Bubble');
     bubble.layer = Layers.Enum.UI_2D;
     canvas.addChild(bubble);
@@ -81,15 +107,17 @@ export class Boot extends Component {
       )
       .start();
 
-    // 占位用的工程信息，不是玩家文案；第 7 步接 i18n 时随占位画面一起删掉
+    // 占位用的自检信息，不是玩家文案；第 5 步做主页时随占位画面一起删掉
     const info = new Node('Info');
     info.layer = Layers.Enum.UI_2D;
     canvas.addChild(info);
     info.addComponent(UITransform);
     const label = info.addComponent(Label);
-    label.string = 'fishsort · Cocos Creator 3.8.8';
-    label.fontSize = 40;
+    label.string = 'fishsort · Cocos Creator 3.8.8\n读取配置…';
+    label.fontSize = 28;
+    label.lineHeight = 44;
     label.color = Color.WHITE;
-    info.setPosition(0, -120, 0);
+    info.setPosition(0, -200, 0);
+    return label;
   }
 }

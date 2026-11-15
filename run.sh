@@ -51,7 +51,9 @@ usage() {
   golden <目录>         导出黄金数据给 Cocos 版做对比（Godot 版核心逻辑在固定输入下的输出）
 
 Cocos 版（client/，迁移中，见 docs/09）：
-  web                   构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
+  web [real]            构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
+                        默认试玩模式（金币、技能加满）；real = 按真实存档；
+                        FISHSORT_LEVEL=65 跳到第 65 关，FISHSORT_AUTOPLAY=1 机器人代打
   web-build             只构建 web-mobile → client/build/web-mobile
   web-serve             不重新构建，直接起服务打开上次的构建
   wechat-build          构建微信小游戏包 → client/build/wechatgame
@@ -88,8 +90,18 @@ cocos_build() {
   fi
 }
 
+# 调试开关走网页地址参数（client/assets/scripts/services/launch.ts）
+web_url() {
+  local q=""
+  [ "${1:-}" = "real" ] && q="${q}&real=1"
+  [ -n "${FISHSORT_LEVEL:-}" ] && q="${q}&level=${FISHSORT_LEVEL}"
+  [ "${FISHSORT_AUTOPLAY:-}" = "1" ] && q="${q}&autoplay=1"
+  echo "http://localhost:${WEB_PORT}/${q:+?${q#&}}"
+}
+
 web_serve() {
-  local dir="$CLIENT/build/web-mobile" url="http://localhost:$WEB_PORT/"
+  local dir="$CLIENT/build/web-mobile" url
+  url="$(web_url "${1:-}")"
   need_file "$dir/index.html" "先跑 ./run.sh web-build"
   echo "→ ${url}（Ctrl+C 停止）"
   # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏
@@ -175,10 +187,10 @@ case "$cmd" in
     ;;
   web)
     cocos_build web-mobile
-    web_serve
+    web_serve "$@"
     ;;
   web-build)    cocos_build web-mobile ;;
-  web-serve)    web_serve ;;
+  web-serve)    web_serve "$@" ;;
   wechat-build) cocos_build wechatgame ;;
   cocos-editor)
     need_cocos
@@ -194,7 +206,10 @@ case "$cmd" in
   ts-check)
     need_node_modules
     node tools/cocos/meta.mjs --check
-    (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json && npx tsx --test tests/*.test.ts)
+    (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json)
+    # 用到 cc 的脚本要 Cocos 的类型声明（client/.cc-types，从 Mac 的 Cocos 取，不进仓库）；没有就跳过
+    if [ -f client/.cc-types/cc.d.ts ]; then (cd client && npx tsc -p tsconfig.client.json); else echo "（没有 client/.cc-types，跳过界面层类型检查）"; fi
+    (cd client && npx tsx --test tests/*.test.ts)
     ;;
   ts-level-verify)
     need_node_modules

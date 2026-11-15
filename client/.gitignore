@@ -6,3 +6,4 @@ build/
 profiles/
 native/
 node_modules/
+.cc-types/
