@@ -122,18 +122,21 @@ roundBtn('round_red', BTN.red);
     ${rr(26, 30, w - 52, h - 63, 34, `fill="none" stroke="#1756C4" stroke-width="3"`)}`;
   part('panel', w, h, body, [80, 80, 80, 80]);
 }
-// 弹窗标题凸台：和框同色的圆顶台子，压在框上沿正中（16、18）
+// 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
 {
-  const w = 200;
+  const w = 240;
   const h = 110;
-  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2370E4']]);
+  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2B7CEB']]);
   const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
+  const shape = (o) =>
+    `M0 ${h} Q22 ${h} 24 ${h - 22} V${50 + o} Q24 ${6 + o} 66 ${6 + o} H${w - 66} Q${w - 24} ${6 + o} ${w - 24} ${50 + o} V${h - 22} Q${w - 22} ${h} ${w} ${h} Z`;
   const body = `<defs>${df}${ds}</defs>
-    <path d="M3 ${h} V52 Q3 8 50 8 H${w - 50} Q${w - 3} 8 ${w - 3} 52 V${h} Z" fill="#0A2B7A"/>
-    <path d="M3 ${h} V48 Q3 4 50 4 H${w - 50} Q${w - 3} 4 ${w - 3} 48 V${h} Z" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"/>
-    <path d="M10 ${h} V50 Q10 11 52 11 H${w - 52} Q${w - 10} 11 ${w - 10} 50 V${h}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
-    ${rr(34, 14, w - 68, 16, 8, `fill="url(#${gs})"`)}`;
-  part('popup_head', w, h, body, [0, 0, 56, 56]);
+    <path d="${shape(4)}" fill="#0A2B7A"/>
+    <path d="${shape(0)}" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M31 ${h - 20} V52 Q31 13 68 13 H${w - 68} Q${w - 31} 13 ${w - 31} 52 V${h - 20}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
+    ${rr(54, 14, w - 108, 16, 8, `fill="url(#${gs})"`)}
+    <rect x="0" y="${h - 3}" width="${w}" height="3" fill="#2B7CEB"/>`;
+  part('popup_head', w, h, body, [0, 0, 76, 76]);
 }
 // 页面里的玻璃卡片（04 商店、06 收藏、13 结算奖励条）：半透明浅蓝 + 亮青描边
 {

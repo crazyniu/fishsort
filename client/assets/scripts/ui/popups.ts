@@ -313,18 +313,18 @@ export function livesPopup(onChange?: () => void): void {
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const h = mode === 'pause' ? 720 : 680 + (App.platform.hasCapability('ad_test') ? 110 : 0);
+  const h = mode === 'pause' ? 640 : 560 + (App.platform.hasCapability('ad_test') ? 110 : 0);
   const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), mascot: 'c02', onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
     ['kit/ic_music', 'H_MUSIC', 'music'],
     ['kit/ic_sound', 'H_SOUND', 'sound'],
     ['kit/ic_vibrate', 'H_VIBRATION', 'vibrate'],
   ];
-  let y = h / 2 - 150;
+  let y = h / 2 - 100;
   for (const [icon, key, field] of rows) {
     const row = slice(p.body, 'kit/row', 540, 100, 'row');
     at(row, 0, y);
-    const ic = img(row, icon, 56, 56, 'icon');
+    const ic = img(row, icon, 64, 64, 'icon');
     at(ic, -220, 0);
     const l = text(row, tr(key), 38, { align: 'left' });
     at(l.node, -170, 0);
@@ -341,7 +341,7 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
   if (mode === 'home') {
     const row = slice(p.body, 'kit/row', 540, 100, 'lang');
     at(row, 0, y);
-    const ic = img(row, 'kit/ic_globe', 56, 56, 'icon');
+    const ic = img(row, 'kit/ic_globe', 64, 64, 'icon');
     at(ic, -220, 0);
     const l = text(row, tr('H_LANGUAGE'), 38, { align: 'left' });
     at(l.node, -170, 0);

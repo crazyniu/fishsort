@@ -79,7 +79,7 @@ export function openPopup(o: PopupOpts): Popup {
   }
   if (o.title !== undefined) {
     // 标题凸台压在框上沿正中，大白字
-    const head = slice(body, 'kit/popup_head', Math.max(300, o.title.length * 66 + 120), 110, 'title');
+    const head = slice(body, 'kit/popup_head', Math.max(340, o.title.length * 66 + 170), 110, 'title');
     head.setPosition(0, o.h / 2 + 33, 0);
     text(head, o.title, 62).node.setPosition(0, 2, 0);
   }

@@ -68,11 +68,11 @@ export class HomePage extends Page {
     this.entry(root, 'daily', 'icon/entry_daily', Screen.W / 2 - 112, low, () => ui.go('daily'));
     // 关卡号 + 开始
     const btnY = Screen.bottom + TABBAR_H + 150;
-    this.levelPill = slice(root, 'kit/title_plate', 280, 72, 'levelPill');
+    this.levelPill = slice(root, 'kit/title_plate', 250, 66, 'levelPill');
     at(this.levelPill, 0, btnY + 112);
     this.levelLabel = text(this.levelPill, '', 38);
     at(this.levelLabel.node, 0, 4);
-    this.start = button(root, { color: 'green', w: 560, h: 150, label: tr('UI_PLAY'), fontSize: 80, onTap: () => Flow.startLevel(App.save.data.level) });
+    this.start = button(root, { color: 'green', w: 560, h: 164, label: tr('UI_PLAY'), fontSize: 100, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
     this.tag = slice(this.start.node, 'kit/btn_purple', 120, 56, 'tag');
     at(this.tag, 220, 64);
@@ -81,13 +81,13 @@ export class HomePage extends Page {
   }
 
   private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void): void {
-    const n = box(feature, root, 190, 200);
+    const n = box(feature, root, 200, 220);
     at(n, x, y);
-    const ic = img(n, icon, 150, 150, 'icon');
-    at(ic, 0, 30);
-    const pill = slice(n, 'kit/title_page', 170, 64, 'pill');
-    at(pill, 0, -62);
-    const label = text(pill, tr(FEATURE_LABEL[feature]), 32);
+    const ic = img(n, icon, 176, 176, 'icon');
+    at(ic, 0, 34);
+    const pill = slice(n, 'kit/title_page', 184, 70, 'pill');
+    at(pill, 0, -66);
+    const label = text(pill, tr(FEATURE_LABEL[feature]), 36);
     at(label.node, 0, 4);
     const lock = img(n, 'kit/ic_lock', 56, 56, 'lock');
     at(lock, 50, 0);
