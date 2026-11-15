@@ -3,10 +3,18 @@ import { JsonAsset, resources } from 'cc';
 import type { AdsConfig, CurveConfig, EconomyConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
 
+function describe(v: unknown): string {
+  if (typeof v !== 'object' || v === null) return String(v);
+  const o = v as Record<string, unknown>;
+  return `${v.constructor?.name} keys=${Object.keys(o).join(',')} json=${typeof o.json}`;
+}
+
 function loadJson<T>(path: string): Promise<T> {
   return new Promise((resolve, reject) => {
     resources.load(path, JsonAsset, (err: Error | null, asset: JsonAsset) => {
-      if (err !== null || asset.json === null) reject(err ?? new Error(`配置表是空的: ${path}`));
+      if (err !== null) reject(err);
+      else if (asset === null || asset === undefined || asset.json === null || asset.json === undefined)
+        reject(new Error(`配置表读不出来: ${path}（${describe(asset)}）`));
       else resolve(asset.json as T);
     });
   });
