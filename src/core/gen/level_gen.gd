@@ -2,7 +2,8 @@ class_name LevelGen
 extends RefCounted
 ## 关卡生成器，见 docs/02-关卡设计.md 第 4 节。
 
-const FIELD_H := 1.25
+## 气泡场高宽比，与局内界面的场地区域一致
+const FIELD_H := 1.1
 const MAX_PER_BUBBLE := 5
 const ATTEMPTS := 40
 

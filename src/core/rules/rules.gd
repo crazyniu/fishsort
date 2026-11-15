@@ -138,7 +138,15 @@ static func use_net(s: GameState, slot: int) -> Array[Dictionary]:
 		if s.return_fish[k] == bowl.species:
 			s.return_fish.remove_at(k)
 			bowl.count += 1
-			ev.append({"t": &"net_fish", "b": GameState.RETURN_BUBBLE, "k": k, "slot": slot})
+			ev.append(
+				{
+					"t": &"net_fish",
+					"b": GameState.RETURN_BUBBLE,
+					"k": k,
+					"slot": slot,
+					"species": bowl.species
+				}
+			)
 		else:
 			k += 1
 	# 先捞开放气泡里的，不够再捞被挡住的
@@ -156,7 +164,7 @@ static func use_net(s: GameState, slot: int) -> Array[Dictionary]:
 				bub.fish[f] = GameState.REMOVED
 				bowl.count += 1
 				taken = true
-				ev.append({"t": &"net_fish", "b": b, "k": f, "slot": slot})
+				ev.append({"t": &"net_fish", "b": b, "k": f, "slot": slot, "species": bowl.species})
 		if taken and bub.count() == 0:
 			_pop(s, b, ev)
 	_settle(s, ev)
