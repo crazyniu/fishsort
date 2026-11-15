@@ -1,11 +1,11 @@
 class_name HomeScreen
 extends Control
-## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 家园 · 主页 · 每日挑战 · 图鉴）。
+## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 家园 · 主页 · 图鉴 · 每日挑战）。
 ## 数据与动作全部走 HomeModel，真实逻辑接入时只换那一个文件。
 
-## 底栏五个页签：商店、家园、主页、每日挑战、图鉴（docs/01 §5.3）。
+## 底栏五个页签：商店、家园、主页、图鉴、每日挑战（docs/01 §5.3）。
 ## 抽奖和排行不占页签，是从主页入口进去的子页面；选关也从主页入口打开
-enum { TAB_SHOP, TAB_BASE, TAB_MAIN, TAB_DAILY, TAB_COLLECTION, TAB_WHEEL, TAB_RANK }
+enum { TAB_SHOP, TAB_BASE, TAB_MAIN, TAB_COLLECTION, TAB_DAILY, TAB_WHEEL, TAB_RANK }
 
 const W := 750.0
 const BAR_Y := 16.0
@@ -13,17 +13,17 @@ const BAR_H := 96.0
 const TOP_H := 124.0
 const TABS_H := 150.0
 const TAB_KEYS: Array[String] = [
-	"UI_TAB_SHOP", "UI_TAB_BASE", "UI_TAB_MAIN", "UI_TAB_DAILY", "UI_TAB_COLLECTION"
+	"UI_TAB_SHOP", "UI_TAB_BASE", "UI_TAB_MAIN", "UI_TAB_COLLECTION", "UI_TAB_DAILY"
 ]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
 	"res://assets/ui/tab_levels.png",
 	"res://assets/ui/tab_main.png",
-	"res://assets/ui/star.png",
 	"res://assets/ui/tab_collection.png",
+	"res://assets/ui/star.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["", "homeBase", "", "daily", "album", "wheel", "rank"]
+const TAB_FEATURES: Array[String] = ["", "homeBase", "", "album", "daily", "wheel", "rank"]
 ## 已经排了开放关、但页面还没做的功能：开放后先显示「即将开放」
 const COMING_SOON: Array[String] = ["homeBase", "daily"]
 
