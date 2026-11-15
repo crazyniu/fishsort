@@ -23,7 +23,7 @@ func build() -> void:
 	# 抽奖是主页的子页面，左上角糖果风返回键
 	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _on_back, 30)
 	# 整组内容在页面里垂直居中
-	var top: float = maxf(120.0, (size.y - 700.0) / 2.0 - 20.0)
+	var top: float = maxf(120.0, (size.y - 640.0) / 2.0)
 	_chest = Control.new()
 	_chest.size = Vector2(CHEST_SIDE, CHEST_SIDE)
 	_chest.pivot_offset = _chest.size / 2.0
