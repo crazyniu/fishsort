@@ -6,9 +6,12 @@ extends RefCounted
 const FIELD_H := 1.1
 const MAX_PER_BUBBLE := 5
 const ATTEMPTS := 40
+## 打乱后找参考解时贪心机器人最多试几局
+const SOLVE_TRIES := 60
 
 
-## p: { species, fish, layers, slack, chain, timer, fog, ice, big, pairs, challenge }
+## p: { species, fish, layers, slack, chain, timer, fog, ice, big, pairs, challenge,
+##       cap（掉落关场上容量，0 = 不掉落）, per_min, per_max（每泡鱼数）}
 static func generate(p: Dictionary, seed_value: int) -> LevelData:
 	var rng := Rng.new(seed_value)
 	for attempt: int in ATTEMPTS:
@@ -27,13 +30,17 @@ static func _attempt(p: Dictionary, rng: Rng, plain: bool) -> LevelData:
 	lv.palette = ns
 	lv.challenge = p.get("challenge", false)
 	lv.orders = _make_orders(rng, ns, total, p.get("big", 0))
-	lv.bubbles = _make_bubbles(rng, total, p["layers"])
+	lv.field_cap = int(p.get("cap", 0))
+	lv.bubbles = _make_bubbles(
+		rng, total, p["layers"], lv.field_cap, int(p.get("per_min", 1)), int(p.get("per_max", 5))
+	)
 	if not plain:
 		_add_chain(rng, lv, p.get("chain", 0))
 		_add_ice(rng, lv, p.get("ice", 0))
 	var fog: float = p.get("fog", 0.0)
 	for b: Dictionary in lv.bubbles:
-		b["fog"] = fog > 0.0 and b["layer"] < int(p["layers"]) - 1 and rng.randf() < fog
+		var covered: bool = lv.field_cap > 0 or b["layer"] < int(p["layers"]) - 1
+		b["fog"] = fog > 0.0 and covered and rng.randf() < fog
 
 	var s: GameState = GameState.from_level(lv)
 	Rules.start(s)
@@ -46,12 +53,41 @@ static func _attempt(p: Dictionary, rng: Rng, plain: bool) -> LevelData:
 		for k: int in fish.size():
 			fish[k] = assign[Constructor.key(b, k)]
 	lv.ref = res["taps"]
+	var scramble: int = int(p.get("scramble", 0))
+	if scramble > 0:
+		_scramble(rng, lv, scramble)
+		lv.ref = Bots.solve(lv, SOLVE_TRIES)
+		if lv.ref.is_empty():
+			return null
 
 	_add_pairs(rng, lv, p.get("pairs", 0))
 	_add_timers(rng, lv, p.get("timer", 0))
 	if not LevelCheck.replay(lv)["won"]:
 		return null
 	return lv
+
+
+## 随机交换 count 对不同种的鱼。按解构造出来的关卡对「只顾眼前」的打法太顺，
+## 打乱一部分才有需要规划的局面；打乱后的可解性由 Bots.solve 找到的通关步骤证明
+static func _scramble(rng: Rng, lv: LevelData, count: int) -> void:
+	var spots: Array = []
+	for b: int in lv.bubbles.size():
+		for k: int in (lv.bubbles[b]["fish"] as Array).size():
+			spots.append([b, k])
+	var done: int = 0
+	var guard: int = 0
+	while done < count and guard < count * 20:
+		guard += 1
+		var x: Array = rng.pick(spots)
+		var y: Array = rng.pick(spots)
+		var fx: Array = lv.bubbles[x[0]]["fish"]
+		var fy: Array = lv.bubbles[y[0]]["fish"]
+		if x[0] == y[0] or fx[x[1]] == fy[y[1]]:
+			continue
+		var t: int = fx[x[1]]
+		fx[x[1]] = fy[y[1]]
+		fy[y[1]] = t
+		done += 1
 
 
 static func _make_orders(rng: Rng, ns: int, total: int, big: int) -> Array[Dictionary]:
@@ -82,20 +118,23 @@ static func _make_orders(rng: Rng, ns: int, total: int, big: int) -> Array[Dicti
 	return out
 
 
-static func _make_bubbles(rng: Rng, total: int, layers: int) -> Array[Dictionary]:
-	var nb: int = clampi(roundi(total / 3.0), ceili(total / float(MAX_PER_BUBBLE)), total)
+static func _make_bubbles(
+	rng: Rng, total: int, layers: int, field_cap: int, per_min: int, per_max: int
+) -> Array[Dictionary]:
+	var nb: int = clampi(roundi(total / 3.0), ceili(total / float(per_max)), total / per_min)
 	var caps: Array[int] = []
 	for i: int in nb:
-		caps.append(1)
-	for i: int in total - nb:
+		caps.append(per_min)
+	for i: int in total - nb * per_min:
 		var room: Array[int] = []
 		for j: int in nb:
-			if caps[j] < MAX_PER_BUBBLE:
+			if caps[j] < per_max:
 				room.append(j)
 		caps[rng.pick(room)] += 1
 	var out: Array[Dictionary] = []
 	for i: int in nb:
-		var layer: int = i * layers / nb
+		# 掉落关没有遮挡，layer 恒为 1
+		var layer: int = 1 if field_cap > 0 else i * layers / nb
 		var r: float = 0.085 + 0.011 * caps[i]
 		var x: float = 0.5
 		var y: float = 0.5
@@ -103,6 +142,9 @@ static func _make_bubbles(rng: Rng, total: int, layers: int) -> Array[Dictionary
 			x = r + rng.randf() * (1.0 - 2.0 * r)
 			y = r + rng.randf() * (FIELD_H - 2.0 * r)
 			var clash := false
+			# 候场的气泡位置只是占位，界面落下时另找空位
+			if field_cap > 0 and i >= field_cap:
+				break
 			for o: Dictionary in out:
 				if (
 					o["layer"] == layer
@@ -118,7 +160,8 @@ static func _make_bubbles(rng: Rng, total: int, layers: int) -> Array[Dictionary
 		var under: Array[int] = []
 		for o: Dictionary in out:
 			if (
-				o["layer"] < layer
+				field_cap == 0
+				and o["layer"] < layer
 				and Vector2(x, y).distance_to(Vector2(o["x"], o["y"])) < (r + o["r"]) * 0.75
 			):
 				under.append(o["id"])
@@ -156,11 +199,14 @@ static func _add_ice(rng: Rng, lv: LevelData, count: int) -> void:
 		var b: Dictionary = rng.pick(lv.bubbles)
 		if b["chain"] > 0 or not (b["ice"] as Array).is_empty() or depended.has(b["id"]):
 			continue
-		# 依赖的邻居必须不比自己低、自己没被冰封，否则可能互相等待
+		# 依赖的邻居必须不比自己低、自己没被冰封，否则可能互相等待。
+		# 掉落关里邻居必须排在自己前面，并且与自己同时可能在场
 		var best: int = -1
 		var best_d: float = INF
 		for o: Dictionary in lv.bubbles:
 			if o["id"] == b["id"] or o["layer"] < b["layer"] or not (o["ice"] as Array).is_empty():
+				continue
+			if lv.field_cap > 0 and (o["id"] > b["id"] or o["id"] < b["id"] - lv.field_cap):
 				continue
 			var d: float = Vector2(b["x"], b["y"]).distance_to(Vector2(o["x"], o["y"]))
 			if d < best_d:

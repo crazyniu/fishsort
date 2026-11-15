@@ -7,6 +7,8 @@ var level_seed: int = 0
 var challenge: bool = false
 var buffer: int = 5
 var bowl_slots: int = 2
+## 掉落关的场上容量；0 = 不掉落，全部在场
+var field_cap: int = 0
 var palette: int = 0
 ## 每项 { s: 鱼种槽位, cap: 容量, timer: 秒（0 = 不限时） }
 var orders: Array[Dictionary] = []
@@ -31,6 +33,7 @@ static func from_dict(d: Dictionary) -> LevelData:
 	lv.challenge = bool(d.get("challenge", false))
 	lv.buffer = int(d.get("buffer", 5))
 	lv.bowl_slots = int(d.get("bowlSlots", 2))
+	lv.field_cap = int(d.get("fieldCap", 0))
 	lv.palette = int(d.get("palette", 0))
 	for o: Dictionary in d.get("orders", []):
 		lv.orders.append(
@@ -72,6 +75,7 @@ func to_dict() -> Dictionary:
 		"challenge": challenge,
 		"buffer": buffer,
 		"bowlSlots": bowl_slots,
+		"fieldCap": field_cap,
 		"palette": palette,
 		"orders": orders,
 		"bubbles": bubbles,

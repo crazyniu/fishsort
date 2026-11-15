@@ -22,6 +22,8 @@ class Bubble:
 	var frozen: bool = false
 	var fog: bool = false
 	var pairs: Array = []
+	## 已在场上。掉落关里还在候场队列的气泡为 false
+	var on_field: bool = true
 
 	func count() -> int:
 		var n := 0
@@ -47,6 +49,7 @@ class Bubble:
 		b.frozen = frozen
 		b.fog = fog
 		b.pairs = pairs.duplicate()
+		b.on_field = on_field
 		return b
 
 
@@ -80,6 +83,8 @@ var status: Status = Status.PLAYING
 var lose_reason: LoseReason = LoseReason.NONE
 var bowls_done: int = 0
 var revived: bool = false
+## 掉落关：下一个要落到场上的气泡下标（候场队列的队头）。不掉落时等于气泡总数
+var next_drop: int = 0
 
 
 static func from_level(level: LevelData) -> GameState:
@@ -87,6 +92,7 @@ static func from_level(level: LevelData) -> GameState:
 	s.orders = level.orders
 	s.open_slots = level.bowl_slots
 	s.buffer_cap = level.buffer
+	var cap: int = level.field_cap
 	for d: Dictionary in level.bubbles:
 		var b := Bubble.new()
 		b.fish.assign(d["fish"])
@@ -96,7 +102,9 @@ static func from_level(level: LevelData) -> GameState:
 		b.frozen = not b.ice.is_empty()
 		b.fog = d["fog"]
 		b.pairs = (d["pairs"] as Array).duplicate(true)
+		b.on_field = cap <= 0 or s.bubbles.size() < cap
 		s.bubbles.append(b)
+	s.next_drop = s.bubbles.size() if cap <= 0 else mini(cap, s.bubbles.size())
 	return s
 
 
@@ -116,6 +124,7 @@ func clone() -> GameState:
 	s.lose_reason = lose_reason
 	s.bowls_done = bowls_done
 	s.revived = revived
+	s.next_drop = next_drop
 	return s
 
 
@@ -123,4 +132,13 @@ func fish_left() -> int:
 	var n: int = return_fish.size() + buffer.size()
 	for b: Bubble in bubbles:
 		n += b.count()
+	return n
+
+
+## 候场队列里还有几个没落下的气泡
+func queued_count() -> int:
+	var n: int = 0
+	for b: Bubble in bubbles:
+		if not b.on_field and b.count() > 0:
+			n += 1
 	return n
