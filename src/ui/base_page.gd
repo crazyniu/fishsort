@@ -99,8 +99,8 @@ func _build_item(area_id: String, step: int, slot: Array, built: bool, next: boo
 		path = str(slot[3])
 	if built:
 		# 占位图下面垫一层金光，表示「已建好」；正式物件图自带完整画面，光弱一些
-		var glow := UiKit.badge("fx_glow", side * 1.5)
-		glow.modulate = Color(UiKit.GOLD, 0.35 if real else 0.7)
+		var glow := UiKit.badge("fx_glow", side * 1.7)
+		glow.modulate = Color(1.0, 0.9, 0.4, 0.5 if real else 1.0)
 		add_to(_scene, glow, center - glow.size / 2.0)
 	var item := UiKit.icon(path, side)
 	add_to(_scene, item, center - item.size / 2.0)
