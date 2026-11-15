@@ -105,3 +105,8 @@ TIP_FOG,迷雾泡：被压住时只能看到剪影,Fog: covered fish show only a
 TIP_ICE,冰封泡：旁边的气泡破了才解冻,Frozen: thaws when a neighbour pops
 TIP_BIG,大鱼缸：要装满 6 条,Big tank: needs 6 fish
 TIP_PAIR,结伴鱼：点一条，两条一起走,Buddies: tap one and both go
+UI_PRAISE_1,不错！,Good!
+UI_PRAISE_2,真棒！,Great!
+UI_PRAISE_3,太强了！,Awesome!
+UI_SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
+UI_COMBO_GOLD,金币 +%d,Coins +%d

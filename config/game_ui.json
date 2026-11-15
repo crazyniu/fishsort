@@ -1,0 +1,13 @@
+{
+  "skillOrder": ["shuffle", "blow", "net"],
+  "skillUnlock": { "shuffle": 4, "blow": 7, "net": 9 },
+  "badgeCap": 99,
+  "fly": { "seconds": 0.4, "tapPop": 0.09, "stagger": 0.07, "bufferSeconds": 0.26 },
+  "bowlDone": { "shake": 0.5, "swell": 0.3, "dropAt": 0.95, "dropSeconds": 0.35 },
+  "praise": { "keys": ["UI_PRAISE_1", "UI_PRAISE_2", "UI_PRAISE_3"], "streakSeconds": 4.0 },
+  "intro": { "startDelay": 0.25, "batchSize": 4, "batchGap": 0.14 },
+  "drop": { "delay": 0.25, "fallSeconds": 0.32, "nudge": 12 },
+  "hint": { "tutorialLevels": 3, "tutorialSeconds": 2.0, "seconds": 7.0 },
+  "buffer": { "warnFree": 1, "skillNudgeFree": 2 },
+  "combo": { "numberTiltDegrees": 3.5 }
+}

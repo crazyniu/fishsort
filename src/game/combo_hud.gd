@@ -2,6 +2,7 @@ class_name ComboHud
 extends Control
 ## 连击演出：大数字每次命中砸下来，光环扩散、彩色火花四溅；
 ## 每升一档换一种主色并弹出夸奖横幅，6 连以上全屏边缘持续发光（狂热）。
+## 整体和所有文字都摆正；只有纯数字砸下来时轻微倾斜（不超过 4°）。数字下面一行是本串连击的金币。
 
 ## 每档的 [数字填充色, 描边色, 光晕色]：蓝 → 金 → 红 → 紫
 const TIERS: Array = [
@@ -18,6 +19,9 @@ var _depth: Label
 var _num: Label
 var _word: Label
 var _praise: Label
+var _coin_row: Control
+var _coin_num: Label
+var _coins: int = 0
 var _bar: ColorRect
 var _edge: Control
 var _bar_tween: Tween
@@ -33,7 +37,6 @@ func _init(stage: Control, pos: Vector2, area: Vector2) -> void:
 	position = pos
 	size = area
 	pivot_offset = area / 2.0
-	rotation = -0.06
 	z_index = 70
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modulate.a = 0.0
@@ -49,9 +52,25 @@ func _init(stage: Control, pos: Vector2, area: Vector2) -> void:
 	_praise = _big("", 76, Vector2(0, -78))
 	_praise.size.y = 96
 	_praise.pivot_offset = _praise.size / 2.0
+	# 金币行：图标 + 「金币 +N」，在「连击」下面
+	_coin_row = Control.new()
+	_coin_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_coin_row.size = Vector2(area.x, 48)
+	_coin_row.position = Vector2(0, 222)
+	_coin_row.pivot_offset = _coin_row.size / 2.0
+	_coin_row.visible = false
+	add_child(_coin_row)
+	var coin := UiKit.icon("res://assets/ui/coin.png", 42)
+	coin.position = Vector2(area.x / 2.0 - 112, 3)
+	_coin_row.add_child(coin)
+	_coin_num = UiKit.label("", 34, UiKit.GOLD)
+	_coin_num.position = Vector2(area.x / 2.0 - 66, 0)
+	_coin_num.size = Vector2(190, 48)
+	_coin_num.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_coin_row.add_child(_coin_num)
 	_bar = ColorRect.new()
 	_bar.size = Vector2(220, 8)
-	_bar.position = Vector2((area.x - 220) / 2.0, 232)
+	_bar.position = Vector2((area.x - 220) / 2.0, 276)
 	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_bar)
 	stage.add_child(self)
@@ -81,8 +100,9 @@ func _paint(l: Label, fill: Color, edge: Color, width: int) -> void:
 	l.add_theme_color_override("font_shadow_color", Color(edge.darkened(0.6), 0.6))
 
 
-## n 连击；tier 是档位下标；tier_up 时弹夸奖词 praise；window 是断连前的时长
-func hit(n: int, tier: int, tier_up: bool, praise: String, window: float) -> void:
+## n 连击；tier 是档位下标；tier_up 时弹夸奖词 praise；window 是断连前的时长；
+## coins 是这一串连击累计拿到的金币
+func hit(n: int, tier: int, tier_up: bool, praise: String, window: float, coins: int) -> void:
 	var c: Array = TIERS[mini(tier, TIERS.size() - 1)]
 	var fill: Color = c[0]
 	var edge: Color = c[1]
@@ -107,10 +127,12 @@ func hit(n: int, tier: int, tier_up: bool, praise: String, window: float) -> voi
 	tw.tween_property(self, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(
 		Tween.EASE_OUT
 	)
-	# 数字从大砸到原位，先压扁再回弹
+	# 数字从大砸到原位，先压扁再回弹；纯数字允许轻微倾斜，左右交替
+	var tilt: float = deg_to_rad(minf(GameCfg.num("combo", "numberTiltDegrees"), 4.0))
+	tilt *= 1.0 if n % 2 == 0 else -1.0
 	for l: Label in [_num, _depth]:
 		l.scale = Vector2(2.4, 2.4)
-		l.rotation = randf_range(-0.14, 0.14)
+		l.rotation = tilt
 		tw.tween_property(l, "scale", Vector2(1.12, 0.86), 0.11).set_ease(Tween.EASE_IN)
 		tw.tween_property(l, "rotation", 0.0, 0.2)
 		(
@@ -132,6 +154,7 @@ func hit(n: int, tier: int, tier_up: bool, praise: String, window: float) -> voi
 	if tier_up:
 		_tier_up(praise, edge, glow, tier)
 	_fever(glow, tier)
+	_show_coins(coins)
 	# 计时条：每次命中回满，走空就断连收起
 	if _bar_tween != null:
 		_bar_tween.kill()
@@ -238,6 +261,30 @@ func _fever(glow: Color, tier: int) -> void:
 	_edge_tween.tween_property(_edge, "modulate:a", high, 0.4)
 
 
+## 「金币 +N」随命中跳动
+func _show_coins(coins: int) -> void:
+	_coin_row.visible = coins > 0
+	if coins <= 0:
+		_coins = 0
+		return
+	_coin_row.modulate.a = 1.0
+	_coin_row.position.y = 222.0
+	var from: int = mini(_coins, coins)
+	_coins = coins
+	var word: String = tr("UI_COMBO_GOLD")
+	var tw: Tween = _coin_num.create_tween()
+	tw.tween_method(
+		func(v: float) -> void: _coin_num.text = word % int(round(v)),
+		float(from),
+		float(coins),
+		0.2
+	)
+	_coin_row.scale = Vector2(1.3, 1.3)
+	_coin_row.create_tween().tween_property(_coin_row, "scale", Vector2.ONE, 0.2).set_trans(
+		Tween.TRANS_BACK
+	)
+
+
 ## 连击送图鉴：礼物从数字旁弹出再落下去
 func gift() -> void:
 	var box := UiKit.icon("res://assets/ui/gift.png", 110)
@@ -261,6 +308,13 @@ func gift() -> void:
 
 func _leave() -> void:
 	_shown = false
+	# 断连：这串金币往上飞走（记进结算）
+	if _coins > 0:
+		Audio.sfx(&"coins")
+		_coin_row.create_tween().tween_property(_coin_row, "position:y", 120.0, 0.25).set_ease(
+			Tween.EASE_IN
+		)
+	_coins = 0
 	if _edge_tween != null:
 		_edge_tween.kill()
 	_edge.create_tween().tween_property(_edge, "modulate:a", 0.0, 0.3)
