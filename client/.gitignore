@@ -7,3 +7,4 @@ profiles/
 native/
 node_modules/
 .cc-types/
+tools/level/report.csv
