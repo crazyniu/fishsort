@@ -17,7 +17,7 @@ var _done: Callable
 var _closing: bool = false
 
 
-## card 是 Meta.draw_card 的返回值；关闭后调用 on_done
+## card 是 Cards.give 的返回值；关闭后调用 on_done
 static func open(host: Control, card: Dictionary, on_done: Callable) -> CardReveal:
 	var fx := CardReveal.new()
 	fx.size = host.size

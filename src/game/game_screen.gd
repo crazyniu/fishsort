@@ -8,6 +8,9 @@ const FIELD_Y := 396.0
 const TOOLS_H := GameHud.TOOLS_H
 const LEVEL_COUNT := 120
 
+## 进场时要打的关：0 = 当前进度的关；大于 0 = 重玩这一关（App.go_game 传入）
+var start_id: int = 0
+
 var _level_id: int = 1
 var _lv: LevelData
 var _s: GameState
@@ -24,7 +27,6 @@ var _fx: GameFx
 var _hud: GameHud
 var _shelf: GameShelf
 var _field: GameField
-var _popup: Control
 ## 换关计数：延时回调用它判断自己是不是上一关留下的
 var _run: int = 0
 ## 本关走过步没有（走过才会在退出、重开、失败时扣命）
@@ -48,7 +50,7 @@ var _idle: float = 0.0
 
 func _ready() -> void:
 	resized.connect(_build)
-	start_level(int(Save.data["level"]))
+	start_level(start_id if start_id > 0 else int(Save.data["level"]))
 
 
 func start_level(id: int) -> void:
@@ -95,7 +97,7 @@ func start_level(id: int) -> void:
 
 
 func _process(delta: float) -> void:
-	if _s == null or _over or _popup != null:
+	if _s == null or _over or _has_popup():
 		return
 	_idle += delta
 	# 前几关是教学，提示来得快；之后发呆久了才提示
@@ -124,7 +126,6 @@ func _build() -> void:
 		return
 	for c: Node in get_children():
 		c.queue_free()
-	_popup = null
 	var view: Vector2 = size
 	var bg := TextureRect.new()
 	bg.texture = UiKit.tex("res://assets/ui/bg_game.jpg")
@@ -256,26 +257,10 @@ func _on_bowl_pressed(i: int) -> void:
 				_fx.net_swing(_hud.tool_pos("net"), _shelf.pos(i))
 				_play(Rules.use_net(_s, i))
 		return
-	# 没开的缸位都带「＋」，点哪个都是开紧挨着的下一个
+	# 没开的缸位都带「＋」，点哪个都是开紧挨着的下一个：金币或看广告
 	if i < _s.open_slots or _s.open_slots >= GameState.MAX_SLOTS:
 		return
-	if Ads.available():
-		if await Ads.rewarded(&"rv_bowl_slot") and is_inside_tree():
-			_unlock_slot()
-		return
-	# 广告不可用时改用金币
-	var price: int = int(Config.eco["bowlSlotCoinPrice"])
-	_swap_popup(GamePopups.bowl_slot(self, price, _pay_slot.bind(price), _close_popup))
-
-
-func _pay_slot(price: int) -> void:
-	_close_popup()
-	if int(Save.data["coins"]) < price:
-		_toast(tr("UI_NO_COINS"))
-		return
-	Save.data["coins"] = int(Save.data["coins"]) - price
-	Save.save()
-	_unlock_slot()
+	HomePopups.slot_unlock(self, _unlock_slot, Callable())
 
 
 func _unlock_slot() -> void:
@@ -322,7 +307,7 @@ func _on_tool(tool: String) -> void:
 		"current":
 			# 一道水流横扫全场，鱼排着队冲进鱼缸
 			_fx.current_sweep(FIELD_Y, size.y - TOOLS_H)
-			_play(events, GameCfg.num("current", "stagger"), GameCfg.num("current", "lead"))
+			_play_queued(events, GameCfg.num("current", "lead"), GameCfg.num("current", "stagger"))
 
 
 ## 这个技能现在不能用的原因（给玩家看的一句话）；能用返回空串
@@ -375,7 +360,7 @@ func _spend_tool(tool: String) -> bool:
 
 ## 新技能的强制教学：在解锁关第一次能用上它的时候，压暗全屏只让点这个技能
 func _check_tutorial() -> void:
-	if _tutor == "" or _over or _auto or _net_mode or _popup != null:
+	if _tutor == "" or _over or _auto or _net_mode or _has_popup():
 		return
 	if int(_tool_uses[_tutor]) > 0:
 		_tutor = ""
@@ -391,17 +376,15 @@ func _check_tutorial() -> void:
 # ---------- 表现 ----------
 
 
-## 把规则事件分派给各部件。逻辑已经结算完，这里只排演出的先后。
-## gap 是相邻两条鱼出发的间隔，lead 是第一条出发前的等待（洋流用）
-func _play(events: Array[Dictionary], gap: float = -1.0, lead: float = 0.0) -> void:
+## 把规则事件分派给各部件。逻辑已经结算完，这里只排演出的先后
+func _play(events: Array[Dictionary]) -> void:
 	if events.is_empty():
 		return
-	if gap < 0.0:
-		gap = GameCfg.num("fly", "stagger")
+	var gap: float = GameCfg.num("fly", "stagger")
 	var flights: int = 0
 	var freed: int = -1
 	for e: Dictionary in events:
-		var delay: float = lead + flights * gap
+		var delay: float = flights * gap
 		match e["t"]:
 			&"fish_to_bowl", &"net_fish":
 				var from: Vector2 = _field.source_pos(e["b"], e["k"])
@@ -455,6 +438,32 @@ func _play(events: Array[Dictionary], gap: float = -1.0, lead: float = 0.0) -> v
 	_check_tutorial()
 
 
+## 洋流：逻辑一次结算完，画面上一条一条排队走。每条鱼（连同它引发的满缸、破泡、补落）
+## 是一段，隔 gap 秒播一段；没轮到的鱼先留在气泡里，没轮到落的气泡先不出现
+func _play_queued(events: Array[Dictionary], lead: float, gap: float) -> void:
+	var groups: Array = []
+	for e: Dictionary in events:
+		if e["t"] == &"fish_to_bowl" or groups.is_empty():
+			var fresh: Array[Dictionary] = []
+			groups.append(fresh)
+		(groups[-1] as Array[Dictionary]).append(e)
+		if e["t"] == &"fish_to_bowl":
+			_field.hold(e["b"], e["k"], e["species"])
+		elif e["t"] == &"bubble_drop":
+			_field.defer(e["b"])
+	_field.refresh(_s)
+	for i: int in groups.size():
+		get_tree().create_timer(lead + i * gap).timeout.connect(_play_group.bind(groups[i], _run))
+
+
+func _play_group(events: Array[Dictionary], run: int) -> void:
+	if run != _run or not is_inside_tree():
+		return
+	if events[0]["t"] == &"fish_to_bowl":
+		_field.release(events[0]["b"], events[0]["k"])
+	_play(events)
+
+
 ## 一条鱼飞向第 slot 个缸，并记一次连击命中（点击、渔网、洋流、暂存槽自动补进新缸都算）。
 ## 新缸还没落到位时，鱼在原地多等一会儿再出发
 func _to_bowl(species: int, from: Vector2, slot: int, delay: float, side: float) -> void:
@@ -506,55 +515,29 @@ func _auto_step() -> void:
 	_auto = false
 
 
-# ---------- 弹窗、生命、胜负 ----------
+# ---------- 弹窗、生命、胜负（弹窗统一用 HomePopups / MetaPopups / PopupCard）----------
 
 
-func _close_popup() -> void:
-	GamePopups.close(_popup)
-	_popup = null
-	Ads.banner(false)
+## 有弹窗开着：倒计时暂停，教学和提示也先不出
+func _has_popup() -> bool:
+	for c: Node in get_children():
+		if c is PopupCard:
+			return true
+	return false
 
 
-func _swap_popup(next: Control) -> void:
-	GamePopups.close(_popup)
-	_popup = next
-
-
+## 暂停：音乐、音效、震动、语言，加「回主页」「重试」
 func _show_settings() -> void:
-	_swap_popup(
-		(
-			GamePopups
-			. settings(
-				self,
-				{
-					"music": _toggle_music,
-					"sound": _toggle_sound,
-					"restart": _ask_leave.bind(_retry),
-					"home": _ask_leave.bind(_go_home),
-					"close": _close_popup,
-				}
-			)
-		)
-	)
-
-
-func _toggle_music() -> void:
-	Audio.set_music(not bool(Save.data["settings"]["music"]))
-	_show_settings()
-
-
-func _toggle_sound() -> void:
-	Audio.set_sound(not bool(Save.data["settings"]["sound"]))
-	_show_settings()
+	MetaPopups.settings(self, "pause", _ask_leave.bind(_go_home), _ask_leave.bind(_retry), _build)
 
 
 ## 中途退出或重开：走过步、且不在免扣命的前几关，才先问一句（会扣 1 条生命）
 func _ask_leave(then: Callable) -> void:
-	if not _costs_life():
-		_close_popup()
+	if _costs_life():
+		# 弹窗里点「离开」时已经扣了命
+		HomePopups.leave_confirm(self, then)
+	else:
 		then.call()
-		return
-	_swap_popup(GamePopups.leave_confirm(self, _give_up.bind(then), _close_popup))
 
 
 ## 现在放弃这一关会不会扣命
@@ -567,43 +550,32 @@ func _costs_life() -> bool:
 	)
 
 
-## 放弃这一关（退出、重开、失败后不复活）：扣命，然后做 then
-func _give_up(then: Callable) -> void:
-	_close_popup()
-	Lives.lose(Save.data, Config.eco, _level_id, _moved, Save.now())
-	_moved = false
-	Save.save()
-	then.call()
-
-
 func _go_home() -> void:
 	Ads.banner(false)
+	_save_best()
 	if App.inst != null:
 		App.inst.go_home()
 
 
-## 重开本关；没命了就先弹生命弹窗
 func _retry() -> void:
+	_save_best()
 	_enter(_level_id)
 
 
-func _enter(id: int) -> void:
+## 历史最高连击（个人资料里显示），每关结束时记一次
+func _save_best() -> void:
+	if _combo.best > int(Save.data.get("bestCombo", 0)):
+		Save.data["bestCombo"] = _combo.best
+		Save.save()
+
+
+## 开始第 id 关；没命了就弹生命弹窗（买到命后玩家再点一次）。返回是否开始了
+func _enter(id: int) -> bool:
 	if Lives.can_start(Save.data, Config.eco, id, Save.now()):
 		start_level(id)
-		return
-	var wait: int = Lives.seconds_to_next(Save.data, Config.eco, Save.now())
-	var price: int = int(Config.eco["lives"]["buyOneCoins"])
-	_swap_popup(GamePopups.no_lives(self, ceili(wait / 60.0), price, _buy_life.bind(id), _go_home))
-
-
-func _buy_life(id: int) -> void:
-	if not Lives.buy_one(Save.data, Config.eco, Save.now()):
-		_toast(tr("UI_NO_COINS"))
-		return
-	Save.save()
-	Audio.sfx(&"coin")
-	_close_popup()
-	start_level(id)
+		return true
+	HomePopups.lives(self)
+	return false
 
 
 ## 过关演出，播完再弹结算
@@ -618,6 +590,7 @@ func _celebrate() -> void:
 ## 结算：金币、进度、首胜都由 Settle 一次算完并入账；宝箱由 LevelChest 开
 func _show_win() -> void:
 	_won = true
+	_save_best()
 	var result: Dictionary = (
 		Settle
 		. win(
@@ -664,38 +637,56 @@ func _on_next() -> void:
 		_enter(int(Save.data["level"]))
 
 
-## 失败：先给复活的机会（每关一次，看广告）；放弃复活才算失败、才扣命
+## 失败：先给复活的机会（每关一次，看广告）；放弃复活才算失败
 func _show_lose(reason: int) -> void:
 	Audio.sfx(&"lose")
 	Anim.shake(_stage, 14.0)
 	_hud.end_tutorial()
+	Ads.banner(true)
+	if not _s.revived and Ads.available():
+		HomePopups.revive(self, _on_revive, _fail.bind(reason))
+	else:
+		_fail(reason)
+
+
+## 真的失败了：记一次失败（连败会降难度）、扣命，然后选重试还是回主页
+func _fail(reason: int) -> void:
+	Meta.fail_level(Save.data, Config.eco, _level_id)
+	Lives.lose(Save.data, Config.eco, _level_id, _moved, Save.now())
+	_moved = false
+	Save.save()
 	var why: Dictionary = {
 		GameState.LoseReason.BUFFER_FULL: "UI_LOSE_BUFFER",
 		GameState.LoseReason.TIMEOUT: "UI_LOSE_TIMEOUT",
 		GameState.LoseReason.STUCK: "UI_LOSE_STUCK",
 	}
-	_swap_popup(
-		GamePopups.lose(
-			self,
-			why[reason],
-			not _s.revived and Ads.available(),
-			_costs_life(),
-			{"revive": _on_revive, "retry": _fail.bind(_retry), "home": _fail.bind(_go_home)}
-		)
+	var lines: Array[String] = [tr(why[reason])]
+	var p := PopupCard.open(
+		self,
+		tr("UI_LOSE"),
+		lines,
+		[[tr("H_TO_HOME"), UiKit.BLUE, _go_home], [tr("H_RETRY"), UiKit.GREEN, Callable()]],
+		0.0,
+		{"closable": false}
 	)
-	Ads.banner(true)
+	# 重试成功才关掉失败弹窗；没命时生命弹窗盖在它上面
+	p.buttons[1].pressed.connect(
+		func() -> void:
+			if _retry_from_fail():
+				p.close()
+	)
 
 
-## 放弃复活：记一次失败（连败会降难度）并扣命
-func _fail(then: Callable) -> void:
-	Meta.fail_level(Save.data, Config.eco, _level_id)
-	_give_up(then)
+func _retry_from_fail() -> bool:
+	_save_best()
+	return _enter(_level_id)
 
 
+## 看完复活广告后
 func _on_revive() -> void:
-	if not await Ads.rewarded(&"rv_revive") or not is_inside_tree():
+	if not is_inside_tree():
 		return
-	_close_popup()
+	Ads.banner(false)
 	_over = false
 	Audio.sfx(&"unlock")
 	_play(Rules.revive(_s))

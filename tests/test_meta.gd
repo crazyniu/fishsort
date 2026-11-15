@@ -5,23 +5,6 @@ static func _cfg(name: String) -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string("res://config/%s.json" % name))
 
 
-func test_finish_level_rewards_and_progress() -> void:
-	var eco := _cfg("economy")
-	var save := PlayerData.create(eco)
-	var r := Meta.finish_level(save, eco, 1, false, 100)
-	eq(save["level"], 2, "进度推进")
-	eq(save["coins"], 100, "普通关金币")
-	eq(r["tickets"], 0, "鱼票已废弃")
-	r = Meta.finish_level(save, eco, 5, true, 100)
-	eq(save["level"], 2, "重玩其它关不推进进度")
-	eq(r["tickets"], 0, "鱼票已废弃")
-	Meta.double_coins(save, eco, r)
-	eq(save["coins"], 100 + 200 + 200, "看广告双倍")
-	eq(save["week"]["cleared"], 2, "周过关数")
-	Meta.finish_level(save, eco, 2, false, 107)
-	eq(save["week"]["cleared"], 1, "跨周清零")
-
-
 func test_fails_unlock_easier_variants() -> void:
 	var eco := _cfg("economy")
 	var save := PlayerData.create(eco)
@@ -30,37 +13,6 @@ func test_fails_unlock_easier_variants() -> void:
 	Meta.fail_level(save, eco, 7)
 	eq(Meta.fail_level(save, eco, 7), 2, "失败 4 次再降一档")
 	eq(Meta.ease_for(save, eco, 8), 0, "换一关重新计")
-
-
-func test_card_pity_and_duplicates() -> void:
-	var eco := _cfg("economy")
-	var species: Array = _cfg("species")["species"]
-	var save := PlayerData.create(eco)
-	var rng := Rng.new(3)
-	var dry: int = 0
-	for i: int in 400:
-		var c := Meta.draw_card(save, eco, species, "levelCard", rng)
-		dry = 0 if c["is_new"] else dry + 1
-		var owned_low: int = (
-			(save["cards"] as Dictionary)
-			. keys()
-			. filter(func(k: String) -> bool: return k[0] == "c")
-			. size()
-		)
-		if owned_low < 30:
-			ok(dry < 3, "保底：普通集齐前不会连续 3 张都是重复卡")
-	ok(int(save["coins"]) > 0, "重复卡换金币")
-	ok(
-		not (save["cards"] as Dictionary).keys().any(
-			func(k: String) -> bool: return k[0] == "e" or k[0] == "l"
-		),
-		"过关卡不出史诗传说"
-	)
-	eq(Meta.draw_card(save, eco, species, "ticketPack", rng), {}, "鱼票不够不能开珍稀卡包")
-	save["tickets"] = 10
-	var card := Meta.draw_card(save, eco, species, "ticketPack", rng)
-	eq(save["tickets"], 0, "开包扣 10 张鱼票")
-	ok(card["rarity"] != "common", "珍稀卡包不出普通卡")
 
 
 func test_interstitial_frequency_cap() -> void:

@@ -121,11 +121,13 @@ func check_unlocked(feature: String) -> bool:
 	return false
 
 
-func start_level() -> void:
-	if not model.can_start():
+## level > 0：重玩一个已通过的关（奖励按重玩规则，由 Settle 把关）；0 = 当前关
+func start_level(level: int = 0) -> void:
+	var id: int = level if level > 0 else model.level()
+	if not Lives.can_start(Save.data, Config.eco, id, Save.now()):
 		HomePopups.lives(self, refresh_top)
 		return
-	App.inst.go_game()
+	App.inst.go_game(level)
 
 
 # ---------- 顶栏 ----------

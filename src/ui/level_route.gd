@@ -142,8 +142,9 @@ func _on_node(n: int, holder: Control) -> void:
 		return
 	Audio.sfx(&"click")
 	close()
+	# 已通过的关按重玩开始；当前关照常
 	if _host.has_method("start_level"):
-		_host.call("start_level")
+		_host.call("start_level", n if _model.level_state(n) == "passed" else 0)
 
 
 ## 路线：已通过的一段是绿色，后面是灰蓝色

@@ -14,7 +14,7 @@
 | `tools` | 新增 `current`（洋流） |
 | `signin` | 新增 `doubledDay` |
 | `daily` | `{day, firstWin, freeCoin, wheelFree, wheelAd, replay, toolFree{}, share{wheel,life,card,help}}` |
-| `tickets` `stars` | 已废弃，字段保留（迁移后 tickets 恒为 0） |
+| `bestCombo` | 历史最高连击 |
 
 读写任何每日计数前先 `Daily.roll(save, day)`（下面的函数都已自己调用）。
 
@@ -80,8 +80,12 @@
 
 ## 迁移 v1 → v2
 
-金币 ×`migration.coinsMultiplier`(5)，鱼票按 `migration.ticketToCoins`(50) 折成金币后清零，`stars` 保留不用，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
+金币 ×`migration.coinsMultiplier`(5)，鱼票按 `migration.ticketToCoins`(50) 折成金币，`tickets` / `stars` / `pity` 字段删除，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
 
-## 已废弃（集成时删除）
+## 已删除（集成时清掉的旧接口）
 
-`Meta.finish_level`、`Meta.double_coins`、`Meta.draw_card`（含 `levelCard` / `ticketPack` 配置）、`Meta.sign_in` 与 `config/signin.json`、`Meta.build_step` 与星星 / `scenes.json`、`Meta.can_sign_in`、存档 `tickets` / `stars`。`economy.json` 的 `challengeTickets` / `firstWinTickets` 已置 0。
+`Meta.finish_level`、`Meta.double_coins`、`Meta.draw_card`（连同 `levelCard` / `ticketPack` / `levelStars` / `challengeStars` / `challengeTickets` / `firstWinTickets` 配置）、`Meta.sign_in`、`Meta.build_step`、`Meta.can_sign_in`、`config/signin.json`、`config/scenes.json`。存档里的 `tickets` / `stars` / `pity` 字段在读档迁移时删除（v1 的鱼票先折成金币）。
+
+## 局内写入的存档字段
+
+- `bestCombo`：历史最高连击，每关结束（过关、失败、退出）时更新，个人资料弹窗读它。

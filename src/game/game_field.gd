@@ -15,6 +15,10 @@ var _on_tap: Callable
 var _top: float
 var _bubbles: Array[Dictionary] = []
 var _return_box: Control
+## 逻辑上已经走了、画面上还在排队等出发的鱼（洋流）：键是 气泡 * 100 + 序号
+var _held: Dictionary = {}
+## 逻辑上已经落下、画面上还没轮到落的气泡
+var _deferred: Dictionary = {}
 
 
 func _init(stage: Control, fx: GameFx, tex: Callable, on_tap: Callable) -> void:
@@ -33,6 +37,8 @@ func build(lv: LevelData, s: GameState, top: float, bottom: float, intro: bool) 
 		(_fx.width - field_w) / 2.0, top + (avail - field_w * LevelGen.FIELD_H) / 2.0
 	)
 	_bubbles.clear()
+	_held.clear()
+	_deferred.clear()
 	for idx: int in lv.bubbles.size():
 		var d: Dictionary = lv.bubbles[idx]
 		var r: float = float(d["r"]) * field_w
@@ -181,10 +187,11 @@ func refresh(s: GameState, animate: bool = true) -> void:
 		var view: Dictionary = _bubbles[b]
 		var bub: GameState.Bubble = s.bubbles[b]
 		var node: Control = view["node"]
-		node.visible = bub.count() > 0 and bub.on_field
+		var waiting: bool = _holds(b)
+		node.visible = ((bub.count() > 0 and bub.on_field) or waiting) and not _deferred.has(b)
 		if not node.visible:
 			continue
-		var is_open: bool = open.has(b)
+		var is_open: bool = open.has(b) or waiting
 		if is_open and not view["open"] and animate:
 			# 刚露出来：由暗变亮并鼓一下
 			node.create_tween().tween_property(node, "modulate", Color.WHITE, 0.3)
@@ -195,8 +202,8 @@ func refresh(s: GameState, animate: bool = true) -> void:
 		var fish_nodes: Array[TextureRect] = view["fish"]
 		for k: int in fish_nodes.size():
 			var f: TextureRect = fish_nodes[k]
-			f.visible = bub.fish[k] >= 0
-			if f.visible:
+			f.visible = bub.fish[k] >= 0 or _held.has(b * 100 + k)
+			if bub.fish[k] >= 0:
 				f.texture = _tex.call(bub.fish[k])
 				# 迷雾泡：被挡住时只露剪影
 				f.modulate = SILHOUETTE if bub.fog and not is_open else Color.WHITE
@@ -207,6 +214,31 @@ func refresh(s: GameState, animate: bool = true) -> void:
 		(view["lock_n"] as Label).visible = bub.chain > 0
 		(view["lock_n"] as Label).text = str(bub.chain)
 	_refresh_return(s)
+
+
+func _holds(b: int) -> bool:
+	for key: int in _held:
+		if key / 100 == b:
+			return true
+	return false
+
+
+## 洋流：这条鱼逻辑上已经进缸了，但画面上先留在气泡里等轮到它
+func hold(b: int, k: int, species: int) -> void:
+	if b < 0:
+		return
+	_held[b * 100 + k] = true
+	# 候场的气泡还没刷新过贴图，这里补上
+	((_bubbles[b]["fish"] as Array[TextureRect])[k]).texture = _tex.call(species)
+
+
+func release(b: int, k: int) -> void:
+	_held.erase(b * 100 + k)
+
+
+## 洋流：这个气泡逻辑上已经补落了，画面上等轮到它再落
+func defer(b: int) -> void:
+	_deferred[b] = true
 
 
 ## 回流位（吹泡吹回来的鱼）：一排可以直接点的小气泡
@@ -277,6 +309,7 @@ func pop(b: int) -> void:
 
 ## 掉落关：新气泡从屏幕上方落到刚空出来的位置，落地轻弹，把周围的气泡挤开一点
 func drop_in(b: int, freed: int) -> void:
+	_deferred.erase(b)
 	var view: Dictionary = _bubbles[b]
 	var node: Control = view["node"]
 	if freed >= 0:

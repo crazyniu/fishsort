@@ -1,10 +1,6 @@
 {
   "levelCoins": 100,
   "challengeCoins": 200,
-  "levelStars": 1,
-  "challengeStars": 2,
-  "challengeTickets": 0,
-  "firstWinTickets": 0,
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
@@ -20,38 +16,13 @@
   },
   "toolMaxPerLevel": 2,
   "bowlSlotCoinPrice": 650,
-  "freeBowlSlotUntil": 10,
+  "freeBowlSlotUntil": 0,
   "dupeCoins": {
     "common": 50,
     "uncommon": 125,
     "rare": 300,
     "epic": 750,
     "legend": 2500
-  },
-  "levelCard": {
-    "rates": {
-      "common": 100
-    },
-    "pityEvery": 3,
-    "pityPool": [
-      "common"
-    ]
-  },
-  "ticketPack": {
-    "cost": 10,
-    "rates": {
-      "uncommon": 60,
-      "rare": 28,
-      "epic": 10,
-      "legend": 2
-    },
-    "pityEvery": 5,
-    "pityPool": [
-      "uncommon",
-      "rare",
-      "epic",
-      "legend"
-    ]
   },
   "freeCoin": {
     "amount": 500,
