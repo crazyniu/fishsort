@@ -63,7 +63,7 @@ func _build() -> void:
 		c.queue_free()
 	_coin_shown = -1
 	var bg := TextureRect.new()
-	bg.texture = UiKit.tex("res://assets/ui/bg_home.jpg")
+	bg.texture = UiKit.tex(HomeDeco.background_path())
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.size = size
