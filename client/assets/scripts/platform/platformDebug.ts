@@ -36,7 +36,8 @@ export class PlatformDebug extends PlatformBase {
 
   override async getRankList(_board: string): Promise<RankEntry[]> {
     const names = ['浪花朵朵', 'SeaBreeze', '珊瑚一号', 'MintWave', '小贝壳', 'BubbleKing', '海盐汽水', 'Luna'];
-    return names.map((name, i) => ({ name, avatar: '', score: 96 - i * 9 }));
+    const scores = [38, 32, 29, 21, 18, 12, 7, 3];
+    return names.map((name, i) => ({ name, avatar: '', score: scores[i] ?? 0 }));
   }
 
   override loadData(key: string): string {

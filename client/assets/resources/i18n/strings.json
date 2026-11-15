@@ -303,7 +303,20 @@
   "UI_FULL": "已满",
   "SHOP_FREE_COINS": "免费金币",
   "ALBUM_FINAL_PREVIEW": "集齐 6 册可领",
-  "DEX_RESCUED": "已救 %d 只"
+  "DEX_RESCUED": "已救 %d 只",
+  "RANK_TITLE": "本周排行",
+  "RANK_RESET_IN": "%d 天后重置",
+  "RANK_WEEK_CLEARED": "本周过关 %d",
+  "RANK_TIER": "%d 关",
+  "RANK_TIER_TITLE": "本周过 %d 关",
+  "RANK_ME": "我",
+  "RANK_LEVELS": "%d 关",
+  "PRIZE_RANDOM_SKILL": "随机技能 ×%d",
+  "PROFILE_TITLE": "个人资料",
+  "PROFILE_DEFAULT_NAME": "小鱼玩家",
+  "PROFILE_LEVEL": "当前关卡",
+  "PROFILE_BEST_COMBO": "最佳连击",
+  "PROFILE_CARDS": "收藏进度"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -609,6 +622,19 @@
   "UI_FULL": "Full",
   "SHOP_FREE_COINS": "Free coins",
   "ALBUM_FINAL_PREVIEW": "Complete all 6 albums",
-  "DEX_RESCUED": "Rescued %d"
+  "DEX_RESCUED": "Rescued %d",
+  "RANK_TITLE": "This week",
+  "RANK_RESET_IN": "Resets in %d days",
+  "RANK_WEEK_CLEARED": "Cleared this week: %d",
+  "RANK_TIER": "%d levels",
+  "RANK_TIER_TITLE": "Clear %d this week",
+  "RANK_ME": "Me",
+  "RANK_LEVELS": "%d",
+  "PRIZE_RANDOM_SKILL": "Random skill ×%d",
+  "PROFILE_TITLE": "Profile",
+  "PROFILE_DEFAULT_NAME": "Fish Friend",
+  "PROFILE_LEVEL": "Level",
+  "PROFILE_BEST_COMBO": "Best combo",
+  "PROFILE_CARDS": "Cards"
  }
 }

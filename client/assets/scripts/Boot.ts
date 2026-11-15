@@ -7,6 +7,8 @@ import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { CollectPage } from './pages/collect';
 import { LevelsPage } from './pages/levels';
+import { profilePopup } from './pages/profile';
+import { RankPage } from './pages/rank';
 import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
 import { App } from './services/app';
@@ -49,7 +51,7 @@ export class Boot extends Component {
       coins: () => ui.go('shop'),
       lives: () => livesPopup(),
       settings: () => settingsPopup('home'),
-      profile: () => ui.go('profile'),
+      profile: () => profilePopup(),
     };
     ui.init(canvas, topActions);
     ui.register('home', () => new HomePage());
@@ -59,12 +61,12 @@ export class Boot extends Component {
     ui.register('shop', () => new ShopPage());
     ui.register('base', () => new TodoPage('base', 'homeBase'));
     ui.register('collect', () => new CollectPage());
-    ui.register('rank', () => new TodoPage('rank', 'rank'));
+    ui.register('rank', () => new RankPage());
     ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new TodoPage(null, 'daily'));
     ui.register('wheel', () => new TodoPage(null, 'wheel'));
-    ui.register('profile', () => new TodoPage(null, 'album'));
     ui.register('adtest', () => new TodoPage(null, 'wheel'));
+    ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
     // 调试：?level=N 直接进关
     if (App.flags.level > 0 && App.flags.play) ui.go('game', { level: App.flags.level });

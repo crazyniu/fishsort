@@ -198,6 +198,8 @@ export class Shell {
   private current: { name: string; page: Page } | null = null;
   private history: string[] = [];
   private lastTab: Tab = 'home';
+  /** 没开放的页签显示的锁页（pages/lock.ts 提供，避免 ui 层引用页面层） */
+  lockedTab: ((tab: Tab, feature: string) => Page) | null = null;
 
   init(canvas: Node, topActions: ConstructorParameters<typeof TopBar>[1]): void {
     this.root = box('ui', canvas, Screen.W, Screen.H);
@@ -236,6 +238,14 @@ export class Shell {
 
   /** 切页面。页签页互相切不进历史；子页面进历史，返回键回到上一页 */
   go(name: string, arg?: unknown): void {
+    // 没开放的页签：换成这个页签的锁页（docs/01 5.3：灰的带锁，但可以点进去看锁页）
+    const f = (TABS as string[]).includes(name) ? TAB_FEATURE[name as Tab] : null;
+    if (f && this.lockedTab && !Features.isUnlocked(App.config.eco, f, App.save.data.level)) {
+      const key = `${name}@lock`;
+      const make = this.lockedTab;
+      if (!this.registry.has(key)) this.register(key, () => make(name as Tab, f));
+      name = key;
+    }
     const next = this.page(name);
     const prev = this.current;
     if (prev && prev.name === name) {
@@ -297,7 +307,7 @@ export class Shell {
     this.tabbar.node.destroy();
     this.topbar = new TopBar(this.bars, topActions);
     this.tabbar = new TabBar(this.bars, (t) => this.go(t));
-    this.go(name === 'game' || name === 'result' ? 'home' : name);
+    this.go(name === 'game' || name === 'result' ? 'home' : name.replace('@lock', ''));
   }
 
   /** 屏幕中间偏上的一条提示，1.6 秒后消失 */
