@@ -66,7 +66,7 @@ need_godot() {
 }
 
 need_cocos() {
-  [ -x "$COCOS" ] || command -v "$COCOS" >/dev/null || die "找不到 Cocos Creator $COCOS_VERSION：装到 /Applications/Cocos/Creator/$COCOS_VERSION/，或用 COCOS_CREATOR=/路径/CocosCreator ./run.sh 指定"
+  [ -x "$COCOS" ] || command -v "$COCOS" >/dev/null || die "找不到 Cocos Creator ${COCOS_VERSION}：装到 /Applications/Cocos/Creator/$COCOS_VERSION/，或用 COCOS_CREATOR=/路径/CocosCreator ./run.sh 指定"
 }
 
 # 命令行构建；Cocos 成功时退出码是 36（32 = 参数错误，34 = 构建出错）
@@ -74,7 +74,7 @@ cocos_build() {
   local platform="$1" code=0
   need_cocos
   "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
-  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 $code）"
+  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 ${code}）"
   echo "✓ 已构建 $platform → client/build/$platform"
   # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
   if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
@@ -86,7 +86,7 @@ cocos_build() {
 web_serve() {
   local dir="$CLIENT/build/web-mobile" url="http://localhost:$WEB_PORT/"
   need_file "$dir/index.html" "先跑 ./run.sh web-build"
-  echo "→ $url（Ctrl+C 停止）"
+  echo "→ ${url}（Ctrl+C 停止）"
   if command -v open >/dev/null; then (sleep 1; open "$url") & fi
   exec python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 --directory "$dir"
 }
