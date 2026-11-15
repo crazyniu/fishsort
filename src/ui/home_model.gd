@@ -114,6 +114,7 @@ func profile() -> Dictionary:
 		"best_combo": int(_save().get("bestCombo", 0)),
 		"cards_have": (_save()["cards"] as Dictionary).size(),
 		"cards_total": Config.species.size(),
+		"frame": Album.has_frame(_save()),
 	}
 
 
@@ -450,8 +451,18 @@ func _signin_prizes(res: Dictionary) -> Array:
 		if id != "":
 			out.append({"kind": "skill", "amount": 1, "skill": id})
 	for card: Dictionary in res["cards"]:
-		out.append(
-			{"kind": "card", "amount": 1, "rarity": str(card["rarity"]), "card_id": str(card["id"])}
+		(
+			out
+			. append(
+				{
+					"kind": "card",
+					"amount": 1,
+					"rarity": str(card["rarity"]),
+					"card_id": str(card["id"]),
+					"is_new": bool(card["is_new"]),
+					"dupe_coins": int(card.get("coins", 0)),
+				}
+			)
 		)
 	if int(res["unlimited"]) > 0:
 		out.append({"kind": "inf_life", "amount": int(res["unlimited"]) / 60})

@@ -29,6 +29,9 @@ static func icon_path(prize: Dictionary) -> String:
 			return "res://assets/ui/chest_open.png"
 		"spin":
 			return "res://assets/ui/tab_wheel.png"
+		"frame":
+			# 头像框的正式图标出来前，用光环占位，染成金色
+			return "res://assets/kit/fx_ring.png"
 	return "res://assets/ui/gift.png"
 
 
@@ -36,6 +39,8 @@ static func icon_path(prize: Dictionary) -> String:
 static func tint(prize: Dictionary) -> Color:
 	if str(prize["kind"]) == "card" and not prize.has("card_id"):
 		return (RARITY_COLORS[str(prize["rarity"])] as Color).lerp(Color.WHITE, 0.35)
+	if str(prize["kind"]) == "frame":
+		return RARITY_COLORS["legend"]
 	return Color.WHITE
 
 
@@ -63,6 +68,8 @@ static func title(prize: Dictionary) -> String:
 			return TranslationServer.translate("H_PRIZE_BIG_CHEST")
 		"spin":
 			return TranslationServer.translate("H_PRIZE_SPIN")
+		"frame":
+			return TranslationServer.translate("H_PRIZE_FRAME")
 	return ""
 
 
@@ -79,4 +86,6 @@ static func short(prize: Dictionary) -> String:
 			return TranslationServer.translate("UI_RARITY_" + str(prize["rarity"]).to_upper())
 		"chest", "big_chest", "spin":
 			return "×%d" % int(prize["amount"])
+		"frame":
+			return TranslationServer.translate("H_PRIZE_FRAME")
 	return ""

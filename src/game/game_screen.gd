@@ -790,7 +790,7 @@ func _daily_win() -> void:
 		_go_home()
 		return
 	var head: String = tr("DAILY_BIG_CHEST") if r["big"] else tr("DAILY_CHEST")
-	MetaPopups.prize_reveal(self, prizes, head).buttons[0].pressed.connect(_go_home)
+	MetaPopups.prize_reveal(self, prizes, head, _go_home)
 
 
 ## 每日挑战失败或中途重开：再试要看广告或花金币，不扣生命

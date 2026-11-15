@@ -82,7 +82,18 @@ static func win(
 	var rarity: String = Cards.roll_rarity(eco, eco["chest"]["cardRates"], rng)
 	var open: Array = Album.pool(eco, species, int(save["level"]))
 	var card: Dictionary = Cards.give(save, eco, Cards.pick(save, open, rarity, rng, true))
-	prizes.append({"kind": "card", "card_id": card["id"], "rarity": card["rarity"]})
+	(
+		prizes
+		. append(
+			{
+				"kind": "card",
+				"card_id": card["id"],
+				"rarity": card["rarity"],
+				"is_new": card["is_new"],
+				"dupe_coins": card["coins"],
+			}
+		)
+	)
 	if combo_coins > 0:
 		save["coins"] = int(save["coins"]) + combo_coins
 		prizes.append({"kind": "coin", "amount": combo_coins, "combo": true})

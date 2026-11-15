@@ -36,8 +36,20 @@ static func open(host: Control, info: Dictionary, on_next: Callable, on_home: Ca
 	p._coins = int(p._result["coins"])
 	p._on_next = on_next
 	p._on_home = on_home
-	host.add_child(p)
-	p._build(true, true)
+	var combo: Dictionary = info["combo_card"]
+	if combo.is_empty():
+		host.add_child(p)
+		p._build(true, true)
+		return p
+	# 连击送的卡先翻开亮相，点掉之后再出结算页
+	CardReveal.open(
+		host,
+		combo,
+		func() -> void:
+			if is_instance_valid(host):
+				host.add_child(p)
+				p._build(true, true)
+	)
 	return p
 
 
@@ -288,9 +300,12 @@ func _reveal(animated: bool) -> void:
 		ft.chain().tween_callback(flash.queue_free)
 	if _chest["kind"] == "card":
 		var card: Dictionary = _chest["card"]
-		CardReveal.show_card(_chest_box, CHEST_AT - Vector2(0, 20), card, 0.6)
+		CardReveal.show_card(_chest_box, CHEST_AT - Vector2(0, 20), card, 0.6, animated, 0.35)
 		if animated:
-			_rarity_fx(card["rarity"])
+			# 等卡翻开了再放全屏的稀有度特效
+			var fx: Tween = _chest_box.create_tween()
+			fx.tween_interval(0.35 + 0.35 + CardReveal.FLIP_HALF * 2.0)
+			fx.tween_callback(_rarity_fx.bind(card["rarity"]))
 		return
 	var open_box := UiKit.icon("res://assets/ui/chest_open.png", 230)
 	open_box.position = CHEST_AT - Vector2(115, 85)
