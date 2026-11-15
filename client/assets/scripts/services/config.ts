@@ -12,7 +12,8 @@ function describe(v: unknown): string {
 function loadJson<T>(path: string): Promise<T> {
   return new Promise((resolve, reject) => {
     resources.load(path, JsonAsset, (err: Error | null, asset: JsonAsset) => {
-      if (err !== null) reject(err);
+      // 成功时 Cocos 传的 err 是 undefined 而不是声明里的 null，只能按真假判断
+      if (err) reject(err);
       else if (asset === null || asset === undefined || asset.json === null || asset.json === undefined)
         reject(new Error(`配置表读不出来: ${path}（${describe(asset)}）`));
       else resolve(asset.json as T);
