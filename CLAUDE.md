@@ -50,6 +50,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 
 ```bash
 ./run.sh                       # 启动游戏试玩（金币、生命、技能已加满）
+FISHSORT_LEVEL=65 ./run.sh      # 同上，并直接跳到第 65 关（截图、验收用）
 ./run.sh real                  # 按真实存档进度试玩
 ./run.sh editor                # 打开 Godot 编辑器
 ./run.sh test                  # src/core 单元测试（headless）

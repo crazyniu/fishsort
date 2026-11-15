@@ -22,6 +22,7 @@ usage() {
 用法: ./run.sh [命令]
 
   (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
+                        FISHSORT_LEVEL=65 ./run.sh 直接跳到第 65 关（仅试玩模式）
   real                  启动游戏，按真实存档进度玩，不加资源
   editor                打开 Godot 编辑器
   test                  跑 src/core 单元测试
@@ -55,6 +56,7 @@ case "$cmd" in
   play)
     need_godot; import_project
     # 默认把金币、星星、鱼票、道具加满方便测试；想按真实进度玩用 ./run.sh real
+    # FISHSORT_LEVEL=N 可直接跳到第 N 关，由 save_service 读取
     FISHSORT_BOOST=1 exec "$GODOT" --path . "$@"
     ;;
   real)
