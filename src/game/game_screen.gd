@@ -151,25 +151,49 @@ func _put(node: Control, pos: Vector2, area: Vector2 = Vector2.ZERO) -> Control:
 	return node
 
 
-## 顶栏：一条玻璃横栏，关卡牌、金币胶囊、设置键都压在同一条中线上
+## 顶栏：一条玻璃横栏，金币在左、「第 N 关」文字在正中、设置键在右，同一条中线
 func _build_top() -> void:
 	var mid: float = BAR_Y + BAR_H / 2.0
 	_put(UiKit.piece("glass"), Vector2(16, BAR_Y), Vector2(W - 32, BAR_H))
-	var badge := UiKit.badge("badge_purple" if _lv.challenge else "badge_green", 80)
-	_put(badge, Vector2(26, mid - 40))
-	var word: String = tr("UI_CHALLENGE") if _lv.challenge else tr("UI_LEVEL_WORD")
-	_put(UiKit.label(word, 15), Vector2(26, mid - 30), Vector2(80, 20))
-	_put(UiKit.label(str(_level_id), 34), Vector2(26, mid - 14), Vector2(80, 44))
-	if _intro:
-		Anim.pop_in(badge)
 	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 200)
-	_put(coin["box"], Vector2(122, mid - 28))
+	_put(coin["box"], Vector2(32, mid - 28))
 	_coins = coin["label"]
+	var title: String = tr("UI_LEVEL") % _level_id
+	if _lv.challenge:
+		title = "%s · %s" % [tr("UI_CHALLENGE"), title]
+	var chip := UiKit.piece("chip")
+	_put(chip, Vector2(W / 2.0 - 110, mid - 26), Vector2(220, 52))
+	var level_lbl := UiKit.label(title, 28, UiKit.GOLD if _lv.challenge else Color.WHITE)
+	_put(level_lbl, Vector2(W / 2.0 - 110, mid - 26), Vector2(220, 52))
+	if _intro:
+		Anim.pop_in(chip)
 	_put(UiKit.badge("btn_gear", 68), Vector2(W - 26 - 68, mid - 34))
 	var gear := UiKit.hotspot(Vector2(W - 100, BAR_Y), Vector2(84, BAR_H))
 	gear.pressed.connect(_show_settings)
 	Anim.press_fx(gear)
 	_stage.add_child(gear)
+
+
+## 用圆点表示缸里的进度：亮点是已收的鱼。返回进度是否变了
+func _fill_dots(box: Control, have: int, cap: int) -> bool:
+	if box.get_meta("have", -1) == have and box.get_child_count() == cap:
+		return false
+	box.set_meta("have", have)
+	for k: Node in box.get_children():
+		k.queue_free()
+	var gap: float = 22.0
+	var x0: float = (box.size.x - gap * (cap - 1)) / 2.0
+	for i: int in cap:
+		var dot := Panel.new()
+		var sb := StyleBoxFlat.new()
+		sb.set_corner_radius_all(8)
+		sb.bg_color = UiKit.GOLD if i < have else Color(1, 1, 1, 0.28)
+		dot.add_theme_stylebox_override("panel", sb)
+		dot.size = Vector2(16, 16)
+		dot.position = Vector2(x0 + i * gap - 8, box.size.y / 2.0 - 8)
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(dot)
+	return true
 
 
 func _bowl_pos(i: int) -> Vector2:
@@ -191,8 +215,10 @@ func _build_shelf() -> void:
 		Anim.pulse(plus, 1.12)
 		var pill := UiKit.piece("chip")
 		_put(pill, c + Vector2(-46, 70), Vector2(92, 38))
-		var count := UiKit.label("", 26)
-		_put(count, c + Vector2(-60, 69), Vector2(120, 40))
+		var count := Control.new()
+		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		count.pivot_offset = Vector2(46, 19)
+		_put(count, c + Vector2(-46, 70), Vector2(92, 38))
 		var timer := UiKit.label("", 28, UiKit.GOLD)
 		_put(timer, c + Vector2(-60, -104), Vector2(120, 36))
 		var hot := UiKit.hotspot(c - Vector2(85, 92), Vector2(170, 190))
@@ -404,15 +430,13 @@ func _refresh_top() -> void:
 		(view["tank"] as Control).modulate = Color.WHITE if bowl != null else Color(1, 1, 1, 0.45)
 		(view["fish"] as TextureRect).visible = bowl != null
 		(view["pill"] as Control).visible = bowl != null
-		var count: Label = view["count"]
+		var count: Control = view["count"]
 		count.visible = bowl != null
 		# 只有紧挨着的下一个缸位能开
 		(view["plus"] as Control).visible = i == _s.open_slots
 		if bowl != null:
 			(view["fish"] as TextureRect).texture = _fish_tex(bowl.species)
-			var text: String = "%d/%d" % [bowl.count, bowl.cap]
-			if text != count.text:
-				count.text = text
+			if _fill_dots(count, bowl.count, bowl.cap):
 				Anim.bounce(count, 1.3)
 	for i: int in _buffer_box.get_child_count():
 		_buffer_box.get_child(i).queue_free()
@@ -526,7 +550,7 @@ func _count_combo(events: Array[Dictionary], from: Vector2) -> void:
 	var gain: int = int(cfg["coinPerHit"])
 	_combo_coins += gain
 	Save.data["coins"] = int(Save.data["coins"]) + gain
-	_fx.coin_to(from, Vector2(150, BAR_Y + 24), minf(1.0 + _combo * 0.04, 1.5), _refresh_top)
+	_fx.coin_to(from, Vector2(100, BAR_Y + 48), minf(1.0 + _combo * 0.04, 1.5), _refresh_top)
 
 
 func _on_bowl_pressed(i: int) -> void:
@@ -763,7 +787,7 @@ func _celebrate() -> void:
 	Anim.shake(_stage, 16.0)
 	for i: int in _bowls.size():
 		Anim.squash(_bowls[i]["tank"], 0.2)
-	WinFx.play(self, tr("UI_FINISH_TITLE"), _stage.position + Vector2(150, BAR_Y + 48))
+	WinFx.play(self, tr("UI_FINISH_TITLE"), _stage.position + Vector2(100, BAR_Y + 48))
 	get_tree().create_timer(1.9).timeout.connect(_show_win)
 
 

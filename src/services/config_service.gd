@@ -10,6 +10,8 @@ var species_by_id: Dictionary = {}
 
 
 func _ready() -> void:
+	# 目前只面向中文玩家，固定用中文；Google Play 版上线前再改为跟随系统语言
+	TranslationServer.set_locale("zh_CN")
 	eco = _load("economy")
 	signin = _load("signin")
 	scenes = _load("scenes")

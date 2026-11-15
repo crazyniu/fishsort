@@ -13,6 +13,19 @@ func _ready() -> void:
 		data = PlayerData.migrate(parsed, Config.eco)
 	else:
 		data = PlayerData.create(Config.eco)
+	_apply_test_boost()
+
+
+## ./run.sh 启动时会带上 FISHSORT_BOOST=1：把金币、星星、鱼票、道具加满，方便测试。
+## 正式构建不会设置这个环境变量。
+func _apply_test_boost() -> void:
+	if OS.get_environment("FISHSORT_BOOST") != "1":
+		return
+	data["coins"] = maxi(int(data["coins"]), 99999)
+	data["stars"] = maxi(int(data["stars"]), 999)
+	data["tickets"] = maxi(int(data["tickets"]), 999)
+	for tool: String in data["tools"]:
+		data["tools"][tool] = maxi(int(data["tools"][tool]), 99)
 
 
 func save() -> void:

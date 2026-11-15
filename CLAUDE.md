@@ -49,7 +49,8 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 统一入口是根目录的 `run.sh`，不另建 Makefile。新增命令加到 `run.sh` 里。
 
 ```bash
-./run.sh                       # 启动游戏试玩
+./run.sh                       # 启动游戏试玩（金币、星星等已加满）
+./run.sh real                  # 按真实存档进度试玩
 ./run.sh editor                # 打开 Godot 编辑器
 ./run.sh test                  # src/core 单元测试（headless）
 ./run.sh lint                  # gdlint + gdformat --check
