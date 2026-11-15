@@ -78,18 +78,37 @@ export class Field {
       const onField = this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length;
       this.fit(centers, radii, Math.min(onField, radii.length));
     } else {
-      // 有遮挡的关卡：整体放大到用满场地（相对位置不变，遮挡关系不变）
-      const k = Math.min(this.w / fw, this.h / (fw * FIELD_H), App.config.ui.field.maxScale);
-      for (let i = 0; i < radii.length; i++) {
-        radii[i] *= k;
-        centers[i] = [centers[i][0] * k, centers[i][1] * k];
-      }
+      // 有遮挡的关卡：整体等比放大、居中，用满场地（相对位置和遮挡关系不变；用户 2026-11-16：场地尽量大）
+      this.fillBox(centers, radii, centers.length);
     }
     // 下层先画
     const order = this.lv.bubbles.map((_, i) => i).sort((a, b) => this.lv.bubbles[a].layer - this.lv.bubbles[b].layer || a - b);
     this.views = new Array(this.lv.bubbles.length);
     for (const i of order) this.views[i] = this.make(i, centers[i], radii[i], s);
     this.sync(s, false);
+  }
+
+  /** 前 n 个气泡的外接框等比放大到场地大小（不超过 maxScale 倍）并居中 */
+  private fillBox(c: [number, number][], r: number[], n: number): void {
+    let x0 = Infinity;
+    let x1 = -Infinity;
+    let y0 = Infinity;
+    let y1 = -Infinity;
+    for (let i = 0; i < n; i++) {
+      x0 = Math.min(x0, c[i][0] - r[i]);
+      x1 = Math.max(x1, c[i][0] + r[i]);
+      y0 = Math.min(y0, c[i][1] - r[i]);
+      y1 = Math.max(y1, c[i][1] + r[i]);
+    }
+    if (!isFinite(x0)) return;
+    const pad = App.config.ui.field.gap * 2;
+    const k = Math.min((this.w - pad) / (x1 - x0), (this.h - pad) / (y1 - y0), App.config.ui.field.maxScale);
+    const mx = (x0 + x1) / 2;
+    const my = (y0 + y1) / 2;
+    for (let i = 0; i < c.length; i++) {
+      c[i] = [(c[i][0] - mx) * k, (c[i][1] - my) * k];
+      r[i] *= k;
+    }
   }
 
   /** 放大气泡让开局在场的 n 个占掉场地的 fill 比例，然后推开重叠 */
@@ -100,6 +119,8 @@ export class Field {
     if (sum <= 0) return;
     const k = Math.min(Math.max(Math.sqrt((cfg.fill * this.w * this.h) / sum), 1), cfg.maxScale);
     for (let i = 0; i < radii.length; i++) radii[i] *= k;
+    this.relax(centers, radii, n, []);
+    this.fillBox(centers, radii, n);
     this.relax(centers, radii, n, []);
   }
 

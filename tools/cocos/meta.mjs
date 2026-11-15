@@ -66,7 +66,8 @@ function imageMeta(abs, rel) {
     importer: 'image',
     imported: true,
     uuid,
-    files: ['.json', extname(abs)],
+    // Cocos 写的顺序：png 是 .json 在前，jpg 是 .jpg 在前
+    files: hasAlpha ? ['.json', extname(abs)] : [extname(abs), '.json'],
     subMetas: {
       '6c48a': {
         importer: 'texture',
@@ -144,8 +145,8 @@ const IMPORTERS = {
   '.ts': () => ({ ver: '4.0.24', importer: 'typescript' }),
   '.scene': () => ({ ver: '1.1.50', importer: 'scene', files: ['.json'] }),
   '.json': () => ({ ver: '2.0.1', importer: 'json', files: ['.json'] }),
-  '.ttf': () => ({ ver: '1.0.1', importer: 'ttf-font', files: ['.json'] }),
-  '.wav': () => ({ ver: '1.0.0', importer: 'audio-clip', files: ['.json', '.wav'] }),
+  '.ttf': (name) => ({ ver: '1.0.1', importer: 'ttf-font', files: ['.json', name] }),
+  '.wav': () => ({ ver: '1.0.0', importer: 'audio-clip', files: ['.json', '.wav'], userData: { downloadMode: 0 } }),
 };
 
 // assets/resources 是 Cocos 的内置资源包，编辑器会给它写上这几项；先写好，免得 Mac 上构建后出现改动
@@ -156,8 +157,8 @@ const USER_DATA = {
 function metaFor(abs, rel, isDir) {
   const make = isDir ? IMPORTERS.dir : IMPORTERS[extname(abs)];
   if (!make) return null;
-  const m = { ...base, ...make() };
-  const userData = USER_DATA[rel] ?? {};
+  const m = { ...base, ...make(rel.split('/').pop()) };
+  const userData = USER_DATA[rel] ?? m.userData ?? {};
   return { ver: m.ver, importer: m.importer, imported: true, uuid: uuidFor(rel), files: m.files, subMetas: {}, userData };
 }
 
