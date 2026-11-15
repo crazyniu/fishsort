@@ -41,7 +41,11 @@ need_godot() {
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
 
 # 刷新 Godot 的类名缓存与资源导入；新增脚本后 headless 工具依赖它
-import_project() { "$GODOT" --headless --path . --import >/dev/null 2>&1 || true; }
+import_project() {
+  # 全新检出时要导入两遍：第一遍字体还没导入完，引用它的资源会报错
+  [ -d .godot ] || "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
+  "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
+}
 
 cmd="${1:-play}"
 [ $# -gt 0 ] && shift

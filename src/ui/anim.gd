@@ -125,7 +125,7 @@ static func count_to(label: Label, from: int, to: int, time: float = 0.5) -> voi
 
 ## 彩纸：从顶部洒下一批彩色小方块
 static func confetti(parent: Control, width: float, count: int = 60) -> void:
-	var colors: Array[Color] = [UiKit.CORAL, UiKit.MINT, UiKit.LEMON, UiKit.BERRY, UiKit.GREEN]
+	var colors: Array[Color] = [UiKit.ORANGE, UiKit.BLUE, UiKit.GOLD, UiKit.PURPLE, UiKit.GREEN]
 	for i: int in count:
 		var bit := ColorRect.new()
 		bit.color = colors[i % colors.size()]

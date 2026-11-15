@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmy6fyag4nb0l"
-path="res://.godot/imported/bg.jpg-45c90f4351d8de7a20e41d79ba494d86.ctex"
+uid="uid://d3j26lf1hspdo"
+path="res://.godot/imported/dot_green.png-cf04a0b6d0e174ecbd535e10ed2a2c9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/bg.jpg"
-dest_files=["res://.godot/imported/bg.jpg-45c90f4351d8de7a20e41d79ba494d86.ctex"]
+source_file="res://assets/kit/dot_green.png"
+dest_files=["res://.godot/imported/dot_green.png-cf04a0b6d0e174ecbd535e10ed2a2c9e.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
