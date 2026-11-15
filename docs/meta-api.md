@@ -80,11 +80,7 @@
 
 ## 迁移 v1 → v2
 
-金币 ×`migration.coinsMultiplier`(5)，鱼票按 `migration.ticketToCoins`(50) 折成金币，`tickets` / `stars` / `pity` 字段删除，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
-
-## 已删除（集成时清掉的旧接口）
-
-`Meta.finish_level`、`Meta.double_coins`、`Meta.draw_card`（连同 `levelCard` / `ticketPack` / `levelStars` / `challengeStars` / `challengeTickets` / `firstWinTickets` 配置）、`Meta.sign_in`、`Meta.build_step`、`Meta.can_sign_in`、`config/signin.json`、`config/scenes.json`。存档里的 `tickets` / `stars` / `pity` 字段在读档迁移时删除（v1 的鱼票先折成金币）。
+金币 ×`migration.coinsMultiplier`(5)，旧版的鱼票按 `migration.ticketToCoins`(50) 折成金币，旧字段 `tickets` / `stars` / `pity` / `scene` / `sceneStep` 读档时删除，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
 
 ## 局内写入的存档字段
 
