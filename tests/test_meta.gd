@@ -56,10 +56,12 @@ func test_combo_tiers_and_card() -> void:
 
 
 func test_free_third_bowl_after_four_fails() -> void:
-	var eco := JSON.parse_string(FileAccess.get_file_as_string("res://config/economy.json"))
-	var save := PlayerData.create(eco)
+	var eco: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://config/economy.json")
+	)
+	var save: Dictionary = PlayerData.create(eco)
 	eq(Meta.open_slots_for(save, eco, 7, 2), 2, "没失败过不送")
-	for i in 3:
+	for i: int in 3:
 		Meta.fail_level(save, eco, 7)
 	eq(Meta.open_slots_for(save, eco, 7, 2), 2, "失败 3 次不送")
 	Meta.fail_level(save, eco, 7)
