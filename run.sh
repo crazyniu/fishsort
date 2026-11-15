@@ -21,7 +21,8 @@ usage() {
   cat <<'EOF'
 用法: ./run.sh [命令]
 
-  (无)                  启动游戏试玩
+  (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
+  real                  启动游戏，按真实存档进度玩，不加资源
   editor                打开 Godot 编辑器
   test                  跑 src/core 单元测试
   lint                  代码风格检查
@@ -52,6 +53,11 @@ cmd="${1:-play}"
 
 case "$cmd" in
   play)
+    need_godot; import_project
+    # 默认把金币、星星、鱼票、道具加满方便测试；想按真实进度玩用 ./run.sh real
+    FISHSORT_BOOST=1 exec "$GODOT" --path . "$@"
+    ;;
+  real)
     need_godot; import_project
     exec "$GODOT" --path . "$@"
     ;;

@@ -80,3 +80,11 @@ UI_COMBO_GREAT,太强了！,Great!
 UI_COMBO_SUPER,无敌！,Unstoppable!
 UI_FINISH_TITLE,过关！,Cleared!
 UI_FINISH_POPUP,游戏结束,Level complete
+UI_COLLECTED,已收集 %d/%d,Collected %d/%d
+UI_PACK_NAME,珍稀卡包,Rare pack
+UI_RATES_TITLE,概率公示,Drop rates
+UI_RATES_PACK_1,珍稀卡包,Rare pack
+UI_RATES_PACK_2,精良 60% · 稀有 28% · 史诗 10% · 传说 2%,Uncommon 60% · Rare 28% · Epic 10% · Legend 2%
+UI_RATES_LEVEL_1,过关卡,Level card
+UI_RATES_LEVEL_2,普通 80% · 精良 17% · 稀有 3%,Common 80% · Uncommon 17% · Rare 3%
+UI_RATES_PITY,连续没出新卡时会保底一张新卡,A new card is guaranteed after a dry streak

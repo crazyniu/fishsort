@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://cdaycp58uisga"
-path="res://.godot/imported/ResourceHanRoundedCN-Heavy.ttf-99ef6c4d951ce2ad72810b2a164cce43.fontdata"
+uid="uid://c7ph557fjue0q"
+path="res://.godot/imported/MaokenAssortedSans-Lite.ttf-97e626d9327b6ed4ac170186aa99b1af.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/ResourceHanRoundedCN-Heavy.ttf"
-dest_files=["res://.godot/imported/ResourceHanRoundedCN-Heavy.ttf-99ef6c4d951ce2ad72810b2a164cce43.fontdata"]
+source_file="res://assets/fonts/MaokenAssortedSans-Lite.ttf"
+dest_files=["res://.godot/imported/MaokenAssortedSans-Lite.ttf-97e626d9327b6ed4ac170186aa99b1af.fontdata"]
 
 [params]
 

@@ -54,11 +54,11 @@ static func label(text: String, font_size: int, color: Color = Color.WHITE) -> L
 	l.add_theme_font_size_override("font_size", font_size)
 	l.add_theme_color_override("font_color", color)
 	l.add_theme_color_override("font_outline_color", Color(NAVY, 0.9))
-	l.add_theme_constant_override("outline_size", maxi(4, font_size / 6))
-	l.add_theme_color_override("font_shadow_color", Color(0.02, 0.1, 0.3, 0.35))
+	l.add_theme_constant_override("outline_size", maxi(5, font_size / 5))
+	l.add_theme_color_override("font_shadow_color", Color(0.02, 0.1, 0.3, 0.4))
 	l.add_theme_constant_override("shadow_offset_x", 0)
 	l.add_theme_constant_override("shadow_offset_y", maxi(2, font_size / 14))
-	l.add_theme_constant_override("shadow_outline_size", maxi(4, font_size / 6))
+	l.add_theme_constant_override("shadow_outline_size", maxi(5, font_size / 5))
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -116,8 +116,8 @@ static func button(caption: String, color: Color, font_size: int = 34) -> KitBut
 	]:
 		b.add_theme_color_override(state, Color.WHITE)
 	b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.8))
-	b.add_theme_color_override("font_outline_color", Color(NAVY, 0.55))
-	b.add_theme_constant_override("outline_size", maxi(4, font_size / 7))
+	b.add_theme_color_override("font_outline_color", Color(NAVY, 0.75))
+	b.add_theme_constant_override("outline_size", maxi(5, font_size / 5))
 	return b
 
 
