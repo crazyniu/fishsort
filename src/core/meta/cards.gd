@@ -2,6 +2,9 @@ class_name Cards
 extends RefCounted
 ## 图鉴卡的稀有度抽取与入账。宝箱、抽奖、签到共用。
 
+## 稀有度从低到高，与 economy.json 的 rarities 一致
+const ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legend"]
+
 
 static func rank(eco: Dictionary, rarity: String) -> int:
 	return (eco["rarities"] as Array).find(rarity)
@@ -46,6 +49,14 @@ static func pick(
 ) -> Dictionary:
 	var cards: Dictionary = save["cards"]
 	var same: Array = species.filter(func(sp: Dictionary) -> bool: return sp["rarity"] == rarity)
+	# 传进来的可能只是已开放册子里的卡（Album.pool）：里面没有这一档时往低一档找，
+	# 再没有就从整池挑（传说卡在最后两册，前期抽到传说给史诗）
+	var at: int = ORDER.find(rarity)
+	while same.is_empty() and at > 0:
+		at -= 1
+		same = species.filter(func(sp: Dictionary) -> bool: return sp["rarity"] == ORDER[at])
+	if same.is_empty():
+		same = species
 	if prefer_unowned:
 		var miss: Array = same.filter(func(sp: Dictionary) -> bool: return not cards.has(sp["id"]))
 		if miss.is_empty():

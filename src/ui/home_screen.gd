@@ -109,6 +109,11 @@ func refresh_top() -> void:
 	_refresh_lives()
 
 
+## 领了奖之后整页重建：金币、页签红点、当前页面一起刷新
+func refresh_all() -> void:
+	_build()
+
+
 ## 重建当前页面（不带动画）
 func rebuild_page() -> void:
 	_show_page(false)
@@ -241,6 +246,11 @@ func _build_tabs() -> void:
 			var lock := UiKit.icon("res://assets/ui/lock.png", 34)
 			lock.position = Vector2(46, 42)
 			icon.add_child(lock)
+		elif TAB_FEATURES[i] == "album" and Album.claimable(Save.data, Config.eco) > 0:
+			# 图鉴有大奖可领：页签上亮红点
+			var dot := UiKit.badge("dot_red", 30)
+			dot.position = Vector2(56, -4)
+			icon.add_child(dot)
 		var text := UiKit.label(tr(TAB_KEYS[i]), 24)
 		_add(_stage, text, Vector2(x, y + 96), Vector2(tab_w, 32))
 		_tab_labels.append(text)

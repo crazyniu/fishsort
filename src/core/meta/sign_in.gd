@@ -96,7 +96,11 @@ static func _grant(
 			eco, eco["chest"]["cardRates"], rng, Cards.rank(eco, big["minRarity"])
 		)
 		(res["cards"] as Array).append(
-			Cards.give(save, eco, Cards.pick(save, species, rarity, rng))
+			Cards.give(
+				save,
+				eco,
+				Cards.pick(save, Album.pool(eco, species, int(save["level"])), rarity, rng)
+			)
 		)
 		save["coins"] = int(save["coins"]) + int(big["coins"])
 		res["coins"] = int(res["coins"]) + int(big["coins"])
@@ -115,4 +119,8 @@ static func _small_chest(
 			(res["skills"] as Array).append(id)
 			return
 	var rarity: String = Cards.roll_rarity(eco, eco["chest"]["cardRates"], rng)
-	(res["cards"] as Array).append(Cards.give(save, eco, Cards.pick(save, species, rarity, rng)))
+	(res["cards"] as Array).append(
+		Cards.give(
+			save, eco, Cards.pick(save, Album.pool(eco, species, int(save["level"])), rarity, rng)
+		)
+	)

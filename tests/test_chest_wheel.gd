@@ -74,9 +74,10 @@ func test_chest_pity_exactly_after_four_dry() -> void:
 	var save: Dictionary = p[0]
 	var eco: Dictionary = p[1]
 	var species: Array = p[2]
-	# 先拥有一部分卡，保底必须给未拥有的
-	for i: int in 20:
-		save["cards"][species[i]["id"]] = 1
+	# 先拥有一部分卡，保底必须给未拥有的。只掉已开放册子里的卡，收齐这些就停
+	var open: Array = Album.pool(eco, species, int(save["level"]))
+	for i: int in 5:
+		save["cards"][open[i]["id"]] = 1
 	var rng := Rng.new(9)
 	var dry: int = 0
 	for i: int in 400:
@@ -90,7 +91,7 @@ func test_chest_pity_exactly_after_four_dry() -> void:
 		if r["pity"]:
 			ok(r["card"]["is_new"], "保底给的是未拥有的卡")
 			eq((save["cards"] as Dictionary).size(), before + 1, "图鉴 +1")
-		if (save["cards"] as Dictionary).size() >= species.size():
+		if (save["cards"] as Dictionary).size() >= open.size():
 			break
 	# 精确规则：dry = 4 时必定出卡
 	save["chest"]["dry"] = 4
