@@ -80,20 +80,7 @@ func _focus_current(focus: float) -> void:
 ## 顶部不放整条栏，让路线铺满屏幕：只有顶上一层很淡的渐变托底，
 ## 左上悬一个返回胶囊，右上悬一个重玩奖励胶囊。
 func _header(stage: Control) -> void:
-	var scrim := TextureRect.new()
-	var fade := Gradient.new()
-	fade.colors = PackedColorArray([Color(UiKit.NAVY, 0.5), Color(UiKit.NAVY, 0.0)])
-	var grad := GradientTexture2D.new()
-	grad.gradient = fade
-	grad.fill_from = Vector2(0, 0)
-	grad.fill_to = Vector2(0, 1)
-	grad.width = 8
-	grad.height = 64
-	scrim.texture = grad
-	scrim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	scrim.stretch_mode = TextureRect.STRETCH_SCALE
-	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	HomePage.add_to(stage, scrim, Vector2(-400, 0), Vector2(W + 800, 170))
+	HomePage.add_to(stage, UiKit.top_scrim(W + 800, 170), Vector2(-400, 0))
 	var back := _pill(tr("H_BACK_ARROW"), 150.0)
 	HomePage.add_to(stage, back, Vector2(24, 26))
 	var hot := UiKit.hotspot(Vector2(-8, -8), Vector2(166, 88))

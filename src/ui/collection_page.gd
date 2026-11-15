@@ -3,51 +3,33 @@ extends HomePage
 ## 图鉴页：60 张收藏卡按稀有度分档，木架鱼缸陈列。来源见 docs/01 §5.4。
 
 const RARITIES: Array[String] = ["common", "uncommon", "rare", "epic", "legend"]
-## 各稀有度页签选中时的字色
-const RARITY_COLORS: Array[Color] = [
-	UiKit.BLUE, UiKit.GREEN, UiKit.BLUE, UiKit.PURPLE, UiKit.ORANGE
+## 各稀有度页签选中时的底色（五档各一种颜色，一眼分得清）
+const RARITY_PIECES: Array[String] = [
+	"btn_blue", "btn_green", "btn_purple", "btn_red", "btn_orange"
 ]
+const TABS_Y := 18.0
+const TABS_H := 56.0
+const PROGRESS_Y := 90.0
+const LIST_TOP := 134.0
 
-var _rarity: int = 0
+## 选中的稀有度。页面每次重建都是新实例，状态放静态变量里才不会点了又弹回「普通」
+static var _rarity: int = 0
 
 
 func build() -> void:
 	# 深海底板托住整页内容，背景图只露在外圈
 	var deep_h: float = size.y - 14.0
 	add(UiKit.piece("deep"), Vector2(12, 4), Vector2(W - 24, deep_h))
-	# 稀有度分段页签：深色轨道，选中段是白色块
-	var seg_w: float = (W - 64 - 8) / RARITIES.size()
-	add(UiKit.piece("track"), Vector2(32, 20), Vector2(W - 64, 64))
-	for i: int in RARITIES.size():
-		var text: String = tr("UI_RARITY_" + RARITIES[i].to_upper())
-		var pos := Vector2(36 + i * seg_w, 24)
-		if i == _rarity:
-			var on := UiKit.piece("seg_on")
-			add(on, pos, Vector2(seg_w, 56))
-			Anim.bounce(on, 1.06, 0.2)
-			add(UiKit.text(text, 28, RARITY_COLORS[i].darkened(0.25)), pos, Vector2(seg_w, 56))
-		else:
-			add(UiKit.label(text, 26), pos, Vector2(seg_w, 56))
-			var hot := UiKit.hotspot(pos, Vector2(seg_w, 56))
-			hot.pressed.connect(_on_rarity.bind(i))
-			add_child(hot)
-	# 收集进度
+	_build_tabs()
 	var cards: Dictionary = Save.data["cards"]
 	var pool: Array = Config.species.filter(
 		func(sp: Dictionary) -> bool: return sp["rarity"] == RARITIES[_rarity]
 	)
 	var have: int = pool.filter(func(sp: Dictionary) -> bool: return cards.has(sp["id"])).size()
-	add(UiKit.piece("chip"), Vector2(32, 98), Vector2(W - 64, 36))
-	if have > 0:
-		var fill_w: float = maxf(36.0, (W - 64) * have / pool.size())
-		add(UiKit.piece("fill"), Vector2(32, 98), Vector2(fill_w, 36))
-	add(
-		UiKit.text(tr("UI_COLLECTED") % [have, pool.size()], 22, UiKit.INK),
-		Vector2(32, 98),
-		Vector2(W - 64, 36)
-	)
+	_build_progress(have, pool.size())
+
 	# 鱼缸一排三个摆在木架上，可上下滑动
-	var list_top: float = 146.0
+	var list_top: float = LIST_TOP
 	var list_h: float = deep_h - list_top - 4.0
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -92,6 +74,43 @@ func build() -> void:
 		if n < 12:
 			Anim.pop_in(cell, 0.03 * n, 0.25)
 	inner.custom_minimum_size = Vector2(W - 24, ceili(pool.size() / 3.0) * row_h + 8)
+
+
+## 稀有度页签：不要深色轨道和白块，选中的是该档颜色的按钮，其余只是字
+func _build_tabs() -> void:
+	var seg_w: float = (W - 64.0) / RARITIES.size()
+	for i: int in RARITIES.size():
+		var text: String = tr("UI_RARITY_" + RARITIES[i].to_upper())
+		var pos := Vector2(32.0 + i * seg_w, TABS_Y)
+		var area := Vector2(seg_w, TABS_H)
+		if i == _rarity:
+			var on := UiKit.piece(RARITY_PIECES[i])
+			add(on, pos + Vector2(3, 0), area - Vector2(6, 0))
+			Anim.bounce(on, 1.06, 0.2)
+			add(UiKit.label(text, 26), pos, area)
+		else:
+			var l := UiKit.label(text, 24)
+			l.modulate = Color(1, 1, 1, 0.78)
+			add(l, pos, area)
+			var hot := UiKit.hotspot(pos, area)
+			hot.pressed.connect(_on_rarity.bind(i))
+			Anim.press_fx(hot)
+			add_child(hot)
+
+
+## 收集进度：左边文字，右边一条细进度条
+func _build_progress(have: int, total: int) -> void:
+	var bar_x: float = 270.0
+	var bar_w: float = W - 32.0 - bar_x
+	add(
+		UiKit.label(tr("UI_COLLECTED") % [have, total], 24),
+		Vector2(36, PROGRESS_Y),
+		Vector2(230, 32)
+	)
+	add(UiKit.piece("chip"), Vector2(bar_x, PROGRESS_Y + 4.0), Vector2(bar_w, 24))
+	if have > 0 and total > 0:
+		var fill_w: float = maxf(26.0, bar_w * have / total)
+		add(UiKit.piece("fill"), Vector2(bar_x, PROGRESS_Y + 4.0), Vector2(fill_w, 24))
 
 
 func _on_rarity(i: int) -> void:

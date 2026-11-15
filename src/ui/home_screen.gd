@@ -138,7 +138,8 @@ func start_level(level: int = 0) -> void:
 
 func _build_top() -> void:
 	var mid: float = BAR_Y + BAR_H / 2.0
-	_add(_stage, UiKit.piece("glass"), Vector2(16, BAR_Y), Vector2(W - 32, BAR_H))
+	# 没有整条底板：头像、金币、生命、设置各自悬浮，只在最上面垫一层淡渐变
+	_add(_stage, UiKit.top_scrim(W + 800, BAR_Y + BAR_H + 50.0), Vector2(-400, 0))
 	var info: Dictionary = model.profile()
 	var avatar := UiKit.icon(str(info["avatar"]), 68)
 	_add(_stage, avatar, Vector2(30, mid - 34))
@@ -191,8 +192,9 @@ func _refresh_lives() -> void:
 		return
 	if model.infinite_secs() > 0:
 		_life_icon.texture = UiKit.tex("res://assets/ui/heart_inf.png")
-		_life_label.text = "∞"
-		_life_timer.text = HomePopups._fmt_time(model.infinite_secs())
+		# 心形图标自带 ∞，数字位置直接显示剩余时间，不再重复写 ∞
+		_life_label.text = HomePopups._fmt_time(model.infinite_secs())
+		_life_timer.text = ""
 		return
 	_life_icon.texture = UiKit.tex("res://assets/ui/heart.png")
 	_life_label.text = str(mini(model.lives(), 99))
