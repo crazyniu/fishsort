@@ -1,0 +1,21 @@
+{
+  "name": "fishsort",
+  "debug": true,
+  "md5Cache": false,
+  "buildPath": "project://build",
+  "startScene": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83",
+  "scenes": [
+    {
+      "url": "db://assets/scenes/main.scene",
+      "uuid": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83"
+    }
+  ],
+  "platform": "wechatgame",
+  "outputName": "wechatgame",
+  "packages": {
+    "wechatgame": {
+      "appid": "wx6ac3f5090a6b99c5",
+      "orientation": "portrait"
+    }
+  }
+}

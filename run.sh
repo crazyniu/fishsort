@@ -17,6 +17,21 @@ find_godot() {
 }
 GODOT="$(find_godot)"
 
+# 找 Cocos Creator：优先用 COCOS_CREATOR 环境变量，其次 macOS 上 3.8.8 的默认安装位置
+COCOS_VERSION=3.8.8
+find_cocos() {
+  if [ -n "${COCOS_CREATOR:-}" ]; then echo "$COCOS_CREATOR"; return; fi
+  local bin
+  for bin in /Applications/Cocos/Creator/$COCOS_VERSION/CocosCreator.app/Contents/MacOS/CocosCreator \
+             "$HOME"/Applications/Cocos/Creator/$COCOS_VERSION/CocosCreator.app/Contents/MacOS/CocosCreator; do
+    if [ -x "$bin" ]; then echo "$bin"; return; fi
+  done
+  echo CocosCreator
+}
+COCOS="$(find_cocos)"
+CLIENT="$PWD/client"
+WEB_PORT="${WEB_PORT:-8080}"
+
 usage() {
   cat <<'EOF'
 用法: ./run.sh [命令]
@@ -33,6 +48,14 @@ usage() {
   level-verify          全量关卡校验（慢）
   level-verify-changed  只校验改动过的关卡
   font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
+
+Cocos 版（client/，迁移中，见 docs/09）：
+  web                   构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
+  web-build             只构建 web-mobile → client/build/web-mobile
+  web-serve             不重新构建，直接起服务打开上次的构建
+  wechat-build          构建微信小游戏包 → client/build/wechatgame
+  cocos-editor          用 Cocos Creator 打开 client/
+  meta                  给 client/assets 里缺 .meta 的资源补 .meta（Linux 上跑，结果要提交）
 EOF
 }
 
@@ -40,6 +63,32 @@ die() { echo "✗ $*" >&2; exit 1; }
 
 need_godot() {
   command -v "$GODOT" >/dev/null || die "找不到 Godot：请把 Godot.app 放进「应用程序」目录，或用 GODOT=/路径/godot ./run.sh 指定"
+}
+
+need_cocos() {
+  [ -x "$COCOS" ] || command -v "$COCOS" >/dev/null || die "找不到 Cocos Creator $COCOS_VERSION：装到 /Applications/Cocos/Creator/$COCOS_VERSION/，或用 COCOS_CREATOR=/路径/CocosCreator ./run.sh 指定"
+}
+
+# 命令行构建；Cocos 成功时退出码是 36（32 = 参数错误，34 = 构建出错）
+cocos_build() {
+  local platform="$1" code=0
+  need_cocos
+  "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
+  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 $code）"
+  echo "✓ 已构建 $platform → client/build/$platform"
+  # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
+  if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
+    echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
+    git status --short -- client
+  fi
+}
+
+web_serve() {
+  local dir="$CLIENT/build/web-mobile" url="http://localhost:$WEB_PORT/"
+  need_file "$dir/index.html" "先跑 ./run.sh web-build"
+  echo "→ $url（Ctrl+C 停止）"
+  if command -v open >/dev/null; then (sleep 1; open "$url") & fi
+  exec python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 --directory "$dir"
 }
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
@@ -101,6 +150,20 @@ case "$cmd" in
     ;;
   font-subset)
     python3 tools/font/subset.py "$@"
+    ;;
+  web)
+    cocos_build web-mobile
+    web_serve
+    ;;
+  web-build)    cocos_build web-mobile ;;
+  web-serve)    web_serve ;;
+  wechat-build) cocos_build wechatgame ;;
+  cocos-editor)
+    need_cocos
+    exec "$COCOS" --project "$CLIENT" "$@"
+    ;;
+  meta)
+    node tools/cocos/meta.mjs "$@"
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;
