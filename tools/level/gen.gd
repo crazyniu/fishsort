@@ -1,7 +1,8 @@
 extends SceneTree
 ## 生成关卡文件。用法：./run.sh level-gen [起始关] [结束关]
-## 每关换种子、微调总鱼数，挑胜率落进目标容差且满足单调约束的那个，
-## 规则见 docs/02-关卡设计.md 第 2.1、4 节。
+## 每关逐个种子在难度旋钮上二分、微调总鱼数，挑胜率最接近目标且满足单调约束的那个，
+## 规则见 docs/02-关卡设计.md 第 2.1、4 节。一关的结果只取决于关卡号和上一关的胜率，
+## 不依赖从哪一关开始跑，所以可以按关号分段并行生成。
 
 const DIR := "res://config/levels"
 const EASE_VARIANTS := 2
@@ -11,9 +12,9 @@ var _gen: Dictionary = {}
 var _runs: int = 40
 ## 上一个普通关 / 挑战关的实测 2 缸胜率，-1 = 还没有
 var _last: Dictionary = {false: -1, true: -1}
-## 上一个普通关 / 挑战关用的难度旋钮，下一关从这里起步
-var _knob: Dictionary = {false: 0.0, true: 0.3}
 var _warnings: Array[String] = []
+## FISHSORT_GEN_TRACE=1 时打印每次试探，调搜索用
+var _trace: bool = OS.get_environment("FISHSORT_GEN_TRACE") == "1"
 
 
 func _init() -> void:
@@ -118,37 +119,61 @@ func _pick_base(id: int, challenge: bool) -> Dictionary:
 		return {"lv": lv0, "g2": Bots.rate(lv0, "greedy", 2, _runs), "g3": 100, "d": 0.0}
 	var target: float = LevelCurve.target_rate(_curve, id, challenge)
 	var span: Array = LevelCurve.target(_curve, id, challenge)
+	var lo: int = int(span[0])
 	var last: int = _last[challenge]
-	var margin: int = int(_gen["monotoneMargin"])
-	var hi: int = int(span[1]) if last < 0 else mini(int(span[1]), last + margin)
-	# 搜索瞄准的胜率：目标值，但要给单调上限留 2 个点
-	var aim: float = clampf(target, float(span[0]) + 1.0, float(hi) - 2.0)
-	var d: float = _knob[challenge]
+	var hi: int = (
+		int(span[1]) if last < 0 else mini(int(span[1]), last + int(_gen["monotoneMargin"]))
+	)
+	# 上一关已经偏难到区间下限以下时，单调和容差不能同时满足：贴着下限出，
+	# 不让一关的偏差顺着单调约束传给后面所有关
+	hi = maxi(hi, lo + 3)
+	# 搜索瞄准的胜率：目标值，但离上下限各留 1–2 个点
+	var aim: float = clampf(target, float(lo) + 1.0, float(hi) - 2.0)
+	var close: float = float(_gen["close"])
 	var best: Dictionary = {}
 	var best_pen: float = INF
+	# 胜率对旋钮很陡且不单调：多换一对鱼，机器人找到的参考解就变了，结伴鱼、限时跟着变。
+	# 所以第一个种子在整个旋钮范围上二分，找出胜率从 100 掉到 0 的过渡带；
+	# 之后的种子只在当前最优候选的旋钮 ± band 内二分，在过渡带里密集取样
+	var center: float = -1.0
 	for i: int in int(_gen["seeds"]):
-		var lv: LevelData = _candidate(id, 0, i, d)
-		if lv == null:
-			# 打乱后机器人一局都赢不了：太难，往回调
-			d = maxf(0.0, d - 0.1)
-			continue
-		var g2: int = Bots.rate(lv, "greedy", 2, _runs)
-		var pen: float = float(maxi(0, int(span[0]) - g2) + maxi(0, g2 - hi)) * 3.0
-		pen += absf(float(g2) - aim) * 0.05
-		if pen < best_pen:
+		var d_lo: float = 0.0
+		var d_hi: float = float(_gen["knobMax"])
+		var probes: int = int(_gen["probes"])
+		if center >= 0.0:
+			d_lo = maxf(0.0, center - float(_gen["band"]))
+			d_hi = minf(d_hi, center + float(_gen["band"]))
+			probes = int(_gen["probesFine"])
+		for step: int in probes:
+			var d: float = (d_lo + d_hi) * 0.5
+			var lv: LevelData = _candidate(id, 0, i, d)
+			if lv == null:
+				# 打乱后机器人找不到通关步骤：太难
+				d_hi = d
+				continue
+			var g2: int = Bots.rate(lv, "greedy", 2, _runs)
+			if _trace:
+				print("  第 %d 关 种子 %d 旋钮 %.4f → 2缸 %d（瞄准 %.1f）" % [id, i, d, g2, aim])
+			if float(g2) > aim:
+				d_lo = d
+			else:
+				d_hi = d
+			if _penalty(g2, lo, hi, aim, 100) >= best_pen:
+				continue
 			# 3 缸胜率只对暂时最优的候选量，省时间
 			var g3: int = Bots.rate(lv, "greedy", 3, _runs)
-			pen += float(maxi(0, g2 - int(_gen["bot3Margin"]) - g3)) * 2.0
+			var pen: float = _penalty(g2, lo, hi, aim, g3)
 			if pen < best_pen:
 				best_pen = pen
 				best = {"lv": lv, "g2": g2, "g3": g3, "d": d}
-			if best_pen < 1.0:
+			if best_pen <= close * 0.05:
 				break
-		var step: float = clampf(absf(float(g2) - aim) / 100.0, 0.04, 0.3)
-		d = clampf(d + (step if float(g2) > aim else -step), 0.0, 1.6)
+		if best_pen <= close * 0.05:
+			break
+		# 还没有候选时，用二分停下的位置当过渡带中心
+		center = float(best["d"]) if not best.is_empty() else (d_lo + d_hi) * 0.5
 	if best.is_empty():
 		return {}
-	_knob[challenge] = best["d"]
 	if best_pen >= 1.0:
 		_warnings.append(
 			(
@@ -159,13 +184,21 @@ func _pick_base(id: int, challenge: bool) -> Dictionary:
 	return best
 
 
+## 越小越好：出容差或破单调每点 3 分，3 缸比 2 缸难每点 2 分，离瞄准值每点 0.05 分。
+## 落在区间内且 3 缸不更难时惩罚 < 1
+func _penalty(g2: int, lo: int, hi: int, aim: float, g3: int) -> float:
+	var pen: float = float(maxi(0, lo - g2) + maxi(0, g2 - hi)) * 3.0
+	pen += float(maxi(0, g2 - int(_gen["bot3Margin"]) - g3)) * 2.0
+	return pen + absf(float(g2) - aim) * 0.05
+
+
 ## 更易变体：胜率要比上一档高出 variantMargin（封顶 100）
 func _pick_variant(id: int, ease: int, prev_rate: int, d: float) -> Dictionary:
 	var need: int = mini(100, prev_rate + int(_gen["variantMargin"]))
 	if id <= int(_curve["targets"]["tutorialUntil"]):
 		need = prev_rate
 	var best: Dictionary = {}
-	for i: int in int(_gen["seeds"]):
+	for i: int in int(_gen["variantSeeds"]):
 		var lv: LevelData = _candidate(
 			id, ease, i, maxf(0.0, d - 0.3 * float(ease) - 0.05 * float(i))
 		)

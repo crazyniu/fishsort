@@ -95,13 +95,7 @@ static func _grant(
 		var rarity: String = Cards.roll_rarity(
 			eco, eco["chest"]["cardRates"], rng, Cards.rank(eco, big["minRarity"])
 		)
-		(res["cards"] as Array).append(
-			Cards.give(
-				save,
-				eco,
-				Cards.pick(save, Album.pool(eco, species, int(save["level"])), rarity, rng)
-			)
-		)
+		_card(save, eco, species, rng, rarity, res)
 		save["coins"] = int(save["coins"]) + int(big["coins"])
 		res["coins"] = int(res["coins"]) + int(big["coins"])
 		Lives.grant_unlimited(save, int(big["unlimitedSeconds"]), now)
@@ -119,6 +113,18 @@ static func _small_chest(
 			(res["skills"] as Array).append(id)
 			return
 	var rarity: String = Cards.roll_rarity(eco, eco["chest"]["cardRates"], rng)
+	_card(save, eco, species, rng, rarity, res)
+
+
+## 发一张该稀有度的卡；收藏还没开放时换成等值金币（同稀有度重复卡的 dupeCoins）
+static func _card(
+	save: Dictionary, eco: Dictionary, species: Array, rng: Rng, rarity: String, res: Dictionary
+) -> void:
+	if not Features.is_unlocked(eco, "album", int(save["level"])):
+		var coins: int = int(eco["dupeCoins"][rarity])
+		save["coins"] = int(save["coins"]) + coins
+		res["coins"] = int(res["coins"]) + coins
+		return
 	(res["cards"] as Array).append(
 		Cards.give(
 			save, eco, Cards.pick(save, Album.pool(eco, species, int(save["level"])), rarity, rng)

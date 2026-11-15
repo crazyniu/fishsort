@@ -56,6 +56,7 @@ func test_chest_challenge_always_card_with_rare_boost() -> void:
 	var rare_plus_normal: int = 0
 	for i: int in n:
 		var save: Dictionary = PlayerData.create(eco)
+		save["level"] = 30
 		var r: Dictionary = LevelChest.open(save, eco, species, 30, true, rng)
 		eq(r["kind"], "card", "挑战关必出卡")
 		if Cards.rank(eco, r["card"]["rarity"]) >= 2:

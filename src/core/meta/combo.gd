@@ -14,8 +14,9 @@ func miss() -> void:
 	count = 0
 
 
-## 命中一次。返回 { count, tier, tier_up, coins, card }；tier 为 -1 表示还没到起算数
-func hit(now: float, cfg: Dictionary, rng: Rng) -> Dictionary:
+## 命中一次。返回 { count, tier, tier_up, coins, card }；tier 为 -1 表示还没到起算数。
+## cards_open 为 false（收藏还没开放）时不送卡
+func hit(now: float, cfg: Dictionary, rng: Rng, cards_open: bool = true) -> Dictionary:
 	if now - _last > float(cfg["windowSeconds"]):
 		count = 0
 	count += 1
@@ -34,7 +35,7 @@ func hit(now: float, cfg: Dictionary, rng: Rng) -> Dictionary:
 	coins += gain
 	res["coins"] = gain
 	var chance: int = int((cfg["cardChance"] as Dictionary).get(str(count), 0))
-	if not card_won and chance > 0 and rng.range_i(1, 100) <= chance:
+	if cards_open and not card_won and chance > 0 and rng.range_i(1, 100) <= chance:
 		card_won = true
 		res["card"] = true
 	return res

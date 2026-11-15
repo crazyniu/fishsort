@@ -60,8 +60,11 @@ func _build_prizes(top: float) -> void:
 		var pos := Vector2((W - row_w) / 2.0 + i * (PRIZE + gap), top + 66.0)
 		var prize := UiKit.icon(str(items[i][0]), PRIZE)
 		add(prize, pos, Vector2(PRIZE, PRIZE))
+		# 第三项是图标染色（占位图标用）
+		if items[i].size() > 2:
+			prize.modulate = Color(str(items[i][2]))
 		Anim.pop_in(prize, 0.3 + i * 0.08, 0.3)
-		var amount: String = str(items[i][1])
+		var amount: String = tr(str(items[i][1]))
 		if not amount.is_empty():
 			add(UiKit.label(amount, 28), pos + Vector2(-30, PRIZE + 2.0), Vector2(PRIZE + 60.0, 38))
 

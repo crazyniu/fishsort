@@ -10,6 +10,8 @@ const LEVEL_COUNT := 120
 
 ## 进场时要打的关：0 = 当前进度的关；大于 0 = 重玩这一关（App.go_game 传入）
 var start_id: int = 0
+## 每日挑战（docs/01 §5.11）：按日期打一个挑战关，不扣生命、不算进度，过关开每日宝箱
+var daily: bool = false
 
 var _level_id: int = 1
 var _lv: LevelData
@@ -46,23 +48,36 @@ var _auto: bool = false
 ## 提示光圈：玩家一段时间没操作时指出一条能进缸的鱼
 var _hint: Control
 var _idle: float = 0.0
+## 调试用：FISHSORT_AUTOPLAY=1 时由贪心机器人代打（只在调试构建里生效，验收结算、宝箱等画面用）
+var _autoplay: bool = OS.is_debug_build() and OS.get_environment("FISHSORT_AUTOPLAY") == "1"
+var _bot_wait: float = 1.5
+var _bot_rng := Rng.new(7)
 
 
 func _ready() -> void:
 	resized.connect(_build)
-	start_level(start_id if start_id > 0 else int(Save.data["level"]))
+	if daily:
+		var cfg: Dictionary = Config.eco["dailyChallenge"]
+		var mine: int = int(Save.data["level"])
+		start_level(
+			DailyChallenge.level_for(Save.today(), mine, int(cfg["levelStep"]), LEVEL_COUNT)
+		)
+	else:
+		start_level(start_id if start_id > 0 else int(Save.data["level"]))
 
 
 func start_level(id: int) -> void:
 	Ads.banner(false)
 	_level_id = id
-	var ease: int = Meta.ease_for(Save.data, Config.eco, id)
-	# 关卡数有限，超出后循环使用
-	_lv = Config.load_level((id - 1) % LEVEL_COUNT + 1, ease)
+	var ease: int = 0 if daily else Meta.ease_for(Save.data, Config.eco, id)
+	# 关卡数有限，超出后在后半段里循环（Meta.level_file，docs/01 §5.7）
+	_lv = Config.load_level(Meta.level_file(id, LEVEL_COUNT), ease)
 	_s = GameState.from_level(_lv)
-	_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
+	if not daily:
+		_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
 	Rules.start(_s)
-	_species = GameSpecies.pick(_lv.level_seed, _lv.palette)
+	# 每日挑战换一批生物，和当初打这一关时不一样
+	_species = GameSpecies.pick(_lv.level_seed + (Save.today() if daily else 0), _lv.palette)
 	_tool_uses = {}
 	for tool: String in Skills.ids(Config.eco):
 		_tool_uses[tool] = 0
@@ -73,8 +88,8 @@ func start_level(id: int) -> void:
 		var here: bool = (
 			id == int(Save.data["level"]) and id == Skills.unlock_level(Config.eco, tool)
 		)
-		# 每个技能的强制教学只出一次，重进解锁关不再出
-		if here and not PlayerData.tip_seen(Save.data, "skill_" + tool):
+		# 每个技能的强制教学只出一次，重进解锁关不再出；每日挑战不出
+		if here and not daily and not PlayerData.tip_seen(Save.data, "skill_" + tool):
 			_tutor = tool
 	_run += 1
 	_moved = false
@@ -91,7 +106,15 @@ func start_level(id: int) -> void:
 	_intro = true
 	_build()
 	_intro = false
-	# 新机制第一次出现的关卡，开局说明一句
+	# 每日挑战不出机制说明和一次性提示（docs/01 §5.11）
+	if not daily:
+		_show_tips(id)
+	if _tutor != "":
+		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
+
+
+## 新机制第一次出现的关卡，开局说明一句
+func _show_tips(id: int) -> void:
 	var tips: Array[String] = []
 	# 生命、掉落这类一次性提示：配置里按关卡给文案键，看过就记下
 	var once: String = (GameCfg.d()["tips"] as Dictionary).get(str(id), "")
@@ -106,13 +129,18 @@ func start_level(id: int) -> void:
 	for i: int in tips.size():
 		var wait: float = 0.9 + i * GameCfg.num("tutorial", "tipGap")
 		get_tree().create_timer(wait).timeout.connect(_toast.bind(tr(tips[i])))
-	if _tutor != "":
-		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
 
 
 func _process(delta: float) -> void:
 	if _s == null or _over or _has_popup():
 		return
+	if _autoplay and not _auto and not _net_mode:
+		_bot_wait -= delta
+		if _bot_wait <= 0.0:
+			_bot_wait = 0.35
+			var pick: Array = Bots.next_tap(_s, _bot_rng)
+			if not pick.is_empty():
+				_tap(pick[0], pick[1])
 	_idle += delta
 	# 前几关是教学，提示来得快；之后发呆久了才提示
 	var hint: Dictionary = GameCfg.d()["hint"]
@@ -155,6 +183,7 @@ func _build() -> void:
 	add_child(_stage)
 	_fx = GameFx.new(_stage, W)
 	_hud = GameHud.new(_stage, _fx)
+	_hud.title_text = tr("UI_TAB_DAILY") if daily else ""
 	_hud.build_top(_level_id, _lv.challenge, _fish_tex(0), _total_fish, _intro)
 	_hud.set_rescued(_total_fish - _s.fish_left(), false)
 	_shelf = GameShelf.new()
@@ -208,8 +237,16 @@ func _tap(b: int, k: int) -> void:
 	# 点击处一圈水波，短促的「啵」
 	_fx.ripple(from)
 	Audio.sfx(&"bo", randf_range(0.95, 1.1))
-	_moved = true
+	_mark_moved()
 	_play(events)
+
+
+## 走了一步。每日挑战免费进来的那一次，第一步时才记次数（docs/01 §5.11）
+func _mark_moved() -> void:
+	if daily and not _moved and DailyChallenge.can_start_free(Save.data, Save.today()):
+		DailyChallenge.enter(Save.data, Config.eco, Save.today(), "free")
+		Save.save()
+	_moved = true
 
 
 ## 连击命中一次：规则和奖励在 Combo 里算，这里只管演出。run 对不上说明已经换关了
@@ -218,10 +255,12 @@ func _combo_hit(from: Vector2, run: int) -> void:
 		return
 	var cfg: Dictionary = Config.eco["combo"]
 	var rng := Rng.new(Time.get_ticks_usec())
-	var res: Dictionary = _combo.hit(Time.get_ticks_msec() / 1000.0, cfg, rng)
+	# 收藏没开放前连击不送卡
+	var cards_open: bool = Features.is_unlocked(Config.eco, "album", int(Save.data["level"]))
+	var res: Dictionary = _combo.hit(Time.get_ticks_msec() / 1000.0, cfg, rng, cards_open)
 	if int(res["count"]) <= 1:
 		_streak_coins = 0
-	# 连击金币只在这里显示，入账由结算（Settle.win）统一做
+	# 连击金币只在这里显示，入账由结算（Settle.win / DailyChallenge.win）统一做
 	var gain: int = res["coins"]
 	_streak_coins += gain
 	var tier: int = res["tier"]
@@ -374,7 +413,7 @@ func _spend_tool(tool: String) -> bool:
 	if not res["ok"]:
 		return false
 	_tool_uses[tool] = int(_tool_uses[tool]) + 1
-	_moved = true
+	_mark_moved()
 	Save.save()
 	_hud.refresh_tools()
 	return true
@@ -569,6 +608,7 @@ func _costs_life() -> bool:
 	return (
 		_moved
 		and not _won
+		and not daily
 		and _level_id > int(Config.eco["lives"]["freeUntilLevel"])
 		and not Lives.is_unlimited(Save.data, Save.now())
 	)
@@ -578,12 +618,18 @@ func _go_home() -> void:
 	Ads.banner(false)
 	_save_best()
 	if App.inst != null:
-		App.inst.go_home()
+		App.inst.go_home(HomeScreen.TAB_DAILY if daily else HomeScreen.TAB_MAIN)
 
 
 func _retry() -> void:
 	_save_best()
-	_enter(_level_id)
+	# 免费进来还没走过：重开不算一次
+	if daily and DailyChallenge.can_start_free(Save.data, Save.today()):
+		start_level(_level_id)
+	elif daily:
+		_daily_again(tr("UI_TAB_DAILY"), true)
+	else:
+		_enter(_level_id)
 
 
 ## 历史最高连击（个人资料里显示），每关结束时记一次
@@ -604,6 +650,8 @@ func _enter(id: int) -> bool:
 
 ## 过关演出，播完再弹结算
 func _celebrate() -> void:
+	# 技能教学没走完就过关了（例如只剩一种鱼时自动收尾）：提示一起收掉
+	_hud.end_tutorial()
 	Anim.shake(_stage, 16.0)
 	_shelf.nudge_all(true)
 	_hud.set_rescued(_total_fish, false)
@@ -615,6 +663,10 @@ func _celebrate() -> void:
 func _show_win() -> void:
 	_won = true
 	_save_best()
+	_record_dex()
+	if daily:
+		_daily_win()
+		return
 	var result: Dictionary = (
 		Settle
 		. win(
@@ -675,6 +727,9 @@ func _show_lose(reason: int) -> void:
 
 ## 真的失败了：记一次失败（连败会降难度）、扣命，然后选重试还是回主页
 func _fail(reason: int) -> void:
+	if daily:
+		_daily_again(tr("UI_LOSE"), false)
+		return
 	Meta.fail_level(Save.data, Config.eco, _level_id)
 	Lives.lose(Save.data, Config.eco, _level_id, _moved, Save.now())
 	_moved = false
@@ -714,3 +769,72 @@ func _on_revive() -> void:
 	_over = false
 	Audio.sfx(&"unlock")
 	_play(Rules.revive(_s))
+
+
+## 过关时把这一关救的生物记进图鉴（每个鱼缸装满就是救了 cap 只）。
+## 只算首次通关和每日挑战，重玩旧关不算；要在 Settle.win 推进进度之前调
+func _record_dex() -> void:
+	if not Dex.counts_win(Save.data, _level_id, daily):
+		return
+	var counts: Dictionary = {}
+	for o: Dictionary in _lv.orders:
+		var id: String = _species[int(o["s"])]
+		counts[id] = int(counts.get(id, 0)) + int(o["cap"])
+	Dex.record(Save.data, counts)
+
+
+# ---------- 每日挑战 ----------
+
+
+## 每日挑战过关：开每日宝箱（连续 7 天再加大宝箱），收下后回每日挑战页
+func _daily_win() -> void:
+	var r: Dictionary = DailyChallenge.win(
+		Save.data,
+		Config.eco,
+		Config.species,
+		Save.today(),
+		Save.now(),
+		Rng.new(Time.get_ticks_usec()),
+		_combo.coins
+	)
+	Save.save()
+	var prizes: Array = r["prizes"]
+	if prizes.is_empty():
+		_go_home()
+		return
+	var head: String = tr("DAILY_BIG_CHEST") if r["big"] else tr("DAILY_CHEST")
+	MetaPopups.prize_reveal(self, prizes, head, _go_home)
+
+
+## 每日挑战失败或中途重开：再试要看广告或花金币，不扣生命
+func _daily_again(head: String, closable: bool) -> void:
+	var price: int = int(Config.eco["dailyChallenge"]["retryCoins"])
+	var lines: Array[String] = [tr("DAILY_RETRY")]
+	var specs: Array = [
+		[tr("H_TO_HOME"), UiKit.BLUE, _go_home],
+		[
+			tr("DAILY_RETRY"),
+			UiKit.PURPLE,
+			Callable(),
+			{"ad": true, "disabled": not Ads.available()}
+		],
+		[tr("DAILY_RETRY"), UiKit.GREEN, Callable(), {"coin": price}],
+	]
+	var p := PopupCard.open(self, head, lines, specs, 0.0, {"closable": closable})
+	p.buttons[1].pressed.connect(
+		func() -> void:
+			if await DailyPage.start_ad() and is_instance_valid(p):
+				p.close()
+				_daily_restart()
+	)
+	p.buttons[2].pressed.connect(
+		func() -> void:
+			if DailyPage.start_coins(self):
+				p.close()
+				_daily_restart()
+	)
+
+
+func _daily_restart() -> void:
+	Save.save()
+	start_level(_level_id)

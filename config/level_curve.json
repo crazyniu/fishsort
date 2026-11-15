@@ -21,5 +21,5 @@
   "challenge": { "speciesPlus": [1, 2], "speciesPlusFrom": 60, "fishMul": 1.3, "fishMax": 126, "capMinus": 2, "capMin": 4, "layersMax": 4, "slackPlus": 1 },
   "ease": { "species": 1, "fish": 3, "cap": 1, "slack": 1 },
   "targets": { "start": 97, "end": 55, "first": 3, "last": 120, "tol": 6, "easyFrom": 90, "tutorialUntil": 2, "challengeDrop": 25, "challengeFloor": 25 },
-  "gen": { "seeds": 45, "capMin": 4, "fishNudge": 3, "monotoneMargin": 3, "bot3Margin": 5, "variantMargin": 4, "runs": 40 }
+  "gen": { "seeds": 40, "probes": 6, "probesFine": 4, "band": 0.1, "knobMax": 1.6, "close": 3, "variantSeeds": 45, "capMin": 4, "fishNudge": 3, "monotoneMargin": 3, "bot3Margin": 5, "variantMargin": 4, "runs": 40 }
 }

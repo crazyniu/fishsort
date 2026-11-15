@@ -81,6 +81,7 @@ func test_features_table() -> void:
 		"album": 6,
 		"wheel": 8,
 		"rank": 11,
+		"dex": 10,
 		"daily": 20,
 		"homeBase": 30
 	}
@@ -339,7 +340,66 @@ func test_album_claim_book_and_final() -> void:
 	for sp: Dictionary in p[2]:
 		save["cards"][sp["id"]] = 1
 	eq(Album.claimable(save, eco), 1, "没到开放关的册子不能领，只有终极大奖")
-	ok(not Album.claim_final(save, eco, 100).is_empty(), "领终极大奖")
+	ok(not Album.has_frame(save), "领之前没有头像框")
+	var final_got: Array = Album.claim_final(save, eco, 100)
+	ok(not final_got.is_empty(), "领终极大奖")
+	eq(final_got[final_got.size() - 1], {"kind": "frame", "amount": 1}, "奖品里有头像框")
+	ok(Album.has_frame(save), "领完解锁头像框")
 	eq(save["coins"], 11000, "终极大奖金币")
 	ok(Lives.is_unlimited(save, 200), "终极大奖带无限生命")
 	ok(not Album.can_claim_final(save, eco), "终极大奖只领一次")
+
+
+func test_daily_challenge_level_is_a_challenge_level() -> void:
+	for day: int in range(20000, 20040):
+		for lv: int in [20, 37, 120, 300]:
+			var id: int = DailyChallenge.level_for(day, lv, 5, 120)
+			ok(id % 5 == 0 and id >= 5 and id <= mini(lv, 120), "day %d lv %d → %d" % [day, lv, id])
+	eq(
+		DailyChallenge.level_for(20001, 60, 5, 120),
+		DailyChallenge.level_for(20001, 61, 5, 120),
+		"同进度同一天是同一关"
+	)
+
+
+func test_daily_challenge_entry_and_streak() -> void:
+	var p := _setup(20)
+	var save: Dictionary = p[0]
+	var eco: Dictionary = p[1]
+	eq(eco["dailyChallenge"]["levelStep"], _cfg("level_curve")["cycle"], "步长等于挑战关间隔")
+	ok(DailyChallenge.enter(save, eco, 100, "free"), "当天第一次免费")
+	ok(not DailyChallenge.enter(save, eco, 100, "free"), "第二次不免费")
+	ok(not DailyChallenge.enter(save, eco, 100, "coins"), "金币不够进不了")
+	save["coins"] = 300
+	ok(DailyChallenge.enter(save, eco, 100, "coins"), "花金币再试")
+	eq(save["coins"], 0, "扣 300")
+	var r: Dictionary = DailyChallenge.win(save, eco, p[2], 100, 0, Rng.new(1))
+	eq(save["coins"], 500, "每日宝箱金币")
+	eq((r["prizes"] as Array).back()["kind"], "card", "每日宝箱有一张卡")
+	ok(not r["big"], "第一天没有大宝箱")
+	eq(DailyChallenge.win(save, eco, p[2], 100, 0, Rng.new(1))["prizes"], [], "一天只领一次")
+	ok(not DailyChallenge.enter(save, eco, 100, "ad"), "过了就不能再进")
+	ok(DailyChallenge.is_free(save, 101), "第二天又免费")
+	for day: int in range(101, 106):
+		DailyChallenge.win(save, eco, p[2], day, 0, Rng.new(day))
+	eq(DailyChallenge.streak(save, 105), 6, "连续 6 天")
+	ok(DailyChallenge.win(save, eco, p[2], 106, 0, Rng.new(7))["big"], "第 7 天开大宝箱")
+	eq(DailyChallenge.streak(save, 106), 0, "开完从头数")
+	DailyChallenge.win(save, eco, p[2], 107, 0, Rng.new(8))
+	eq(DailyChallenge.streak(save, 109), 0, "断了一天清零")
+
+
+func test_dex_counts_and_tier_rewards() -> void:
+	var p := _setup()
+	var save: Dictionary = p[0]
+	var eco: Dictionary = p[1]
+	Dex.record(save, {"c01": 29})
+	ok(not Dex.can_claim(save, eco, "c01"), "差 1 只不能领")
+	Dex.record(save, {"c01": 80, "c02": 3})
+	eq(Dex.count(save, "c01"), 109, "累计")
+	eq(Dex.claimable(save, eco), 1, "一种有奖")
+	eq(Dex.claim(save, eco, "c01"), 200, "第一档")
+	eq(Dex.claim(save, eco, "c01"), 500, "一次领一档，够两档可以连着领")
+	eq(Dex.claim(save, eco, "c01"), 0, "第三档还不够")
+	eq(Dex.next_need(save, eco, "c01"), 300, "下一档 300")
+	eq(save["coins"], 700, "金币入账")

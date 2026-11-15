@@ -106,12 +106,28 @@
       "maxSeconds": 16
     }
   },
+  "basePage": {
+    "scene": 690,
+    "radius": 36,
+    "fallbackScene": "res://assets/ui/home_scene.jpg",
+    "buildFx": 0.45,
+    "chestDelay": 0.7,
+    "chestShake": 0.6,
+    "steps": {
+      "shore": [[0.22, 0.7, 190, "res://assets/ui/order_card.png"], [0.74, 0.3, 150, "res://assets/ui/gift.png"], [0.5, 0.82, 170, "res://assets/fish/c03.png"], [0.3, 0.38, 170, "res://assets/ui/tank.png"], [0.76, 0.66, 200, "res://assets/ui/chest_closed.png"]],
+      "coral": [[0.25, 0.72, 180, "res://assets/fish/c06.png"], [0.72, 0.74, 170, "res://assets/fish/c08.png"], [0.5, 0.4, 210, "res://assets/ui/bubble.png"], [0.22, 0.32, 150, "res://assets/fish/c10.png"], [0.76, 0.3, 170, "res://assets/ui/gift.png"]],
+      "wreck": [[0.5, 0.66, 240, "res://assets/ui/tank.png"], [0.24, 0.34, 160, "res://assets/fish/c12.png"], [0.78, 0.36, 160, "res://assets/fish/c14.png"], [0.22, 0.78, 170, "res://assets/ui/chest_closed.png"], [0.78, 0.8, 160, "res://assets/ui/star.png"]],
+      "crystal": [[0.24, 0.68, 180, "res://assets/ui/star.png"], [0.76, 0.7, 180, "res://assets/fish/c16.png"], [0.5, 0.36, 200, "res://assets/ui/bubble.png"], [0.24, 0.3, 150, "res://assets/fish/c18.png"], [0.76, 0.3, 150, "res://assets/fish/c20.png"]],
+      "palace": [[0.5, 0.3, 220, "res://assets/ui/tank.png"], [0.2, 0.56, 160, "res://assets/fish/c22.png"], [0.8, 0.56, 160, "res://assets/fish/c24.png"], [0.5, 0.7, 180, "res://assets/ui/gift.png"], [0.5, 0.88, 200, "res://assets/ui/chest_open.png"]]
+    }
+  },
   "lockedPrizes": {
-    "album": { "title": "H_FINAL_PRIZE", "items": [["res://assets/ui/coin.png", "10000"], ["res://assets/ui/tool_net.png", "×12"], ["res://assets/ui/heart_inf.png", "3h"]] },
-    "rank": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", ""], ["res://assets/ui/heart_inf.png", ""]] },
+    "album": { "title": "H_FINAL_PRIZE", "items": [["res://assets/ui/coin.png", "10000"], ["res://assets/ui/tool_net.png", "×12"], ["res://assets/ui/heart_inf.png", "3h"], ["res://assets/kit/fx_ring.png", "H_PRIZE_FRAME", "FFC93C"]] },
+    "rank": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", "3000"], ["res://assets/ui/tool_net.png", "×8"]] },
     "wheel": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", ""], ["res://assets/ui/tool_blow.png", ""], ["res://assets/ui/heart_inf.png", ""]] },
+    "dex": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", "2200"]] },
     "daily": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/chest_closed.png", ""], ["res://assets/ui/heart_inf.png", ""]] },
-    "homeBase": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/chest_closed.png", ""], ["res://assets/ui/coin.png", ""], ["res://assets/ui/star.png", ""]] }
+    "homeBase": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/chest_closed.png", "×5"], ["res://assets/ui/coin.png", "22000"], ["res://assets/ui/tool_net.png", "×36"], ["res://assets/ui/heart_inf.png", "9h"]] }
   },
   "unlockGuide": {
     "delay": 0.5,

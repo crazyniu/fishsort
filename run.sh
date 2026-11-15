@@ -23,6 +23,7 @@ usage() {
 
   (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
                         FISHSORT_LEVEL=65 ./run.sh 直接跳到第 65 关（仅试玩模式）
+                        FISHSORT_AUTOPLAY=1 ./run.sh 机器人代打（仅调试构建，验收用）
   real                  启动游戏，按真实存档进度玩，不加资源
   editor                打开 Godot 编辑器
   test                  跑 src/core 单元测试
@@ -31,6 +32,7 @@ usage() {
   level-gen             生成关卡
   level-verify          全量关卡校验（慢）
   level-verify-changed  只校验改动过的关卡
+  font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
 EOF
 }
 
@@ -96,6 +98,9 @@ case "$cmd" in
     # 关卡文件名不含空格，按空白拆分即可（兼容 macOS 自带的 bash 3.2）
     # shellcheck disable=SC2086
     "$GODOT" --headless --path . -s tools/level/verify.gd -- $files
+    ;;
+  font-subset)
+    python3 tools/font/subset.py "$@"
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;

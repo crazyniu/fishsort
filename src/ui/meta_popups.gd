@@ -326,10 +326,12 @@ static func profile(host: Control) -> PopupCard:
 	var avatar := UiKit.icon(str(info["avatar"]), 158)
 	avatar.position = Vector2(50, p.content_y + 8)
 	p.card.add_child(avatar)
+	AvatarFrame.attach(avatar, bool(info["frame"]))
 	var name := UiKit.label(str(info["nickname"]), 36)
 	name.position = Vector2(238, p.content_y + 44)
 	name.size = Vector2(338, 80)
 	name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+
 	p.card.add_child(name)
 	var stats: Array = [
 		["H_CUR_LEVEL", _t("UI_LEVEL") % int(info["level"])],
@@ -396,8 +398,48 @@ static func odds(host: Control) -> PopupCard:
 # ---------- 开奖 ----------
 
 
-## 一个或多个奖品：单个放大展示，多个排成网格。图标弹出 + 金币飞溅 + 音效
-static func prize_reveal(host: Control, prizes: Array, title: String) -> PopupCard:
+## 一个或多个奖品：单个放大展示，多个排成网格。图标弹出 + 金币飞溅 + 音效。
+## 奖品里有收藏卡时，先逐张翻卡（CardReveal），翻完再弹奖品窗；这种情况返回 null，
+## 要接「领取」按钮的事件请传 on_close
+static func prize_reveal(
+	host: Control, prizes: Array, title: String, on_close: Callable = Callable()
+) -> PopupCard:
+	var cards: Array = []
+	for prize: Dictionary in prizes:
+		if str(prize["kind"]) == "card" and prize.has("card_id"):
+			(
+				cards
+				. append(
+					{
+						"id": str(prize["card_id"]),
+						"rarity": str(prize["rarity"]),
+						"is_new": bool(prize.get("is_new", true)),
+						"coins": int(prize.get("dupe_coins", 0)),
+					}
+				)
+			)
+	if cards.is_empty():
+		return _show_prizes(host, prizes, title, on_close)
+	CardReveal.open_all(
+		host,
+		cards,
+		func() -> void:
+			if is_instance_valid(host):
+				_show_prizes(host, prizes, title, on_close)
+	)
+	return null
+
+
+static func _show_prizes(
+	host: Control, prizes: Array, title: String, on_close: Callable
+) -> PopupCard:
+	var p: PopupCard = _prize_popup(host, prizes, title)
+	if on_close.is_valid():
+		p.buttons[0].pressed.connect(on_close)
+	return p
+
+
+static func _prize_popup(host: Control, prizes: Array, title: String) -> PopupCard:
 	var single: bool = prizes.size() == 1
 	var cols: int = 5
 	var grid_rows: int = ceili(prizes.size() / float(cols))

@@ -19,22 +19,16 @@ func build() -> void:
 		else 0
 	)
 	var profile: Dictionary = Platform.impl.get_profile()
-	var rows: Array = Platform.impl.get_rank_list(&"weekly")
-	rows.append(
-		{
-			"name": profile.get("nickname", ""),
-			"avatar": profile.get("avatar", ""),
-			"score": me_score,
-			"me": true
-		}
-	)
-	rows.sort_custom(
-		func(a: Dictionary, b: Dictionary) -> bool: return int(a["score"]) > int(b["score"])
-	)
+	var mine: Dictionary = {
+		"name": profile.get("nickname", ""), "avatar": profile.get("avatar", ""), "score": me_score
+	}
+	# Use the same tie-breaking rules as weekly reward settlement.
+	var rows: Array = WeeklyRank.sorted(Platform.impl.get_rank_list(&"weekly"), mine)
+	_build_prize_note(174.0)
 	# Keep every platform row accessible without shrinking names or avatars.
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add(scroll, Vector2(24, 200), Vector2(W - 48, maxf(150, size.y - 220)))
+	add(scroll, Vector2(24, 250), Vector2(W - 48, maxf(150, size.y - 270)))
 	var list := VBoxContainer.new()
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 12)
@@ -53,6 +47,7 @@ func build() -> void:
 		add_to(row, UiKit.label(str(i + 1), 38), Vector2(19, 20 if i < 3 else 0), Vector2(82, 64 if i < 3 else 128))
 		add_to(row, UiKit.icon(str(r.get("avatar", "")), 110), Vector2(110, 10))
 		var name := UiKit.label(str(r.get("name", "")), 30)
+
 		name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		add_to(row, name, Vector2(232, 0), Vector2(228, 126))
@@ -60,6 +55,19 @@ func build() -> void:
 		add_to(row, value, Vector2(480, 33), Vector2(176, 64))
 		var score := UiKit.label(tr("UI_RANK_LEVELS") % int(r["score"]), 30)
 		add_to(row, score, Vector2(484, 31), Vector2(168, 66))
+
+
+## 每周奖励说明，两行：周一按上周名次发奖、第 1 名的奖励；第 2–3 名、4–10 名和其余上榜的金币
+func _build_prize_note(y: float) -> void:
+	var cfg: Dictionary = Config.eco["rankReward"]
+	var t: Array = cfg["tiers"]
+	var first: String = tr("RANK_PRIZE_TOP") % [int(t[0]["coins"]), int(t[0]["tools"])]
+	var rest: String = (
+		tr("RANK_PRIZE_REST")
+		% [int(t[1]["coins"]), int(t[2]["coins"]), int(t[3]["coins"]), int(cfg["rest"]["coins"])]
+	)
+	add(UiKit.label(first, 22, UiKit.GOLD), Vector2(0, y), Vector2(W, 32))
+	add(UiKit.label(rest, 22, UiKit.GOLD), Vector2(0, y + 32.0), Vector2(W, 32))
 
 
 func _on_back() -> void:

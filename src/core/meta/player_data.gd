@@ -17,9 +17,12 @@ static func create(eco: Dictionary) -> Dictionary:
 		"skillsGranted": {},
 		"tools": (eco["toolStart"] as Dictionary).duplicate(),
 		"cards": {},
-		"album": {"claimed": [], "final": false},
+		"album": {"claimed": [], "final": false, "frame": false},
+		"challenge": DailyChallenge.fresh(),
+		"dex": Dex.fresh(),
+		"base": HomeBase.fresh(),
 		"signin": {"count": 0, "lastDay": -1, "doubledDay": -1},
-		"week": {"id": -1, "cleared": 0},
+		"week": {"id": -1, "cleared": 0, "lastId": -1, "lastCleared": 0, "paid": -1},
 		"daily": Daily.fresh(-1),
 		"ads": {"interstitialAt": -100000.0, "interstitialLevel": 0, "rewardedAt": -100000.0},
 		"seenTips": {},
@@ -32,6 +35,8 @@ static func create(eco: Dictionary) -> Dictionary:
 static func migrate(save: Dictionary, eco: Dictionary) -> Dictionary:
 	var from: int = int(save.get("version", 0))
 	var fresh: Dictionary = create(eco)
+	var had_frame: bool = save.get("album") is Dictionary and save["album"].has("frame")
+	var had_base: bool = save.has("base")
 	for k: String in fresh:
 		if not save.has(k):
 			save[k] = fresh[k]
@@ -39,11 +44,18 @@ static func migrate(save: Dictionary, eco: Dictionary) -> Dictionary:
 			for sub: String in fresh[k]:
 				if not (save[k] as Dictionary).has(sub) and k != "cards":
 					save[k][sub] = fresh[k][sub]
+	# 头像框是后加的字段：已经领过终极大奖的老存档补上
+	if not had_frame and bool(save["album"]["final"]):
+		save["album"]["frame"] = true
 	if from < 2:
 		_migrate_1_to_2(save, eco)
-	# 鱼票、星星、旧抽卡保底、家园进度已经不用了，旧存档里带着的一并清掉
+	# 鱼票、旧抽卡保底、旧版家园（stars / scene / sceneStep）已经不用了，旧存档里带着的一并清掉。
+	# 新家园的星星在 base 里
 	for dead: String in ["tickets", "stars", "pity", "scene", "sceneStep"]:
 		save.erase(dead)
+	if not had_base:
+		# 家园上线前的老存档：按已通关数补发星星（见 HomeBase.retro_stars），建造进度从零开始
+		save["base"]["stars"] = HomeBase.retro_stars(eco, int(save["level"]) - 1)
 	save["version"] = VERSION
 	return save
 
