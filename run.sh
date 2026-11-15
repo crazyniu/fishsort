@@ -81,6 +81,9 @@ need_cocos() {
 cocos_build() {
   local platform="$1" code=0
   need_cocos
+  # Cocos 3.8.8 命令行构建在已有缓存上增量导入时，资源会全被标成 importer "*"、运行黑屏（Mac 上反复遇到）；
+  # 每次从空缓存导入最稳。COCOS_KEEP_CACHE=1 可以跳过
+  [ "${COCOS_KEEP_CACHE:-}" = "1" ] || rm -rf "$CLIENT/library" "$CLIENT/temp"
   "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
   [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 ${code}）"
   echo "✓ 已构建 $platform → client/build/$platform"
