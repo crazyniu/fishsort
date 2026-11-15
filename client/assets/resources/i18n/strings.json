@@ -316,7 +316,8 @@
   "PROFILE_DEFAULT_NAME": "小鱼玩家",
   "PROFILE_LEVEL": "当前关卡",
   "PROFILE_BEST_COMBO": "最佳连击",
-  "PROFILE_CARDS": "收藏进度"
+  "PROFILE_CARDS": "收藏进度",
+  "DAILY_RETRY_HINT": "看广告或花金币再试一次"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -635,6 +636,7 @@
   "PROFILE_DEFAULT_NAME": "Fish Friend",
   "PROFILE_LEVEL": "Level",
   "PROFILE_BEST_COMBO": "Best combo",
-  "PROFILE_CARDS": "Cards"
+  "PROFILE_CARDS": "Cards",
+  "DAILY_RETRY_HINT": "Watch an ad or pay coins to retry"
  }
 }

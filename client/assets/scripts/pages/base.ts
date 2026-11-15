@@ -93,7 +93,7 @@ export class BasePage extends Page {
     this.objects = [];
     steps.forEach(([fx0, fy0, s0], i) => {
       const k = size / App.config.ui.basePage.scene;
-      const o = img(this.scene, `base/${area.id}_${i + 1}`, s0 * k, s0 * k, `obj${i}`);
+      const o = lazyImg(this.scene, `base/${area.id}_${i + 1}`, s0 * k, s0 * k);
       at(o, (fx0 - 0.5) * size, (0.5 - fy0) * size);
       if (i >= built) {
         const sp = o.getComponent(Sprite) as Sprite;

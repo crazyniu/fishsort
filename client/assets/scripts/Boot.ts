@@ -7,6 +7,7 @@ import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { BasePage } from './pages/base';
 import { CollectPage } from './pages/collect';
+import { DailyPage } from './pages/daily';
 import { LevelsPage } from './pages/levels';
 import { profilePopup } from './pages/profile';
 import { RankPage } from './pages/rank';
@@ -64,7 +65,7 @@ export class Boot extends Component {
     ui.register('collect', () => new CollectPage());
     ui.register('rank', () => new RankPage());
     ui.register('levels', () => new LevelsPage());
-    ui.register('daily', () => new TodoPage(null, 'daily'));
+    ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new TodoPage(null, 'wheel'));
     ui.register('adtest', () => new TodoPage(null, 'wheel'));
     ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
