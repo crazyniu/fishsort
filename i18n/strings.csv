@@ -86,5 +86,9 @@ UI_RATES_TITLE,概率公示,Drop rates
 UI_RATES_PACK_1,珍稀卡包,Rare pack
 UI_RATES_PACK_2,精良 60% · 稀有 28% · 史诗 10% · 传说 2%,Uncommon 60% · Rare 28% · Epic 10% · Legend 2%
 UI_RATES_LEVEL_1,过关卡,Level card
-UI_RATES_LEVEL_2,普通 80% · 精良 17% · 稀有 3%,Common 80% · Uncommon 17% · Rare 3%
+UI_RATES_LEVEL_2,每次过关随机得 1 张普通图鉴，每 3 关至少 1 张新的,Each clear gives 1 random common card; a new one at least every 3 clears
 UI_RATES_PITY,连续没出新卡时会保底一张新卡,A new card is guaranteed after a dry streak
+UI_CARD_GET,图鉴获得 %s,New in album: %s
+UI_CARD_AGAIN,%s 已收集，换成 %d 金币,%s already collected: +%d coins
+UI_TAP_CONTINUE,点击任意位置继续,Tap anywhere to continue
+UI_NEW,新,NEW

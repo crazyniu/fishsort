@@ -28,14 +28,11 @@
   },
   "levelCard": {
     "rates": {
-      "common": 80,
-      "uncommon": 17,
-      "rare": 3
+      "common": 100
     },
     "pityEvery": 3,
     "pityPool": [
-      "common",
-      "uncommon"
+      "common"
     ]
   },
   "ticketPack": {
