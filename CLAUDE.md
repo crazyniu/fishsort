@@ -59,4 +59,4 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh level-verify-changed  # 只校验改动的关卡（CI 用）
 ```
 
-Godot 可执行文件：`godot`（4.7.2，已在 PATH）。
+Godot 可执行文件由 `run.sh` 自动查找：`GODOT` 环境变量 → PATH → macOS 的 `/Applications/Godot*.app`。用户在 macOS 上试玩，开发机与 CI 是 Linux。
