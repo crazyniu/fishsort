@@ -28,7 +28,8 @@
   "drop": {
     "delay": 0.25,
     "fallSeconds": 0.32,
-    "nudge": 12
+    "nudge": 12,
+    "relaxSeconds": 0.3
   },
   "hint": {
     "tutorialLevels": 3,
@@ -51,6 +52,64 @@
   "current": {
     "lead": 0.45,
     "stagger": 0.13
+  },
+  "tips": {
+    "11": "TIP_DROP",
+    "6": "TIP_LIVES"
+  },
+  "homeDeco": {
+    "_note": "主页海底场景。item = [生物, x 占宽比例, y 占高比例, 气泡直径]；层从远到近，sway 是视差漂移幅度",
+    "layers": [
+      {
+        "alpha": 0.55,
+        "sway": 5,
+        "period": 8.0,
+        "bob": 4,
+        "items": [
+          ["c11", 0.34, 0.15, 74],
+          ["c14", 0.74, 0.30, 70],
+          ["c01", 0.13, 0.66, 78],
+          ["c07", 0.82, 0.76, 70],
+          ["c10", 0.47, 0.52, 68]
+        ]
+      },
+      {
+        "alpha": 0.85,
+        "sway": 10,
+        "period": 6.5,
+        "bob": 7,
+        "items": [
+          ["c09", 0.55, 0.19, 120],
+          ["c12", 0.17, 0.42, 110],
+          ["c02", 0.76, 0.57, 116],
+          ["c08", 0.40, 0.78, 106]
+        ]
+      },
+      {
+        "alpha": 1.0,
+        "sway": 18,
+        "period": 5.0,
+        "bob": 10,
+        "items": [
+          ["c04", 0.38, 0.27, 210],
+          ["c16", 0.62, 0.42, 180],
+          ["c06", 0.30, 0.57, 190],
+          ["c03", 0.62, 0.69, 150]
+        ]
+      }
+    ],
+    "rising": {
+      "count": 12,
+      "minSize": 14,
+      "maxSize": 38,
+      "minSeconds": 9,
+      "maxSeconds": 16
+    }
+  },
+  "unlockGuide": {
+    "delay": 0.5,
+    "lockSeconds": 0.45,
+    "sparks": 14
   },
   "tutorial": {
     "delay": 1.3,

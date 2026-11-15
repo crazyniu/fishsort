@@ -1,7 +1,7 @@
 class_name GameSpecies
 extends RefCounted
 ## 给一关挑生物：同一关里任意两种的主色（hue）和轮廓（shape）都不相同，一眼能分清。
-## 字段来自 config/species.json；只从已有美术的生物里挑。
+## 字段来自 config/species.json；只从标了 inLevel 且已有美术的生物里挑（新版 16 种）。
 
 static var _pool: Array[Dictionary] = []
 
@@ -10,7 +10,8 @@ static func _load() -> void:
 	if not _pool.is_empty():
 		return
 	for sp: Dictionary in Config.species:
-		if ResourceLoader.exists("res://assets/fish/%s.png" % sp["id"]):
+		var usable: bool = bool(sp.get("inLevel", false))
+		if usable and ResourceLoader.exists("res://assets/fish/%s.png" % sp["id"]):
 			_pool.append(sp)
 
 

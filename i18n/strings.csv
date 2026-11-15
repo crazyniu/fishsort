@@ -218,3 +218,5 @@ UI_STAT_FIRST,今日首胜,First win
 UI_MINUTES,%d 分钟,%d min
 UI_DOUBLE_SHORT,金币 ×2,Coins ×2
 UI_SHARE_SHORT,分享,Share
+TIP_LIVES,从这关起，中途离开会失去 1 条生命,From here on leaving mid-level costs a life
+TIP_DROP,后面还有气泡会掉下来,More bubbles will drop in later

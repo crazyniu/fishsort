@@ -21,6 +21,7 @@ static func create(eco: Dictionary) -> Dictionary:
 		"week": {"id": -1, "cleared": 0},
 		"daily": Daily.fresh(-1),
 		"ads": {"interstitialAt": -100000.0, "interstitialLevel": 0, "rewardedAt": -100000.0},
+		"seenTips": {},
 		"fails": {"level": 0, "count": 0},
 		"settings": {"sound": true, "music": true, "vibrate": true},
 	}
@@ -56,3 +57,14 @@ static func _migrate_1_to_2(save: Dictionary, eco: Dictionary) -> void:
 	# 旧的每日计数结构换新，保留今天是哪天
 	save["daily"] = Daily.fresh(int(save["daily"].get("day", -1)))
 	Skills.sync_unlocks(save, eco)
+
+
+## 一次性教学 / 提示有没有看过（键如 skill_blow、TIP_LIVES）
+static func tip_seen(save: Dictionary, key: String) -> bool:
+	return (save.get("seenTips", {}) as Dictionary).has(key)
+
+
+static func mark_tip(save: Dictionary, key: String) -> void:
+	if not save.has("seenTips"):
+		save["seenTips"] = {}
+	save["seenTips"][key] = true
