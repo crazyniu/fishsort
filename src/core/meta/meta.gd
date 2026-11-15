@@ -3,23 +3,12 @@ extends RefCounted
 ## 局外规则：过关结算、图鉴抽卡、签到、家园、道具买卖、广告频控。
 ## 全部是对存档字典的纯计算；日期、时间、随机数由调用方传入。
 
-const WEEK_DAYS := 7
-
 
 static func _roll_day(save: Dictionary, day: int) -> void:
-	var daily: Dictionary = save["daily"]
-	if daily["day"] != day:
-		daily["day"] = day
-		daily["firstWin"] = false
-		daily["freeCoin"] = 0
-	var week: Dictionary = save["week"]
-	# day 是自 1970-01-01（周四）起的天数，+3 后整除 7 得到以周一为起点的周序号
-	var week_id: int = (day + 3) / WEEK_DAYS
-	if week["id"] != week_id:
-		week["id"] = week_id
-		week["cleared"] = 0
+	Daily.roll(save, day)
 
 
+## 已废弃：新界面用 Settle.win。旧界面仍在调，保留到集成时删除。
 ## 过关结算。返回本次奖励 { coins, stars, tickets, first_win }
 static func finish_level(
 	save: Dictionary, eco: Dictionary, level_id: int, challenge: bool, day: int
@@ -44,6 +33,7 @@ static func finish_level(
 	return reward
 
 
+## 已废弃：用 Settle.double_coins。
 ## 看完双倍广告后调用：把刚发的金币再发一份
 static func double_coins(save: Dictionary, eco: Dictionary, reward: Dictionary) -> int:
 	var extra: int = int(reward["coins"]) * (int(eco["adCoinMultiplier"]) - 1)
@@ -71,6 +61,7 @@ static func ease_for(save: Dictionary, eco: Dictionary, level_id: int) -> int:
 	return ease
 
 
+## 已废弃：宝箱用 LevelChest，抽奖用 Wheel。
 ## 抽一张卡。kind: "levelCard"（过关卡）或 "ticketPack"（珍稀卡包，先扣鱼票）
 ## 返回 { id, rarity, is_new, coins }；鱼票不够返回空字典
 static func draw_card(
@@ -125,10 +116,12 @@ static func grant(save: Dictionary, reward: Dictionary, times: int = 1) -> void:
 		save["tools"][tool] = int(save["tools"][tool]) + int(reward["tools"][tool]) * times
 
 
+## 已废弃：用 SignIn.can_claim。
 static func can_sign_in(save: Dictionary, day: int) -> bool:
 	return int(save["signin"]["lastDay"]) != day
 
 
+## 已废弃：用 SignIn.claim。
 ## 签到：断签不清零，按累计天数循环。今天已签返回空字典
 static func sign_in(save: Dictionary, signin: Dictionary, day: int) -> Dictionary:
 	if not can_sign_in(save, day):
@@ -141,6 +134,7 @@ static func sign_in(save: Dictionary, signin: Dictionary, day: int) -> Dictionar
 	return reward
 
 
+## 已废弃：家园建造和星星不再使用。
 ## 家园建造一步。星星不够或已全部建完返回 false；建完一个场景自动发宝箱
 static func build_step(save: Dictionary, scenes: Dictionary) -> bool:
 	var list: Array = scenes["scenes"]

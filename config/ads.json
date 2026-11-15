@@ -1,14 +1,46 @@
 {
   "placements": {
-    "rv_double_coin": { "type": "rewarded" },
-    "rv_bowl_slot": { "type": "rewarded" },
-    "rv_revive": { "type": "rewarded" },
-    "rv_tool": { "type": "rewarded" },
-    "rv_signin_double": { "type": "rewarded" },
-    "rv_first_win_ticket": { "type": "rewarded" },
-    "rv_free_coin": { "type": "rewarded" },
-    "int_level_end": { "type": "interstitial" },
-    "bn_result": { "type": "banner" }
+    "rv_double_coin": {
+      "type": "rewarded"
+    },
+    "rv_bowl_slot": {
+      "type": "rewarded"
+    },
+    "rv_revive": {
+      "type": "rewarded"
+    },
+    "rv_tool": {
+      "type": "rewarded"
+    },
+    "rv_signin_double": {
+      "type": "rewarded"
+    },
+    "rv_first_win_ticket": {
+      "type": "rewarded"
+    },
+    "rv_free_coin": {
+      "type": "rewarded"
+    },
+    "int_level_end": {
+      "type": "interstitial"
+    },
+    "bn_result": {
+      "type": "banner"
+    },
+    "rv_chest": {
+      "type": "rewarded"
+    },
+    "rv_wheel": {
+      "type": "rewarded"
+    },
+    "rv_life_coin": {
+      "type": "rewarded"
+    }
   },
-  "interstitial": { "minLevel": 8, "minSeconds": 90, "minLevelsBetween": 2, "skipAfterRewardedSeconds": 60 }
+  "interstitial": {
+    "minLevel": 8,
+    "minSeconds": 90,
+    "minLevelsBetween": 2,
+    "skipAfterRewardedSeconds": 60
+  }
 }

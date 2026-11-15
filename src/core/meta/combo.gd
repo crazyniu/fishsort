@@ -42,7 +42,11 @@ func hit(now: float, cfg: Dictionary, rng: Rng) -> Dictionary:
 
 ## 结算时的最高连击奖
 func best_bonus(cfg: Dictionary) -> int:
+	return best_bonus_for(best, cfg)
+
+
+static func best_bonus_for(best_combo: int, cfg: Dictionary) -> int:
 	var b: Dictionary = cfg["bestBonus"]
-	if best < int(b["minCombo"]):
+	if best_combo < int(b["minCombo"]):
 		return 0
-	return mini(best * int(b["coinsPerCombo"]), int(b["max"]))
+	return mini(best_combo * int(b["coinsPerCombo"]), int(b["max"]))
