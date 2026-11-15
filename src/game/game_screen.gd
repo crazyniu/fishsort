@@ -71,7 +71,11 @@ func start_level(id: int) -> void:
 	Skills.sync_unlocks(Save.data, Config.eco)
 	_tutor = ""
 	for tool: String in Skills.ids(Config.eco):
-		if id == int(Save.data["level"]) and id == Skills.unlock_level(Config.eco, tool):
+		var here: bool = (
+			id == int(Save.data["level"]) and id == Skills.unlock_level(Config.eco, tool)
+		)
+		# 每个技能的强制教学只出一次，重进解锁关不再出
+		if here and not PlayerData.tip_seen(Save.data, "skill_" + tool):
 			_tutor = tool
 	_run += 1
 	_moved = false
@@ -89,9 +93,20 @@ func start_level(id: int) -> void:
 	_build()
 	_intro = false
 	# 新机制第一次出现的关卡，开局说明一句
+	var tips: Array[String] = []
+	# 生命、掉落这类一次性提示：配置里按关卡给文案键，看过就记下
+	var once: String = (GameCfg.d()["tips"] as Dictionary).get(str(id), "")
+	if once != "" and not PlayerData.tip_seen(Save.data, once):
+		PlayerData.mark_tip(Save.data, once)
+		Save.save()
+		tips.append(once)
 	var tip: String = (Config.eco["mechanicIntro"] as Dictionary).get(str(id), "")
 	if tip != "":
-		get_tree().create_timer(0.9).timeout.connect(_toast.bind(tr(tip)))
+		tips.append(tip)
+	# 同一关有两句时依次出，不叠在一起
+	for i: int in tips.size():
+		var wait: float = 0.9 + i * GameCfg.num("tutorial", "tipGap")
+		get_tree().create_timer(wait).timeout.connect(_toast.bind(tr(tips[i])))
 	if _tutor != "":
 		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
 
@@ -370,6 +385,8 @@ func _check_tutorial() -> void:
 		return
 	if _tutor != "net" and Rules.apply(_s.clone(), {"a": _tutor, "seed": 1}).is_empty():
 		return
+	PlayerData.mark_tip(Save.data, "skill_" + _tutor)
+	Save.save()
 	_hud.start_tutorial(_tutor)
 
 

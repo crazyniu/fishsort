@@ -31,6 +31,7 @@ var model: HomeModel
 var _tab: int = TAB_MAIN
 var _stage: Control
 var _page: Control
+var _top_root: Control
 var _tab_icons: Array[Control] = []
 var _tab_marks: Array[Control] = []
 var _tab_labels: Array[Label] = []
@@ -62,7 +63,7 @@ func _build() -> void:
 		c.queue_free()
 	_coin_shown = -1
 	var bg := TextureRect.new()
-	bg.texture = UiKit.tex("res://assets/ui/bg_home.jpg")
+	bg.texture = UiKit.tex(HomeDeco.background_path())
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.size = size
@@ -138,24 +139,29 @@ func start_level(level: int = 0) -> void:
 
 func _build_top() -> void:
 	var mid: float = BAR_Y + BAR_H / 2.0
+	# 顶栏单独放一个容器：只有主页显示，其它页面保持干净
+	_top_root = Control.new()
+	_top_root.size = Vector2(W, TOP_H)
+	_top_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_stage.add_child(_top_root)
 	# 没有整条底板：头像、金币、生命、设置各自悬浮，只在最上面垫一层淡渐变
-	_add(_stage, UiKit.top_scrim(W + 800, BAR_Y + BAR_H + 50.0), Vector2(-400, 0))
+	_add(_top_root, UiKit.top_scrim(W + 800, BAR_Y + BAR_H + 50.0), Vector2(-400, 0))
 	var info: Dictionary = model.profile()
 	var avatar := UiKit.icon(str(info["avatar"]), 68)
-	_add(_stage, avatar, Vector2(30, mid - 34))
+	_add(_top_root, avatar, Vector2(30, mid - 34))
 	_hot(Vector2(24, mid - 40), Vector2(80, 80), func() -> void: MetaPopups.profile(self))
 	# 金币：胶囊 + 右端的加号，点了去商店
 	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 240)
-	_add(_stage, coin["box"], Vector2(120, mid - 28))
+	_add(_top_root, coin["box"], Vector2(120, mid - 28))
 	_coin_label = coin["label"]
 	_coin_label.size.x -= 36.0
 	var plus := UiKit.badge("plus", 44)
-	_add(_stage, plus, Vector2(120 + 240 - 50, mid - 22))
+	_add(_top_root, plus, Vector2(120 + 240 - 50, mid - 22))
 	Anim.pulse(plus, 1.12, 1.4)
 	_hot(Vector2(120, mid - 30), Vector2(240, 60), go_tab.bind(TAB_SHOP))
 	# 生命：心形 + 数量 + 恢复倒计时，点了开生命弹窗
 	var life: Dictionary = UiKit.capsule("res://assets/ui/heart.png", 220)
-	_add(_stage, life["box"], Vector2(384, mid - 28))
+	_add(_top_root, life["box"], Vector2(384, mid - 28))
 	_life_label = life["label"]
 	_life_icon = (life["box"] as Control).get_child(1)
 	_life_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -164,14 +170,14 @@ func _build_top() -> void:
 	_life_timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_life_timer.position = Vector2(384 + 108, mid - 28)
 	_life_timer.size = Vector2(104, 56)
-	_stage.add_child(_life_timer)
+	_top_root.add_child(_life_timer)
 	_hot(
 		Vector2(384, mid - 30),
 		Vector2(220, 60),
 		func() -> void: HomePopups.lives(self, refresh_top)
 	)
 	var gear := UiKit.badge("btn_gear", 68)
-	_add(_stage, gear, Vector2(W - 16 - 14 - 68, mid - 34))
+	_add(_top_root, gear, Vector2(W - 16 - 14 - 68, mid - 34))
 	_hot(
 		Vector2(W - 16 - 14 - 68 - 8, mid - 42),
 		Vector2(84, 84),
@@ -184,7 +190,7 @@ func _hot(pos: Vector2, area: Vector2, action: Callable) -> void:
 	var hot := UiKit.hotspot(pos, area)
 	hot.pressed.connect(action)
 	Anim.press_fx(hot)
-	_stage.add_child(hot)
+	_top_root.add_child(hot)
 
 
 func _refresh_lives() -> void:
@@ -318,8 +324,12 @@ func _show_page(animate: bool, from_right: bool = true) -> void:
 		_page = _make_page(_tab)
 	var page: HomePage = _page as HomePage
 	page.host = self
-	page.size = Vector2(W, size.y - TOP_H - TABS_H)
-	_add(_stage, page, Vector2(0, TOP_H))
+	# 金币、生命、设置只在主页出现；其它页面不要顶栏，内容上移占满
+	var with_top: bool = _tab == TAB_MAIN
+	_top_root.visible = with_top
+	var top_h: float = TOP_H if with_top else 0.0
+	page.size = Vector2(W, size.y - top_h - TABS_H)
+	_add(_stage, page, Vector2(0, top_h))
 	_stage.move_child(page, 0)
 	page.build()
 	if animate:

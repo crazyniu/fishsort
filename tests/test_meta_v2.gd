@@ -282,3 +282,14 @@ func test_migrate_v1_save_to_v2() -> void:
 	eq(again["tools"], save["tools"], "也不会重复发礼")
 	var back: Dictionary = JSON.parse_string(JSON.stringify(save))
 	eq(int(back["wheel"]["total"]), 0, "存档可直接转 JSON")
+
+
+func test_seen_tips_default_and_mark() -> void:
+	var save: Dictionary = PlayerData.create(_cfg("economy"))
+	ok(not PlayerData.tip_seen(save, "skill_blow"), "新存档没看过任何教学")
+	PlayerData.mark_tip(save, "skill_blow")
+	ok(PlayerData.tip_seen(save, "skill_blow"), "标记后记为看过")
+	ok(not PlayerData.tip_seen(save, "skill_net"), "别的技能不受影响")
+	var old: Dictionary = {"version": 2, "level": 9}
+	PlayerData.migrate(old, _cfg("economy"))
+	ok(not PlayerData.tip_seen(old, "skill_blow"), "旧存档迁移后补上空记录")

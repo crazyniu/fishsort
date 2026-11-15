@@ -317,36 +317,6 @@ static func revive(host: Control, on_revive: Callable, on_give_up: Callable) -> 
 # ---------- 功能解锁 ----------
 
 
-## feature 是 config/ui_home.json 里 unlocks 的键
-static func feature_unlocked(host: Control, feature: String, on_go: Callable) -> PopupCard:
-	var m := HomeModel.get_inst()
-	var name: String = feature_name(feature)
-	var lines: Array[String] = [_t("H_UNLOCK_LINE") % name]
-	var p := PopupCard.open(
-		host, _t("H_UNLOCK_TITLE"), lines, [[_t("H_GO_LOOK"), UiKit.GREEN, Callable()]], 150.0
-	)
-	var glow := UiKit.icon("res://assets/kit/fx_glow.png", 190)
-	glow.modulate = Color(UiKit.GOLD, 0.55)
-	_centered(p.card, glow, p.content_y - 36.0)
-	var icon := UiKit.icon(feature_icon(feature), 104)
-	_centered(p.card, icon, p.content_y + 6.0)
-	Anim.bounce(icon, 1.3, 0.4)
-	Anim.wiggle(icon, 4.0, 1.4)
-	var tag := UiKit.text(_t("H_UNLOCKS_AT") % m.unlock_level(feature), 24, UiKit.GOLD)
-	tag.size = Vector2(PopupCard.CARD_W, 30)
-	tag.position = Vector2(0, p.content_y + 116.0)
-	p.card.add_child(tag)
-	Audio.sfx(&"unlock")
-	var bs: Array = _wire(p, 1)
-	(bs[0] as Button).pressed.connect(
-		func() -> void:
-			p.close()
-			if on_go.is_valid():
-				on_go.call()
-	)
-	return p
-
-
 static func feature_name(feature: String) -> String:
 	if feature.begins_with("skill_"):
 		return _t("H_FEAT_SKILL") + " · " + _t(SKILL_KEYS[feature.substr(6)])

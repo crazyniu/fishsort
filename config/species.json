@@ -7,7 +7,8 @@
    "group": "orange-round",
    "hue": "orange",
    "pattern": "stripe",
-   "shape": "round"
+   "shape": "round",
+   "inLevel": true
   },
   {
    "id": "c02",
@@ -16,7 +17,8 @@
    "group": "yellow-ball",
    "hue": "yellow",
    "pattern": "spot",
-   "shape": "ball"
+   "shape": "ball",
+   "inLevel": true
   },
   {
    "id": "c03",
@@ -25,7 +27,8 @@
    "group": "red-star",
    "hue": "red",
    "pattern": "spot",
-   "shape": "star"
+   "shape": "star",
+   "inLevel": true
   },
   {
    "id": "c04",
@@ -34,7 +37,8 @@
    "group": "navy-shark",
    "hue": "navy",
    "pattern": "solid",
-   "shape": "shark"
+   "shape": "shark",
+   "inLevel": true
   },
   {
    "id": "c05",
@@ -43,7 +47,8 @@
    "group": "vermilion-claws",
    "hue": "vermilion",
    "pattern": "solid",
-   "shape": "claws"
+   "shape": "claws",
+   "inLevel": true
   },
   {
    "id": "c06",
@@ -52,7 +57,8 @@
    "group": "purple-legs",
    "hue": "purple",
    "pattern": "spot",
-   "shape": "legs"
+   "shape": "legs",
+   "inLevel": true
   },
   {
    "id": "c07",
@@ -61,7 +67,8 @@
    "group": "lime-tall",
    "hue": "lime",
    "pattern": "spot",
-   "shape": "tall"
+   "shape": "tall",
+   "inLevel": true
   },
   {
    "id": "c08",
@@ -70,7 +77,8 @@
    "group": "cyan-umbrella",
    "hue": "cyan",
    "pattern": "solid",
-   "shape": "umbrella"
+   "shape": "umbrella",
+   "inLevel": true
   },
   {
    "id": "c09",
@@ -79,7 +87,8 @@
    "group": "green-shell",
    "hue": "green",
    "pattern": "solid",
-   "shape": "shell"
+   "shape": "shell",
+   "inLevel": true
   },
   {
    "id": "c10",
@@ -88,7 +97,8 @@
    "group": "indigo-diamond",
    "hue": "indigo",
    "pattern": "spot",
-   "shape": "diamond"
+   "shape": "diamond",
+   "inLevel": true
   },
   {
    "id": "c11",
@@ -97,7 +107,8 @@
    "group": "amber-clam",
    "hue": "amber",
    "pattern": "solid",
-   "shape": "clam"
+   "shape": "clam",
+   "inLevel": true
   },
   {
    "id": "c12",
@@ -106,7 +117,8 @@
    "group": "blue-squid",
    "hue": "blue",
    "pattern": "stripe",
-   "shape": "squid"
+   "shape": "squid",
+   "inLevel": true
   },
   {
    "id": "c13",
@@ -115,7 +127,8 @@
    "group": "crimson-lobster",
    "hue": "crimson",
    "pattern": "solid",
-   "shape": "lobster"
+   "shape": "lobster",
+   "inLevel": true
   },
   {
    "id": "c14",
@@ -124,7 +137,8 @@
    "group": "azure-lantern",
    "hue": "azure",
    "pattern": "spot",
-   "shape": "lantern"
+   "shape": "lantern",
+   "inLevel": true
   },
   {
    "id": "c15",
@@ -133,7 +147,8 @@
    "group": "teal-snout",
    "hue": "teal",
    "pattern": "stripe",
-   "shape": "snout"
+   "shape": "snout",
+   "inLevel": true
   },
   {
    "id": "c16",
@@ -142,7 +157,8 @@
    "group": "sky-dolphin",
    "hue": "sky",
    "pattern": "solid",
-   "shape": "dolphin"
+   "shape": "dolphin",
+   "inLevel": true
   },
   {
    "id": "c17",
