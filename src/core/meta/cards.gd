@@ -46,6 +46,9 @@ static func pick(
 ) -> Dictionary:
 	var cards: Dictionary = save["cards"]
 	var same: Array = species.filter(func(sp: Dictionary) -> bool: return sp["rarity"] == rarity)
+	# 传进来的可能只是已开放册子里的卡（Album.pool），里面没有这一档时就从整池挑
+	if same.is_empty():
+		same = species
 	if prefer_unowned:
 		var miss: Array = same.filter(func(sp: Dictionary) -> bool: return not cards.has(sp["id"]))
 		if miss.is_empty():

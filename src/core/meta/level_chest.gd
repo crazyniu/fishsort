@@ -63,7 +63,9 @@ static func _roll(
 		var rarity: String = Cards.roll_rarity(
 			eco, cfg["cardRates"], rng, 0, Cards.rank(eco, "rare"), boost
 		)
-		var card: Dictionary = Cards.pick(save, species, rarity, rng, pity)
+		var card: Dictionary = Cards.pick(
+			save, Album.pool(eco, species, int(save["level"])), rarity, rng, pity
+		)
 		res["card"] = Cards.give(save, eco, card)
 		res["pity"] = pity
 	res["kind"] = kind

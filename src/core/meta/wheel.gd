@@ -134,7 +134,9 @@ static func _draw(
 			Lives.grant_unlimited(save, int(prize["amount"]), now)
 			res["unlimited"] = int(prize["amount"])
 		"card":
-			var card: Dictionary = Cards.pick(save, species, prize["rarity"], rng)
+			var card: Dictionary = Cards.pick(
+				save, Album.pool(eco, species, int(save["level"])), prize["rarity"], rng
+			)
 			res["card"] = Cards.give(save, eco, card)
 	var epic_rank: int = Cards.rank(eco, eco["wheel"]["pityMinRarity"])
 	var got_epic: bool = prize["kind"] == "card" and Cards.rank(eco, prize["rarity"]) >= epic_rank

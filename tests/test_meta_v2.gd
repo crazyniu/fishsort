@@ -301,3 +301,45 @@ func test_seen_tips_default_and_mark() -> void:
 	var old: Dictionary = {"version": 2, "level": 9}
 	PlayerData.migrate(old, _cfg("economy"))
 	ok(not PlayerData.tip_seen(old, "skill_blow"), "旧存档迁移后补上空记录")
+
+
+func test_album_books_cover_all_cards_once() -> void:
+	var p := _setup()
+	var seen: Dictionary = {}
+	for b: Dictionary in Album.books(p[1]):
+		eq((b["cards"] as Array).size(), 10, "每册 10 张")
+		for id: String in b["cards"]:
+			ok(not seen.has(id), "%s 只在一册里" % id)
+			seen[id] = true
+	eq(seen.size(), (p[2] as Array).size(), "60 张卡都分了册")
+
+
+func test_album_pool_follows_unlock() -> void:
+	var p := _setup()
+	eq(Album.pool(p[1], p[2], 6).size(), 10, "第 6 关只出第一册")
+	eq(Album.pool(p[1], p[2], 1).size(), 10, "图鉴开放前按第一册算")
+	eq(Album.pool(p[1], p[2], 20).size(), 20, "第 20 关开第二册")
+	eq(Album.pool(p[1], p[2], 100).size(), 60, "第 100 关全开")
+
+
+func test_album_claim_book_and_final() -> void:
+	var p := _setup(6)
+	var save: Dictionary = p[0]
+	var eco: Dictionary = p[1]
+	eq(Album.claim(save, eco, 0, 0), [], "没集齐不能领")
+	for id: String in Album.books(eco)[0]["cards"]:
+		save["cards"][id] = 1
+	eq(Album.claimable(save, eco), 1, "集齐一册可领")
+	var got: Array = Album.claim(save, eco, 0, 0)
+	eq(got[0], {"kind": "coin", "amount": 1000}, "册子奖金币")
+	eq(save["coins"], 1000, "金币入账")
+	eq(save["tools"]["net"], 1, "每种技能各 1")
+	eq(Album.claim(save, eco, 0, 0), [], "不能重复领")
+	ok(not Album.can_claim_final(save, eco), "没全集齐不能领终极大奖")
+	for sp: Dictionary in p[2]:
+		save["cards"][sp["id"]] = 1
+	eq(Album.claimable(save, eco), 1, "没到开放关的册子不能领，只有终极大奖")
+	ok(not Album.claim_final(save, eco, 100).is_empty(), "领终极大奖")
+	eq(save["coins"], 11000, "终极大奖金币")
+	ok(Lives.is_unlimited(save, 200), "终极大奖带无限生命")
+	ok(not Album.can_claim_final(save, eco), "终极大奖只领一次")

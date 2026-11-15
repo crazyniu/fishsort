@@ -242,7 +242,8 @@ func _combo_hit(from: Vector2, run: int) -> void:
 	if res["card"]:
 		# 连击送的图鉴卡：按宝箱的稀有度概率抽一张，当场入账，结算页列出
 		var rarity: String = Cards.roll_rarity(Config.eco, Config.eco["chest"]["cardRates"], rng)
-		var card: Dictionary = Cards.pick(Save.data, Config.species, rarity, rng)
+		var open: Array = Album.pool(Config.eco, Config.species, int(Save.data["level"]))
+		var card: Dictionary = Cards.pick(Save.data, open, rarity, rng)
 		_combo_card = Cards.give(Save.data, Config.eco, card)
 		_combo_hud.gift()
 
