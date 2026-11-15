@@ -1,0 +1,25 @@
+keys,zh_CN,en
+UI_LEVEL,第 %d 关,Level %d
+UI_CHALLENGE,挑战,Hard
+UI_NEXT_BOWL,下一缸,Next
+UI_TOOL_NET,渔网,Net
+UI_TOOL_BLOW,吹泡,Blow
+UI_TOOL_SHUFFLE,洗牌,Shuffle
+UI_NET_HINT,点一个鱼缸，用渔网把它补满,Tap a tank to fill it with the net
+UI_WIN,过关！,Cleared!
+UI_LOSE,失败了,Failed
+UI_LOSE_BUFFER,暂存槽满了,The tray is full
+UI_LOSE_TIMEOUT,限时缸超时了,Time ran out
+UI_LOSE_STUCK,没有可以点的鱼了,No fish left to tap
+UI_COINS_GAIN,金币 +%d,Coins +%d
+UI_STARS_GAIN,星星 +%d,Stars +%d
+UI_TICKETS_GAIN,鱼票 +%d,Tickets +%d
+UI_CARD_NEW,新图鉴卡：%s,New card: %s
+UI_CARD_DUPE,重复卡 %s，换成金币 +%d,Duplicate %s: coins +%d
+UI_DOUBLE_COINS,看广告 双倍金币,Watch ad: double coins
+UI_NEXT_LEVEL,下一关,Next level
+UI_REVIVE,看广告 复活,Watch ad: revive
+UI_RETRY,再试一次,Try again
+UI_RESTART,重开,Restart
+UI_NO_COINS,金币不够,Not enough coins
+UI_TOOL_LIMIT,这个道具本关已用完,No more uses this level

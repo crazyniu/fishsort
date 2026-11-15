@@ -4,12 +4,14 @@ config_version=5
 [application]
 
 config/name="泡泡海湾"
-run/main_scene="res://scenes/boot.tscn"
+run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
 
 Platform="*res://src/services/platform_service.gd"
+Config="*res://src/services/config_service.gd"
+Save="*res://src/services/save_service.gd"
 
 [debug]
 
@@ -24,6 +26,11 @@ window/size/window_height_override=1600
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://i18n/strings.zh_CN.translation", "res://i18n/strings.en.translation")
+locale/fallback="zh_CN"
 
 [rendering]
 
