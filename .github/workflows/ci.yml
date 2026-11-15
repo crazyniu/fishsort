@@ -1,0 +1,46 @@
+name: CI
+
+# 只在向 main 提 PR 时跑。规则见 docs/05-开发规范.md 第 4 节，不要往这里加 job。
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 缓存 Godot
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: 下载 Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot
+          curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v*_linux.x86_64 ~/godot/godot
+
+      - name: 安装 gdtoolkit
+        run: pip install --quiet gdtoolkit
+
+      - name: 代码检查与单元测试
+        run: GODOT=~/godot/godot ./run.sh check
+
+      - name: 校验改动的关卡
+        run: GODOT=~/godot/godot BASE_REF="origin/${{ github.base_ref }}" ./run.sh level-verify-changed

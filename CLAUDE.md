@@ -51,7 +51,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ```bash
 ./run.sh                       # 启动游戏试玩
 ./run.sh editor                # 打开 Godot 编辑器
-./run.sh test                  # src/core 单元测试（GUT，headless）
+./run.sh test                  # src/core 单元测试（headless）
 ./run.sh lint                  # gdlint + gdformat --check
 ./run.sh check                 # lint + test，与 CI 相同
 ./run.sh level-gen             # 生成关卡
@@ -59,4 +59,4 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh level-verify-changed  # 只校验改动的关卡（CI 用）
 ```
 
-工程脚手架在 M0 创建，在那之前这些命令会提示缺什么。Godot 可执行文件：`godot`（4.7.2，已在 PATH）。
+Godot 可执行文件：`godot`（4.7.2，已在 PATH）。
