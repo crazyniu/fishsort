@@ -67,6 +67,33 @@ static func label(text: String, font_size: int, color: Color = Color.WHITE) -> L
 	return l
 
 
+## 圆角图片：直接放在背景上，没有边框。radius 是设计像素
+static func rounded_picture(path: String, area: Vector2, radius: float) -> TextureRect:
+	var pic := TextureRect.new()
+	pic.texture = tex(path)
+	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	pic.size = area
+	var shader := Shader.new()
+	shader.code = """
+shader_type canvas_item;
+uniform vec2 area;
+uniform float radius;
+void fragment() {
+	vec2 p = (UV - 0.5) * area;
+	vec2 q = abs(p) - (area * 0.5 - vec2(radius));
+	float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+	COLOR.a *= clamp(0.5 - d, 0.0, 1.0);
+}
+"""
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("area", area)
+	mat.set_shader_parameter("radius", radius)
+	pic.material = mat
+	return pic
+
+
 ## 浅色面板上的深色字，不描边
 static func text(content: String, font_size: int, color: Color = BODY) -> Label:
 	var l := label(content, font_size, color)

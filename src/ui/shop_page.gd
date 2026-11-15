@@ -18,7 +18,7 @@ func build() -> void:
 	_row_n = 0
 	if Ads.available():
 		_free_coin_row()
-	for id: String in HomeModel.SKILL_IDS:
+	for id: String in _model.skill_ids():
 		_skill_row(id)
 	_life_row()
 
@@ -88,15 +88,15 @@ func _on_free_coin(row: Control) -> void:
 
 func _skill_row(id: String) -> void:
 	var open: bool = _model.skill_unlocked(id)
-	var icon: String = "res://assets/ui/tool_%s.png" % ("blow" if id == "flow" else id)
-	var tint: Color = Color(0.6, 0.9, 1.0) if id == "flow" else Color.WHITE
+	var icon: String = HomePrize.skill_icon(id)
+	var tint: Color = Color.WHITE
 	var sub: String = (
 		tr("UI_OWNED") % mini(_model.skill_count(id), 99)
 		if open
 		else tr("H_UNLOCKS_AT") % _model.unlock_level("skill_" + id)
 	)
 	var row := _row(
-		icon, tr("H_SKILL_" + id.to_upper()), sub, tint if open else Color(0.5, 0.56, 0.64)
+		icon, tr(HomePopups.SKILL_KEYS[id]), sub, tint if open else Color(0.5, 0.56, 0.64)
 	)
 	var b := _row_button(row, "", UiKit.GREEN, _on_buy_skill.bind(id, row))
 	coin_price(b, _model.skill_price(id))
@@ -130,7 +130,8 @@ func _life_row() -> void:
 	elif m.next_life_secs() > 0:
 		sub = tr("H_NEXT_LIFE") % HomePopups._fmt_time(m.next_life_secs())
 	var count: String = "∞" if m.infinite_secs() > 0 else "%d/%d" % [m.lives(), m.max_lives()]
-	var row := _row("res://assets/kit/heart.png", tr("H_LIVES_TITLE") + "  " + count, sub)
+	var heart: String = "heart_inf" if m.infinite_secs() > 0 else "heart"
+	var row := _row("res://assets/ui/%s.png" % heart, tr("H_LIVES_TITLE") + "  " + count, sub)
 	_row_button(row, tr("H_BUY_LIVES"), UiKit.GREEN, _open_lives)
 
 

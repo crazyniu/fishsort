@@ -370,11 +370,9 @@ def main() -> None:
     # 弹窗关闭键：红色实心圆 + 白叉；视频角标：紫色圆 + 白三角；心形
     save("close_round", stamp(disc(56, rgba("F2604B"), rgba("DD3F2A")), cross(36, False)), stretch=False)
     save("badge_video", stamp(disc(36, rgba("A274E6"), rgba("7B49CC")), triangle(22)), stretch=False)
-    save("heart", heart(64, rgba("FF7A8A"), rgba("E8344E")), stretch=False)
     # 主页入口和页签的图标
     save("ic_route", glyph_route(64), stretch=False)
     save("ic_share", glyph_share(64), stretch=False)
-    save("ic_wheel", wheel_icon(76), stretch=False)
     save("plus", stamp(circle(56, rgba("63D444"), rgba("3FAE25")), cross(40, True)), stretch=False)
 
     # 特效贴图：白色，由代码染色

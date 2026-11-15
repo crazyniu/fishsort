@@ -15,13 +15,13 @@ const TAB_KEYS: Array[String] = [
 ]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
-	"res://assets/kit/ic_wheel.png",
+	"res://assets/ui/tab_wheel.png",
 	"res://assets/ui/tab_main.png",
 	"res://assets/ui/tab_rank.png",
 	"res://assets/ui/tab_collection.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["shop", "wheel", "", "rank", "collection"]
+const TAB_FEATURES: Array[String] = ["", "wheel", "", "rank", "album"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -35,6 +35,7 @@ var _tab_labels: Array[Label] = []
 var _coin_label: Label
 var _life_label: Label
 var _life_timer: Label
+var _life_icon: TextureRect
 var _coin_shown: int = -1
 var _carry: float = 0.0
 
@@ -47,8 +48,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_carry = model.tick(delta, _carry)
-	_refresh_lives()
+	# 生命倒计时由核心按真实时间算，这里每秒刷新一次显示
+	_carry += delta
+	if _carry >= 1.0:
+		_carry = 0.0
+		_refresh_lives()
 
 
 func _build() -> void:
@@ -144,9 +148,10 @@ func _build_top() -> void:
 	Anim.pulse(plus, 1.12, 1.4)
 	_hot(Vector2(120, mid - 30), Vector2(240, 60), go_tab.bind(TAB_SHOP))
 	# 生命：心形 + 数量 + 恢复倒计时，点了开生命弹窗
-	var life: Dictionary = UiKit.capsule("res://assets/kit/heart.png", 220)
+	var life: Dictionary = UiKit.capsule("res://assets/ui/heart.png", 220)
 	_add(_stage, life["box"], Vector2(384, mid - 28))
 	_life_label = life["label"]
+	_life_icon = (life["box"] as Control).get_child(1)
 	_life_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_life_label.size.x = 50.0
 	_life_timer = UiKit.label("", 26, UiKit.GOLD)
@@ -180,9 +185,11 @@ func _refresh_lives() -> void:
 	if _life_label == null:
 		return
 	if model.infinite_secs() > 0:
+		_life_icon.texture = UiKit.tex("res://assets/ui/heart_inf.png")
 		_life_label.text = "∞"
 		_life_timer.text = HomePopups._fmt_time(model.infinite_secs())
 		return
+	_life_icon.texture = UiKit.tex("res://assets/ui/heart.png")
 	_life_label.text = str(mini(model.lives(), 99))
 	var next: int = model.next_life_secs()
 	_life_timer.text = HomePopups._fmt_time(next) if next > 0 else ""

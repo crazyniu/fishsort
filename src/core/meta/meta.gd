@@ -109,50 +109,6 @@ static func buy_tool(save: Dictionary, eco: Dictionary, tool: String) -> bool:
 	return true
 
 
-static func grant(save: Dictionary, reward: Dictionary, times: int = 1) -> void:
-	save["coins"] = int(save["coins"]) + int(reward.get("coins", 0)) * times
-	save["tickets"] = int(save["tickets"]) + int(reward.get("tickets", 0)) * times
-	for tool: String in reward.get("tools", {}):
-		save["tools"][tool] = int(save["tools"][tool]) + int(reward["tools"][tool]) * times
-
-
-## 已废弃：用 SignIn.can_claim。
-static func can_sign_in(save: Dictionary, day: int) -> bool:
-	return int(save["signin"]["lastDay"]) != day
-
-
-## 已废弃：用 SignIn.claim。
-## 签到：断签不清零，按累计天数循环。今天已签返回空字典
-static func sign_in(save: Dictionary, signin: Dictionary, day: int) -> Dictionary:
-	if not can_sign_in(save, day):
-		return {}
-	var days: Array = signin["days"]
-	var reward: Dictionary = days[int(save["signin"]["count"]) % days.size()]
-	save["signin"]["count"] = int(save["signin"]["count"]) + 1
-	save["signin"]["lastDay"] = day
-	grant(save, reward)
-	return reward
-
-
-## 已废弃：家园建造和星星不再使用。
-## 家园建造一步。星星不够或已全部建完返回 false；建完一个场景自动发宝箱
-static func build_step(save: Dictionary, scenes: Dictionary) -> bool:
-	var list: Array = scenes["scenes"]
-	if int(save["scene"]) >= list.size():
-		return false
-	var steps: Array = list[int(save["scene"])]["steps"]
-	var cost: int = int(steps[int(save["sceneStep"])])
-	if int(save["stars"]) < cost:
-		return false
-	save["stars"] = int(save["stars"]) - cost
-	save["sceneStep"] = int(save["sceneStep"]) + 1
-	if int(save["sceneStep"]) >= steps.size():
-		save["scene"] = int(save["scene"]) + 1
-		save["sceneStep"] = 0
-		grant(save, scenes["chest"])
-	return true
-
-
 ## 每日免费金币还能不能领
 static func take_free_coin(save: Dictionary, eco: Dictionary, day: int) -> bool:
 	_roll_day(save, day)

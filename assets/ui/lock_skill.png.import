@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drvd8mwhrdfow"
-path="res://.godot/imported/ic_wheel.png-df95063aaaea93b588e087126f7a62af.ctex"
+uid="uid://cvkgdv3pdqruj"
+path="res://.godot/imported/lock_skill.png-bec90b9489daa311d690287911e1281f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/kit/ic_wheel.png"
-dest_files=["res://.godot/imported/ic_wheel.png-df95063aaaea93b588e087126f7a62af.ctex"]
+source_file="res://assets/ui/lock_skill.png"
+dest_files=["res://.godot/imported/lock_skill.png-bec90b9489daa311d690287911e1281f.ctex"]
 
 [params]
 

@@ -17,24 +17,30 @@ static func icon_path(prize: Dictionary) -> String:
 		"coin":
 			return "res://assets/ui/coin.png"
 		"skill":
-			var id: String = str(prize.get("skill", "blow"))
-			return "res://assets/ui/tool_%s.png" % ("blow" if id == "flow" else id)
+			return skill_icon(str(prize.get("skill", "blow")))
 		"inf_life":
-			return "res://assets/kit/heart.png"
+			return "res://assets/ui/heart_inf.png"
 		"card":
-			return "res://assets/ui/tank.png"
-		"chest", "big_chest":
-			return "res://assets/ui/chest.png"
+			var art: String = "res://assets/fish/%s.png" % str(prize.get("card_id", ""))
+			return art if ResourceLoader.exists(art) else "res://assets/ui/tank.png"
+		"chest":
+			return "res://assets/ui/chest_closed.png"
+		"big_chest":
+			return "res://assets/ui/chest_open.png"
 		"spin":
-			return "res://assets/kit/ic_wheel.png"
+			return "res://assets/ui/tab_wheel.png"
 	return "res://assets/ui/gift.png"
 
 
-## 图标上的着色（图鉴卡按稀有度染色，其余不染）
+## 图标上的着色（没有鱼图的图鉴卡按稀有度染色，其余不染）
 static func tint(prize: Dictionary) -> Color:
-	if str(prize["kind"]) == "card":
+	if str(prize["kind"]) == "card" and not prize.has("card_id"):
 		return (RARITY_COLORS[str(prize["rarity"])] as Color).lerp(Color.WHITE, 0.35)
 	return Color.WHITE
+
+
+static func skill_icon(id: String) -> String:
+	return "res://assets/ui/tool_%s.png" % id
 
 
 ## 一行名称：「金币」「技能」「图鉴卡·稀有」…

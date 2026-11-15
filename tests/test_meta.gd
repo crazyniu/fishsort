@@ -63,29 +63,6 @@ func test_card_pity_and_duplicates() -> void:
 	ok(card["rarity"] != "common", "珍稀卡包不出普通卡")
 
 
-func test_sign_in_once_per_day_and_cycles() -> void:
-	var eco := _cfg("economy")
-	var signin := _cfg("signin")
-	var save := PlayerData.create(eco)
-	eq(Meta.sign_in(save, signin, 10)["coins"], 50, "第 1 天奖励")
-	eq(Meta.sign_in(save, signin, 10), {}, "一天只能签一次")
-	for d: int in range(20, 26):
-		Meta.sign_in(save, signin, d)
-	eq(Meta.sign_in(save, signin, 30)["coins"], 50, "断签不清零，7 天后循环")
-
-
-func test_build_scene_spends_stars_and_gives_chest() -> void:
-	var eco := _cfg("economy")
-	var scenes := _cfg("scenes")
-	var save := PlayerData.create(eco)
-	ok(not Meta.build_step(save, scenes), "没有星星不能建")
-	save["stars"] = 100
-	for i: int in 10:
-		Meta.build_step(save, scenes)
-	eq(save["scene"], 1, "10 步建完进入下一个场景")
-	eq(save["tickets"], 10, "场景宝箱送鱼票")
-
-
 func test_interstitial_frequency_cap() -> void:
 	var eco := _cfg("economy")
 	var ads := _cfg("ads")

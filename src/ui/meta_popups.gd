@@ -215,12 +215,10 @@ static func signin(host: Control, on_change: Callable) -> PopupCard:
 		_signin_cell(p.card, days[i], i, pos, Vector2(w, cell_h), claimed, i == today and can)
 	var bs: Array = p.buttons
 	if can:
-		(bs[bs.size() - 1] as Button).pressed.connect(_claim.bind(p, host, today, false, on_change))
+		(bs[bs.size() - 1] as Button).pressed.connect(_claim.bind(p, host, false, on_change))
 		if bs.size() > 1:
 			(bs[0] as Button).pressed.connect(
-				HomePopups._watch.bind(
-					&"rv_signin_double", _claim.bind(p, host, today, true, on_change)
-				)
+				HomePopups._watch.bind(&"rv_signin_double", _claim.bind(p, host, true, on_change))
 			)
 	else:
 		(bs[0] as Button).pressed.connect(p.close)
@@ -274,10 +272,8 @@ static func _signin_cell(
 		Anim.pop_in(cell, 0.03 * index, 0.25)
 
 
-static func _claim(
-	p: PopupCard, host: Control, day: int, double: bool, on_change: Callable
-) -> void:
-	var reward: Dictionary = HomeModel.get_inst().sign_in(day, double)
+static func _claim(p: PopupCard, host: Control, double: bool, on_change: Callable) -> void:
+	var reward: Array = HomeModel.get_inst().sign_in(double)
 	if reward.is_empty():
 		return
 	Audio.sfx(&"coins")
@@ -285,7 +281,7 @@ static func _claim(
 	if is_instance_valid(p):
 		p.close()
 	if is_instance_valid(host):
-		prize_reveal(host, [reward], _t("H_CONGRATS"))
+		prize_reveal(host, reward, _t("H_CONGRATS"))
 
 
 # ---------- 个人资料 ----------
@@ -428,8 +424,9 @@ static func _prize_line(prize: Dictionary) -> String:
 			return "%s %s" % [HomePrize.title(prize), HomePrize.short(prize)]
 		"skill":
 			var id: String = str(prize.get("skill", ""))
-			var name: String = (
-				_t("H_SKILL_" + id.to_upper()) if id != "" else HomePrize.title(prize)
-			)
+			var name: String = _t(HomePopups.SKILL_KEYS[id]) if id != "" else HomePrize.title(prize)
 			return "%s ×%d" % [name, int(prize["amount"])]
+		"card":
+			var sp: Dictionary = Config.species_by_id.get(str(prize.get("card_id", "")), {})
+			return str(sp.get("name", HomePrize.title(prize)))
 	return HomePrize.title(prize)

@@ -59,10 +59,7 @@ func _build_controls() -> void:
 	main.disabled = _spinning
 	var share := btn(
 		_controls,
-		(
-			tr("H_SHARE_PLUS")
-			+ "  %d/%d" % [_model.spin_share_left(), _model.cfg["spin"]["share_daily"]]
-		),
+		tr("H_SHARE_PLUS") + "  %d/%d" % [_model.spin_share_left(), _model.spin_share_cap()],
 		UiKit.BLUE,
 		Vector2(30, 838),
 		Vector2(335, 84),
@@ -73,7 +70,7 @@ func _build_controls() -> void:
 	if Ads.available():
 		var ad := btn(
 			_controls,
-			tr("H_AD_PLUS") + "  %d/%d" % [_model.spin_ad_left(), _model.cfg["spin"]["ad_daily"]],
+			tr("H_AD_PLUS") + "  %d/%d" % [_model.spin_ad_left(), _model.spin_ad_cap()],
 			UiKit.PURPLE,
 			Vector2(385, 838),
 			Vector2(335, 84),
@@ -104,21 +101,22 @@ func _on_ad() -> void:
 		_build_controls()
 
 
-## 抽一次。没有次数时先用金币买；金币不够弹金币不足
+## 抽一次。没有存下的次数时用金币买；金币不够弹金币不足
 func spin() -> void:
 	if _spinning:
 		return
-	if _model.spins_left() <= 0 and not _model.buy_spin():
+	var pay_coins: bool = _model.spins_left() <= 0
+	if pay_coins and not _model.can_afford(_model.price("spin")):
 		Audio.sfx(&"error")
 		HomePopups.coin_shortage(host, _model.price("spin"), _after_coins)
 		return
-	host.refresh_top()
-	var result: Dictionary = _model.spin_wheel()
+	var result: Dictionary = _model.spin_wheel(pay_coins)
 	if result.is_empty():
 		return
+	host.refresh_top()
 	_spinning = true
 	_build_controls()
-	_rotate_to(int(result["index"]), SPIN_TIME, TURNS, _show_prize.bind(result["prize"]))
+	_rotate_to(int(result["index"]), SPIN_TIME, TURNS, _show_prize.bind(result))
 
 
 func _after_coins() -> void:
@@ -129,20 +127,19 @@ func _after_coins() -> void:
 func _on_ten() -> void:
 	if _spinning:
 		return
-	if not _model.buy_ten():
+	if not _model.can_afford(_model.price("ten")):
 		Audio.sfx(&"error")
 		HomePopups.coin_shortage(host, _model.price("ten"), _after_coins)
 		return
-	var prizes: Array = []
-	var last: int = 0
-	for i: int in 10:
-		var result: Dictionary = _model.spin_wheel()
-		prizes.append(result["prize"])
-		last = int(result["index"])
+	var prizes: Array = _model.ten_pull()
+	if prizes.is_empty():
+		return
 	host.refresh_top()
 	_spinning = true
 	_build_controls()
-	_rotate_to(last, 1.8, 2, _show_ten.bind(prizes))
+	_rotate_to(
+		int((prizes[prizes.size() - 1] as Dictionary)["index"]), 1.8, 2, _show_ten.bind(prizes)
+	)
 
 
 ## 转到 index 号扇区正对指针：先快后慢缓停，沿途滴答

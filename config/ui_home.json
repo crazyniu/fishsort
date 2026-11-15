@@ -1,73 +1,17 @@
 {
-  "_note": "主页界面外壳用的假数据与配置。接入 src/core/meta 真实逻辑后，数值改读 economy.json，本文件只留界面布局相关项。",
-  "unlocks": {
-    "signin": 3,
-    "levels": 5,
-    "collection": 6,
-    "wheel": 8,
-    "rank": 11,
-    "shop": 1,
-    "skill_shuffle": 4,
-    "skill_blow": 7,
-    "skill_net": 9,
-    "skill_flow": 12
-  },
-  "skills": [
-    { "id": "shuffle", "price": 500, "icon": "tool_shuffle" },
-    { "id": "blow", "price": 600, "icon": "tool_blow" },
-    { "id": "net", "price": 900, "icon": "tool_net" },
-    { "id": "flow", "price": 1200, "icon": "tool_flow" }
-  ],
-  "prices": { "life": 200, "refill": 800, "slot": 650, "spin": 1000, "ten": 9000 },
-  "lives": { "max": 5, "regen_secs": 1200, "share_daily": 3 },
-  "free_coin": { "amount": 500, "daily": 10 },
-  "spin": { "free_daily": 1, "share_daily": 1, "ad_daily": 3 },
+  "_note": "界面布局用的配置。数值（价格、次数、概率、开放关、签到奖励）全部来自 economy.json，这里不重复。wheel 是转盘外观：每个扇区放哪个奖品（economy.json 里 wheel.prizes 的 id）和底色（0/1 交替）。",
   "wheel": [
-    { "kind": "coin", "amount": 200, "tone": 0 },
-    { "kind": "skill", "amount": 1, "tone": 1 },
-    { "kind": "coin", "amount": 500, "tone": 0 },
-    { "kind": "card", "rarity": "common", "tone": 1 },
-    { "kind": "coin", "amount": 200, "tone": 0 },
-    { "kind": "inf_life", "amount": 15, "tone": 1 },
-    { "kind": "coin", "amount": 2000, "tone": 0 },
-    { "kind": "card", "rarity": "uncommon", "tone": 1 },
-    { "kind": "coin", "amount": 500, "tone": 0 },
-    { "kind": "skill", "amount": 1, "tone": 1 },
-    { "kind": "card", "rarity": "rare", "tone": 0 },
-    { "kind": "card", "rarity": "epic", "tone": 1 }
-  ],
-  "odds": [
-    { "kind": "coin", "amount": 200, "pct": "28%" },
-    { "kind": "coin", "amount": 500, "pct": "14%" },
-    { "kind": "coin", "amount": 2000, "pct": "3%" },
-    { "kind": "skill", "amount": 1, "pct": "15%" },
-    { "kind": "inf_life", "amount": 15, "pct": "3%" },
-    { "kind": "card", "rarity": "common", "pct": "20%" },
-    { "kind": "card", "rarity": "uncommon", "pct": "11%" },
-    { "kind": "card", "rarity": "rare", "pct": "4.5%" },
-    { "kind": "card", "rarity": "epic", "pct": "1.3%" },
-    { "kind": "card", "rarity": "legend", "pct": "0.2%" }
-  ],
-  "signin": [
-    { "kind": "coin", "amount": 200 },
-    { "kind": "coin", "amount": 300 },
-    { "kind": "chest", "amount": 1 },
-    { "kind": "coin", "amount": 500 },
-    { "kind": "spin", "amount": 1 },
-    { "kind": "skill", "amount": 1 },
-    { "kind": "big_chest", "amount": 1 }
-  ],
-  "fake": {
-    "coins": 1250,
-    "lives": 3,
-    "next_life_secs": 755,
-    "level": 14,
-    "total_levels": 120,
-    "signin_count": 3,
-    "free_coin_used": 3,
-    "best_combo": 23,
-    "cards_have": 17,
-    "cards_total": 60,
-    "nickname": "海湾旅人"
-  }
+    { "id": "coin200", "tone": 0 },
+    { "id": "skill", "tone": 1 },
+    { "id": "coin500", "tone": 0 },
+    { "id": "card_common", "tone": 1 },
+    { "id": "coin200", "tone": 0 },
+    { "id": "life15", "tone": 1 },
+    { "id": "coin2000", "tone": 0 },
+    { "id": "card_uncommon", "tone": 1 },
+    { "id": "coin500", "tone": 0 },
+    { "id": "skill", "tone": 1 },
+    { "id": "card_rare", "tone": 0 },
+    { "id": "card_epic", "tone": 1 }
+  ]
 }

@@ -85,7 +85,7 @@ func _header(stage: Control) -> void:
 	HomePage.add_to(stage, back, Vector2(30, 32), Vector2(130, 64))
 	HomePage.add_to(stage, UiKit.label(tr("H_ENTRY_LEVELS"), 46), Vector2(0, 28), Vector2(W, 72))
 	# 重玩每天前 5 次给奖励
-	var hint := UiKit.label(tr("H_REPLAY_HINT") % [3, 5], 22)
+	var hint := UiKit.label(tr("H_REPLAY_HINT") % [_model.replay_used(), _model.replay_cap()], 22)
 	HomePage.add_to(stage, hint, Vector2(W - 230.0, 40), Vector2(200, 50))
 
 

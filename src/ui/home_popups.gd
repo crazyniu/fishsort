@@ -5,6 +5,19 @@ extends RefCounted
 ## 数据全部来自 HomeModel；host 是弹窗挂靠的界面，on_change 在数据变化后调用（刷新顶栏）。
 
 const LINE_H := 46.0
+const SKILL_KEYS: Dictionary = {
+	"shuffle": "H_SKILL_SHUFFLE",
+	"blow": "H_SKILL_BLOW",
+	"net": "H_SKILL_NET",
+	"current": "H_SKILL_FLOW"
+}
+const FEATURE_KEYS: Dictionary = {
+	"signin": "H_FEAT_SIGNIN",
+	"levelSelect": "H_FEAT_LEVELS",
+	"album": "H_FEAT_COLLECTION",
+	"wheel": "H_FEAT_WHEEL",
+	"rank": "H_FEAT_RANK",
+}
 
 
 static func _t(key: String) -> String:
@@ -87,7 +100,7 @@ static func _lives_body(p: PopupCard, host: Control, on_change: Callable) -> voi
 	count_box.position = Vector2(0, y)
 	p.card.add_child(count_box)
 	if inf:
-		var heart := UiKit.icon("res://assets/kit/heart.png", 64)
+		var heart := UiKit.icon("res://assets/ui/heart_inf.png", 64)
 		heart.position = Vector2(PopupCard.CARD_W / 2.0 - 100.0, 0)
 		count_box.add_child(heart)
 		var sign := UiKit.label("∞", 60, UiKit.GOLD)
@@ -99,7 +112,7 @@ static func _lives_body(p: PopupCard, host: Control, on_change: Callable) -> voi
 		var gap: float = 66.0
 		var x0: float = (PopupCard.CARD_W - gap * m.max_lives()) / 2.0 + 5.0
 		for i: int in m.max_lives():
-			var heart := UiKit.icon("res://assets/kit/heart.png", 60)
+			var heart := UiKit.icon("res://assets/ui/heart.png", 60)
 			heart.position = Vector2(x0 + i * gap, 2)
 			if i >= m.lives():
 				heart.modulate = Color(0.28, 0.4, 0.62)
@@ -121,7 +134,7 @@ static func _lives_body(p: PopupCard, host: Control, on_change: Callable) -> voi
 	cap.position = Vector2(84, 0)
 	cap.size = Vector2(340, 76)
 	row.add_child(cap)
-	var cnt := UiKit.text("%d/%d" % [left, int(m.cfg["lives"]["share_daily"])], 28, UiKit.GOLD)
+	var cnt := UiKit.text("%d/%d" % [left, m.share_lives_cap()], 28, UiKit.GOLD)
 	cnt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	cnt.position = Vector2(row.size.x - 110.0, 0)
 	cnt.size = Vector2(90, 76)
@@ -215,7 +228,7 @@ static func leave_confirm(host: Control, on_leave: Callable) -> PopupCard:
 			130.0
 		)
 	)
-	var heart := UiKit.icon("res://assets/kit/heart.png", 96)
+	var heart := UiKit.icon("res://assets/ui/heart.png", 96)
 	_centered(p.card, heart, p.content_y + 6.0)
 	var minus := UiKit.label("−1", 40, UiKit.GOLD)
 	minus.size = Vector2(80, 50)
@@ -336,26 +349,25 @@ static func feature_unlocked(host: Control, feature: String, on_go: Callable) ->
 
 static func feature_name(feature: String) -> String:
 	if feature.begins_with("skill_"):
-		return _t("H_FEAT_SKILL") + " · " + _t("H_SKILL_" + feature.substr(6).to_upper())
-	return _t("H_FEAT_" + feature.to_upper())
+		return _t("H_FEAT_SKILL") + " · " + _t(SKILL_KEYS[feature.substr(6)])
+	return _t(FEATURE_KEYS[feature])
 
 
 static func feature_icon(feature: String) -> String:
 	match feature:
 		"signin":
 			return "res://assets/ui/gift.png"
-		"levels":
+		"levelSelect":
 			return "res://assets/kit/ic_route.png"
-		"collection":
+		"album":
 			return "res://assets/ui/tank.png"
 		"wheel":
-			return "res://assets/kit/ic_wheel.png"
+			return "res://assets/ui/tab_wheel.png"
 		"rank":
 			return "res://assets/ui/tab_rank.png"
 		"shop":
 			return "res://assets/ui/tab_shop.png"
-	var id: String = feature.substr(6)
-	return "res://assets/ui/tool_%s.png" % ("blow" if id == "flow" else id)
+	return HomePrize.skill_icon(feature.substr(6))
 
 
 # ---------- 金币不足 ----------

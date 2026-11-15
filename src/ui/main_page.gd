@@ -11,14 +11,9 @@ var _model: HomeModel
 
 func build() -> void:
 	_model = host.model
-	var frame := UiKit.piece("deep")
-	add(frame, Vector2(30, 8), Vector2(W - 60, SCENE_H))
-	var art := TextureRect.new()
-	art.texture = UiKit.tex("res://assets/ui/scene1.jpg")
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.clip_contents = true
-	add_to(frame, art, Vector2(14, 14), frame.size - Vector2(28, 28))
+	# 场景图直接放在背景上，圆角 18，不套边框
+	var art := UiKit.rounded_picture("res://assets/ui/scene1.jpg", Vector2(W - 60, SCENE_H), 18.0)
+	add(art, Vector2(30, 8))
 	var title_label := UiKit.label(tr("UI_TITLE"), 88, UiKit.GOLD)
 	add(title_label, Vector2(0, 40), Vector2(W, 120))
 	Anim.pop_in(title_label, 0.05, 0.45)
@@ -52,11 +47,11 @@ func _build_deco() -> void:
 func _build_entries() -> void:
 	var left: Array = [
 		["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin],
-		["levels", "res://assets/kit/ic_route.png", "H_ENTRY_LEVELS", _open_levels],
+		["levelSelect", "res://assets/kit/ic_route.png", "H_ENTRY_LEVELS", _open_levels],
 	]
 	var right: Array = [
 		["skill_shuffle", "res://assets/ui/tool_shuffle.png", "H_FEAT_SKILL", _open_skills],
-		["wheel", "res://assets/kit/ic_wheel.png", "H_FEAT_WHEEL", _open_wheel],
+		["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel],
 	]
 	for i: int in left.size():
 		_entry(left[i], Vector2(50, 200 + i * 170))
@@ -162,11 +157,11 @@ func _go_feature(feature: String) -> void:
 	match feature:
 		"signin":
 			_open_signin()
-		"levels":
+		"levelSelect":
 			_open_levels()
 		"wheel":
 			_open_wheel()
-		"collection":
+		"album":
 			host.go_tab(HomeScreen.TAB_COLLECTION)
 		"rank":
 			host.go_tab(HomeScreen.TAB_RANK)
