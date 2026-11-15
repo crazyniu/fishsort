@@ -26,21 +26,36 @@ static func _run(lv: LevelData, kind: String, rng: Rng, slots: int, taps: Array)
 	var guard: int = 0
 	while s.status == GameState.Status.PLAYING and guard < MAX_STEPS:
 		guard += 1
-		var opts: Array = []
-		for k: int in s.return_fish.size():
-			opts.append([GameState.RETURN_BUBBLE, k, s.return_fish[k], 1])
-		for b: int in Rules.open_bubbles(s):
-			var bub: GameState.Bubble = s.bubbles[b]
-			var left: int = bub.count()
-			for k: int in bub.fish.size():
-				if bub.fish[k] >= 0:
-					opts.append([b, k, bub.fish[k], left])
+		var opts: Array = _options(s)
 		if opts.is_empty():
 			break
 		var choice: Array = rng.pick(opts) if kind == "random" else _greedy(s, opts, rng)
 		taps.append([choice[0], choice[1]])
 		Rules.tap(s, choice[0], choice[1])
 	return s.status == GameState.Status.WON
+
+
+## 当前能点的鱼：[气泡, 位置, 鱼种, 该泡剩几条]
+static func _options(s: GameState) -> Array:
+	var opts: Array = []
+	for k: int in s.return_fish.size():
+		opts.append([GameState.RETURN_BUBBLE, k, s.return_fish[k], 1])
+	for b: int in Rules.open_bubbles(s):
+		var bub: GameState.Bubble = s.bubbles[b]
+		var left: int = bub.count()
+		for k: int in bub.fish.size():
+			if bub.fish[k] >= 0:
+				opts.append([b, k, bub.fish[k], left])
+	return opts
+
+
+## 贪心机器人在当前局面下点哪条：[气泡, 位置]，没得点返回空数组（调试自动玩用）
+static func next_tap(s: GameState, rng: Rng) -> Array:
+	var opts: Array = _options(s)
+	if opts.is_empty():
+		return []
+	var choice: Array = _greedy(s, opts, rng)
+	return [choice[0], choice[1]]
 
 
 ## 有目标鱼就点（优先快要破的泡），否则点最快用得上的鱼。同分时随机挑，
