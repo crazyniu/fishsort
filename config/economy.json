@@ -1,30 +1,32 @@
 {
-  "levelCoins": 20,
-  "challengeCoins": 40,
+  "levelCoins": 100,
+  "challengeCoins": 200,
   "levelStars": 1,
   "challengeStars": 2,
-  "challengeTickets": 3,
-  "firstWinTickets": 1,
+  "challengeTickets": 0,
+  "firstWinTickets": 0,
   "adCoinMultiplier": 2,
   "toolStart": {
-    "net": 1,
-    "blow": 1,
-    "shuffle": 1
+    "shuffle": 0,
+    "blow": 0,
+    "net": 0,
+    "current": 0
   },
   "toolPrice": {
-    "net": 180,
-    "blow": 120,
-    "shuffle": 100
+    "shuffle": 500,
+    "blow": 600,
+    "net": 900,
+    "current": 1200
   },
   "toolMaxPerLevel": 2,
-  "bowlSlotCoinPrice": 60,
+  "bowlSlotCoinPrice": 650,
   "freeBowlSlotUntil": 10,
   "dupeCoins": {
-    "common": 10,
-    "uncommon": 25,
-    "rare": 60,
-    "epic": 150,
-    "legend": 500
+    "common": 50,
+    "uncommon": 125,
+    "rare": 300,
+    "epic": 750,
+    "legend": 2500
   },
   "levelCard": {
     "rates": {
@@ -52,8 +54,8 @@
     ]
   },
   "freeCoin": {
-    "amount": 50,
-    "daily": 5
+    "amount": 500,
+    "daily": 10
   },
   "easeAfterFails": [
     2,
@@ -62,26 +64,26 @@
   "combo": {
     "windowSeconds": 2.0,
     "startAt": 3,
-    "maxCoinsPerLevel": 80,
+    "maxCoinsPerLevel": 400,
     "tiers": [
       {
         "at": 3,
-        "coins": 1,
+        "coins": 5,
         "key": "UI_COMBO_T1"
       },
       {
         "at": 6,
-        "coins": 2,
+        "coins": 10,
         "key": "UI_COMBO_T2"
       },
       {
         "at": 10,
-        "coins": 3,
+        "coins": 15,
         "key": "UI_COMBO_T3"
       },
       {
         "at": 15,
-        "coins": 5,
+        "coins": 25,
         "key": "UI_COMBO_T4"
       }
     ],
@@ -92,8 +94,8 @@
     },
     "bestBonus": {
       "minCombo": 5,
-      "coinsPerCombo": 2,
-      "max": 40
+      "coinsPerCombo": 10,
+      "max": 200
     }
   },
   "mechanicIntro": {
@@ -104,5 +106,197 @@
     "60": "TIP_ICE",
     "80": "TIP_BIG",
     "110": "TIP_PAIR"
+  },
+  "rarities": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legend"
+  ],
+  "lives": {
+    "max": 5,
+    "regenSeconds": 1200,
+    "freeUntilLevel": 5,
+    "buyOneCoins": 200,
+    "refillCoins": 800,
+    "firstWinUnlimitedSeconds": 600
+  },
+  "skills": {
+    "order": [
+      "shuffle",
+      "blow",
+      "net",
+      "current"
+    ],
+    "grantOnUnlock": 2,
+    "freePerDay": 1
+  },
+  "features": {
+    "signin": 3,
+    "skill_shuffle": 4,
+    "levelSelect": 5,
+    "album": 6,
+    "skill_blow": 7,
+    "wheel": 8,
+    "skill_net": 9,
+    "rank": 11,
+    "skill_current": 12
+  },
+  "chest": {
+    "normal": {
+      "coins": 35,
+      "skill": 12,
+      "card": 53,
+      "coinMin": 30,
+      "coinMax": 80
+    },
+    "challengeRareBoost": 2,
+    "cardRates": {
+      "common": 70,
+      "uncommon": 22,
+      "rare": 6,
+      "epic": 1.8,
+      "legend": 0.2
+    },
+    "pityAfter": 4
+  },
+  "wheel": {
+    "freePerDay": 1,
+    "firstWinSpins": 1,
+    "shareSpins": 1,
+    "adPerDay": 3,
+    "coinCost": 1000,
+    "tenCost": 9000,
+    "tenCount": 10,
+    "tenMinRarity": "rare",
+    "pityAfter": 30,
+    "pityMinRarity": "epic",
+    "unlimitedSeconds": 900,
+    "prizes": [
+      {
+        "id": "coin200",
+        "kind": "coins",
+        "amount": 200,
+        "weight": 28
+      },
+      {
+        "id": "coin500",
+        "kind": "coins",
+        "amount": 500,
+        "weight": 14
+      },
+      {
+        "id": "coin2000",
+        "kind": "coins",
+        "amount": 2000,
+        "weight": 3
+      },
+      {
+        "id": "skill",
+        "kind": "skill",
+        "amount": 1,
+        "weight": 15
+      },
+      {
+        "id": "life15",
+        "kind": "unlimited",
+        "amount": 900,
+        "weight": 3
+      },
+      {
+        "id": "card_common",
+        "kind": "card",
+        "rarity": "common",
+        "weight": 20
+      },
+      {
+        "id": "card_uncommon",
+        "kind": "card",
+        "rarity": "uncommon",
+        "weight": 11
+      },
+      {
+        "id": "card_rare",
+        "kind": "card",
+        "rarity": "rare",
+        "weight": 4.5
+      },
+      {
+        "id": "card_epic",
+        "kind": "card",
+        "rarity": "epic",
+        "weight": 1.3
+      },
+      {
+        "id": "card_legend",
+        "kind": "card",
+        "rarity": "legend",
+        "weight": 0.2
+      }
+    ]
+  },
+  "signInDays": [
+    {
+      "coins": 200
+    },
+    {
+      "coins": 300
+    },
+    {
+      "chest": {
+        "skill": 30,
+        "card": 70
+      }
+    },
+    {
+      "coins": 500
+    },
+    {
+      "wheel": 1
+    },
+    {
+      "skill": 1
+    },
+    {
+      "bigChest": {
+        "minRarity": "rare",
+        "coins": 1000,
+        "unlimitedSeconds": 1800
+      }
+    }
+  ],
+  "share": {
+    "wheel": {
+      "daily": 1,
+      "reward": {
+        "wheel": 1
+      }
+    },
+    "life": {
+      "daily": 3,
+      "reward": {
+        "life": 1
+      }
+    },
+    "card": {
+      "daily": 3,
+      "reward": {
+        "coins": 200
+      }
+    },
+    "help": {
+      "daily": 3,
+      "reward": {
+        "skill": 1
+      }
+    }
+  },
+  "replay": {
+    "rewardedPerDay": 5
+  },
+  "migration": {
+    "ticketToCoins": 50,
+    "coinsMultiplier": 5
   }
 }

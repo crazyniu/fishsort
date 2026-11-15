@@ -36,3 +36,8 @@ func save() -> void:
 func today() -> int:
 	var bias: int = int(Time.get_time_zone_from_system()["bias"]) * 60
 	return int((Time.get_unix_time_from_system() + bias) / 86400.0)
+
+
+## 当前 unix 秒，生命恢复、无限生命窗口用（核心层不读时钟，由这里传入）
+func now() -> int:
+	return int(Time.get_unix_time_from_system())
