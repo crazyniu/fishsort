@@ -114,6 +114,95 @@ def circle(d, top, bottom, ring_w=4.0, shadow=0.25):
     return img, pad
 
 
+def disc(d, top, bottom, shadow=0.25):
+    """纯色圆片：无描边，带一点投影。"""
+    return circle(d, top, bottom, ring_w=0.0, shadow=shadow)
+
+
+def triangle(size, color=(255, 255, 255, 255)):
+    """朝右的实心三角（视频角标里的播放符号）。"""
+    S = size * K
+    img = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(img).polygon([(S * 0.3, S * 0.2), (S * 0.3, S * 0.8), (S * 0.8, S * 0.5)], fill=255)
+    return tint(img.filter(ImageFilter.GaussianBlur(K * 0.4)), color)
+
+
+def heart(size, top, bottom):
+    """实心心形，带一点投影和左上高光。"""
+    S = size * K
+    mask = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(mask)
+    r = S * 0.25
+    d.ellipse((S * 0.5 - 2 * r, S * 0.2, S * 0.5, S * 0.2 + 2 * r), fill=255)
+    d.ellipse((S * 0.5, S * 0.2, S * 0.5 + 2 * r, S * 0.2 + 2 * r), fill=255)
+    d.polygon([(S * 0.5 - 2 * r + S * 0.012, S * 0.2 + r * 1.35), (S * 0.5 + 2 * r - S * 0.012, S * 0.2 + r * 1.35), (S * 0.5, S * 0.9)], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(K * 0.5))
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    sh = ImageChops.offset(mask, 0, 2 * K).filter(ImageFilter.GaussianBlur(2 * K))
+    img.alpha_composite(tint(sh, NAVY + (90,)))
+    face = gradient((S, S), top, bottom, round(S * 0.2), round(S * 0.9))
+    face.putalpha(mask)
+    img.alpha_composite(face)
+    hl = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(hl).ellipse((S * 0.2, S * 0.28, S * 0.34, S * 0.4), fill=255)
+    img.alpha_composite(tint(hl.filter(ImageFilter.GaussianBlur(K * 0.6)), (255, 255, 255, 150)))
+    return img
+
+
+def glyph_route(size):
+    """白色关卡路线符号：折线串起四个点，终点最大。"""
+    S = size * K
+    img = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(img)
+    pts = [(0.22, 0.78), (0.52, 0.6), (0.36, 0.38), (0.74, 0.22)]
+    d.line([(x * S, y * S) for x, y in pts], fill=255, width=round(S * 0.07), joint="curve")
+    for i, (x, y) in enumerate(pts):
+        r = S * (0.13 if i == len(pts) - 1 else 0.085)
+        d.ellipse((x * S - r, y * S - r, x * S + r, y * S + r), fill=255)
+    return tint(img.filter(ImageFilter.GaussianBlur(K * 0.4)), (255, 255, 255, 255))
+
+
+def glyph_share(size):
+    """白色分享符号：三点两线。"""
+    S = size * K
+    img = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(img)
+    a, b, c = (0.26 * S, 0.5 * S), (0.74 * S, 0.26 * S), (0.74 * S, 0.74 * S)
+    d.line([b, a, c], fill=255, width=round(S * 0.07))
+    for x, y in (a, b, c):
+        r = S * 0.12
+        d.ellipse((x - r, y - r, x + r, y + r), fill=255)
+    return tint(img.filter(ImageFilter.GaussianBlur(K * 0.4)), (255, 255, 255, 255))
+
+
+def wheel_icon(size):
+    """页签用的转盘图标：六块扇形 + 白色中心。"""
+    pad = 4
+    S = (size + pad * 2) * K
+    p = pad * K
+    d_ = size * K
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    disc_mask = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(disc_mask).ellipse((p, p, p + d_ - 1, p + d_ - 1), fill=255)
+    sh = ImageChops.offset(disc_mask, 0, 3 * K).filter(ImageFilter.GaussianBlur(3 * K))
+    img.alpha_composite(tint(ImageChops.subtract(sh, disc_mask), NAVY + (110,)))
+    wheel = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    wd = ImageDraw.Draw(wheel)
+    cols = [rgba("FFB63C"), rgba("3E95F2")]
+    for i in range(6):
+        wd.pieslice((p, p, p + d_ - 1, p + d_ - 1), -90 + i * 60, -90 + (i + 1) * 60, fill=cols[i % 2])
+    wheel.putalpha(disc_mask)
+    img.alpha_composite(wheel)
+    ring_m = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(ring_m).ellipse((p, p, p + d_ - 1, p + d_ - 1), outline=255, width=round(3 * K))
+    img.alpha_composite(tint(ring_m, rgba("163F8E")))
+    hub = Image.new("L", (S, S), 0)
+    c, r = S / 2, d_ * 0.16
+    ImageDraw.Draw(hub).ellipse((c - r, c - r, c + r, c + r), fill=255)
+    img.alpha_composite(tint(hub, rgba("FFFFFF")))
+    return img, pad
+
+
 def gear(size):
     """白色齿轮：8 个齿 + 中心孔。"""
     S = size * K
@@ -258,6 +347,11 @@ def main() -> None:
     # 深色轨道 + 白色选中块：分段页签
     save("track", box(72, 60, 12, rgba("0F2C63"), rgba("173A7A"), rgba("3C6FC4"), 2))
     save("seg_on", box(72, 60, 9, rgba("FFFFFF"), rgba("DCEBFC"), None, 0, shadow=0.25, blur=2, drop=2))
+    # 统一弹窗：一层不透明深海蓝，圆角 18，不描边；标题带是顶部两角圆、底边直的亮蓝条
+    save("popup", box(120, 120, 18, rgba("17458F"), rgba("113676"), None, 0, shadow=0.4, blur=12, drop=12))
+    save("popup_head", box(120, 60, 18, rgba("3A9BFA"), rgba("2A82EA")))
+    # 列表行在深蓝底上的暗一档底色（弹窗内的行用，不是浅色内框）
+    save("popup_row", box(96, 72, 10, rgba("1E5099"), rgba("1E5099")))
     # 浅色面板：弹窗、列表行、卡片
     save("panel", box(120, 120, 18, white, rgba("EEF6FF"), white, 3, shadow=0.34, blur=12, drop=14))
     save("row", box(96, 96, 12, white, rgba("EAF4FF"), None, 0, shadow=0.2, blur=4, drop=4, hard=3, edge=rgba("A9C4E6")))
@@ -273,6 +367,12 @@ def main() -> None:
     save("badge_green", circle(80, rgba("63D444"), rgba("3FAE25")), stretch=False)
     save("badge_purple", circle(80, rgba("A274E6"), rgba("7B49CC")), stretch=False)
     save("dot_red", circle(40, rgba("F56B59"), rgba("E0452F"), ring_w=3), stretch=False)
+    # 弹窗关闭键：红色实心圆 + 白叉；视频角标：紫色圆 + 白三角；心形
+    save("close_round", stamp(disc(56, rgba("F2604B"), rgba("DD3F2A")), cross(36, False)), stretch=False)
+    save("badge_video", stamp(disc(36, rgba("A274E6"), rgba("7B49CC")), triangle(22)), stretch=False)
+    # 主页入口和页签的图标
+    save("ic_route", glyph_route(64), stretch=False)
+    save("ic_share", glyph_share(64), stretch=False)
     save("plus", stamp(circle(56, rgba("63D444"), rgba("3FAE25")), cross(40, True)), stretch=False)
 
     # 特效贴图：白色，由代码染色

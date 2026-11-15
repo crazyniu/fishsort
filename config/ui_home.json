@@ -1,0 +1,17 @@
+{
+  "_note": "界面布局用的配置。数值（价格、次数、概率、开放关、签到奖励）全部来自 economy.json，这里不重复。wheel 是转盘外观：每个扇区放哪个奖品（economy.json 里 wheel.prizes 的 id）和底色（0/1 交替）。",
+  "wheel": [
+    { "id": "coin200", "tone": 0 },
+    { "id": "skill", "tone": 1 },
+    { "id": "coin500", "tone": 0 },
+    { "id": "card_common", "tone": 1 },
+    { "id": "coin200", "tone": 0 },
+    { "id": "life15", "tone": 1 },
+    { "id": "coin2000", "tone": 0 },
+    { "id": "card_uncommon", "tone": 1 },
+    { "id": "coin500", "tone": 0 },
+    { "id": "skill", "tone": 1 },
+    { "id": "card_rare", "tone": 0 },
+    { "id": "card_epic", "tone": 1 }
+  ]
+}

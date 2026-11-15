@@ -60,6 +60,11 @@ func hide_banner() -> void:
 	_banner = null
 
 
+## 开发阶段分享即成功（微信对分享得奖励有限制，接平台时按当时规则改）
+func share(_payload: Dictionary) -> bool:
+	return true
+
+
 func get_profile() -> Dictionary:
 	return {"nickname": "测试玩家", "avatar": "res://assets/ui/avatar.png"}
 

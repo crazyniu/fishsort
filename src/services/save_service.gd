@@ -16,7 +16,7 @@ func _ready() -> void:
 	_apply_test_boost()
 
 
-## ./run.sh 启动时会带上 FISHSORT_BOOST=1：把金币、星星、鱼票、道具加满，方便测试。
+## ./run.sh 启动时会带上 FISHSORT_BOOST=1：把金币和技能加满，方便测试。
 ## 同时设了 FISHSORT_LEVEL=N，就把当前关卡直接跳到第 N 关（只在试玩模式生效）。
 ## 正式构建不会设置这些环境变量。
 func _apply_test_boost() -> void:
@@ -26,8 +26,6 @@ func _apply_test_boost() -> void:
 	if jump.is_valid_int():
 		data["level"] = maxi(1, jump.to_int())
 	data["coins"] = maxi(int(data["coins"]), 99999)
-	data["stars"] = maxi(int(data["stars"]), 999)
-	data["tickets"] = maxi(int(data["tickets"]), 999)
 	for tool: String in data["tools"]:
 		data["tools"][tool] = maxi(int(data["tools"][tool]), 99)
 
@@ -40,3 +38,8 @@ func save() -> void:
 func today() -> int:
 	var bias: int = int(Time.get_time_zone_from_system()["bias"]) * 60
 	return int((Time.get_unix_time_from_system() + bias) / 86400.0)
+
+
+## 当前 unix 秒，生命恢复、无限生命窗口用（核心层不读时钟，由这里传入）
+func now() -> int:
+	return int(Time.get_unix_time_from_system())

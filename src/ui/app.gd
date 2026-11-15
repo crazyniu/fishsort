@@ -19,8 +19,11 @@ func go_home(tab: int = HomeScreen.TAB_MAIN) -> void:
 	_swap(home)
 
 
-func go_game() -> void:
-	_swap((load("res://scenes/game.tscn") as PackedScene).instantiate())
+## level > 0：重玩这一关（选关路线里点已通过的关）；0 = 打当前进度的关
+func go_game(level: int = 0) -> void:
+	var game: GameScreen = (load("res://scenes/game.tscn") as PackedScene).instantiate()
+	game.start_id = level
+	_swap(game)
 
 
 func _swap(next: Control) -> void:
