@@ -18,6 +18,7 @@ DENSITY = 3  # 贴图像素 / 设计像素
 SS = 2  # 额外超采样，缩小后边缘平滑
 K = DENSITY * SS
 NAVY = (6, 31, 77)
+OUTLINE = (26, 47, 107, 255)  # 粗描边与硬投影统一用这一种深蓝
 pieces = {}
 
 
@@ -50,10 +51,11 @@ def tint(mask: Image.Image, color) -> Image.Image:
     return Image.merge("RGBA", [Image.new("L", mask.size, c) for c in color[:3]] + [alpha])
 
 
-def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, blur=0.0, drop=0.0, shine=0.0):
+def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, blur=0.0, drop=0.0, shine=0.0, hard=0.0):
     """一个圆角块。返回 (图, 投影留边)。尺寸单位是设计像素。"""
     bottom = bottom or top
     pad = math.ceil(blur * 2 + drop) if shadow else 0
+    pad = max(pad, math.ceil(hard))
     size = ((w + pad * 2) * K, (h + pad * 2) * K)
     p, bw = pad * K, round(border_w * K)
     outer = (p, p, p + w * K - 1, p + h * K - 1)
@@ -66,6 +68,9 @@ def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, b
         sh = sh.filter(ImageFilter.GaussianBlur(blur * K))
         # 投影只留在部件外面，否则会透过半透明的玻璃把它压暗
         img.alpha_composite(tint(ImageChops.subtract(sh, outer_mask), NAVY + (round(shadow * 255),)))
+    if hard:
+        hs = shape(size, (outer[0], outer[1] + hard * K, outer[2], outer[3] + hard * K), radius * K)
+        img.alpha_composite(tint(hs, OUTLINE))
     if border and bw:
         img.alpha_composite(tint(ImageChops.subtract(outer_mask, inner_mask), border))
     face = gradient(size, top, bottom, inner[1], inner[3])
@@ -90,16 +95,15 @@ def save(name: str, made, stretch: bool = True) -> None:
 
 
 def circle(d, top, bottom, ring_w=4.0, shadow=0.25):
-    blur, drop = 4, 3
-    pad = math.ceil(blur * 2 + drop)
+    drop = 4
+    pad = drop + 1
     S = (d + pad * 2) * K
     p = pad * K
     img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     disc = Image.new("L", (S, S), 0)
     ImageDraw.Draw(disc).ellipse((p, p, p + d * K - 1, p + d * K - 1), fill=255)
-    sh = ImageChops.offset(disc, 0, drop * K).filter(ImageFilter.GaussianBlur(blur * K))
-    img.alpha_composite(tint(ImageChops.subtract(sh, disc), NAVY + (round(shadow * 255),)))
-    img.alpha_composite(tint(disc, (255, 255, 255, 255)))
+    img.alpha_composite(tint(ImageChops.offset(disc, 0, drop * K), OUTLINE))
+    img.alpha_composite(tint(disc, OUTLINE))
     r = round(ring_w * K)
     inner = Image.new("L", (S, S), 0)
     ImageDraw.Draw(inner).ellipse((p + r, p + r, p + d * K - 1 - r, p + d * K - 1 - r), fill=255)
@@ -148,50 +152,45 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for old in list(OUT.glob("*.png")) + list(OUT.glob("*.png.import")):
         old.unlink()
-    white = rgba("FFFFFF")
 
-    # 按钮：淡渐变 + 细白边 + 一条高光线 + 柔和投影
+    O = OUTLINE
+    # 糖果厚边：深蓝粗描边 + 平涂饱和色 + 向下的硬投影，不用透明
     families = {
-        "blue": ("4AA5F8", "2A86EA"),
-        "green": ("63D444", "43B528"),
-        "orange": ("FFAE45", "F58A12"),
-        "purple": ("A274E6", "8553D6"),
-        "red": ("F56B59", "E0452F"),
+        "blue": ("5CB8FF", "2F8DEB"),
+        "green": ("7BE05A", "46B82C"),
+        "orange": ("FFBE4D", "F58A12"),
+        "purple": ("B084F0", "8553D6"),
+        "red": ("FF7D6B", "E0452F"),
     }
 
-    def button(name, radius=30, w=96, h=92):
+    def button(name, radius=26, w=96, h=92):
         top, bottom = (rgba(c) for c in families[name])
-        return box(w, h, radius, top, bottom, rgba("FFFFFF", 0.55), 2, shadow=0.24, blur=5, drop=6, shine=0.5)
+        return box(w, h, radius, top, bottom, O, 4, shine=0.55, hard=6)
 
     for name in families:
         save(f"btn_{name}", button(name))
-    save("tile", button("blue", 30, 108, 108))
-    save("btn_gear", stamp(button("blue", 22, 72, 72), gear(44)), stretch=False)
-    save("btn_close", stamp(button("red", 22, 72, 72), cross(44, False)), stretch=False)
+    save("tile", button("blue", 26, 108, 108))
+    save("btn_gear", stamp(button("blue", 20, 72, 72), gear(44)), stretch=False)
+    save("btn_close", stamp(button("red", 20, 72, 72), cross(44, False)), stretch=False)
 
-    # 实心面板：顶栏、底栏、暂存槽托盘、选中的页签（不透明，背景再花也读得清）
-    save("glass", box(96, 96, 30, rgba("2C7AD2"), rgba("1C5AAE"), rgba("A5D4FF", 0.9), 2.5, shadow=0.3, blur=6, drop=6, shine=0.35))
-    save("tab_on", box(72, 72, 24, rgba("5DB8FF"), rgba("2F8FEA"), rgba("FFFFFF", 0.85), 2.5, shine=0.5))
-    # 深色胶囊：数字底、进度条底、暂存格（同样实心）
-    save("chip", box(72, 60, 30, rgba("123F84"), rgba("0E3170"), rgba("6FB0F0", 0.7), 2))
-    save("slot", box(76, 76, 18, rgba("1A5CAB"), rgba("144C93"), rgba("5AA0EA", 0.8), 2))
-    save("fill", box(72, 44, 22, rgba("63D444"), rgba("43B528"), rgba("FFFFFF", 0.5), 2, shine=0.45))
-    # 浅色面板：弹窗、列表行、卡片
-    save("panel", box(120, 120, 44, rgba("FFFFFF"), rgba("EEF7FF"), white, 3, shadow=0.34, blur=12, drop=14))
-    save("row", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
-    save("card", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
-    save("card_gold", box(96, 96, 28, rgba("FFF1BF"), rgba("FFDF86"), white, 3, shadow=0.2, blur=5, drop=5))
-    # 鱼缸架：一条玻璃搁板
-    save("shelf", box(96, 24, 12, rgba("9AD6F6"), rgba("5CB0E4"), rgba("D8F1FF"), 2, shadow=0.25, blur=4, drop=4))
+    save("glass", box(96, 96, 28, rgba("5CB8FF"), rgba("3A95EE"), O, 4, shine=0.4, hard=6))
+    save("tab_on", box(72, 72, 20, rgba("FFDC4A"), rgba("FFB81F"), O, 4, shine=0.5, hard=4))
+    save("chip", box(72, 60, 30, rgba("FFFFFF"), rgba("E3F1FF"), O, 3.5, hard=3))
+    save("slot", box(76, 76, 16, rgba("D2EDFF"), rgba("B0DBFA"), O, 3))
+    save("fill", box(72, 44, 22, rgba("7BE05A"), rgba("46B82C"), O, 3, shine=0.45))
+    save("panel", box(120, 120, 36, rgba("FFFFFF"), rgba("EAF4FF"), O, 5, hard=9))
+    save("row", box(96, 96, 24, rgba("FFFFFF"), rgba("EAF4FF"), O, 4, hard=5))
+    save("card", box(96, 96, 24, rgba("FFFFFF"), rgba("EAF4FF"), O, 4, hard=5))
+    save("card_gold", box(96, 96, 24, rgba("FFF1BF"), rgba("FFDC7A"), O, 4, hard=5))
+    save("shelf", box(96, 24, 12, rgba("F6BE74"), rgba("E39544"), O, 3, hard=4))
 
-    # 底部渐隐条：从透明过渡到深蓝，衬托页签和道具键
     fade = gradient((8 * K, 96 * K), NAVY + (0,), NAVY + (215,), 0, 96 * K)
     save("fade", fade)
 
-    save("badge_green", circle(80, rgba("63D444"), rgba("3FAE25")), stretch=False)
+    save("badge_green", circle(80, rgba("7BE05A"), rgba("46B82C")), stretch=False)
     save("badge_purple", circle(80, rgba("A274E6"), rgba("7B49CC")), stretch=False)
     save("dot_red", circle(40, rgba("F56B59"), rgba("E0452F"), ring_w=3), stretch=False)
-    save("plus", stamp(circle(56, rgba("63D444"), rgba("3FAE25")), cross(40, True)), stretch=False)
+    save("plus", stamp(circle(56, rgba("7BE05A"), rgba("46B82C")), cross(40, True)), stretch=False)
 
     (OUT / "kit.json").write_text(json.dumps({"density": DENSITY, "pieces": pieces}, indent=1) + "\n")
     print(f"✓ 生成 {len(pieces)} 个部件 → {OUT}")

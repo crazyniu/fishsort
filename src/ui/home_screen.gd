@@ -503,7 +503,12 @@ func _page_scene() -> void:
 			Vector2(95, y),
 			Vector2(maxf(48.0, 560.0 * step / steps.size()), 44)
 		)
-	_add(_page, UiKit.label("%d/%d" % [step, steps.size()], 28), Vector2(95, y), Vector2(560, 42))
+	_add(
+		_page,
+		UiKit.text("%d/%d" % [step, steps.size()], 28, UiKit.INK),
+		Vector2(95, y),
+		Vector2(560, 42)
+	)
 	if done_all:
 		_add(_page, UiKit.label(tr("UI_BUILD_DONE"), 26), Vector2(0, y + 60), Vector2(W, 60))
 		return
@@ -667,7 +672,7 @@ func _page_collection() -> void:
 		)
 	_add(
 		_page,
-		UiKit.label(tr("UI_COLLECTED") % [have, pool.size()], 24),
+		UiKit.text(tr("UI_COLLECTED") % [have, pool.size()], 24, UiKit.INK),
 		Vector2(16, 104),
 		Vector2(W - 32, 42)
 	)
@@ -686,7 +691,7 @@ func _page_collection() -> void:
 		var sp: Dictionary = pool[n]
 		var owned: int = int(cards.get(sp["id"], 0))
 		var cell := UiKit.piece("card")
-		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.74, 0.82, 0.9)
+		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.88, 0.92, 0.97)
 		_add(
 			inner,
 			cell,

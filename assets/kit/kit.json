@@ -2,59 +2,59 @@
  "density": 3,
  "pieces": {
   "btn_blue": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 6,
+   "mx": 53,
+   "my": 51
   },
   "btn_green": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 6,
+   "mx": 53,
+   "my": 51
   },
   "btn_orange": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 6,
+   "mx": 53,
+   "my": 51
   },
   "btn_purple": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 6,
+   "mx": 53,
+   "my": 51
   },
   "btn_red": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 6,
+   "mx": 53,
+   "my": 51
   },
   "tile": {
-   "pad": 16,
-   "mx": 69,
-   "my": 69
+   "pad": 6,
+   "mx": 59,
+   "my": 59
   },
   "btn_gear": {
-   "pad": 16,
+   "pad": 6,
    "mx": 0,
    "my": 0
   },
   "btn_close": {
-   "pad": 16,
+   "pad": 6,
    "mx": 0,
    "my": 0
   },
   "glass": {
-   "pad": 18,
-   "mx": 65,
-   "my": 65
+   "pad": 6,
+   "mx": 53,
+   "my": 53
   },
   "tab_on": {
-   "pad": 0,
-   "mx": 35,
-   "my": 35
+   "pad": 4,
+   "mx": 39,
+   "my": 39
   },
   "chip": {
-   "pad": 0,
-   "mx": 35,
-   "my": 29
+   "pad": 3,
+   "mx": 38,
+   "my": 32
   },
   "slot": {
    "pad": 0,
@@ -67,29 +67,29 @@
    "my": 21
   },
   "panel": {
-   "pad": 38,
-   "mx": 97,
-   "my": 97
+   "pad": 9,
+   "mx": 68,
+   "my": 68
   },
   "row": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 5,
+   "mx": 52,
+   "my": 52
   },
   "card": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 5,
+   "mx": 52,
+   "my": 52
   },
   "card_gold": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 5,
+   "mx": 52,
+   "my": 52
   },
   "shelf": {
-   "pad": 12,
-   "mx": 59,
-   "my": 23
+   "pad": 4,
+   "mx": 51,
+   "my": 15
   },
   "fade": {
    "pad": 0,
@@ -97,22 +97,22 @@
    "my": 47
   },
   "badge_green": {
-   "pad": 11,
+   "pad": 5,
    "mx": 0,
    "my": 0
   },
   "badge_purple": {
-   "pad": 11,
+   "pad": 5,
    "mx": 0,
    "my": 0
   },
   "dot_red": {
-   "pad": 11,
+   "pad": 5,
    "mx": 0,
    "my": 0
   },
   "plus": {
-   "pad": 11,
+   "pad": 5,
    "mx": 0,
    "my": 0
   }
