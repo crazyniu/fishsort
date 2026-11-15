@@ -81,6 +81,21 @@
    "mx": 41,
    "my": 35
   },
+  "popup": {
+   "pad": 36,
+   "mx": 95,
+   "my": 95
+  },
+  "popup_head": {
+   "pad": 0,
+   "mx": 59,
+   "my": 29
+  },
+  "popup_row": {
+   "pad": 0,
+   "mx": 47,
+   "my": 35
+  },
   "panel": {
    "pad": 38,
    "mx": 97,
@@ -123,6 +138,26 @@
   },
   "dot_red": {
    "pad": 11,
+   "mx": 0,
+   "my": 0
+  },
+  "close_round": {
+   "pad": 11,
+   "mx": 0,
+   "my": 0
+  },
+  "badge_video": {
+   "pad": 11,
+   "mx": 0,
+   "my": 0
+  },
+  "ic_route": {
+   "pad": 0,
+   "mx": 0,
+   "my": 0
+  },
+  "ic_share": {
+   "pad": 0,
    "mx": 0,
    "my": 0
   },

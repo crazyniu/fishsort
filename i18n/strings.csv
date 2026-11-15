@@ -132,3 +132,80 @@ UI_WIN_COMBO,连击 +%d,Combo +%d
 UI_WIN_BEST,最高连击 %d +%d,Best combo %d +%d
 UI_REPLAY_NO_REWARD,今天重玩的奖励已领完,No more replay rewards today
 UI_FIRST_WIN,今日首胜：抽奖 +1，无限生命 %d 分钟,First win today: +1 spin and %d min unlimited lives
+H_TAB_WHEEL,抽奖,Spin
+H_LIVES_TITLE,生命,Lives
+H_BUY_ONE,买1条,Buy 1
+H_REFILL,补满,Refill
+H_BUY_LIVES,买生命,Get lives
+H_WATCH_COINS,看广告领 %d 金币,Watch ad: +%d coins
+H_SHARE_LIFE,分享得 1 条生命,Share for 1 life
+H_INF_LEFT,无限生命 %s,Unlimited lives %s
+H_NEXT_LIFE,下一条 %s,Next life %s
+H_LIVES_FULL,生命已满,Lives full
+H_LEAVE_TITLE,离开,Leave
+H_LEAVE_LINE,现在离开会失去 1 条生命,Leaving now costs 1 life
+H_KEEP_PLAYING,继续玩,Keep playing
+H_LEAVE,离开,Leave
+H_SLOT_TITLE,解锁缸位,Unlock a tank
+H_SLOT_LINE,多一个鱼缸，这一关更好过,One more tank for this level
+H_SLOT_BUY,金币,Coins
+H_WATCH_AD,看广告,Watch ad
+H_REVIVE_TITLE,复活,Revive
+H_REVIVE_LINE,吹出一个新气泡，接着闯关,Blow a fresh bubble and go on
+H_REVIVE_AD,看广告复活,Watch ad to revive
+H_GIVE_UP,放弃,Give up
+H_UNLOCK_TITLE,新功能,New feature
+H_UNLOCK_LINE,「%s」已开放,"""%s"" is open"
+H_GO_LOOK,去看看,Take a look
+H_UNLOCKS_AT,第 %d 关解锁,Unlocks at level %d
+H_FEAT_SIGNIN,签到,Daily gift
+H_FEAT_LEVELS,选关,Levels
+H_FEAT_COLLECTION,图鉴,Album
+H_FEAT_WHEEL,抽奖,Spin
+H_FEAT_RANK,排行,Rank
+H_FEAT_SHOP,商店,Shop
+H_FEAT_SKILL,技能,Skills
+H_SKILL_SHUFFLE,洗牌,Shuffle
+H_SKILL_BLOW,吹泡,Blow
+H_SKILL_NET,渔网,Net
+H_SKILL_FLOW,洋流,Current
+H_NEED_COINS,金币不足,Not enough coins
+H_NEED_COINS_LINE,还差 %d 金币,%d coins short
+H_MUSIC,音乐,Music
+H_SOUND,音效,Sound
+H_VIBRATION,震动,Vibration
+H_LANGUAGE,语言,Language
+H_LANG_ZH,中文,中文
+H_LANG_EN,English,English
+H_TO_HOME,回主页,Home
+H_RETRY,重试,Retry
+H_AD_DOUBLE,看广告翻倍,Watch ad: x2
+H_PROFILE,个人资料,Profile
+H_CUR_LEVEL,当前关,Level
+H_BEST_COMBO,最高连击,Best combo
+H_COLLECTION,图鉴进度,Album
+H_ODDS,概率,Odds
+H_ODDS_NOTE_1,十连保底 1 张稀有以上,Ten pulls guarantee a Rare or better
+H_ODDS_NOTE_2,连续 30 次没出史诗以上，下一次必出,"After 30 pulls without Epic+, the next is guaranteed"
+H_CONGRATS,恭喜获得,You got
+H_TAKE,收下,Collect
+H_TEN_TITLE,十连结果,Ten pulls
+H_PRIZE_COIN,金币,Coins
+H_PRIZE_SKILL,技能,Skill
+H_PRIZE_INF,无限生命,Unlimited lives
+H_PRIZE_CARD,图鉴卡·%s,Card · %s
+H_PRIZE_CHEST,宝箱,Chest
+H_PRIZE_BIG_CHEST,大宝箱,Big chest
+H_PRIZE_SPIN,抽奖次数,Spin
+H_MIN,%d 分钟,%d min
+H_ENTRY_LEVELS,选关,Levels
+H_TODAY_COUNT,今日 %d/%d,Today %d/%d
+H_SPINS_LEFT,剩余抽奖 %d 次,Spins left: %d
+H_SPIN,抽奖,Spin
+H_SPIN_ONE,抽一次,Spin once
+H_SHARE_PLUS,分享 +1,Share +1
+H_AD_PLUS,看广告 +1,Ad +1
+H_TEN_PULL,十连,Ten pulls
+H_BACK,返回,Back
+H_REPLAY_HINT,重玩奖励 今日 %d/%d,Replay rewards %d/%d
+H_YOU_ARE_HERE,当前,Now
