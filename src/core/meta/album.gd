@@ -79,12 +79,20 @@ static func claim(save: Dictionary, eco: Dictionary, book: int, now: int) -> Arr
 	return grant(save, books(eco)[book]["reward"], now)
 
 
-## 领终极大奖：奖励之外还解锁专属头像框
+## 专属头像框解锁了吗（领过终极大奖就有）
+static func has_frame(save: Dictionary) -> bool:
+	return bool(save["album"].get("frame", false))
+
+
+## 领终极大奖：奖励之外还解锁专属头像框（奖品列表末尾多一项 frame）
 static func claim_final(save: Dictionary, eco: Dictionary, now: int) -> Array:
 	if not can_claim_final(save, eco):
 		return []
 	save["album"]["final"] = true
-	return grant(save, eco["album"]["final"], now)
+	save["album"]["frame"] = true
+	var out: Array = grant(save, eco["album"]["final"], now)
+	out.append({"kind": "frame", "amount": 1})
+	return out
 
 
 ## 发一份奖励并返回奖品列表（每日挑战也用）。reward: { coins, tools（每种技能各几个）, unlimited（无限生命秒数） }

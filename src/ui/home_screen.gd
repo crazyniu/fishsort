@@ -169,6 +169,7 @@ func _build_top() -> void:
 	var info: Dictionary = model.profile()
 	var avatar := UiKit.icon(str(info["avatar"]), 68)
 	_add(_top_root, avatar, Vector2(30, mid - 34))
+	AvatarFrame.attach(avatar, bool(info["frame"]))
 	_hot(Vector2(24, mid - 40), Vector2(80, 80), func() -> void: MetaPopups.profile(self))
 	# 金币：胶囊 + 右端的加号，点了去商店
 	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 240)

@@ -340,7 +340,11 @@ func test_album_claim_book_and_final() -> void:
 	for sp: Dictionary in p[2]:
 		save["cards"][sp["id"]] = 1
 	eq(Album.claimable(save, eco), 1, "没到开放关的册子不能领，只有终极大奖")
-	ok(not Album.claim_final(save, eco, 100).is_empty(), "领终极大奖")
+	ok(not Album.has_frame(save), "领之前没有头像框")
+	var final_got: Array = Album.claim_final(save, eco, 100)
+	ok(not final_got.is_empty(), "领终极大奖")
+	eq(final_got[final_got.size() - 1], {"kind": "frame", "amount": 1}, "奖品里有头像框")
+	ok(Album.has_frame(save), "领完解锁头像框")
 	eq(save["coins"], 11000, "终极大奖金币")
 	ok(Lives.is_unlimited(save, 200), "终极大奖带无限生命")
 	ok(not Album.can_claim_final(save, eco), "终极大奖只领一次")

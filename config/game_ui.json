@@ -107,7 +107,7 @@
     }
   },
   "lockedPrizes": {
-    "album": { "title": "H_FINAL_PRIZE", "items": [["res://assets/ui/coin.png", "10000"], ["res://assets/ui/tool_net.png", "×12"], ["res://assets/ui/heart_inf.png", "3h"]] },
+    "album": { "title": "H_FINAL_PRIZE", "items": [["res://assets/ui/coin.png", "10000"], ["res://assets/ui/tool_net.png", "×12"], ["res://assets/ui/heart_inf.png", "3h"], ["res://assets/kit/fx_ring.png", "H_PRIZE_FRAME", "FFC93C"]] },
     "rank": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", "3000"], ["res://assets/ui/tool_net.png", "×8"]] },
     "wheel": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", ""], ["res://assets/ui/tool_blow.png", ""], ["res://assets/ui/heart_inf.png", ""]] },
     "dex": { "title": "H_GRAND_PRIZE", "items": [["res://assets/ui/coin.png", "2200"]] },
