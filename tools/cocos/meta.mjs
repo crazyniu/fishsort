@@ -4,7 +4,7 @@
 // 用法：node tools/cocos/meta.mjs            补齐
 //       node tools/cocos/meta.mjs --check    只检查，缺了就以非 0 退出（CI 用）
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,11 +33,119 @@ export function compressUuid(uuid) {
 }
 
 const base = { imported: true, files: [], subMetas: {}, userData: {} };
+// 九宫格边距（像素，上 下 左 右）：tools/art/kit.mjs 画部件时写的
+const slicesPath = join(root, 'tools/art/slices.json');
+const SLICES = existsSync(slicesPath) ? JSON.parse(readFileSync(slicesPath, 'utf8')) : {};
+
+/** 读 PNG / JPEG 的宽高（只看文件头） */
+function imageSize(abs) {
+  const b = readFileSync(abs);
+  if (b.readUInt32BE(0) === 0x89504e47) return [b.readUInt32BE(16), b.readUInt32BE(20)];
+  let i = 2;
+  while (i < b.length) {
+    const m = b[i + 1];
+    const len = b.readUInt16BE(i + 2);
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)];
+    i += 2 + len;
+  }
+  throw new Error(`读不出图片尺寸：${abs}`);
+}
+
+/**
+ * 图片的 .meta：sprite-frame 类型，线性过滤 + mipmap（缩小显示不出锯齿），修透明边（去黑边），
+ * 不裁透明边（尺寸要和设计一致），九宫格边距按 slices.json。见 docs/09 第 7 节。
+ */
+function imageMeta(abs, rel) {
+  const uuid = uuidFor(rel);
+  const [w, h] = imageSize(abs);
+  const name = rel.split('/').pop().replace(/\.[^.]+$/, '');
+  const [bt, bb, bl, br] = SLICES[name] ?? [0, 0, 0, 0];
+  const hasAlpha = extname(abs) === '.png';
+  return {
+    ver: '1.0.27',
+    importer: 'image',
+    imported: true,
+    uuid,
+    files: ['.json', extname(abs)],
+    subMetas: {
+      '6c48a': {
+        importer: 'texture',
+        uuid: `${uuid}@6c48a`,
+        displayName: name,
+        id: '6c48a',
+        name: 'texture',
+        userData: {
+          wrapModeS: 'clamp-to-edge',
+          wrapModeT: 'clamp-to-edge',
+          imageUuidOrDatabaseUri: uuid,
+          isUuid: true,
+          visible: false,
+          minfilter: 'linear',
+          magfilter: 'linear',
+          mipfilter: 'linear',
+          anisotropy: 0,
+        },
+        ver: '1.0.22',
+        imported: true,
+        files: ['.json'],
+        subMetas: {},
+      },
+      f9941: {
+        importer: 'sprite-frame',
+        uuid: `${uuid}@f9941`,
+        displayName: name,
+        id: 'f9941',
+        name: 'spriteFrame',
+        userData: {
+          trimThreshold: 1,
+          rotated: false,
+          offsetX: 0,
+          offsetY: 0,
+          trimX: 0,
+          trimY: 0,
+          width: w,
+          height: h,
+          rawWidth: w,
+          rawHeight: h,
+          borderTop: bt,
+          borderBottom: bb,
+          borderLeft: bl,
+          borderRight: br,
+          packable: true,
+          pixelsToUnit: 100,
+          pivotX: 0.5,
+          pivotY: 0.5,
+          meshType: 0,
+          vertices: {
+            rawPosition: [-w / 2, -h / 2, 0, w / 2, -h / 2, 0, -w / 2, h / 2, 0, w / 2, h / 2, 0],
+            indexes: [0, 1, 2, 2, 1, 3],
+            uv: [0, h, w, h, 0, 0, w, 0],
+            nuv: [0, 0, 1, 0, 0, 1, 1, 1],
+            minPos: [-w / 2, -h / 2, 0],
+            maxPos: [w / 2, h / 2, 0],
+          },
+          isUuid: true,
+          imageUuidOrDatabaseUri: `${uuid}@6c48a`,
+          atlasUuid: '',
+          trimType: 'none',
+        },
+        ver: '1.0.12',
+        imported: true,
+        files: ['.json'],
+        subMetas: {},
+      },
+    },
+    userData: { type: 'sprite-frame', redirect: `${uuid}@6c48a`, hasAlpha, fixAlphaTransparencyArtifacts: hasAlpha },
+  };
+}
+
 const IMPORTERS = {
   dir: () => ({ ver: '1.2.0', importer: 'directory' }),
   '.ts': () => ({ ver: '4.0.24', importer: 'typescript' }),
   '.scene': () => ({ ver: '1.1.50', importer: 'scene', files: ['.json'] }),
   '.json': () => ({ ver: '2.0.1', importer: 'json', files: ['.json'] }),
+  '.ttf': () => ({ ver: '1.0.1', importer: 'ttf-font', files: ['.json'] }),
+  '.wav': () => ({ ver: '1.0.0', importer: 'audio-clip', files: ['.json', '.wav'] }),
 };
 
 // assets/resources 是 Cocos 的内置资源包，编辑器会给它写上这几项；先写好，免得 Mac 上构建后出现改动
@@ -61,7 +169,15 @@ function walk(dir) {
     const abs = join(dir, name);
     const isDir = statSync(abs).isDirectory();
     const rel = relative(root, abs).split('\\').join('/');
-    if (!existsSync(`${abs}.meta`)) {
+    const ext = extname(name).toLowerCase();
+    if (!isDir && (ext === '.png' || ext === '.jpg')) {
+      const text = JSON.stringify(imageMeta(abs, rel), null, 2) + '\n';
+      const old = existsSync(`${abs}.meta`) ? readFileSync(`${abs}.meta`, 'utf8') : '';
+      if (old !== text) {
+        missing.push(rel);
+        if (!check) writeFileSync(`${abs}.meta`, text);
+      }
+    } else if (!existsSync(`${abs}.meta`)) {
       const meta = metaFor(abs, rel, isDir);
       if (!meta) unknown.push(rel);
       else {

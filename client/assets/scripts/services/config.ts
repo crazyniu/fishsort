@@ -1,6 +1,6 @@
 // 配置表：assets/resources/config 下的 JSON（数值只在这里，CLAUDE.md 硬性约束 5）。启动时读一次。
 import { JsonAsset, resources } from 'cc';
-import type { AdsConfig, CurveConfig, EconomyConfig, Species } from '../core/config';
+import type { AdsConfig, CurveConfig, EconomyConfig, GameUiConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
 
 function describe(v: unknown): string {
@@ -27,16 +27,19 @@ export class Config {
   eco!: EconomyConfig;
   ads!: AdsConfig;
   curve!: CurveConfig;
+  ui!: GameUiConfig;
   species: Species[] = [];
   speciesById = new Map<string, Species>();
 
   async load(): Promise<void> {
-    const [eco, ads, curve, species] = await Promise.all([
+    const [eco, ads, curve, species, ui] = await Promise.all([
       loadJson<EconomyConfig>('config/economy'),
       loadJson<AdsConfig>('config/ads'),
       loadJson<CurveConfig>('config/level_curve'),
       loadJson<{ species: Species[] }>('config/species'),
+      loadJson<GameUiConfig>('config/game_ui'),
     ]);
+    this.ui = ui;
     this.eco = eco;
     this.ads = ads;
     this.curve = curve;

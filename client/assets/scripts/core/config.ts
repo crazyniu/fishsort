@@ -195,3 +195,23 @@ export interface CurveConfig {
   };
   gen: Record<string, number>;
 }
+
+/** 界面数值（动画时长、场地、家园物件位置），assets/resources/config/game_ui.json */
+export interface GameUiConfig {
+  fly: { seconds: number; tapPop: number; stagger: number; bufferSeconds: number };
+  bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number };
+  praise: { keys: string[]; streakSeconds: number };
+  intro: { startDelay: number; batchSize: number; batchGap: number };
+  drop: { delay: number; fallSeconds: number; nudge: number; relaxSeconds: number };
+  hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };
+  current: { lead: number; stagger: number };
+  tips: Record<string, string>;
+  tutorial: { delay: number; blowMinBuffer: number; tipGap: number };
+  unlockGuide: { delay: number; lockSeconds: number; sparks: number };
+  win: Record<string, number | string>;
+  field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number };
+  badgeCap: number;
+  basePage: { scene: number; buildFx: number; chestDelay: number; steps: Record<string, [number, number, number][]> };
+  homeDeco: { school: [string, number, number, number][] };
+}

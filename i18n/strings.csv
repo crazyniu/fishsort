@@ -200,12 +200,12 @@ UI_TAB_BASE,家园,Bay
 UI_TAB_DAILY,每日挑战,Daily
 H_COMING_SOON,即将开放,Coming soon
 H_GRAND_PRIZE,大奖,Grand prize
-ALBUM_BOOK_1,珊瑚浅滩,Coral Shallows
-ALBUM_BOOK_2,贝壳沙湾,Shell Cove
+ALBUM_BOOK_1,晨光沙滩,Sunrise Shore
+ALBUM_BOOK_2,珊瑚花园,Coral Garden
 ALBUM_BOOK_3,海草森林,Kelp Forest
-ALBUM_BOOK_4,暗礁峡谷,Reef Canyon
-ALBUM_BOOK_5,深海幽域,The Deep
-ALBUM_BOOK_6,传说之海,Sea of Legends
+ALBUM_BOOK_4,沉船湾,Shipwreck Bay
+ALBUM_BOOK_5,水晶洞窟,Crystal Cave
+ALBUM_BOOK_6,海底宫殿,Sea Palace
 ALBUM_CLAIMED,已领取,Claimed
 ALBUM_TAKE,领取,Claim
 H_FINAL_PRIZE,终极大奖,Ultimate prize
@@ -250,9 +250,9 @@ BASE_STEP_CRYSTAL_3,引来泡泡泉,Start the bubble spring
 BASE_STEP_CRYSTAL_4,种发光海草,Plant glowing kelp
 BASE_STEP_CRYSTAL_5,挂起星星灯,Hang star lanterns
 BASE_STEP_PALACE_1,重建宫门,Rebuild the gate
-BASE_STEP_PALACE_2,立起廊柱,Raise the pillars
-BASE_STEP_PALACE_3,修好喷泉,Fix the fountain
-BASE_STEP_PALACE_4,铺珊瑚地毯,Roll out a coral carpet
+BASE_STEP_PALACE_2,立起左廊柱,Raise the left pillar
+BASE_STEP_PALACE_3,立起右廊柱,Raise the right pillar
+BASE_STEP_PALACE_4,修好喷泉,Fix the fountain
 BASE_STEP_PALACE_5,升起穹顶,Raise the dome
 BASE_BUILD,建造,Build
 BASE_PROGRESS,区域 %d/%d,Area %d/%d
@@ -262,3 +262,35 @@ BASE_NEXT_AREA,下一个区域,Next area
 BASE_ALL_DONE,海湾已全部重建,The bay is rebuilt!
 BASE_AREA_DONE,区域重建完成！,Area rebuilt!
 BASE_CHEST,区域宝箱,Area chest
+BASE_AREA_KELP,海草森林,Kelp Forest
+BASE_STEP_KELP_1,种下海草丛,Plant the kelp
+BASE_STEP_KELP_2,搭蘑菇小屋,Build the mushroom hut
+BASE_STEP_KELP_3,挂起吊床,Hang the hammock
+BASE_STEP_KELP_4,点亮海草灯,Light the lanterns
+BASE_STEP_KELP_5,编起海草拱门,Weave the kelp arch
+REVIVE_TITLE,再试一次,Try again
+REVIVE_BUFFER,吹走暂存槽里的鱼，接着闯关,Blow the waiting fish back and keep going
+REVIVE_TIMEOUT,限时缸再加 30 秒,+30 seconds for the timed bowl
+REVIVE_STUCK,解开锁链和冰封，接着闯关,Break the chains and ice and keep going
+LIFE_MINUS,生命 −1,Life −1
+PAUSE_TITLE,暂停,Paused
+WIN_TITLE,通关成功,Level clear!
+WIN_DOUBLE,奖励翻倍,Double it
+RETURN_HOME,返回主页,Home
+SKILL_BUY_TITLE,补充%s,More %s
+SKILL_AD,看广告得 1 个,Watch ad: +1
+SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
+TEN_REWARD,十连奖励,10× rewards
+PRIZE_COIN_N,金币 ×%d,Coins ×%d
+CARD_RARITY_NEW,新收藏！,New card!
+TAP_CONTINUE,点击继续,Tap to continue
+UI_PLAY,开始,Play
+UI_CHALLENGE_TAG,挑战,Hard
+DAILY_TITLE,每日挑战,Daily challenge
+ADS_LEFT,今日剩余 %d 次,%d left today
+MECH_TITLE,新玩法,New!
+GOT_IT,知道了,Got it
+SLOT_LINE,多一个鱼缸，这一关更好过。,One more bowl makes this level easier.
+LOCK_PREVIEW,解锁奖励预览,What you'll get
+H_FEAT_DAILY,每日挑战,Daily
+PRIZE_HOURS,%d 小时,%dh
