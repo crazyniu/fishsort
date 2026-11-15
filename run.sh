@@ -53,7 +53,7 @@ usage() {
 Cocos 版（client/，迁移中，见 docs/09）：
   web [real]            构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
                         默认试玩模式（金币、技能加满）；real = 按真实存档；
-                        FISHSORT_LEVEL=65 跳到第 65 关，FISHSORT_PLAY=1 直接进关，FISHSORT_AUTOPLAY=1 机器人代打
+                        FISHSORT_LEVEL=65 跳到第 65 关，FISHSORT_PLAY=1 直接进关，FISHSORT_AUTOPLAY=1 机器人代打，FISHSORT_PAGE=levels 直接打开某页
   web-build             只构建 web-mobile → client/build/web-mobile
   web-serve             不重新构建，直接起服务打开上次的构建
   wechat-build          构建微信小游戏包 → client/build/wechatgame
@@ -122,6 +122,7 @@ web_url() {
   [ -n "${FISHSORT_LEVEL:-}" ] && q="${q}&level=${FISHSORT_LEVEL}"
   [ "${FISHSORT_AUTOPLAY:-}" = "1" ] && q="${q}&autoplay=1"
   [ "${FISHSORT_PLAY:-}" = "1" ] && q="${q}&play=1"
+  [ -n "${FISHSORT_PAGE:-}" ] && q="${q}&page=${FISHSORT_PAGE}"
   echo "http://localhost:${WEB_PORT}/${q:+?${q#&}}"
 }
 

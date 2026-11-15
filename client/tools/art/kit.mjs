@@ -389,6 +389,23 @@ lvNode('node_current', BTN.green, '#FFF59A');
 lvNode('node_locked', BTN.gray, '#E6ECF3');
 lvNode('node_challenge', BTN.purple, '#FFD95A');
 lvNode('node_challenge_done', ['#E8B8FF', '#B26AF5', '#7A2FD0', '#4E1897'], '#FFD95A');
+// 选关路线：一个周期 4 关、每关 200 高、左右摆 150；上下首尾相接（节点位置见 pages/levels.ts）
+{
+  const W = 420;
+  const H = 800;
+  const A = 150;
+  const pts = [];
+  for (let y = -40; y <= H + 40; y += 4) pts.push(`${(W / 2 - A * Math.sin((2 * Math.PI * y) / H)).toFixed(2)} ${y}`);
+  const d = `M${pts.join(' L')}`;
+  part(
+    'path_wave',
+    W,
+    H,
+    `<path d="${d}" fill="none" stroke="#1F7FD0" stroke-opacity="0.28" stroke-width="78"/>` +
+      `<path d="${d}" fill="none" stroke="#BDF0FF" stroke-opacity="0.75" stroke-width="62"/>` +
+      `<path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="22"/>`,
+  );
+}
 part('path_dot', 24, 24, `<circle cx="12" cy="12" r="9" fill="#fff" stroke="#2F6BD8" stroke-width="3" opacity="0.9"/>`);
 {
   const [g, d] = lin([[0, '#FFB24A'], [1, '#E86A0C']]);

@@ -5,6 +5,7 @@ import { DEBUG } from 'cc/env';
 import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
+import { LevelsPage } from './pages/levels';
 import { LockPage, TodoPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx } from './services/audio';
@@ -57,7 +58,7 @@ export class Boot extends Component {
     ui.register('base', () => new TodoPage('base', 'homeBase'));
     ui.register('collect', () => new TodoPage('collect', 'album'));
     ui.register('rank', () => new TodoPage('rank', 'rank'));
-    ui.register('levels', () => new TodoPage(null, 'levelSelect'));
+    ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new TodoPage(null, 'daily'));
     ui.register('wheel', () => new TodoPage(null, 'wheel'));
     ui.register('profile', () => new TodoPage(null, 'album'));
@@ -65,6 +66,7 @@ export class Boot extends Component {
     onLanguage(() => ui.rebuild(topActions));
     // 调试：?level=N 直接进关
     if (App.flags.level > 0 && App.flags.play) ui.go('game', { level: App.flags.level });
+    else if (App.flags.page) ui.go(App.flags.page);
     else ui.go('home');
     // 顶栏的生命倒计时、无限生命每秒走一次
     tween(this.node)

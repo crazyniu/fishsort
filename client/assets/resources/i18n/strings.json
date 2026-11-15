@@ -294,7 +294,10 @@
   "SLOT_LINE": "多一个鱼缸，这一关更好过。",
   "LOCK_PREVIEW": "解锁奖励预览",
   "H_FEAT_DAILY": "每日挑战",
-  "PRIZE_HOURS": "%d 小时"
+  "PRIZE_HOURS": "%d 小时",
+  "LV_CURRENT": "当前",
+  "LV_LOCKED": "先通过前面的关卡",
+  "LV_REPLAY_LEFT": "今日重玩奖励 %d/%d"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -591,6 +594,9 @@
   "SLOT_LINE": "One more bowl makes this level easier.",
   "LOCK_PREVIEW": "What you'll get",
   "H_FEAT_DAILY": "Daily",
-  "PRIZE_HOURS": "%dh"
+  "PRIZE_HOURS": "%dh",
+  "LV_CURRENT": "Now",
+  "LV_LOCKED": "Clear the earlier levels first",
+  "LV_REPLAY_LEFT": "Replay rewards today %d/%d"
  }
 }
