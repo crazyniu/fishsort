@@ -46,6 +46,10 @@ func _init() -> void:
 					game.call("_tap", b, k)
 					break
 			await create_timer(0.12).timeout
+		# 第 6 个参数填 combo：直接触发一次连击演出（数字,夸奖词）
+		if args.size() > 5:
+			game.set("_combo", int(args[5]))
+			game.call("_show_combo", args[6] if args.size() > 6 else "", 1.6)
 	# 第 5 个参数：截图前再等几秒（看动画播到哪）
 	await create_timer(float(args[4]) if args.size() > 4 else 1.5).timeout
 	root.get_viewport().get_texture().get_image().save_png(out)

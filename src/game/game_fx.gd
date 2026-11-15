@@ -153,32 +153,6 @@ func toast(text: String, y: float) -> void:
 	tw.tween_callback(l.queue_free)
 
 
-## 连击字样：连击越高字越大、颜色越热；big 时再炸一圈星星
-func combo(text: String, heat: float, big: bool, y: float) -> Label:
-	var l := UiKit.label(
-		text, int(lerpf(48, 76, heat)) + (16 if big else 0), UiKit.GOLD.lerp(UiKit.RED, heat * 0.7)
-	)
-	l.z_index = 70
-	put(l, Vector2(0, y), Vector2(width, 110))
-	l.rotation = randf_range(-0.08, 0.08)
-	l.scale = Vector2(1.8, 1.8)
-	var tw: Tween = l.create_tween()
-	tw.tween_property(l, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(
-		Tween.EASE_OUT
-	)
-	tw.tween_interval(0.7)
-	tw.set_parallel()
-	tw.tween_property(l, "modulate:a", 0.0, 0.25)
-	tw.tween_property(l, "position:y", l.position.y - 40, 0.25)
-	tw.chain().tween_callback(l.queue_free)
-	if big:
-		Anim.burst(
-			stage, Vector2(width / 2.0, y + 55), 12, STAR, 420.0, 900.0, Vector2(26, 44), 0.7, 69
-		)
-		Audio.sfx(&"star")
-	return l
-
-
 ## 一枚金币从 from 跳起再飞到 to
 func coin_to(from: Vector2, to: Vector2, pitch: float, on_arrive: Callable) -> void:
 	var coin := UiKit.icon("res://assets/ui/coin.png", 50)
