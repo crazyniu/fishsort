@@ -100,7 +100,7 @@ export class CollectPage extends Page {
     const books = Album.books(eco);
     const total = books.reduce((a, b) => a + b.cards.length, 0);
     const got = books.reduce((a, _b, i) => a + Album.have(s, eco, i), 0);
-    const head = slice(v, 'kit/panel_blue', 690, 130, 'total');
+    const head = slice(v, 'kit/panel_glass', 690, 130, 'total');
     at(head, 0, top - 230);
     const ic = img(head, 'icon/tab_collect', 110, 110, 'icon');
     at(ic, -270, 0);
@@ -138,7 +138,7 @@ export class CollectPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const open = Album.isOpen(eco, i, s.level);
-    const row = slice(parent, 'kit/panel_blue', 690, ROW_H, `book${i}`);
+    const row = slice(parent, 'kit/panel_glass', 690, ROW_H, `book${i}`);
     const cover = img(row, `kit/book_${i + 1}`, 140, 150, 'cover');
     at(cover, -250, 0);
     const star = App.config.speciesById.get(cards[cards.length - 1]);
@@ -220,7 +220,7 @@ export class CollectPage extends Page {
     at(text(title, tr(`ALBUM_BOOK_${i + 1}`), 50).node, 0, 4);
 
     // 大奖条：金币 + 每种技能 ×n + 进度
-    const strip = slice(v, 'kit/panel_blue', 690, 150, 'prize');
+    const strip = slice(v, 'kit/panel_glass', 690, 150, 'prize');
     at(strip, 0, top - 220);
     const items = prizeItems(Album.grant(clonePreview(), b.reward, 0));
     const cellW = 100;

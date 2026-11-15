@@ -64,19 +64,33 @@ export function openPopup(o: PopupOpts): Popup {
       o.onClose?.();
     },
   };
+  // 框里飘几个小气泡（定版图 16、18 的内底点缀）
+  if (!o.blue) {
+    for (const [fx0, fy0, s] of [
+      [0.42, 0.36, 26],
+      [0.45, -0.3, 18],
+      [-0.44, -0.38, 22],
+      [-0.4, 0.1, 14],
+    ]) {
+      const b = img(body, 'kit/bubble_small', s, s, 'deco');
+      b.setPosition(fx0 * (o.w - 80), fy0 * (o.h - 80), 0);
+      opacity(b).opacity = 150;
+    }
+  }
   if (o.title !== undefined) {
-    const plate = slice(body, 'kit/title_plate', Math.max(240, o.title.length * 52 + 90), 84, 'title');
-    plate.setPosition(0, o.h / 2 - 4, 0);
-    text(plate, o.title, 46).node.setPosition(0, 4, 0);
+    // 标题凸台压在框上沿正中，大白字
+    const head = slice(body, 'kit/popup_head', Math.max(300, o.title.length * 66 + 120), 110, 'title');
+    head.setPosition(0, o.h / 2 + 33, 0);
+    text(head, o.title, 62).node.setPosition(0, 2, 0);
   }
   if (o.mascot !== null) {
-    const m = img(body, `fish/${o.mascot ?? 'c02'}`, 110, 110, 'mascot');
-    m.setPosition(-o.w / 2 + 70, o.h / 2 + 24, 0);
+    const m = img(body, `fish/${o.mascot ?? 'c02'}`, 140, 140, 'mascot');
+    m.setPosition(-o.w / 2 + 64, o.h / 2 + 50, 0);
     m.angle = 8;
   }
   if (!o.noClose) {
-    const x = img(body, 'kit/close', 76, 76, 'close');
-    x.setPosition(o.w / 2 - 22, o.h / 2 - 22, 0);
+    const x = img(body, 'kit/close', 84, 84, 'close');
+    x.setPosition(o.w / 2 - 18, o.h / 2 - 6, 0);
     onTap(x, () => p.close());
   }
   if (o.tapOutside) onTap(dim, () => p.close(), { press: 0, sound: null });

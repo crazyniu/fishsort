@@ -108,7 +108,7 @@ export function lockView(parent: Node, feature: string, bottom: number): void {
   const items = lockPrizes(feature);
   if (items.length) {
     const panelY = artY - 450;
-    const panel = slice(parent, 'kit/row', 620, 220, 'prizes');
+    const panel = slice(parent, 'kit/panel_glass', 620, 220, 'prizes');
     at(panel, 0, panelY);
     const head = slice(parent, 'kit/title_plate', 320, 70, 'head');
     at(head, 0, panelY + 110);

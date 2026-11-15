@@ -146,13 +146,13 @@ class TopBar {
     (this.frame.getComponent(Sprite) as Sprite).color = COLOR.yellow;
     onTap(this.avatar, actions.profile);
     this.coins = capsule(this.node, 230, 64, 'icon/coin', '0');
-    at(this.coins.node, -60, 0);
+    at(this.coins.node, -95, 0);
     const plus = img(this.coins.node, 'kit/round_green', 54, 54, 'plus');
     img(plus, 'kit/ic_plus', 34, 34, 'glyph');
     at(plus, 104, 0);
     onTap(this.coins.node, actions.coins);
     this.lives = capsule(this.node, 190, 64, 'icon/heart', '5/5');
-    at(this.lives.node, 168, 0);
+    at(this.lives.node, 160, 0);
     onTap(this.lives.node, actions.lives);
     const gear = img(this.node, 'kit/round_blue', 86, 86, 'gear');
     img(gear, 'kit/ic_gear', 50, 50, 'glyph');

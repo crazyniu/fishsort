@@ -103,19 +103,50 @@ roundBtn('round_green', BTN.green);
 roundBtn('round_red', BTN.red);
 
 // ---------------------------------------------------------------- 弹窗
-// 宝蓝圆角厚框 + 浅青内底（16、18）
+// 宝蓝圆角厚框（立体：上亮下暗）+ 饱和青色内底（16、18）。气泡、珊瑚点缀由代码另放
 {
-  const w = 240;
-  const h = 240;
-  const [gf, df] = lin([[0, '#4FA8FF'], [0.12, C.royal2], [1, C.royal]]);
-  const [gi, di] = lin([[0, '#E6FAFF'], [0.35, C.ice], [1, '#9BE3FB']]);
-  const [gs, ds] = lin([[0, '#fff', 0.7], [1, '#fff', 0]]);
-  const body = `<defs>${df}${di}${ds}</defs>
-    ${rr(2, 6, w - 4, h - 8, 44, `fill="${C.navy}"`)}
-    ${rr(2, 2, w - 4, h - 8, 44, `fill="url(#${gf})" stroke="${C.navy}" stroke-width="3"`)}
-    ${rr(16, 16, w - 32, h - 36, 30, `fill="url(#${gi})" stroke="#2A6FD9" stroke-width="3"`)}
-    ${rr(24, 22, w - 48, 30, 15, `fill="url(#${gs})"`)}`;
-  part('panel', w, h, body, [64, 64, 64, 64]);
+  const w = 300;
+  const h = 300;
+  const [gf, df] = lin([[0, '#6EC2FF'], [0.18, '#3592F7'], [0.7, '#1E62DA'], [1, '#164CB8']]);
+  const [gi, di] = lin([[0, '#A6EBFF'], [0.45, '#7AD9FF'], [1, '#4FC2F5']]);
+  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
+  const [gw, dw] = lin([[0, '#fff', 0.55], [0.25, '#fff', 0]]);
+  const body = `<defs>${df}${di}${ds}${dw}</defs>
+    ${rr(3, 10, w - 6, h - 12, 54, `fill="#0A2B7A"`)}
+    ${rr(3, 3, w - 6, h - 12, 54, `fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"`)}
+    ${rr(9, 8, w - 18, h - 24, 48, `fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"`)}
+    ${rr(30, 12, w - 60, 16, 8, `fill="url(#${gs})"`)}
+    ${rr(26, 30, w - 52, h - 64, 34, `fill="#0F4BB8"`)}
+    ${rr(26, 33, w - 52, h - 66, 34, `fill="url(#${gi})"`)}
+    ${rr(26, 33, w - 52, h - 66, 34, `fill="url(#${gw})"`)}
+    ${rr(26, 30, w - 52, h - 63, 34, `fill="none" stroke="#1756C4" stroke-width="3"`)}`;
+  part('panel', w, h, body, [80, 80, 80, 80]);
+}
+// 弹窗标题凸台：和框同色的圆顶台子，压在框上沿正中（16、18）
+{
+  const w = 200;
+  const h = 110;
+  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2370E4']]);
+  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
+  const body = `<defs>${df}${ds}</defs>
+    <path d="M3 ${h} V52 Q3 8 50 8 H${w - 50} Q${w - 3} 8 ${w - 3} 52 V${h} Z" fill="#0A2B7A"/>
+    <path d="M3 ${h} V48 Q3 4 50 4 H${w - 50} Q${w - 3} 4 ${w - 3} 48 V${h} Z" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"/>
+    <path d="M10 ${h} V50 Q10 11 52 11 H${w - 52} Q${w - 10} 11 ${w - 10} 50 V${h}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
+    ${rr(34, 14, w - 68, 16, 8, `fill="url(#${gs})"`)}`;
+  part('popup_head', w, h, body, [0, 0, 56, 56]);
+}
+// 页面里的玻璃卡片（04 商店、06 收藏、13 结算奖励条）：半透明浅蓝 + 亮青描边
+{
+  const w = 200;
+  const h = 200;
+  const [gf, df] = lin([[0, '#9BE2FF', 0.62], [0.5, '#4FA8F2', 0.5], [1, '#2C7FE0', 0.55]]);
+  const [gs, ds] = lin([[0, '#fff', 0.6], [1, '#fff', 0]]);
+  const body = `<defs>${df}${ds}</defs>
+    ${rr(3, 7, w - 6, h - 9, 40, `fill="#0B3A8F" fill-opacity="0.35"`)}
+    ${rr(3, 3, w - 6, h - 9, 40, `fill="url(#${gf})" stroke="#CFF6FF" stroke-width="5"`)}
+    ${rr(10, 10, w - 20, h - 23, 33, `fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"`)}
+    ${rr(24, 12, w - 48, 22, 11, `fill="url(#${gs})"`)}`;
+  part('panel_glass', w, h, body, [56, 56, 56, 56]);
 }
 // 整块宝蓝底（15、19）
 {
@@ -343,15 +374,20 @@ solidIcon('ic_gear', 'M28 6 h8 l2 8 a19 19 0 0 1 6 3 l7-4 6 6-4 7 a19 19 0 0 1 3
 
 // ---------------------------------------------------------------- 横幅（通关、失败）
 function ribbon(name, col) {
-  const w = 600;
-  const h = 170;
-  const [g, d] = lin([[0, col[0]], [0.5, col[1]], [1, col[2]]]);
+  const w = 640;
+  const h = 200;
+  const [g, d] = lin([[0, col[0]], [0.45, col[1]], [1, col[2]]]);
   const [gt, dt] = lin([[0, col[2]], [1, col[3]]]);
-  const body = `<defs>${d}${dt}</defs>
-    <path d="M10 70 L90 64 L90 150 L10 156 L44 112 Z" fill="url(#${gt})" stroke="${C.navy}" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M590 70 L510 64 L510 150 L590 156 L556 112 Z" fill="url(#${gt})" stroke="${C.navy}" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M70 40 Q300 0 530 40 L530 130 Q300 92 70 130 Z" fill="url(#${g})" stroke="${C.navy}" stroke-width="6" stroke-linejoin="round"/>
-    <path d="M100 52 Q300 20 500 52" stroke="#fff" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.5"/>`;
+  const [gs, ds] = lin([[0, '#fff', 0.85], [1, '#fff', 0]]);
+  const body = `<defs>${d}${dt}${ds}</defs>
+    <path d="M8 96 L112 84 L112 178 L8 190 L48 142 Z" fill="url(#${gt})" stroke="${C.navy}" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M632 96 L528 84 L528 178 L632 190 L592 142 Z" fill="url(#${gt})" stroke="${C.navy}" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M84 150 L112 178 L112 150 Z" fill="${col[3]}" stroke="${C.navy}" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M556 150 L528 178 L528 150 Z" fill="${col[3]}" stroke="${C.navy}" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M70 56 Q320 4 570 56 L570 158 Q320 108 70 158 Z" fill="${C.navy}" transform="translate(0 6)"/>
+    <path d="M70 56 Q320 4 570 56 L570 158 Q320 108 70 158 Z" fill="url(#${g})" stroke="${C.navy}" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M92 68 Q320 22 548 68 L548 86 Q320 42 92 86 Z" fill="url(#${gs})"/>
+    <path d="M80 148 Q320 100 560 148" stroke="#fff" stroke-width="3" fill="none" opacity="0.35"/>`;
   part(name, w, h, body);
 }
 ribbon('ribbon_blue', ['#7FD0FF', '#2D86F5', '#1550C8', '#0B3792']);

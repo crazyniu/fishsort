@@ -80,7 +80,7 @@ export class ShopPage extends Page {
 
   private skillCard(root: Node, id: string, x: number, y: number, w: number, h: number): SkillCard {
     const eco = App.config.eco;
-    const n = slice(root, 'kit/panel_blue', w, h, `skill_${id}`);
+    const n = slice(root, 'kit/panel_glass', w, h, `skill_${id}`);
     at(n, x, y);
     const name = text(n, tr(NAME[id]), 44);
     at(name.node, 0, h / 2 - 50);
@@ -108,7 +108,7 @@ export class ShopPage extends Page {
   }
 
   private lifeRow(root: Node, x: number, y: number, w: number, h: number): Node {
-    const n = slice(root, 'kit/panel_blue', w, h, 'lives');
+    const n = slice(root, 'kit/panel_glass', w, h, 'lives');
     at(n, x, y);
     at(text(n, tr('H_LIVES_TITLE'), 38).node, -w / 2 + 70, 26);
     this.heart = img(n, 'icon/heart', 84, 84, 'heart');
@@ -130,7 +130,7 @@ export class ShopPage extends Page {
 
   private adRow(root: Node, x: number, y: number, w: number, h: number): Node {
     const eco = App.config.eco;
-    const n = slice(root, 'kit/panel_blue', w, h, 'freeCoins');
+    const n = slice(root, 'kit/panel_glass', w, h, 'freeCoins');
     at(n, x, y);
     at(text(n, tr('SHOP_FREE_COINS'), 34).node, -w / 2 + 80, 30);
     const pile = box3(n);

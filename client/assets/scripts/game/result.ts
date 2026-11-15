@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, Btn, at, box, button, img, lazyImg, onTap, opacity, setImg, slice, text } from '../ui/kit';
+import { COLOR, Btn, at, box, button, hex, img, lazyImg, onTap, opacity, setImg, slice, text } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
@@ -44,9 +44,9 @@ export class ResultPage extends Page {
     const top = Screen.top;
 
     // 横幅与星星
-    const ribbon = img(c, 'kit/ribbon_blue', 640, 181, 'ribbon');
+    const ribbon = img(c, 'kit/ribbon_blue', 700, 219, 'ribbon');
     at(ribbon, 0, top - 300);
-    const title = text(ribbon, tr('WIN_TITLE'), 74, { color: COLOR.yellow });
+    const title = text(ribbon, tr('WIN_TITLE'), 88, { color: COLOR.yellow, outline: hex('#B4500A'), outlineWidth: 8 });
     at(title.node, 0, 14);
     const stars: Node[] = [];
     for (let i = 0; i < 3; i++) {
@@ -72,7 +72,7 @@ export class ResultPage extends Page {
 
     // 奖励一排：金币总数、技能、收藏卡、家园星星、首胜（docs/01 3.3：图标 + 数字，不写明细）
     const rowY = top - 790;
-    const pill = slice(c, 'kit/row', 660, 170, 'rewards');
+    const pill = slice(c, 'kit/panel_glass', 660, 170, 'rewards');
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
     const items: Node[] = [];
