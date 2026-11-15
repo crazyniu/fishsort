@@ -21,7 +21,7 @@ static func create(eco: Dictionary) -> Dictionary:
 		"challenge": DailyChallenge.fresh(),
 		"dex": Dex.fresh(),
 		"signin": {"count": 0, "lastDay": -1, "doubledDay": -1},
-		"week": {"id": -1, "cleared": 0},
+		"week": {"id": -1, "cleared": 0, "lastId": -1, "lastCleared": 0, "paid": -1},
 		"daily": Daily.fresh(-1),
 		"ads": {"interstitialAt": -100000.0, "interstitialLevel": 0, "rewardedAt": -100000.0},
 		"seenTips": {},

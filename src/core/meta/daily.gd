@@ -26,5 +26,8 @@ static func roll(save: Dictionary, day: int) -> void:
 	# day 是自 1970-01-01（周四）起的天数，+3 后整除 7 得到以周一为起点的周序号
 	var week_id: int = (day + 3) / WEEK_DAYS
 	if week["id"] != week_id:
+		# 上周的过关数留给周一的排行结算（WeeklyRank）
+		week["lastId"] = week["id"]
+		week["lastCleared"] = week["cleared"]
 		week["id"] = week_id
 		week["cleared"] = 0

@@ -114,8 +114,9 @@ func _on_back() -> void:
 	host.go_tab(HomeScreen.TAB_MAIN)
 
 
+## 免费的这一次进场时不记次数，局内走了第一步才记（GameScreen._mark_moved）
 func _start_free() -> void:
-	if DailyChallenge.enter(Save.data, Config.eco, Save.today(), "free"):
+	if DailyChallenge.can_start_free(Save.data, Save.today()):
 		_go()
 
 

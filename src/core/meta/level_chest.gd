@@ -10,6 +10,7 @@ static func fresh() -> Dictionary:
 ## 开箱并入账。返回 { kind: "coins"|"skill"|"card", coins, skill, card, pity }
 ## card 为 Cards.give 的结果（{ id, rarity, is_new, coins }），没有则为空字典。
 ## 连续 pityAfter 关没出卡，下一关必出一张未拥有的卡。
+## 收藏还没开放（features.album）时不出卡，该出卡的改发安慰金币。
 static func open(
 	save: Dictionary, eco: Dictionary, species: Array, level_id: int, challenge: bool, rng: Rng
 ) -> Dictionary:
@@ -49,6 +50,8 @@ static func _roll(
 			kind = "coins"
 		elif r <= int(n["coins"]) + int(n["skill"]):
 			kind = "skill"
+	if kind == "card" and not Features.is_unlocked(eco, "album", int(save["level"])):
+		kind = "coins"
 	if kind == "skill":
 		res["skill"] = Skills.grant_random(save, eco, rng)
 		if res["skill"] == "":

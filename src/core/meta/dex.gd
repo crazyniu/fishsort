@@ -15,6 +15,12 @@ static func record(save: Dictionary, counts: Dictionary) -> void:
 		seen[id] = int(seen.get(id, 0)) + int(counts[id])
 
 
+## 这次过关算不算进图鉴：只有通过当前进度的关（首次通关）和每日挑战才算，重玩旧关不算。
+## level_id 是刚过的关，在 Settle.win 推进进度之前调用
+static func counts_win(save: Dictionary, level_id: int, daily: bool) -> bool:
+	return daily or level_id == int(save["level"])
+
+
 static func count(save: Dictionary, id: String) -> int:
 	return int(save["dex"]["seen"].get(id, 0))
 

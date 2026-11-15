@@ -5,6 +5,15 @@ extends RefCounted
 ## 全部是对存档字典的纯计算；日期、时间、随机数由调用方传入。
 
 
+## 第 id 关用哪个关卡文件。count 是关卡总数；超过后只在后一半里循环（第 61–120 关），
+## 后一半的长度是挑战关间隔的整数倍，所以挑战关的位置不变。见 docs/01 第 5.7 节
+static func level_file(id: int, count: int) -> int:
+	if id <= count:
+		return id
+	var half: int = count / 2
+	return half + 1 + posmod(id - count - 1, count - half)
+
+
 static func _roll_day(save: Dictionary, day: int) -> void:
 	Daily.roll(save, day)
 

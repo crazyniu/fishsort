@@ -50,6 +50,19 @@ func _ready() -> void:
 	_tab = start_tab
 	resized.connect(_build)
 	_build()
+	if _tab == TAB_MAIN:
+		_settle_week.call_deferred()
+
+
+## 每周一第一次进主页：按上周排名发奖，弹一次「上周排名第 N」（docs/01 §5.9）
+func _settle_week() -> void:
+	var rows: Array = Platform.impl.get_rank_list(&"weekly")
+	var r: Dictionary = WeeklyRank.settle(Save.data, Config.eco, rows, Save.today(), Save.now())
+	Save.save()
+	if r.is_empty():
+		return
+	var p := MetaPopups.prize_reveal(self, r["prizes"], tr("RANK_WEEK_PRIZE") % int(r["rank"]))
+	p.buttons[0].pressed.connect(refresh_top)
 
 
 func _process(delta: float) -> void:
@@ -301,6 +314,8 @@ func _on_tab(i: int) -> void:
 	_tab = i
 	_mark_tabs()
 	_show_page(true, from_right)
+	if i == TAB_MAIN:
+		_settle_week()
 
 
 func _make_page(tab: int) -> HomePage:

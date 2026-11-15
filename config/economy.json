@@ -177,6 +177,15 @@
     "streakDays": 7,
     "streakReward": { "coins": 3000, "tools": 2, "unlimited": 3600 }
   },
+  "rankReward": {
+    "tiers": [
+      { "upTo": 1, "coins": 3000, "tools": 2 },
+      { "upTo": 2, "coins": 2000, "tools": 1 },
+      { "upTo": 3, "coins": 1500, "tools": 1 },
+      { "upTo": 10, "coins": 800 }
+    ],
+    "rest": { "coins": 300 }
+  },
   "features": {
     "signin": 3,
     "skill_shuffle": 4,
