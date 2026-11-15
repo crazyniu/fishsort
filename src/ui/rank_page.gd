@@ -5,6 +5,8 @@ extends HomePage
 
 func build() -> void:
 	title(tr("UI_RANK_TITLE"))
+	# 排行是主页的子页面，左上角返回
+	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _on_back, 30)
 	var days_left: int = 7 - (Save.today() + 3) % 7
 	add(UiKit.label(tr("UI_RANK_RESET") % days_left, 24), Vector2(0, 84), Vector2(W, 34))
 	var me_score: int = (
@@ -47,3 +49,7 @@ func build() -> void:
 		score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		add_to(row, score, Vector2(W - 52 - 190, 0), Vector2(170, row_h - 12))
 		Anim.pop_in(row, 0.04 * i, 0.28)
+
+
+func _on_back() -> void:
+	host.go_tab(HomeScreen.TAB_MAIN)

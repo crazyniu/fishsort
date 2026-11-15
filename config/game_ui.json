@@ -106,6 +106,13 @@
       "maxSeconds": 16
     }
   },
+  "lockedPrizes": {
+    "album": ["res://assets/ui/coin.png", "res://assets/ui/tool_net.png", "res://assets/ui/avatar.png"],
+    "rank": ["res://assets/ui/coin.png", "res://assets/ui/heart_inf.png"],
+    "wheel": ["res://assets/ui/coin.png", "res://assets/ui/tool_blow.png", "res://assets/ui/heart_inf.png"],
+    "daily": ["res://assets/ui/chest_closed.png", "res://assets/ui/heart_inf.png"],
+    "homeBase": ["res://assets/ui/chest_closed.png", "res://assets/ui/coin.png", "res://assets/ui/star.png"]
+  },
   "unlockGuide": {
     "delay": 0.5,
     "lockSeconds": 0.45,
