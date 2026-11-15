@@ -1,0 +1,18 @@
+{
+  "cycle": 5,
+  "fixed": {
+    "1": { "species": 3, "fish": 9, "layers": 1, "slack": 0 },
+    "2": { "species": 3, "fish": 18, "layers": 1, "slack": 0 }
+  },
+  "bands": [
+    { "from": 3, "to": 11, "species": [4, 5], "fish": [24, 36], "layers": [2, 2], "slack": [0, 1] },
+    { "from": 12, "to": 24, "species": [5, 6], "fish": [45, 60], "layers": [2, 3], "slack": [1, 1], "chain": 1 },
+    { "from": 25, "to": 39, "species": [6, 6], "fish": [54, 66], "layers": [3, 3], "slack": [1, 2], "chain": 1, "timer": 1 },
+    { "from": 40, "to": 59, "species": [6, 7], "fish": [60, 75], "layers": [3, 3], "slack": [1, 2], "chain": 1, "timer": 1, "fog": 0.25 },
+    { "from": 60, "to": 79, "species": [7, 7], "fish": [66, 81], "layers": [3, 3], "slack": [1, 2], "chain": 1, "timer": 1, "fog": 0.25, "ice": 2 },
+    { "from": 80, "to": 109, "species": [7, 8], "fish": [72, 90], "layers": [3, 4], "slack": [2, 2], "chain": 1, "timer": 1, "fog": 0.25, "ice": 2, "big": 1 },
+    { "from": 110, "to": 200, "species": [7, 8], "fish": [75, 96], "layers": [3, 4], "slack": [2, 2], "chain": 1, "timer": 1, "fog": 0.25, "ice": 2, "big": 1, "pairs": 2 }
+  ],
+  "challenge": { "species": 2, "fishMul": 1.4, "fishMax": 144, "layers": 1, "slack": 1 },
+  "targets": { "earlyUntil": 24, "earlyNormal": [80, 100], "earlyChallenge": [40, 85], "normal": [50, 95], "challenge": [15, 40] }
+}
