@@ -36,6 +36,12 @@ function num(v: unknown, def: number): number {
   return v === undefined || v === null ? def : Number(v);
 }
 
+// 注意：Cocos 3.8 构建用的 Babel 不认「as 后面跟联合类型」（as X[] | undefined），会在打包脚本这一步报错，
+// 所以这里用函数收窄，不用这种写法。
+function list<T>(v: unknown): T[] {
+  return Array.isArray(v) ? (v as T[]) : [];
+}
+
 function ints(v: unknown): number[] {
   return Array.isArray(v) ? v.map((x) => Math.trunc(Number(x))) : [];
 }
@@ -69,10 +75,10 @@ export class LevelData {
     lv.bowlSlots = int(d.bowlSlots, 2);
     lv.fieldCap = int(d.fieldCap);
     lv.palette = int(d.palette);
-    for (const o of (d.orders as Raw[] | undefined) ?? []) {
+    for (const o of list<Raw>(d.orders)) {
       lv.orders.push({ s: int(o.s), cap: int(o.cap, 3), timer: int(o.timer) });
     }
-    for (const b of (d.bubbles as Raw[] | undefined) ?? []) {
+    for (const b of list<Raw>(d.bubbles)) {
       lv.bubbles.push({
         id: int(b.id),
         x: num(b.x, 0),
@@ -84,14 +90,14 @@ export class LevelData {
         chain: int(b.chain),
         fog: Boolean(b.fog ?? false),
         ice: ints(b.ice),
-        pairs: ((b.pairs as unknown[] | undefined) ?? []).map(ints),
+        pairs: list<unknown>(b.pairs).map(ints),
       });
     }
-    for (const t of (d.ref as unknown[] | undefined) ?? []) {
+    for (const t of list<unknown>(d.ref)) {
       const p = ints(t);
       lv.ref.push([p[0], p[1]]);
     }
-    lv.variants = ((d.variants as unknown[] | undefined) ?? []).map(String);
+    lv.variants = list<unknown>(d.variants).map(String);
     return lv;
   }
 

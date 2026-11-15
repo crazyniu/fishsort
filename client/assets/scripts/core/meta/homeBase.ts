@@ -37,8 +37,8 @@ export function addStars(save: SaveData, n: number): void {
   save.base.stars = stars(save) + n;
 }
 
-/** 老存档补发：已通过第 1 … cleared 关，每关 1 颗，其中每 challengeEvery 关一个挑战关再多 1 颗 */
-export function retroStars(eco: EconomyConfig, cleared: number): number {
+/** 首次通过第 1 … cleared 关一共能拿几颗星：每关 1 颗，其中每 challengeEvery 关一个挑战关再多 1 颗（锁页和数值核对用） */
+export function starsThrough(eco: EconomyConfig, cleared: number): number {
   if (cleared <= 0) return 0;
   const cfg = eco.homeBase.stars;
   const hard = idiv(cleared, cfg.challengeEvery);

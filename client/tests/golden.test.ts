@@ -31,7 +31,7 @@ import * as Bots from '../assets/scripts/core/solver/bots';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
 import { diff, golden, hasGolden, levelFile } from './helpers';
 
-/** Godot 版的存档里没有、或者文档改过行为的字段：week（每周过关目标）、version（v3） */
+/** 文档改过行为的字段：week（每周过关目标）；version（Cocos 版存档从 1 开始，不迁移旧档） */
 const SAVE_SKIP = ['week', 'version'];
 
 function same(want: unknown, got: unknown, what: string, skip: readonly string[] = []): void {
@@ -126,12 +126,10 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
       ops: Op[];
       days: { ops: number; save: unknown }[];
       create: unknown;
-      migrate: { from: Record<string, unknown>; to: unknown };
       features: string[];
       odds: unknown;
     }>('meta');
     same(g.create, PlayerData.create(eco), 'PlayerData.create', SAVE_SKIP);
-    same(g.migrate.to, PlayerData.migrate(structuredClone(g.migrate.from), eco), 'PlayerData.migrate v1', SAVE_SKIP);
     assert.deepEqual(Features.newlyUnlocked(eco, 0, 200), g.features, 'Features.newly_unlocked');
     same(g.odds, Wheel.odds(eco), 'Wheel.odds');
 

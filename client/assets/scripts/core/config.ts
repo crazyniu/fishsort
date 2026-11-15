@@ -140,7 +140,6 @@ export interface EconomyConfig {
   signInDays: SignInDay[];
   share: Record<string, { daily: number; reward: { coins?: number; life?: number; wheel?: number; skill?: number } }>;
   replay: { rewardedPerDay: number };
-  migration: { ticketToCoins: number; coinsMultiplier: number };
 }
 
 export interface AdsConfig {

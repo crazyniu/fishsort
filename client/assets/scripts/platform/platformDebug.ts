@@ -40,7 +40,8 @@ export class PlatformDebug extends PlatformBase {
   }
 
   override loadData(key: string): string {
-    return (sys.localStorage.getItem(PREFIX + key) as string | null) ?? '';
+    const v: unknown = sys.localStorage.getItem(PREFIX + key);
+    return typeof v === 'string' ? v : '';
   }
 
   override saveData(key: string, value: string): void {

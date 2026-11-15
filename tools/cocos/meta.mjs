@@ -40,11 +40,17 @@ const IMPORTERS = {
   '.json': () => ({ ver: '2.0.1', importer: 'json', files: ['.json'] }),
 };
 
+// assets/resources 是 Cocos 的内置资源包，编辑器会给它写上这几项；先写好，免得 Mac 上构建后出现改动
+const USER_DATA = {
+  'assets/resources': { isBundle: true, bundleConfigID: 'default', bundleName: 'resources', priority: 8 },
+};
+
 function metaFor(abs, rel, isDir) {
   const make = isDir ? IMPORTERS.dir : IMPORTERS[extname(abs)];
   if (!make) return null;
   const m = { ...base, ...make() };
-  return { ver: m.ver, importer: m.importer, imported: true, uuid: uuidFor(rel), files: m.files, subMetas: {}, userData: {} };
+  const userData = USER_DATA[rel] ?? {};
+  return { ver: m.ver, importer: m.importer, imported: true, uuid: uuidFor(rel), files: m.files, subMetas: {}, userData };
 }
 
 const missing = [];

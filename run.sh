@@ -206,6 +206,10 @@ case "$cmd" in
   ts-check)
     need_node_modules
     node tools/cocos/meta.mjs --check
+    # Cocos 3.8 构建用的 Babel 不认「as 后面跟联合类型」，打包脚本会失败，Linux 上的 tsc 查不出来
+    if grep -rnE '^[^/]*[^/]\bas [^;,)=]*\|' client/assets/scripts --include='*.ts'; then
+      die "上面几处是 as X | Y 的写法，Cocos 构建会失败，换成函数收窄"
+    fi
     (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json)
     # 用到 cc 的脚本要 Cocos 的类型声明（client/.cc-types，从 Mac 的 Cocos 取，不进仓库）；没有就跳过
     if [ -f client/.cc-types/cc.d.ts ]; then (cd client && npx tsc -p tsconfig.client.json); else echo "（没有 client/.cc-types，跳过界面层类型检查）"; fi

@@ -21,10 +21,8 @@ export class Save {
     } catch {
       console.warn('存档损坏，重新开始');
     }
-    this.data =
-      typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
-        ? PlayerData.migrate(parsed as Record<string, unknown>, eco)
-        : PlayerData.create(eco);
+    // 测试开发版不导入旧存档：版本不对就开新档（docs/09 第 8 节）
+    this.data = PlayerData.load(parsed, eco);
     if (flags.boost) this.applyBoost(flags);
   }
 

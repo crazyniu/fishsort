@@ -674,9 +674,5 @@
   },
   "replay": {
     "rewardedPerDay": 5
-  },
-  "migration": {
-    "ticketToCoins": 50,
-    "coinsMultiplier": 5
   }
 }

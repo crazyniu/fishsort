@@ -108,7 +108,7 @@
 
 ## Skills / Features
 
-- `Skills.sync_unlocks(save, eco)` → 新发礼的技能 id（到关发 2 个，只发一次；`Settle.win` 和迁移已调用）。
+- `Skills.sync_unlocks(save, eco)` → 新发礼的技能 id（到关发 2 个，只发一次；`Settle.win` 已调用）。
 - `Skills.try_use(save, eco, id, used_this_level, day)` → `{ok, free, reason}`，reason: `locked` / `limit`（每关 2 次）/ `empty` / `""`。ok 时已扣库存或记了今天的免费次，随后调 `Rules.apply(s, {"a": id...})`。
 - `Skills.buy(save, eco, id)`、`Skills.count`、`Skills.add`、`Skills.price`、`Skills.free_available(save, id)`、`Skills.unlocked_ids(eco, level)`。
 - 技能 id：`shuffle` 洗牌（4）、`blow` 吹泡（7）、`net` 渔网（9）、`current` 洋流（12）。
@@ -127,9 +127,9 @@
 - 免费金币：`Meta.take_free_coin`（500，每天 10 次）；缸位 650 金币见 `eco["bowlSlotCoinPrice"]`。
 - `Save.now()`（`src/services/save_service.gd`）：当前 unix 秒。
 
-## 迁移 v1 → v2
+## 存档版本
 
-金币 ×`migration.coinsMultiplier`(5)，旧版的鱼票按 `migration.ticketToCoins`(50) 折成金币，旧字段 `tickets` / `stars` / `pity` / `scene` / `sceneStep` 读档时删除，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
+开发阶段不迁移旧存档（用户 2026-11-15 定）：读档时版本不对或损坏就开新档，版本对就只把缺的字段补成默认值。正式上线后结构再变时才写迁移函数。
 
 ## 局内写入的存档字段
 

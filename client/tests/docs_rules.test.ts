@@ -2,7 +2,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as Album from '../assets/scripts/core/meta/album';
-import * as Daily from '../assets/scripts/core/meta/daily';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Features from '../assets/scripts/core/meta/features';
 import * as HomeBase from '../assets/scripts/core/meta/homeBase';
@@ -85,12 +84,12 @@ describe('家园 6 个区域（docs/01 5.12）', () => {
     let need = 0;
     for (const a of HomeBase.areas(ECO)) {
       need += a.steps.reduce((s, x) => s + x[0], 0);
-      assert.ok(HomeBase.retroStars(ECO, a.unlock - 1) >= need, `${a.id}：第 ${a.unlock} 关时 ${HomeBase.retroStars(ECO, a.unlock - 1)} 颗，要 ${need}`);
+      assert.ok(HomeBase.starsThrough(ECO, a.unlock - 1) >= need, `${a.id}：第 ${a.unlock} 关时 ${HomeBase.starsThrough(ECO, a.unlock - 1)} 颗，要 ${need}`);
     }
   });
 
   it('第 8 关开放时手里 8 颗星，正好能开始建', () => {
-    assert.equal(HomeBase.retroStars(ECO, 7), 8);
+    assert.equal(HomeBase.starsThrough(ECO, 7), 8);
   });
 
   it('建造流程：第一步 1 星 300 金币，建完开区域宝箱，下一区要到开放关', () => {
@@ -177,67 +176,46 @@ describe('每周过关目标（docs/01 5.9）', () => {
   });
 });
 
-describe('存档 v3 迁移', () => {
-  it('家园 5 区 → 6 区：沉船湾起往后挪，插入未建的海草森林', () => {
-    const save = PlayerData.migrate({ version: 2, level: 80, base: { stars: 3, built: [5, 5, 2] } }, ECO);
-    assert.deepEqual(save.base.built, [5, 5, 0, 2]);
-    assert.equal(HomeBase.currentArea(save, ECO), 2, '先建海草森林');
-    const early = PlayerData.migrate({ version: 2, level: 40, base: { stars: 3, built: [5, 1] } }, ECO);
-    assert.deepEqual(early.base.built, [5, 1], '还没建到第 3 区的不变');
+describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', () => {
+  it('旧版本、损坏、不是对象：一律开新档，不换算任何数据', () => {
+    for (const raw of [
+      { version: 2, level: 80, coins: 99999, tickets: 7 },
+      { version: 1.5, level: 3 },
+      { level: 9, coins: 77 },
+      null,
+      'save',
+      [1, 2],
+    ]) {
+      const save = PlayerData.load(structuredClone(raw), ECO);
+      assert.deepEqual(save, PlayerData.create(ECO), JSON.stringify(raw));
+    }
   });
 
-  it('收藏册重分：卡保留；已领的册子按新分法仍集齐才保留', () => {
-    const cards: Record<string, number> = {};
-    for (const id of Album.books(ECO)[0].cards) cards[id] = 1;
-    const save = PlayerData.migrate({ version: 2, level: 50, cards, album: { claimed: [0, 1], final: false, frame: false } }, ECO);
-    assert.deepEqual(save.cards, cards);
-    assert.deepEqual(save.album.claimed, [0], '第 2 册按新分法没集齐，可以集齐后再领');
+  it('版本对：原样保留，缺的字段补默认值', () => {
+    const save = PlayerData.create(ECO);
+    save.level = 42;
+    save.coins = 1234;
+    save.cards = { c01: 3 };
+    const raw = JSON.parse(JSON.stringify(save)) as Record<string, unknown>;
+    delete raw.dex;
+    delete (raw.daily as Record<string, unknown>).lifeAd;
+    delete (raw.week as Record<string, unknown>).claimed;
+    raw.base = 'broken';
+    const back = PlayerData.load(raw, ECO);
+    assert.equal(back.level, 42);
+    assert.equal(back.coins, 1234);
+    assert.deepEqual(back.cards, { c01: 3 }, '收藏卡不补默认字段');
+    assert.deepEqual(back.dex, { seen: {}, claimed: {} });
+    assert.equal(back.daily.lifeAd, 0);
+    assert.deepEqual(back.week.claimed, []);
+    assert.deepEqual(back.base, { stars: 0, built: [] }, '类型不对的字段换成默认值');
+    assert.deepEqual(PlayerData.load(structuredClone(back), ECO), back, '再读一遍不变');
   });
 
-  it('排行改过关目标：去掉名次结算字段，保留本周过关数；每日计数补上看广告得命', () => {
-    const save = PlayerData.migrate(
-      { version: 2, level: 30, week: { id: 5, cleared: 3, lastId: 4, lastCleared: 8, paid: 4 }, daily: { day: 7 } },
-      ECO,
-    );
-    assert.deepEqual(save.week, { id: 5, cleared: 3, claimed: [] });
-    assert.equal(save.daily.lifeAd, 0);
-    assert.equal(save.version, 3);
-    Daily.roll(save, 7);
-    assert.equal(save.daily.day, 7);
-  });
-
-  it('v1 老档一路升到 v3', () => {
-    const save = PlayerData.migrate(
-      {
-        version: 1,
-        level: 13,
-        coins: 40,
-        tickets: 7,
-        stars: 12,
-        tools: { net: 1, blow: 1, shuffle: 3 },
-        cards: { c01: 2 },
-        daily: { day: 77, firstWin: true, freeCoin: 2 },
-        signin: { count: 4, lastDay: 77 },
-      },
-      ECO,
-    );
-    assert.equal(save.version, 3);
-    assert.equal(save.coins, 40 * 5 + 7 * 50);
-    assert.ok(!('tickets' in save) && !('stars' in save));
-    assert.deepEqual(save.cards, { c01: 2 });
-    assert.equal(save.lives.count, 5);
-    assert.equal(save.signin.doubledDay, -1);
-    assert.equal(save.daily.day, 77);
-    assert.equal(save.tools.shuffle, 5);
-    assert.equal(save.tools.current, 2);
-    assert.equal(save.base.stars, HomeBase.retroStars(ECO, 12));
-    const again = PlayerData.migrate(structuredClone(save) as unknown as Record<string, unknown>, ECO);
-    assert.deepEqual(again, save, '已是 v3 的档再迁移不变');
-  });
-
-  it('头像框：老档已领终极大奖补上，没领的不补', () => {
-    assert.ok(PlayerData.migrate({ version: 2, album: { claimed: [], final: true } }, ECO).album.frame);
-    assert.ok(!PlayerData.migrate({ version: 2, album: { claimed: [], final: false } }, ECO).album.frame);
+  it('存档能直接转 JSON', () => {
+    const save = PlayerData.create(ECO);
+    assert.deepEqual(JSON.parse(JSON.stringify(save)), save);
+    assert.equal(save.version, PlayerData.VERSION);
   });
 
   it('看过的教学', () => {
@@ -245,7 +223,7 @@ describe('存档 v3 迁移', () => {
     assert.ok(!PlayerData.tipSeen(save, 'skill_blow'));
     PlayerData.markTip(save, 'skill_blow');
     assert.ok(PlayerData.tipSeen(save, 'skill_blow'));
-    assert.ok(!PlayerData.tipSeen(PlayerData.migrate({ version: 2, level: 9 }, ECO), 'skill_blow'));
+    assert.ok(!PlayerData.tipSeen(save, 'skill_net'));
   });
 });
 
