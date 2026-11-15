@@ -95,5 +95,14 @@
       "coinsPerCombo": 2,
       "max": 40
     }
+  },
+  "mechanicIntro": {
+    "3": "TIP_LAYER",
+    "12": "TIP_CHAIN",
+    "25": "TIP_TIMER",
+    "40": "TIP_FOG",
+    "60": "TIP_ICE",
+    "80": "TIP_BIG",
+    "110": "TIP_PAIR"
   }
 }
