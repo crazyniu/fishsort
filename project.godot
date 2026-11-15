@@ -19,8 +19,8 @@ gdscript/warnings/untyped_declaration=2
 
 window/size/viewport_width=750
 window/size/viewport_height=1334
-window/size/window_width_override=450
-window/size/window_height_override=800
+window/size/window_width_override=900
+window/size/window_height_override=1600
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
