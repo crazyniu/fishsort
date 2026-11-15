@@ -6,7 +6,7 @@ extends Control
 ## 金币翻倍（广告）、再开一个宝箱（广告，每关一次）、分享炫耀。
 
 const W := 750.0
-const CHEST_AT := Vector2(375, 612)
+const CHEST_AT := Vector2(375, 640)
 
 var _info: Dictionary
 var _result: Dictionary
@@ -187,21 +187,68 @@ func _coin_row(animate: bool, coins_from: int) -> void:
 		tw.tween_callback(Anim.bounce.bind(box, 1.15, 0.25))
 	if animate:
 		Anim.pop_in(box, _cfg("coinsAt") - 0.15, 0.2)
-	var notes: PackedStringArray = []
+	# 明细不用一行小字，改成「图标 + 数字」一排，下面是很短的说明
+	var stats: Array = []
 	if int(_result["coins_base"]) > 0:
-		notes.append(tr("UI_WIN_BASE") % int(_result["coins_base"]))
+		stats.append(
+			["res://assets/ui/tank.png", "+%d" % int(_result["coins_base"]), tr("UI_STAT_CLEAR")]
+		)
 	if int(_result["coins_combo"]) > 0:
-		notes.append(tr("UI_WIN_COMBO") % int(_result["coins_combo"]))
+		stats.append(["fx_spark", "+%d" % int(_result["coins_combo"]), tr("UI_STAT_COMBO")])
 	if int(_result["coins_best"]) > 0:
-		notes.append(tr("UI_WIN_BEST") % [int(_info["best"]), int(_result["coins_best"])])
+		stats.append(
+			[
+				"res://assets/ui/star.png",
+				"+%d" % int(_result["coins_best"]),
+				tr("UI_STAT_BEST") % int(_info["best"])
+			]
+		)
 	if _doubled:
-		notes.append("×%d" % int(Config.eco["adCoinMultiplier"]))
-	_put(UiKit.label(" · ".join(notes), 24, Color("BFE6FF")), Vector2(0, 354), Vector2(W, 34))
+		stats.append(
+			[
+				"res://assets/ui/coin.png",
+				"×%d" % int(Config.eco["adCoinMultiplier"]),
+				tr("UI_STAT_AD")
+			]
+		)
+	_stat_row(stats, 352, Color.WHITE)
 	if _result["first_win"]:
 		var mins: int = int(_result["unlimited"]) / 60
-		_put(
-			UiKit.label(tr("UI_FIRST_WIN") % mins, 24, UiKit.GOLD), Vector2(0, 390), Vector2(W, 34)
+		_stat_row(
+			[
+				["res://assets/ui/tab_wheel.png", "+1", tr("UI_STAT_FIRST")],
+				["res://assets/ui/heart_inf.png", tr("UI_MINUTES") % mins, tr("UI_STAT_FIRST")]
+			],
+			436,
+			UiKit.GOLD
 		)
+
+
+## 一排居中的小项：每项是图标 + 数字，下面一行短说明。items: [图标路径或部件名, 数字, 说明]
+func _stat_row(items: Array, y: float, color: Color) -> void:
+	if items.is_empty():
+		return
+	var cell: float = minf(190.0, (W - 60.0) / float(items.size()))
+	var x0: float = (W - cell * float(items.size())) / 2.0
+	for i: int in items.size():
+		var it: Array = items[i]
+		var x: float = x0 + cell * float(i)
+		var src: String = it[0]
+		var pic: Control
+		if src.begins_with("res://"):
+			pic = UiKit.icon(src, 40)
+		else:
+			pic = UiKit.badge(src, 40)
+			pic.modulate = UiKit.GOLD
+		pic.custom_minimum_size = Vector2(40, 40)
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 6)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(pic)
+		row.add_child(UiKit.label(it[1], 30, color))
+		_put(row, Vector2(x, y), Vector2(cell, 40))
+		_put(UiKit.label(it[2], 20, Color("BFE6FF")), Vector2(x, y + 40), Vector2(cell, 28))
 
 
 # ---------- 宝箱 ----------

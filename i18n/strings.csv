@@ -209,3 +209,9 @@ H_TEN_PULL,十连,Ten pulls
 H_BACK,返回,Back
 H_REPLAY_HINT,重玩奖励 今日 %d/%d,Replay rewards %d/%d
 H_YOU_ARE_HERE,当前,Now
+UI_STAT_CLEAR,过关,Clear
+UI_STAT_COMBO,连击,Combo
+UI_STAT_BEST,最高连击 ×%d,Best combo ×%d
+UI_STAT_AD,看广告,Ad bonus
+UI_STAT_FIRST,今日首胜,First win
+UI_MINUTES,%d 分钟,%d min
