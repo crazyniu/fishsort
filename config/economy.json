@@ -112,7 +112,9 @@
     "wheel": 8,
     "skill_net": 9,
     "rank": 11,
-    "skill_current": 12
+    "skill_current": 12,
+    "daily": 20,
+    "homeBase": 30
   },
   "chest": {
     "normal": {

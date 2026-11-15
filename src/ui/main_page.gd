@@ -25,9 +25,15 @@ func build() -> void:
 
 
 func _build_entries() -> void:
-	# 主页两侧只留签到和抽奖；选关在底栏，技能在商店
-	var left: Array = [["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin]]
-	var right: Array = [["wheel", "res://assets/ui/chest_closed.png", "H_FEAT_WHEEL", _open_wheel]]
+	# 主页两侧：左边签到、选关，右边抽奖、排行。技能在商店
+	var left: Array = [
+		["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin],
+		["levelSelect", "res://assets/ui/tab_levels.png", "H_FEAT_LEVELS", _open_levels],
+	]
+	var right: Array = [
+		["wheel", "res://assets/ui/chest_closed.png", "H_FEAT_WHEEL", _open_wheel],
+		["rank", "res://assets/ui/tab_rank.png", "H_FEAT_RANK", _open_rank],
+	]
 	for i: int in left.size():
 		_entry(left[i], Vector2(30, 190 + i * 170))
 	for i: int in right.size():
@@ -75,8 +81,8 @@ func _entry(spec: Array, pos: Vector2) -> void:
 
 func _on_entry(feature: String, action: Callable) -> void:
 	_end_guide()
-	if feature == "wheel":
-		# 没开放也进去：抽奖页自己会显示「第 N 关解锁」
+	if feature == "wheel" or feature == "rank":
+		# 没开放也进去：页面里会显示「第 N 关解锁」和大奖预览
 		action.call()
 	elif host.check_unlocked(feature):
 		action.call()
@@ -93,6 +99,14 @@ func _after_signin() -> void:
 
 func _open_wheel() -> void:
 	host.go_tab(HomeScreen.TAB_WHEEL)
+
+
+func _open_rank() -> void:
+	host.go_tab(HomeScreen.TAB_RANK)
+
+
+func _open_levels() -> void:
+	LevelRoute.open(host)
 
 
 func _build_start() -> void:
@@ -116,7 +130,8 @@ func _build_start() -> void:
 ## 功能刚开放：在对应入口或页签上放解锁动画，再用光环指着它等玩家点（不弹窗）
 func _check_unlock() -> void:
 	var feature: String = _model.take_pending_unlock()
-	if feature.is_empty():
+	# 页面还没做的功能不播解锁动画
+	if feature.is_empty() or HomeScreen.COMING_SOON.has(feature):
 		return
 	var tab: int = _unlock_tab(feature)
 	if _entries.has(feature):
@@ -132,14 +147,8 @@ func _check_unlock() -> void:
 
 ## 开放的功能落在哪个页签上（技能和商店都在商店页签）
 func _unlock_tab(feature: String) -> int:
-	match feature:
-		"levelSelect":
-			return HomeScreen.TAB_LEVELS
-		"album":
-			return HomeScreen.TAB_COLLECTION
-		"rank":
-			return HomeScreen.TAB_RANK
-	return HomeScreen.TAB_SHOP
+	var tab: int = HomeScreen.TAB_FEATURES.find(feature)
+	return tab if tab >= 0 and tab < HomeScreen.TAB_KEYS.size() else HomeScreen.TAB_SHOP
 
 
 func _end_guide() -> void:

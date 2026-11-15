@@ -1,11 +1,11 @@
 class_name HomeScreen
 extends Control
-## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 抽奖 · 主页 · 排行 · 图鉴）。
+## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 家园 · 主页 · 每日挑战 · 图鉴）。
 ## 数据与动作全部走 HomeModel，真实逻辑接入时只换那一个文件。
 
-## 底栏五个页签：商店、关卡、主页、排行、图鉴。关卡页签直接打开选关路线。
-## 抽奖不占页签，是从主页入口进去的子页面
-enum { TAB_SHOP, TAB_LEVELS, TAB_MAIN, TAB_RANK, TAB_COLLECTION, TAB_WHEEL }
+## 底栏五个页签：商店、家园、主页、每日挑战、图鉴（docs/01 §5.3）。
+## 抽奖和排行不占页签，是从主页入口进去的子页面；选关也从主页入口打开
+enum { TAB_SHOP, TAB_BASE, TAB_MAIN, TAB_DAILY, TAB_COLLECTION, TAB_WHEEL, TAB_RANK }
 
 const W := 750.0
 const BAR_Y := 16.0
@@ -13,17 +13,19 @@ const BAR_H := 96.0
 const TOP_H := 124.0
 const TABS_H := 150.0
 const TAB_KEYS: Array[String] = [
-	"UI_TAB_SHOP", "H_ENTRY_LEVELS", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
+	"UI_TAB_SHOP", "UI_TAB_BASE", "UI_TAB_MAIN", "UI_TAB_DAILY", "UI_TAB_COLLECTION"
 ]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
 	"res://assets/ui/tab_levels.png",
 	"res://assets/ui/tab_main.png",
-	"res://assets/ui/tab_rank.png",
+	"res://assets/ui/star.png",
 	"res://assets/ui/tab_collection.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["", "levelSelect", "", "rank", "album"]
+const TAB_FEATURES: Array[String] = ["", "homeBase", "", "daily", "album", "wheel", "rank"]
+## 已经排了开放关、但页面还没做的功能：开放后先显示「即将开放」
+const COMING_SOON: Array[String] = ["homeBase", "daily"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -249,9 +251,10 @@ func _build_tabs() -> void:
 
 
 func _tab_open(i: int) -> bool:
-	if i >= TAB_FEATURES.size():
-		return model.is_unlocked("wheel")
-	return TAB_FEATURES[i].is_empty() or model.is_unlocked(TAB_FEATURES[i])
+	var feature: String = TAB_FEATURES[i]
+	if COMING_SOON.has(feature):
+		return false
+	return feature.is_empty() or model.is_unlocked(feature)
 
 
 func _mark_tabs() -> void:
@@ -278,10 +281,6 @@ func _on_tab(i: int) -> void:
 	if i == _tab:
 		return
 	Audio.sfx(&"click")
-	if i == TAB_LEVELS and _tab_open(i):
-		# 选关路线是盖在上面的整页，关掉后回到原来的页签
-		LevelRoute.open(self)
-		return
 	var from_right: bool = i > _tab
 	_tab = i
 	_mark_tabs()
@@ -301,17 +300,20 @@ func _make_page(tab: int) -> HomePage:
 	return MainPage.new()
 
 
-## 没开放的页签：页面里用大图标和「第 N 关解锁」说明
+## 没开放的页签：页面里是大图标、「第 N 关解锁」和开放后能拿到的大奖预览
 func _locked_page(tab: int) -> HomePage:
-	var feature: String = "wheel" if tab >= TAB_FEATURES.size() else TAB_FEATURES[tab]
+	var feature: String = TAB_FEATURES[tab]
 	var page := LockedPage.new()
+	page.feature = feature
 	if tab < TAB_KEYS.size():
 		page.feature_title = tr(TAB_KEYS[tab])
 		page.icon_path = TAB_ICONS[tab]
 	else:
-		page.feature_title = tr("H_TAB_WHEEL")
-		page.icon_path = "res://assets/ui/tab_wheel.png"
+		page.feature_title = HomePopups.feature_name(feature)
+		page.icon_path = HomePopups.feature_icon(feature)
+		page.with_back = true
 	page.unlock_at = model.unlock_level(feature)
+	page.coming_soon = COMING_SOON.has(feature) and model.is_unlocked(feature)
 	return page
 
 

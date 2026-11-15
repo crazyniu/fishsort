@@ -196,3 +196,7 @@ UI_DOUBLE_SHORT,金币 ×2,Coins ×2
 UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途离开会失去 1 条生命,From here on leaving mid-level costs a life
 TIP_DROP,后面还有气泡会掉下来,More bubbles will drop in later
+UI_TAB_BASE,家园,Bay
+UI_TAB_DAILY,每日挑战,Daily
+H_COMING_SOON,即将开放,Coming soon
+H_GRAND_PRIZE,大奖,Grand prize

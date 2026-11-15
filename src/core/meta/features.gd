@@ -1,7 +1,8 @@
 class_name Features
 extends RefCounted
 ## 功能开放关，见 docs/01 第 5.3 节。level 传玩家当前所在关（save["level"]）。
-## 功能名：signin、levelSelect、album、wheel、rank、skill_shuffle、skill_blow、skill_net、skill_current
+## 功能名：signin、levelSelect、album、wheel、rank、daily、homeBase、
+## skill_shuffle、skill_blow、skill_net、skill_current
 
 
 static func unlock_level(eco: Dictionary, feature: String) -> int:

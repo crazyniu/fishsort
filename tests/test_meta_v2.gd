@@ -75,7 +75,15 @@ func test_skills_unlock_grant_free_use_and_limits() -> void:
 
 func test_features_table() -> void:
 	var eco: Dictionary = _setup()[1]
-	var want := {"signin": 3, "levelSelect": 5, "album": 6, "wheel": 8, "rank": 11}
+	var want := {
+		"signin": 3,
+		"levelSelect": 5,
+		"album": 6,
+		"wheel": 8,
+		"rank": 11,
+		"daily": 20,
+		"homeBase": 30
+	}
 	for f: String in want:
 		ok(not Features.is_unlocked(eco, f, want[f] - 1), "%s 前一关未开" % f)
 		ok(Features.is_unlocked(eco, f, want[f]), "%s 当关开放" % f)
