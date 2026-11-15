@@ -34,6 +34,16 @@ func get_profile() -> Dictionary:
 	return {}
 
 
+## 广告当前能不能用；不能用时界面要降级（改金币支付或隐藏入口）
+func ads_available() -> bool:
+	return false
+
+
+## 排行榜数据：[{ name, avatar, score }, ...]。真实平台可能返回空并改用自带界面
+func get_rank_list(_board: StringName) -> Array:
+	return []
+
+
 func load_data(_key: String) -> String:
 	return ""
 
