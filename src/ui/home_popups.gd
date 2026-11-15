@@ -18,6 +18,7 @@ const FEATURE_KEYS: Dictionary = {
 	"wheel": "H_FEAT_WHEEL",
 	"rank": "H_FEAT_RANK",
 	"daily": "UI_TAB_DAILY",
+	"dex": "UI_TAB_DEX",
 	"homeBase": "UI_TAB_BASE",
 }
 
@@ -341,6 +342,8 @@ static func feature_icon(feature: String) -> String:
 			return "res://assets/ui/tab_shop.png"
 		"daily":
 			return "res://assets/ui/star.png"
+		"dex":
+			return "res://assets/ui/tab_collection.png"
 		"homeBase":
 			return "res://assets/ui/tab_levels.png"
 	return HomePrize.skill_icon(feature.substr(6))

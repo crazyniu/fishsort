@@ -18,6 +18,8 @@ static func create(eco: Dictionary) -> Dictionary:
 		"tools": (eco["toolStart"] as Dictionary).duplicate(),
 		"cards": {},
 		"album": {"claimed": [], "final": false},
+		"challenge": DailyChallenge.fresh(),
+		"dex": Dex.fresh(),
 		"signin": {"count": 0, "lastDay": -1, "doubledDay": -1},
 		"week": {"id": -1, "cleared": 0},
 		"daily": Daily.fresh(-1),

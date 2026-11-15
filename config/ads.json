@@ -6,6 +6,9 @@
     "rv_revive": {
       "type": "rewarded"
     },
+    "rv_daily_retry": {
+      "type": "rewarded"
+    },
     "rv_bowl_slot": {
       "type": "rewarded"
     },

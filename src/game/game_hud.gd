@@ -15,6 +15,9 @@ const TOOL_NAMES: Dictionary = {
 	"current": "UI_TOOL_CURRENT",
 }
 
+## 右上角不写「第 N 关」时用的标题（每日挑战），空串 = 写关卡号
+var title_text: String = ""
+
 var _stage: Control
 var _fx: GameFx
 var _rescued: Label
@@ -69,7 +72,8 @@ func build_top(level_id: int, challenge: bool, icon: Texture2D, total: int, intr
 	chip2.size = right.size
 	right.add_child(chip2)
 	var ink: Color = UiKit.GOLD if challenge else Color.WHITE
-	var title := UiKit.label(_stage.tr("UI_LEVEL") % level_id, 28, ink)
+	var name_text: String = title_text if title_text != "" else _stage.tr("UI_LEVEL") % level_id
+	var title := UiKit.label(name_text, 28, ink)
 	title.size = right.size
 	right.add_child(title)
 	if intro:

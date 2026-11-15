@@ -1,6 +1,6 @@
 class_name CollectionPage
 extends HomePage
-## 图鉴页（docs/01 §5.4）：60 张收藏卡分成几册，每册按关开放。
+## 收藏页（docs/01 §5.4）：60 张收藏卡分成几册，每册按关开放。
 ## 首页是册子列表和总进度；点一册进去看这一册的卡，集齐领大奖；全部集齐领终极大奖。
 
 const LIST_TOP := 190.0

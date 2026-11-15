@@ -10,6 +10,8 @@ const LEVEL_COUNT := 120
 
 ## 进场时要打的关：0 = 当前进度的关；大于 0 = 重玩这一关（App.go_game 传入）
 var start_id: int = 0
+## 每日挑战（docs/01 §5.11）：按日期打一个挑战关，不扣生命、不算进度，过关开每日宝箱
+var daily: bool = false
 
 var _level_id: int = 1
 var _lv: LevelData
@@ -50,19 +52,28 @@ var _idle: float = 0.0
 
 func _ready() -> void:
 	resized.connect(_build)
-	start_level(start_id if start_id > 0 else int(Save.data["level"]))
+	if daily:
+		var cfg: Dictionary = Config.eco["dailyChallenge"]
+		var mine: int = int(Save.data["level"])
+		start_level(
+			DailyChallenge.level_for(Save.today(), mine, int(cfg["levelStep"]), LEVEL_COUNT)
+		)
+	else:
+		start_level(start_id if start_id > 0 else int(Save.data["level"]))
 
 
 func start_level(id: int) -> void:
 	Ads.banner(false)
 	_level_id = id
-	var ease: int = Meta.ease_for(Save.data, Config.eco, id)
+	var ease: int = 0 if daily else Meta.ease_for(Save.data, Config.eco, id)
 	# 关卡数有限，超出后循环使用
 	_lv = Config.load_level((id - 1) % LEVEL_COUNT + 1, ease)
 	_s = GameState.from_level(_lv)
-	_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
+	if not daily:
+		_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
 	Rules.start(_s)
-	_species = GameSpecies.pick(_lv.level_seed, _lv.palette)
+	# 每日挑战换一批生物，和当初打这一关时不一样
+	_species = GameSpecies.pick(_lv.level_seed + (Save.today() if daily else 0), _lv.palette)
 	_tool_uses = {}
 	for tool: String in Skills.ids(Config.eco):
 		_tool_uses[tool] = 0
@@ -155,6 +166,7 @@ func _build() -> void:
 	add_child(_stage)
 	_fx = GameFx.new(_stage, W)
 	_hud = GameHud.new(_stage, _fx)
+	_hud.title_text = tr("UI_TAB_DAILY") if daily else ""
 	_hud.build_top(_level_id, _lv.challenge, _fish_tex(0), _total_fish, _intro)
 	_hud.set_rescued(_total_fish - _s.fish_left(), false)
 	_shelf = GameShelf.new()
@@ -569,6 +581,7 @@ func _costs_life() -> bool:
 	return (
 		_moved
 		and not _won
+		and not daily
 		and _level_id > int(Config.eco["lives"]["freeUntilLevel"])
 		and not Lives.is_unlimited(Save.data, Save.now())
 	)
@@ -578,12 +591,15 @@ func _go_home() -> void:
 	Ads.banner(false)
 	_save_best()
 	if App.inst != null:
-		App.inst.go_home()
+		App.inst.go_home(HomeScreen.TAB_DAILY if daily else HomeScreen.TAB_MAIN)
 
 
 func _retry() -> void:
 	_save_best()
-	_enter(_level_id)
+	if daily:
+		_daily_again(tr("UI_TAB_DAILY"), true)
+	else:
+		_enter(_level_id)
 
 
 ## 历史最高连击（个人资料里显示），每关结束时记一次
@@ -615,6 +631,10 @@ func _celebrate() -> void:
 func _show_win() -> void:
 	_won = true
 	_save_best()
+	_record_dex()
+	if daily:
+		_daily_win()
+		return
 	var result: Dictionary = (
 		Settle
 		. win(
@@ -675,6 +695,9 @@ func _show_lose(reason: int) -> void:
 
 ## 真的失败了：记一次失败（连败会降难度）、扣命，然后选重试还是回主页
 func _fail(reason: int) -> void:
+	if daily:
+		_daily_again(tr("UI_LOSE"), false)
+		return
 	Meta.fail_level(Save.data, Config.eco, _level_id)
 	Lives.lose(Save.data, Config.eco, _level_id, _moved, Save.now())
 	_moved = false
@@ -714,3 +737,68 @@ func _on_revive() -> void:
 	_over = false
 	Audio.sfx(&"unlock")
 	_play(Rules.revive(_s))
+
+
+## 过关时把这一关救的生物记进图鉴（每个鱼缸装满就是救了 cap 只）
+func _record_dex() -> void:
+	var counts: Dictionary = {}
+	for o: Dictionary in _lv.orders:
+		var id: String = _species[int(o["s"])]
+		counts[id] = int(counts.get(id, 0)) + int(o["cap"])
+	Dex.record(Save.data, counts)
+
+
+# ---------- 每日挑战 ----------
+
+
+## 每日挑战过关：开每日宝箱（连续 7 天再加大宝箱），收下后回每日挑战页
+func _daily_win() -> void:
+	var r: Dictionary = DailyChallenge.win(
+		Save.data,
+		Config.eco,
+		Config.species,
+		Save.today(),
+		Save.now(),
+		Rng.new(Time.get_ticks_usec())
+	)
+	Save.save()
+	var prizes: Array = r["prizes"]
+	if prizes.is_empty():
+		_go_home()
+		return
+	var head: String = tr("DAILY_BIG_CHEST") if r["big"] else tr("DAILY_CHEST")
+	MetaPopups.prize_reveal(self, prizes, head).buttons[0].pressed.connect(_go_home)
+
+
+## 每日挑战失败或中途重开：再试要看广告或花金币，不扣生命
+func _daily_again(head: String, closable: bool) -> void:
+	var price: int = int(Config.eco["dailyChallenge"]["retryCoins"])
+	var lines: Array[String] = [tr("DAILY_RETRY")]
+	var specs: Array = [
+		[tr("H_TO_HOME"), UiKit.BLUE, _go_home],
+		[
+			tr("DAILY_RETRY"),
+			UiKit.PURPLE,
+			Callable(),
+			{"ad": true, "disabled": not Ads.available()}
+		],
+		[tr("DAILY_RETRY"), UiKit.GREEN, Callable(), {"coin": price}],
+	]
+	var p := PopupCard.open(self, head, lines, specs, 0.0, {"closable": closable})
+	p.buttons[1].pressed.connect(
+		func() -> void:
+			if await DailyPage.start_ad() and is_instance_valid(p):
+				p.close()
+				_daily_restart()
+	)
+	p.buttons[2].pressed.connect(
+		func() -> void:
+			if DailyPage.start_coins(self):
+				p.close()
+				_daily_restart()
+	)
+
+
+func _daily_restart() -> void:
+	Save.save()
+	start_level(_level_id)

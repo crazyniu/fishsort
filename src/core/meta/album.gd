@@ -76,7 +76,7 @@ static func claim(save: Dictionary, eco: Dictionary, book: int, now: int) -> Arr
 	if not can_claim(save, eco, book):
 		return []
 	(save["album"]["claimed"] as Array).append(book)
-	return _grant(save, books(eco)[book]["reward"], now)
+	return grant(save, books(eco)[book]["reward"], now)
 
 
 ## 领终极大奖：奖励之外还解锁专属头像框
@@ -84,11 +84,11 @@ static func claim_final(save: Dictionary, eco: Dictionary, now: int) -> Array:
 	if not can_claim_final(save, eco):
 		return []
 	save["album"]["final"] = true
-	return _grant(save, eco["album"]["final"], now)
+	return grant(save, eco["album"]["final"], now)
 
 
-## reward: { coins, tools（每种技能各几个）, unlimited（无限生命秒数） }
-static func _grant(save: Dictionary, reward: Dictionary, now: int) -> Array:
+## 发一份奖励并返回奖品列表（每日挑战也用）。reward: { coins, tools（每种技能各几个）, unlimited（无限生命秒数） }
+static func grant(save: Dictionary, reward: Dictionary, now: int) -> Array:
 	var out: Array = []
 	var coins: int = int(reward.get("coins", 0))
 	if coins > 0:
