@@ -1,6 +1,7 @@
 // 启动：画布与相机 → 平台、配置、存档 → 文案、图、音效 → 界面外壳 → 主页。
 // 唯一挂在场景里的脚本，界面全部由代码生成（docs/09 第 8 节）。
-import { _decorator, Camera, Canvas, Color, Component, Label, Layers, Node, ResolutionPolicy, UITransform, Widget, tween, view } from 'cc';
+import { _decorator, Camera, Canvas, Color, Component, Label, Layers, Node, ResolutionPolicy, UITransform, Widget, profiler, tween, view } from 'cc';
+import { DEBUG } from 'cc/env';
 import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
@@ -12,7 +13,7 @@ import { setTapSound } from './ui/kit';
 import { livesPopup, settingsPopup } from './ui/popups';
 import { preload } from './ui/res';
 import { Screen } from './ui/screen';
-import { ui } from './ui/shell';
+import { reportError, setErrorSink, ui } from './ui/shell';
 
 const { ccclass } = _decorator;
 
@@ -25,7 +26,9 @@ export class Boot extends Component {
   protected override onLoad(): void {
     view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_WIDTH);
     Screen.init();
+    profiler.hideStats();
     const canvas = this.createCanvas();
+    if (DEBUG) this.errorOverlay(canvas);
     const loading = this.loading(canvas);
     this.boot(canvas)
       .then(() => loading.destroy())
@@ -91,6 +94,33 @@ export class Boot extends Component {
     widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
     widget.top = widget.bottom = widget.left = widget.right = 0;
     return canvasNode;
+  }
+
+  /** 调试构建：没接住的错误画在屏幕顶上，截图就能看到 */
+  private errorOverlay(canvas: Node): void {
+    const n = new Node('errors');
+    n.layer = Layers.Enum.UI_2D;
+    const t = n.addComponent(UITransform);
+    t.setContentSize(Screen.W - 20, 10);
+    t.setAnchorPoint(0.5, 1);
+    canvas.addChild(n);
+    n.setPosition(0, Screen.H / 2 - 10, 0);
+    const l = n.addComponent(Label);
+    l.fontSize = 20;
+    l.lineHeight = 24;
+    l.color = new Color(255, 60, 60, 255);
+    l.overflow = Label.Overflow.RESIZE_HEIGHT;
+    l.enableWrapText = true;
+    l.string = '';
+    const lines: string[] = [];
+    setErrorSink((msg) => {
+      lines.push(msg);
+      l.string = lines.slice(-4).join('\n');
+      n.setSiblingIndex(canvas.children.length - 1);
+    });
+    const g = globalThis as unknown as { addEventListener?: (t: string, f: (e: { error?: unknown; reason?: unknown; message?: string }) => void) => void };
+    g.addEventListener?.('error', (e) => reportError('error', e.error ?? e.message));
+    g.addEventListener?.('unhandledrejection', (e) => reportError('promise', e.reason));
   }
 
   /** 载入页：文案还没读到，先用系统字体 */

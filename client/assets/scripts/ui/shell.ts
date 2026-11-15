@@ -271,9 +271,18 @@ export class Shell {
 
   /** 存档变了以后调：当前页、顶栏、底栏红点一起刷新 */
   refresh(): void {
-    this.current?.page.refresh();
-    if (this.topbar.node.active) this.topbar.refresh();
-    if (this.tabbar.node.active) this.tabbar.refresh();
+    // 各自兜住：一块出错不连累别的
+    for (const [name, f] of [
+      ['page', () => this.current?.page.refresh()],
+      ['topbar', () => this.topbar.node.active && this.topbar.refresh()],
+      ['tabbar', () => this.tabbar.node.active && this.tabbar.refresh()],
+    ] as const) {
+      try {
+        f();
+      } catch (e) {
+        reportError(`${name}.refresh`, e);
+      }
+    }
   }
 
   /** 换语言：页面全部按新文案重建，回到当前页 */
@@ -320,6 +329,17 @@ export class Shell {
 }
 
 export const ui = new Shell();
+
+let errorSink: ((msg: string) => void) | null = null;
+export function setErrorSink(f: (msg: string) => void): void {
+  errorSink = f;
+}
+/** 调试构建把错误画在屏幕顶上（Mac 上截图就能看到），正式构建只写日志 */
+export function reportError(where: string, e: unknown): void {
+  const msg = `${where}: ${e instanceof Error ? `${e.message}\n${(e.stack ?? '').split('\n').slice(1, 4).join('\n')}` : String(e)}`;
+  console.error(msg);
+  errorSink?.(msg);
+}
 
 /** 进场：依次弹出（总时长 ≤ 0.8 秒，docs/09 第 6 节） */
 export function enterStagger(nodes: Node[], step = 0.06): void {
