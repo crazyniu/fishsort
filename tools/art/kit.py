@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""用代码绘制整套 UI 部件：「轻玻璃」风格（用户 2026-11-15 选定）。
+"""用代码绘制整套 UI 部件：「轻玻璃」风格（用户 2026-11-15 选定），面板一律实心不透明（用户反馈透明组件看不清）。
 
 半透明玻璃底 + 细白边 + 柔和投影；按钮只有很淡的纵向渐变和一条细高光线；
 圆角适中；不做果冻感和大块高光。尺寸与对齐完全由代码控制。
@@ -169,23 +169,23 @@ def main() -> None:
     save("btn_gear", stamp(button("blue", 22, 72, 72), gear(44)), stretch=False)
     save("btn_close", stamp(button("red", 22, 72, 72), cross(44, False)), stretch=False)
 
-    # 玻璃：顶栏、暂存槽托盘、选中的页签
-    save("glass", box(96, 96, 32, rgba("FFFFFF", 0.26), None, rgba("FFFFFF", 0.65), 3, shadow=0.2, blur=6, drop=6))
-    save("tab_on", box(72, 72, 26, rgba("FFFFFF", 0.26), None, rgba("FFFFFF", 0.65), 3))
-    # 深色胶囊：数字底、进度条底、暂存格
-    save("chip", box(72, 60, 30, rgba("061F4D", 0.42), None, rgba("FFFFFF", 0.32), 2))
-    save("slot", box(76, 76, 18, rgba("061F4D", 0.3), None, rgba("FFFFFF", 0.22), 2))
+    # 实心面板：顶栏、底栏、暂存槽托盘、选中的页签（不透明，背景再花也读得清）
+    save("glass", box(96, 96, 30, rgba("2C7AD2"), rgba("1C5AAE"), rgba("A5D4FF", 0.9), 2.5, shadow=0.3, blur=6, drop=6, shine=0.35))
+    save("tab_on", box(72, 72, 24, rgba("5DB8FF"), rgba("2F8FEA"), rgba("FFFFFF", 0.85), 2.5, shine=0.5))
+    # 深色胶囊：数字底、进度条底、暂存格（同样实心）
+    save("chip", box(72, 60, 30, rgba("123F84"), rgba("0E3170"), rgba("6FB0F0", 0.7), 2))
+    save("slot", box(76, 76, 18, rgba("1A5CAB"), rgba("144C93"), rgba("5AA0EA", 0.8), 2))
     save("fill", box(72, 44, 22, rgba("63D444"), rgba("43B528"), rgba("FFFFFF", 0.5), 2, shine=0.45))
     # 浅色面板：弹窗、列表行、卡片
-    save("panel", box(120, 120, 44, rgba("FFFFFF", 0.95), rgba("EEF7FF", 0.95), white, 3, shadow=0.34, blur=12, drop=14))
-    save("row", box(96, 96, 28, rgba("FFFFFF", 0.9), rgba("EEF7FF", 0.9), white, 3, shadow=0.16, blur=5, drop=5))
-    save("card", box(96, 96, 28, rgba("FFFFFF", 0.9), rgba("EEF7FF", 0.9), white, 3, shadow=0.16, blur=5, drop=5))
+    save("panel", box(120, 120, 44, rgba("FFFFFF"), rgba("EEF7FF"), white, 3, shadow=0.34, blur=12, drop=14))
+    save("row", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
+    save("card", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
     save("card_gold", box(96, 96, 28, rgba("FFF1BF"), rgba("FFDF86"), white, 3, shadow=0.2, blur=5, drop=5))
     # 鱼缸架：一条玻璃搁板
-    save("shelf", box(96, 24, 12, rgba("FFFFFF", 0.8), rgba("FFFFFF", 0.42), None, 0, shadow=0.2, blur=4, drop=4))
+    save("shelf", box(96, 24, 12, rgba("9AD6F6"), rgba("5CB0E4"), rgba("D8F1FF"), 2, shadow=0.25, blur=4, drop=4))
 
     # 底部渐隐条：从透明过渡到深蓝，衬托页签和道具键
-    fade = gradient((8 * K, 96 * K), NAVY + (0,), NAVY + (150,), 0, 96 * K)
+    fade = gradient((8 * K, 96 * K), NAVY + (0,), NAVY + (215,), 0, 96 * K)
     save("fade", fade)
 
     save("badge_green", circle(80, rgba("63D444"), rgba("3FAE25")), stretch=False)

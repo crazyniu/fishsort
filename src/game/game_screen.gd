@@ -467,7 +467,7 @@ func _refresh_top() -> void:
 	_coins_shown = coins
 	for tool: String in TOOLS:
 		var have: int = int(Save.data["tools"][tool])
-		(_tool_badges[tool] as Label).text = str(have) if have > 0 else "+"
+		(_tool_badges[tool] as Label).text = str(mini(have, 99)) if have > 0 else "+"
 
 
 # ---------- 输入 ----------
