@@ -74,7 +74,7 @@ UI_NEED_STARS_TITLE,星星不够,Not enough stars
 UI_NEED_STARS_MORE,还差 %d 颗星星，每过一关得 1 颗,You need %d more stars. Each level gives 1
 UI_GO_PLAY,去闯关,Play a level
 UI_STARS_HAVE,我的星星 %d,My stars: %d
-UI_COMBO,连击 ×%d,Combo ×%d
+UI_COMBO_WORD,连击,COMBO
 UI_COMBO_NICE,漂亮！,Nice!
 UI_COMBO_GREAT,太强了！,Great!
 UI_COMBO_SUPER,无敌！,Unstoppable!

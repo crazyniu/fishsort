@@ -50,7 +50,7 @@ var _popup: PopupCard
 var _combo: int = 0
 var _combo_at: float = -100.0
 var _combo_coins: int = 0
-var _combo_label: Label
+var _combo_hud: ComboHud
 ## 最后一条鱼由游戏自己收尾，期间不接受点击
 var _auto: bool = false
 
@@ -544,7 +544,7 @@ func _count_combo(events: Array[Dictionary], from: Vector2) -> void:
 	if _combo < int(cfg["startAt"]):
 		return
 	var praise: String = (cfg["praiseAt"] as Dictionary).get(str(_combo), "")
-	_show_combo(tr(praise) if praise != "" else tr("UI_COMBO") % _combo, praise != "")
+	_show_combo(tr(praise) if praise != "" else "", float(cfg["windowSeconds"]))
 	if _combo_coins >= int(cfg["maxCoinsPerLevel"]):
 		return
 	var gain: int = int(cfg["coinPerHit"])
@@ -906,7 +906,7 @@ func _toast(text: String) -> void:
 	_fx.toast(text, FIELD_Y - 4)
 
 
-func _show_combo(text: String, big: bool) -> void:
-	if _combo_label != null and is_instance_valid(_combo_label):
-		_combo_label.queue_free()
-	_combo_label = _fx.combo(text, clampf((_combo - 3) / 9.0, 0.0, 1.0), big, FIELD_Y + 40)
+func _show_combo(praise: String, window: float) -> void:
+	if _combo_hud == null or not is_instance_valid(_combo_hud):
+		_combo_hud = ComboHud.new(_stage, Vector2(0, FIELD_Y + 50), Vector2(W, 240))
+	_combo_hud.hit(_combo, clampf((_combo - 3) / 9.0, 0.0, 1.0), praise, window)
