@@ -68,35 +68,35 @@ export class RankPage extends Page {
     at(reset.node, 0, top - 168);
 
     // 每周过关目标
-    const goal = slice(v, 'kit/panel_glass', 690, 230, 'goal');
-    at(goal, 0, top - 320);
+    const goal = slice(v, 'kit/panel_glass', 690, 250, 'goal');
+    at(goal, 0, top - 330);
     const cleared = WeeklyGoal.cleared(s, day);
     const tiers = WeeklyGoal.tiers(eco);
     const maxClears = tiers.length ? tiers[tiers.length - 1].clears : 1;
     const head = text(goal, tr('RANK_WEEK_CLEARED', cleared), 36, { align: 'left' });
-    at(head.node, -320, 76);
-    const barW = 560;
+    at(head.node, -316, 88);
+    const barW = 540;
     const bar = progressBar(goal, barW, 30, 'yellow');
-    at(bar.node, -30, -10);
+    at(bar.node, -40, -22);
     bar.set(cleared / maxClears);
     tiers.forEach((t, i) => {
-      const x = -30 - barW / 2 + (barW * t.clears) / maxClears;
+      const x = -40 - barW / 2 + (barW * t.clears) / maxClears;
       const claimed = WeeklyGoal.isClaimed(s, i);
       const can = WeeklyGoal.canClaim(s, eco, i, day);
       const chest = img(goal, claimed ? 'icon/chest_open' : 'icon/chest', 96, 96, `tier${i}`);
-      at(chest, Math.min(x, 290), 30);
+      at(chest, Math.min(x, 280), -14);
       if (!claimed && !can) (chest.getComponent(Sprite) as Sprite).grayscale = cleared < t.clears;
       if (can) {
         fx.wiggle(chest, 7, 1.8);
         redDot(chest, 36, 36);
       }
       const l = text(goal, tr('RANK_TIER', t.clears), 26, { color: cleared >= t.clears ? COLOR.yellow : COLOR.white });
-      at(l.node, Math.min(x, 290), -62);
+      at(l.node, Math.min(x, 280), -86);
       onTap(chest, () => this.tapTier(i));
     });
 
     // 好友周榜
-    const y0 = top - 450;
+    const y0 = top - 470;
     const y1 = Screen.bottom + TABBAR_H + 10;
     const parts: Node[] = [goal];
     if (App.platform.hasCapability('friend_rank')) {
