@@ -282,11 +282,12 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   const label = o.label !== undefined ? text(row, o.label, fs) : null;
   const layout = () => {
     const gap = 8;
-    const iw = icon ? sizeOf(icon).w : 0;
+    const ic = icon && icon.active ? icon : null;
+    const iw = ic ? sizeOf(ic).w : 0;
     const lw = label ? (label.node.getComponent(UITransform) as UITransform).width : 0;
-    const total = iw + (icon && label ? gap : 0) + lw;
+    const total = iw + (ic && label ? gap : 0) + lw;
     let x = -total / 2;
-    if (icon) {
+    if (ic) {
       icon.setPosition(x + iw / 2, 0, 0);
       x += iw + gap;
     }

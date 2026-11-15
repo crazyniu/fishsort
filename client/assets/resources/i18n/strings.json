@@ -300,7 +300,8 @@
   "LV_REPLAY_LEFT": "今日重玩奖励 %d/%d",
   "SHOP_AD_LEFT": "今日 %d/%d",
   "SHOP_AD_DONE": "今天的免费金币领完了",
-  "UI_FULL": "已满"
+  "UI_FULL": "已满",
+  "SHOP_FREE_COINS": "免费金币"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -603,6 +604,7 @@
   "LV_REPLAY_LEFT": "Replay rewards today %d/%d",
   "SHOP_AD_LEFT": "Today %d/%d",
   "SHOP_AD_DONE": "No more free coins today",
-  "UI_FULL": "Full"
+  "UI_FULL": "Full",
+  "SHOP_FREE_COINS": "Free coins"
  }
 }

@@ -84,10 +84,11 @@ export class ShopPage extends Page {
     at(n, x, y);
     const name = text(n, tr(NAME[id]), 44);
     at(name.node, 0, h / 2 - 50);
-    const icon = img(n, `icon/skill_${id}`, Math.min(170, h - 190), Math.min(170, h - 190), 'icon');
-    at(icon, 0, 8);
+    const is = Math.min(160, h - 230);
+    const icon = img(n, `icon/skill_${id}`, is, is, 'icon');
+    at(icon, 0, (h / 2 - 80 + (-h / 2 + 140)) / 2);
     const owned = text(n, '', 30);
-    at(owned.node, 0, -h / 2 + 118);
+    at(owned.node, 0, -h / 2 + 122);
     const buy = button(n, {
       color: 'green',
       w: w - 60,
@@ -131,20 +132,22 @@ export class ShopPage extends Page {
     const eco = App.config.eco;
     const n = slice(root, 'kit/panel_blue', w, h, 'freeCoins');
     at(n, x, y);
+    at(text(n, tr('SHOP_FREE_COINS'), 34).node, -w / 2 + 80, 30);
     const pile = box3(n);
-    at(pile, -w / 2 + 70, 8);
+    at(pile, -w / 2 + 80, -22);
+    pile.setScale(0.8, 0.8, 1);
     this.adLeft = text(n, '', 24);
-    at(this.adLeft.node, -w / 2 + 70, -48);
+    at(this.adLeft.node, w / 2 - 110, -54);
     this.adBtn = button(n, {
       color: 'yellow',
-      w: 200,
-      h: 84,
+      w: 180,
+      h: 80,
       icon: 'kit/ic_video',
       label: `+${eco.freeCoin.amount}`,
       fontSize: 36,
       onTap: () => void this.freeCoins(),
     });
-    at(this.adBtn.node, w / 2 - 120, 0);
+    at(this.adBtn.node, w / 2 - 110, 8);
     return n;
   }
 
@@ -170,6 +173,7 @@ export class ShopPage extends Page {
     const full = unlimited || Lives.count(s, eco, t) >= eco.lives.max;
     this.lifeCount.string = unlimited ? '∞' : String(Lives.count(s, eco, t));
     this.lifeBtn.setEnabled(!full);
+    if (this.lifeBtn.icon) this.lifeBtn.icon.active = !full;
     this.lifeBtn.setLabel(full ? tr('UI_FULL') : String(eco.lives.buyOneCoins));
     const left = Meta.freeCoinLeft(s, eco, today());
     this.adLeft.string = tr('SHOP_AD_LEFT', left, eco.freeCoin.daily);
