@@ -10,7 +10,7 @@ const ROW_Y := 272.0
 const FIELD_Y := 358.0
 const TOOLS_H := 150.0
 const FLY_TIME := GameFx.FLY_TIME
-const LEVEL_COUNT := 60
+const LEVEL_COUNT := 120
 const TOOLS: Array[String] = ["net", "blow", "shuffle"]
 ## 已有美术的鱼种；关卡里的鱼种槽位映射到它们
 const FISH_ART: Array[String] = [
@@ -89,6 +89,10 @@ func start_level(id: int) -> void:
 	_intro = true
 	_build()
 	_intro = false
+	# 新机制第一次出现的关卡，开局说明一句
+	var tip: String = (Config.eco["mechanicIntro"] as Dictionary).get(str(id), "")
+	if tip != "":
+		get_tree().create_timer(0.9).timeout.connect(_toast.bind(tr(tip)))
 
 
 func _process(delta: float) -> void:
@@ -312,6 +316,20 @@ func _build_field(view_h: float) -> void:
 			Anim.drift(f, randf_range(3.0, 6.0), randf_range(3.0, 5.0), randf())
 			fish_nodes.append(f)
 			offsets.append(off)
+		# 结伴鱼：两条鱼之间拴一根粉色的绳
+		var links: Array = []
+		for pair: Array in d.get("pairs", []):
+			var a: Vector2 = offsets[int(pair[0])]
+			var rope := ColorRect.new()
+			rope.color = Color("FF7AB6")
+			rope.size = Vector2(a.distance_to(offsets[int(pair[1])]), 8)
+			rope.position = a - Vector2(0, 4)
+			rope.pivot_offset = Vector2(0, 4)
+			rope.rotation = a.angle_to_point(offsets[int(pair[1])])
+			rope.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			node.add_child(rope)
+			node.move_child(rope, 1)
+			links.append([rope, int(pair[0]), int(pair[1])])
 		var ice := UiKit.icon("res://assets/ui/ice.png", r * 1.5)
 		ice.position = -Vector2(r, r) * 0.75
 		ice.modulate.a = 0.75
@@ -333,6 +351,7 @@ func _build_field(view_h: float) -> void:
 				{
 					"node": node,
 					"fish": fish_nodes,
+					"links": links,
 					"offsets": offsets,
 					"center": center,
 					"r": r,
@@ -406,6 +425,8 @@ func _refresh_field(animate: bool = true) -> void:
 				f.texture = _fish_tex(bub.fish[k])
 				# 迷雾泡：被挡住时只露剪影
 				f.modulate = SILHOUETTE if bub.fog and not is_open else Color.WHITE
+		for link: Array in view["links"]:
+			(link[0] as Control).visible = bub.fish[link[1]] >= 0 and bub.fish[link[2]] >= 0
 		(view["ice"] as Control).visible = bub.frozen
 		(view["lock"] as Control).visible = bub.chain > 0
 		(view["lock_n"] as Label).visible = bub.chain > 0
