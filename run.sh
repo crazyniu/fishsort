@@ -58,6 +58,7 @@ Cocos 版（client/，迁移中，见 docs/09）：
   web-serve             不重新构建，直接起服务打开上次的构建
   wechat-build          构建微信小游戏包 → client/build/wechatgame
   cocos-editor          用 Cocos Creator 打开 client/
+  cocos-clean           清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（Linux 上跑，结果要提交）
   ts-test               client/ 的 TypeScript 单测（Node，Linux 上跑）
   ts-check              类型检查 + 单测 + .meta 检查
@@ -198,6 +199,11 @@ case "$cmd" in
     ;;
   meta)
     node tools/cocos/meta.mjs "$@"
+    ;;
+  cocos-clean)
+    # 都是 Cocos 生成的缓存，不进仓库；导入状态坏了（资源被标成 importer "*"、黑屏）时清掉重来
+    rm -rf client/library client/temp client/build client/local
+    echo "✓ 已清掉 client/library、temp、build、local"
     ;;
   ts-test)
     need_node_modules
