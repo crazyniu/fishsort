@@ -85,5 +85,5 @@ function sameCounts(a: Map<number, number>, b: Map<number, number>): boolean {
 }
 
 function fmt(m: Map<number, number>): string {
-  return JSON.stringify(Object.fromEntries([...m].sort((x, y) => x[0] - y[0])));
+  return JSON.stringify(Object.fromEntries(Array.from(m).sort((x, y) => x[0] - y[0])));
 }

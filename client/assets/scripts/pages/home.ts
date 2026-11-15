@@ -106,7 +106,7 @@ export class HomePage extends Page {
 
   override show(arg?: unknown): void {
     this.refresh();
-    const nodes = [...this.entries.values()].map((e) => e.node);
+    const nodes = Array.from(this.entries.values()).map((e) => e.node);
     enterStagger([...nodes, this.levelPill, this.start.node], 0.07);
     Tween.stopAllByTarget(this.start.node);
     fx.delay(this.node, 0.6, () => {

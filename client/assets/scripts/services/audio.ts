@@ -43,7 +43,7 @@ export async function initAudio(root: Node): Promise<void> {
   music = musicNode.addComponent(AudioSource);
   music.loop = true;
   music.volume = 0.45;
-  const names = [...new Set(Object.values(MAP)), ...Array.from({ length: 8 }, (_, i) => `hit_${i}`)];
+  const names = Array.from(new Set(Object.values(MAP))).concat(Array.from({ length: 8 }, (_, i) => `hit_${i}`));
   await Promise.all(
     names.map(
       (n) =>
