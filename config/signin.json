@@ -1,0 +1,11 @@
+{
+  "days": [
+    { "coins": 50 },
+    { "tools": { "blow": 1 } },
+    { "tickets": 5 },
+    { "coins": 100 },
+    { "coins": 200 },
+    { "tickets": 5 },
+    { "coins": 300, "tools": { "net": 1, "blow": 1, "shuffle": 1 } }
+  ]
+}

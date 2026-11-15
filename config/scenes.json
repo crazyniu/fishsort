@@ -1,0 +1,9 @@
+{
+  "chest": { "coins": 200, "tickets": 10, "tools": { "net": 1, "blow": 1, "shuffle": 1 } },
+  "scenes": [
+    { "id": "coral_town", "name": "SCENE_CORAL_TOWN", "steps": [1, 1, 2, 2, 2, 2, 2, 3, 2, 3] },
+    { "id": "wreck_market", "name": "SCENE_WRECK_MARKET", "steps": [1, 2, 2, 2, 2, 2, 2, 3, 2, 2] },
+    { "id": "kelp_forest", "name": "SCENE_KELP_FOREST", "steps": [1, 2, 2, 2, 2, 2, 3, 2, 2, 2] },
+    { "id": "pearl_lighthouse", "name": "SCENE_PEARL_LIGHTHOUSE", "steps": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2] }
+  ]
+}

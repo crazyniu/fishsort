@@ -1,0 +1,19 @@
+{
+  "levelCoins": 20,
+  "challengeCoins": 40,
+  "levelStars": 1,
+  "challengeStars": 2,
+  "challengeTickets": 3,
+  "firstWinTickets": 1,
+  "adCoinMultiplier": 2,
+  "toolStart": { "net": 1, "blow": 1, "shuffle": 1 },
+  "toolPrice": { "net": 180, "blow": 120, "shuffle": 100 },
+  "toolMaxPerLevel": 2,
+  "bowlSlotCoinPrice": 60,
+  "freeBowlSlotUntil": 10,
+  "dupeCoins": { "common": 10, "uncommon": 25, "rare": 60, "epic": 150, "legend": 500 },
+  "levelCard": { "rates": { "common": 80, "uncommon": 17, "rare": 3 }, "pityEvery": 3, "pityPool": ["common", "uncommon"] },
+  "ticketPack": { "cost": 10, "rates": { "uncommon": 60, "rare": 28, "epic": 10, "legend": 2 }, "pityEvery": 5, "pityPool": ["uncommon", "rare", "epic", "legend"] },
+  "freeCoin": { "amount": 50, "daily": 5 },
+  "easeAfterFails": [2, 4]
+}
