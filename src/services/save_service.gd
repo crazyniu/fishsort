@@ -17,10 +17,14 @@ func _ready() -> void:
 
 
 ## ./run.sh 启动时会带上 FISHSORT_BOOST=1：把金币和技能加满，方便测试。
-## 正式构建不会设置这个环境变量。
+## 同时设了 FISHSORT_LEVEL=N，就把当前关卡直接跳到第 N 关（只在试玩模式生效）。
+## 正式构建不会设置这些环境变量。
 func _apply_test_boost() -> void:
 	if OS.get_environment("FISHSORT_BOOST") != "1":
 		return
+	var jump: String = OS.get_environment("FISHSORT_LEVEL")
+	if jump.is_valid_int():
+		data["level"] = maxi(1, jump.to_int())
 	data["coins"] = maxi(int(data["coins"]), 99999)
 	for tool: String in data["tools"]:
 		data["tools"][tool] = maxi(int(data["tools"][tool]), 99)

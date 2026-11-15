@@ -50,6 +50,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 
 ```bash
 ./run.sh                       # 启动游戏试玩（金币、生命、技能已加满）
+FISHSORT_LEVEL=65 ./run.sh      # 同上，并直接跳到第 65 关（截图、验收用）
 ./run.sh real                  # 按真实存档进度试玩
 ./run.sh editor                # 打开 Godot 编辑器
 ./run.sh test                  # src/core 单元测试（headless）
@@ -61,3 +62,9 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ```
 
 Godot 可执行文件由 `run.sh` 自动查找：`GODOT` 环境变量 → PATH → macOS 的 `/Applications/Godot*.app`。用户在 macOS 上试玩，开发机与 CI 是 Linux。
+
+## 测试环境分工（硬性）
+
+12. **Linux 开发机只写代码，不跑 Godot / Blender**：试玩、截图、界面验收、`./run.sh` 的各命令、Blender 出图或导出，一律去用户的 Mac 上做。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Godot 在 `/Applications/Godot.app`），不需要用户手动操作。
+13. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git pull --ff-only`。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
+14. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
