@@ -89,7 +89,7 @@ export class Field {
   }
 
   /** 前 n 个气泡的外接框等比放大到场地大小（不超过 maxScale 倍）并居中 */
-  private fillBox(c: [number, number][], r: number[], n: number): void {
+  private fillBox(c: [number, number][], r: number[], n: number, stretch = false): void {
     let x0 = Infinity;
     let x1 = -Infinity;
     let y0 = Infinity;
@@ -109,6 +109,26 @@ export class Field {
       c[i] = [(c[i][0] - mx) * k, (c[i][1] - my) * k];
       r[i] *= k;
     }
+    if (!stretch) return;
+    // 自由摆放的关卡：宽度先顶满时，再把气泡在竖直方向拉开铺满剩下的高度（半径不变，位置关系不要紧）
+    let top = -Infinity;
+    let bot = Infinity;
+    for (let i = 0; i < n; i++) {
+      top = Math.max(top, c[i][1] + r[i]);
+      bot = Math.min(bot, c[i][1] - r[i]);
+    }
+    const spanC = top - bot;
+    const room = this.h - pad;
+    if (spanC >= room) return;
+    let cTop = -Infinity;
+    let cBot = Infinity;
+    for (let i = 0; i < n; i++) {
+      cTop = Math.max(cTop, c[i][1]);
+      cBot = Math.min(cBot, c[i][1]);
+    }
+    if (cTop - cBot < 1) return;
+    const ky = (cTop - cBot + room - spanC) / (cTop - cBot);
+    for (let i = 0; i < c.length; i++) c[i] = [c[i][0], c[i][1] * ky];
   }
 
   /** 放大气泡让开局在场的 n 个占掉场地的 fill 比例，然后推开重叠 */
@@ -120,7 +140,7 @@ export class Field {
     const k = Math.min(Math.max(Math.sqrt((cfg.fill * this.w * this.h) / sum), 1), cfg.maxScale);
     for (let i = 0; i < radii.length; i++) radii[i] *= k;
     this.relax(centers, radii, n, []);
-    this.fillBox(centers, radii, n);
+    this.fillBox(centers, radii, n, true);
     this.relax(centers, radii, n, []);
   }
 

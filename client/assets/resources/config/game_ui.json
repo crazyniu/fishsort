@@ -79,7 +79,7 @@
   "shareFromRarity": "rare"
  },
  "field": {
-  "fill": 0.62,
+  "fill": 0.66,
   "maxScale": 1.9,
   "gap": 6,
   "relaxSteps": 80,
