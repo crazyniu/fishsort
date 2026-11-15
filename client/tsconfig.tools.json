@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.core.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "resolveJsonModule": true
+  },
+  "include": ["assets/scripts/core/**/*.ts", "tests/**/*.ts", "tools/**/*.ts"]
+}

@@ -1,0 +1,545 @@
+{
+ "species": [
+  {
+   "id": "c01",
+   "name": "小丑丑",
+   "rarity": "common",
+   "group": "orange-round",
+   "hue": "orange",
+   "pattern": "stripe",
+   "shape": "round",
+   "inLevel": true
+  },
+  {
+   "id": "c02",
+   "name": "泡泡豚",
+   "rarity": "common",
+   "group": "yellow-ball",
+   "hue": "yellow",
+   "pattern": "spot",
+   "shape": "ball",
+   "inLevel": true
+  },
+  {
+   "id": "c03",
+   "name": "星星糖",
+   "rarity": "common",
+   "group": "red-star",
+   "hue": "red",
+   "pattern": "spot",
+   "shape": "star",
+   "inLevel": true
+  },
+  {
+   "id": "c04",
+   "name": "鲨小宝",
+   "rarity": "common",
+   "group": "navy-shark",
+   "hue": "navy",
+   "pattern": "solid",
+   "shape": "shark",
+   "inLevel": true
+  },
+  {
+   "id": "c05",
+   "name": "钳钳",
+   "rarity": "common",
+   "group": "vermilion-claws",
+   "hue": "vermilion",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true
+  },
+  {
+   "id": "c06",
+   "name": "八爪团",
+   "rarity": "common",
+   "group": "purple-legs",
+   "hue": "purple",
+   "pattern": "spot",
+   "shape": "legs",
+   "inLevel": true
+  },
+  {
+   "id": "c07",
+   "name": "卷卷马",
+   "rarity": "common",
+   "group": "lime-tall",
+   "hue": "lime",
+   "pattern": "spot",
+   "shape": "tall",
+   "inLevel": true
+  },
+  {
+   "id": "c08",
+   "name": "果冻伞",
+   "rarity": "common",
+   "group": "cyan-umbrella",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true
+  },
+  {
+   "id": "c09",
+   "name": "慢慢龟",
+   "rarity": "common",
+   "group": "green-shell",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true
+  },
+  {
+   "id": "c10",
+   "name": "飞毯",
+   "rarity": "common",
+   "group": "indigo-diamond",
+   "hue": "indigo",
+   "pattern": "spot",
+   "shape": "diamond",
+   "inLevel": true
+  },
+  {
+   "id": "c11",
+   "name": "珍珠贝",
+   "rarity": "common",
+   "group": "amber-clam",
+   "hue": "amber",
+   "pattern": "solid",
+   "shape": "clam",
+   "inLevel": true
+  },
+  {
+   "id": "c12",
+   "name": "墨墨",
+   "rarity": "common",
+   "group": "blue-squid",
+   "hue": "blue",
+   "pattern": "stripe",
+   "shape": "squid",
+   "inLevel": true
+  },
+  {
+   "id": "c13",
+   "name": "红须须",
+   "rarity": "common",
+   "group": "crimson-lobster",
+   "hue": "crimson",
+   "pattern": "solid",
+   "shape": "lobster",
+   "inLevel": true
+  },
+  {
+   "id": "c14",
+   "name": "小灯笼",
+   "rarity": "common",
+   "group": "azure-lantern",
+   "hue": "azure",
+   "pattern": "spot",
+   "shape": "lantern",
+   "inLevel": true
+  },
+  {
+   "id": "c15",
+   "name": "尖尖",
+   "rarity": "common",
+   "group": "teal-snout",
+   "hue": "teal",
+   "pattern": "stripe",
+   "shape": "snout",
+   "inLevel": true
+  },
+  {
+   "id": "c16",
+   "name": "跳跳豚",
+   "rarity": "common",
+   "group": "sky-dolphin",
+   "hue": "sky",
+   "pattern": "solid",
+   "shape": "dolphin",
+   "inLevel": true
+  },
+  {
+   "id": "c17",
+   "name": "薄荷卷",
+   "rarity": "common",
+   "group": "mint-stripe",
+   "hue": "mint",
+   "pattern": "stripe",
+   "shape": "fish"
+  },
+  {
+   "id": "c18",
+   "name": "汽水泡",
+   "rarity": "common",
+   "group": "cyan-solid",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "ball"
+  },
+  {
+   "id": "c19",
+   "name": "盐团团",
+   "rarity": "common",
+   "group": "cyan-spot",
+   "hue": "teal",
+   "pattern": "spot",
+   "shape": "seal"
+  },
+  {
+   "id": "c20",
+   "name": "蓝豆豆",
+   "rarity": "common",
+   "group": "blue-solid",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "ball"
+  },
+  {
+   "id": "c21",
+   "name": "海纹纹",
+   "rarity": "common",
+   "group": "blue-stripe",
+   "hue": "blue",
+   "pattern": "stripe",
+   "shape": "longfin"
+  },
+  {
+   "id": "c22",
+   "name": "沙花饼",
+   "rarity": "common",
+   "group": "blue-spot",
+   "hue": "amber",
+   "pattern": "spot",
+   "shape": "disc"
+  },
+  {
+   "id": "c23",
+   "name": "墨绒绒",
+   "rarity": "common",
+   "group": "indigo-solid",
+   "hue": "indigo",
+   "pattern": "solid",
+   "shape": "cuttlefish"
+  },
+  {
+   "id": "c24",
+   "name": "夜飘带",
+   "rarity": "common",
+   "group": "indigo-stripe",
+   "hue": "navy",
+   "pattern": "stripe",
+   "shape": "eel"
+  },
+  {
+   "id": "c25",
+   "name": "葡萄软",
+   "rarity": "common",
+   "group": "purple-solid",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "slug"
+  },
+  {
+   "id": "c26",
+   "name": "紫弯弯",
+   "rarity": "common",
+   "group": "purple-stripe",
+   "hue": "purple",
+   "pattern": "stripe",
+   "shape": "shrimp"
+  },
+  {
+   "id": "c27",
+   "name": "芋耳朵",
+   "rarity": "common",
+   "group": "purple-spot",
+   "hue": "lavender",
+   "pattern": "spot",
+   "shape": "legs"
+  },
+  {
+   "id": "c28",
+   "name": "桃管管",
+   "rarity": "common",
+   "group": "pink-solid",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "snout"
+  },
+  {
+   "id": "c29",
+   "name": "糯花花",
+   "rarity": "common",
+   "group": "pink-stripe",
+   "hue": "pink",
+   "pattern": "stripe",
+   "shape": "slug"
+  },
+  {
+   "id": "c30",
+   "name": "樱贝贝",
+   "rarity": "common",
+   "group": "pink-spot",
+   "hue": "rose",
+   "pattern": "spot",
+   "shape": "clam"
+  },
+  {
+   "id": "u01",
+   "name": "叶卷龙",
+   "rarity": "uncommon",
+   "group": "red-split",
+   "hue": "red",
+   "pattern": "split",
+   "shape": "dragon"
+  },
+  {
+   "id": "u02",
+   "name": "霞扇扇",
+   "rarity": "uncommon",
+   "group": "orange-split",
+   "hue": "orange",
+   "pattern": "split",
+   "shape": "fan"
+  },
+  {
+   "id": "u03",
+   "name": "饼壳壳",
+   "rarity": "uncommon",
+   "group": "amber-spot",
+   "hue": "amber",
+   "pattern": "spot",
+   "shape": "hermit"
+  },
+  {
+   "id": "u04",
+   "name": "蛋黄爪",
+   "rarity": "uncommon",
+   "group": "yellow-split",
+   "hue": "yellow",
+   "pattern": "split",
+   "shape": "legs"
+  },
+  {
+   "id": "u05",
+   "name": "青方方",
+   "rarity": "uncommon",
+   "group": "lime-spot",
+   "hue": "lime",
+   "pattern": "spot",
+   "shape": "box"
+  },
+  {
+   "id": "u06",
+   "name": "苹耳耳",
+   "rarity": "uncommon",
+   "group": "lime-split",
+   "hue": "lime",
+   "pattern": "split",
+   "shape": "hare"
+  },
+  {
+   "id": "u07",
+   "name": "翠尾卷",
+   "rarity": "uncommon",
+   "group": "green-stripe",
+   "hue": "green",
+   "pattern": "stripe",
+   "shape": "fish"
+  },
+  {
+   "id": "u08",
+   "name": "叶背背",
+   "rarity": "uncommon",
+   "group": "green-split",
+   "hue": "green",
+   "pattern": "split",
+   "shape": "shell"
+  },
+  {
+   "id": "u09",
+   "name": "薄荷墩",
+   "rarity": "uncommon",
+   "group": "mint-spot",
+   "hue": "mint",
+   "pattern": "spot",
+   "shape": "manatee"
+  },
+  {
+   "id": "u10",
+   "name": "浪裙裙",
+   "rarity": "uncommon",
+   "group": "cyan-stripe",
+   "hue": "cyan",
+   "pattern": "stripe",
+   "shape": "slug"
+  },
+  {
+   "id": "u11",
+   "name": "冰围围",
+   "rarity": "uncommon",
+   "group": "cyan-split",
+   "hue": "cyan",
+   "pattern": "split",
+   "shape": "beluga"
+  },
+  {
+   "id": "u12",
+   "name": "雪领领",
+   "rarity": "uncommon",
+   "group": "blue-split",
+   "hue": "blue",
+   "pattern": "split",
+   "shape": "bird"
+  },
+  {
+   "id": "u13",
+   "name": "星帽帽",
+   "rarity": "uncommon",
+   "group": "indigo-spot",
+   "hue": "indigo",
+   "pattern": "spot",
+   "shape": "squid"
+  },
+  {
+   "id": "u14",
+   "name": "芋飘飘",
+   "rarity": "uncommon",
+   "group": "purple-split",
+   "hue": "purple",
+   "pattern": "split",
+   "shape": "ribbon"
+  },
+  {
+   "id": "u15",
+   "name": "桃绒条",
+   "rarity": "uncommon",
+   "group": "pink-split",
+   "hue": "pink",
+   "pattern": "split",
+   "shape": "cucumber"
+  },
+  {
+   "id": "r01",
+   "name": "珠卷卷",
+   "rarity": "rare",
+   "group": "special-r01",
+   "shape": "tall",
+   "hue": "gold"
+  },
+  {
+   "id": "r02",
+   "name": "琉璃伞",
+   "rarity": "rare",
+   "group": "special-r02",
+   "shape": "umbrella",
+   "hue": "cyan"
+  },
+  {
+   "id": "r03",
+   "name": "花鼓鼓",
+   "rarity": "rare",
+   "group": "special-r03",
+   "shape": "ball",
+   "hue": "peach"
+  },
+  {
+   "id": "r04",
+   "name": "珠帽丸",
+   "rarity": "rare",
+   "group": "special-r04",
+   "shape": "legs",
+   "hue": "lavender"
+  },
+  {
+   "id": "r05",
+   "name": "金扇饼",
+   "rarity": "rare",
+   "group": "special-r05",
+   "shape": "flatfish",
+   "hue": "gold"
+  },
+  {
+   "id": "r06",
+   "name": "星灯灯",
+   "rarity": "rare",
+   "group": "special-r06",
+   "shape": "lantern",
+   "hue": "azure"
+  },
+  {
+   "id": "r07",
+   "name": "珠星酥",
+   "rarity": "rare",
+   "group": "special-r07",
+   "shape": "star",
+   "hue": "coral"
+  },
+  {
+   "id": "r08",
+   "name": "珊钳钳",
+   "rarity": "rare",
+   "group": "special-r08",
+   "shape": "claws",
+   "hue": "crimson"
+  },
+  {
+   "id": "e01",
+   "name": "晶背宝",
+   "rarity": "epic",
+   "group": "special-e01",
+   "shape": "shell",
+   "hue": "green"
+  },
+  {
+   "id": "e02",
+   "name": "星披披",
+   "rarity": "epic",
+   "group": "special-e02",
+   "shape": "diamond",
+   "hue": "purple"
+  },
+  {
+   "id": "e03",
+   "name": "珠角团",
+   "rarity": "epic",
+   "group": "special-e03",
+   "shape": "narwhal",
+   "hue": "lavender"
+  },
+  {
+   "id": "e04",
+   "name": "云冠鲨",
+   "rarity": "epic",
+   "group": "special-e04",
+   "shape": "shark",
+   "hue": "sky"
+  },
+  {
+   "id": "e05",
+   "name": "珠旋旋",
+   "rarity": "epic",
+   "group": "special-e05",
+   "shape": "nautilus",
+   "hue": "peach"
+  },
+  {
+   "id": "l01",
+   "name": "曦尾锦",
+   "rarity": "legend",
+   "group": "special-l01",
+   "shape": "koi",
+   "hue": "gold"
+  },
+  {
+   "id": "l02",
+   "name": "月眠鲸",
+   "rarity": "legend",
+   "group": "special-l02",
+   "shape": "whale",
+   "hue": "navy"
+  }
+ ]
+}

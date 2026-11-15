@@ -48,6 +48,7 @@ usage() {
   level-verify          全量关卡校验（慢）
   level-verify-changed  只校验改动过的关卡
   font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
+  golden <目录>         导出黄金数据给 Cocos 版做对比（Godot 版核心逻辑在固定输入下的输出）
 
 Cocos 版（client/，迁移中，见 docs/09）：
   web                   构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
@@ -56,6 +57,10 @@ Cocos 版（client/，迁移中，见 docs/09）：
   wechat-build          构建微信小游戏包 → client/build/wechatgame
   cocos-editor          用 Cocos Creator 打开 client/
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（Linux 上跑，结果要提交）
+  ts-test               client/ 的 TypeScript 单测（Node，Linux 上跑）
+  ts-check              类型检查 + 单测 + .meta 检查
+  ts-level-verify       用 TS 版核心校验 client/ 里的全部关卡（--runs=N，或给文件名只校验这些）
+  ts-level-gen          用 TS 版核心生成关卡 [起始关] [结束关]
 EOF
 }
 
@@ -96,6 +101,11 @@ web_serve() {
     (sleep 1; open "$url") &
   fi
   exec python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 --directory "$dir"
+}
+
+need_node_modules() {
+  command -v node >/dev/null || die "找不到 node（需要 Node 22 以上）"
+  [ -d client/node_modules ] || (cd client && npm ci)
 }
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
@@ -158,6 +168,11 @@ case "$cmd" in
   font-subset)
     python3 tools/font/subset.py "$@"
     ;;
+  golden)
+    need_godot; import_project
+    [ $# -ge 1 ] || die "用法: ./run.sh golden <输出目录> [--runs=N]"
+    "$GODOT" --headless --path . -s tools/golden/export.gd -- "$@"
+    ;;
   web)
     cocos_build web-mobile
     web_serve
@@ -171,6 +186,23 @@ case "$cmd" in
     ;;
   meta)
     node tools/cocos/meta.mjs "$@"
+    ;;
+  ts-test)
+    need_node_modules
+    (cd client && npx tsx --test tests/*.test.ts "$@")
+    ;;
+  ts-check)
+    need_node_modules
+    node tools/cocos/meta.mjs --check
+    (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json && npx tsx --test tests/*.test.ts)
+    ;;
+  ts-level-verify)
+    need_node_modules
+    (cd client && npx tsx tools/level/verify.ts "$@")
+    ;;
+  ts-level-gen)
+    need_node_modules
+    (cd client && npx tsx tools/level/gen.ts "$@")
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;
