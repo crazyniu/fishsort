@@ -1,0 +1,22 @@
+# Godot
+.godot/
+*.translation
+/build/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# 美术原始产出与工具输出
+art/raw/
+tools/level/report.csv
+
+# 系统与编辑器
+.DS_Store
+.idea/
+.vscode/
+
+# 密钥
+.env
+*.pem
+google-services.json
