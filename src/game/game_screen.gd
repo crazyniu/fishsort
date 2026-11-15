@@ -93,15 +93,20 @@ func start_level(id: int) -> void:
 	_build()
 	_intro = false
 	# 新机制第一次出现的关卡，开局说明一句
-	var tip: String = (Config.eco["mechanicIntro"] as Dictionary).get(str(id), "")
+	var tips: Array[String] = []
 	# 生命、掉落这类一次性提示：配置里按关卡给文案键，看过就记下
 	var once: String = (GameCfg.d()["tips"] as Dictionary).get(str(id), "")
 	if once != "" and not PlayerData.tip_seen(Save.data, once):
 		PlayerData.mark_tip(Save.data, once)
 		Save.save()
-		tip = once
+		tips.append(once)
+	var tip: String = (Config.eco["mechanicIntro"] as Dictionary).get(str(id), "")
 	if tip != "":
-		get_tree().create_timer(0.9).timeout.connect(_toast.bind(tr(tip)))
+		tips.append(tip)
+	# 同一关有两句时依次出，不叠在一起
+	for i: int in tips.size():
+		var wait: float = 0.9 + i * GameCfg.num("tutorial", "tipGap")
+		get_tree().create_timer(wait).timeout.connect(_toast.bind(tr(tips[i])))
 	if _tutor != "":
 		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
 
