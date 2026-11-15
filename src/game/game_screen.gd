@@ -282,17 +282,22 @@ func _unlock_slot() -> void:
 	_play(Rules.unlock_bowl(_s))
 
 
+## 点了还没解锁的技能：按钮晃一下加错误音，不弹提示。返回是否拦下了这次点击
+func _tap_locked(tool: String) -> bool:
+	if not _hud.tool_locked(tool):
+		return false
+	Audio.sfx(&"error")
+	_hud.shake_tool(tool)
+	return true
+
+
 func _on_tool(tool: String) -> void:
-	if _over:
+	if _over or _tap_locked(tool):
 		return
 	if _net_mode:
 		_net_mode = false
 		return
 	# 先确认现在能用、用了有效果，免得白扣一次
-	if _hud.tool_locked(tool):
-		Audio.sfx(&"error")
-		_hud.shake_tool(tool)
-		return
 	var seed_value: int = Time.get_ticks_usec()
 	var blocked: String = _tool_blocked(tool, seed_value)
 	if blocked != "":
