@@ -110,3 +110,25 @@ UI_PRAISE_2,真棒！,Great!
 UI_PRAISE_3,太强了！,Awesome!
 UI_SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
 UI_COMBO_GOLD,金币 +%d,Coins +%d
+UI_TOOL_CURRENT,洋流,Current
+UI_SKILL_FREE,免费,Free
+UI_SKILL_TRY,试试新技能：%s,Try the new skill: %s
+UI_BLOW_EMPTY,暂存槽里没有鱼,Nothing to blow back
+UI_CURRENT_EMPTY,现在没有能直接进缸的鱼,No fish can go straight in
+UI_SHUFFLE_EMPTY,现在洗不了牌,Cannot shuffle now
+UI_LEAVE_TITLE,要离开吗？,Leave?
+UI_LEAVE_COST,现在离开会失去 1 条生命,Leaving now costs 1 life
+UI_KEEP_PLAYING,继续玩,Keep playing
+UI_LEAVE,离开,Leave
+UI_GIVEUP_COST,放弃会失去 1 条生命,Giving up costs 1 life
+UI_NO_LIVES,生命用完了,Out of lives
+UI_NO_LIVES_WAIT,%d 分钟后恢复 1 条,Next life in %d min
+UI_BUY_LIFE,%d 金币买 1 条,Buy 1 for %d coins
+UI_CHEST_AGAIN,看广告 再开一个,Watch ad: one more
+UI_SHARE_SHOW,分享炫耀,Share
+UI_SKILL_GAIN,%s +1,%s +1
+UI_WIN_BASE,过关 %d,Clear %d
+UI_WIN_COMBO,连击 +%d,Combo +%d
+UI_WIN_BEST,最高连击 %d +%d,Best combo %d +%d
+UI_REPLAY_NO_REWARD,今天重玩的奖励已领完,No more replay rewards today
+UI_FIRST_WIN,今日首胜：抽奖 +1，无限生命 %d 分钟,First win today: +1 spin and %d min unlimited lives

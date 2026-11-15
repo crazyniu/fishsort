@@ -138,6 +138,13 @@ def sfx() -> None:
     pulse += 0.4 * np.sin(2 * np.pi * 300 * t(0.13)) * np.sin(np.pi * t(0.13) / 0.13) ** 2
     save("warn", mix(0.36, (0, pulse, 1.0), (0.18, pulse, 0.9)), 0.55)
     save("land", mix(0.2, (0, sweep(190, 80, 0.14, 5), 1.0), (0.02, sweep(520, 900, 0.06, 6), 0.25)), 0.5)
+    # 洋流：一阵由低到高再落下的水流声，带几粒气泡音
+    flow = np.convolve(rng.standard_normal(int(SR * 0.9)), np.ones(22) / 22, mode="same") * np.sin(np.pi * t(0.9) / 0.9) ** 1.5
+    drops = [(0.15 + i * 0.09, sweep(500 + i * 90, 1300 + i * 160, 0.07, 5), 0.35) for i in range(7)]
+    save("current", mix(0.95, (0, flow, 1.0), (0, sweep(140, 420, 0.9, 1.0) * np.sin(np.pi * t(0.9) / 0.9), 0.5), *drops), 0.5)
+    # 宝箱弹开：低频「咚」加一串上行的亮音
+    chest = [(0, sweep(220, 70, 0.18, 3), 1.0)] + [(0.03 + i * 0.045, bell(hz(n), 0.4), 0.6) for i, n in enumerate(["C6", "E6", "G6", "C7", "E7"])]
+    save("chest", mix(0.8, *chest), 0.65)
 
 
 def bgm() -> None:

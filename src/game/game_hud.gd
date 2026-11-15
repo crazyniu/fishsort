@@ -9,7 +9,10 @@ const SLOT := 56.0
 const SLOT_GAP := 66.0
 const TOOLS_H := 150.0
 const TOOL_NAMES: Dictionary = {
-	"net": "UI_TOOL_NET", "blow": "UI_TOOL_BLOW", "shuffle": "UI_TOOL_SHUFFLE"
+	"net": "UI_TOOL_NET",
+	"blow": "UI_TOOL_BLOW",
+	"shuffle": "UI_TOOL_SHUFFLE",
+	"current": "UI_TOOL_CURRENT",
 }
 
 var _stage: Control
@@ -28,6 +31,8 @@ var _tool_btns: Dictionary = {}
 var _tool_pos: Dictionary = {}
 var _nudge: Dictionary = {}
 var _level: int = 1
+var _on_tool: Callable
+var _tutor: Control
 
 
 func _init(stage: Control, fx: GameFx) -> void:
@@ -210,9 +215,10 @@ func _update_warn() -> void:
 			_warn_tween = _warn.create_tween().set_loops()
 			_warn_tween.tween_property(_warn, "modulate:a", 0.25, 0.28)
 			_warn_tween.tween_property(_warn, "modulate:a", 1.0, 0.28)
-	# 快满时，能救场的技能键跳动提醒
-	var urge: bool = buffer_free() <= int(cfg["skillNudgeFree"])
-	_set_nudge("blow", urge and not _fish.is_empty())
+	# 快满时，能救场的技能键发光跳动
+	var urge: bool = buffer_free() <= int(cfg["skillNudgeFree"]) and not _fish.is_empty()
+	for tool: String in cfg["rescueSkills"]:
+		_set_nudge(tool, urge)
 
 
 # ---------- 技能键 ----------
@@ -222,8 +228,13 @@ func tool_pos(tool: String) -> Vector2:
 	return _tool_pos[tool]
 
 
+## 技能按玩家进度解锁（Skills / Features）
 func tool_locked(tool: String) -> bool:
-	return _level < GameCfg.unlock_level(tool)
+	return not Skills.is_unlocked(Config.eco, tool, int(Save.data["level"]))
+
+
+func tool_name(tool: String) -> String:
+	return _stage.tr(TOOL_NAMES[tool])
 
 
 ## 底栏：渐隐衬底上一排技能键，最右是设置键。未解锁的技能是灰锁和「第 N 关」
@@ -231,15 +242,16 @@ func build_tools(view_h: float, intro: bool, on_tool: Callable, on_gear: Callabl
 	_tool_badges.clear()
 	_tool_btns.clear()
 	_nudge.clear()
+	_on_tool = on_tool
 	var w: float = _fx.width
 	_fx.put(
 		UiKit.piece("fade"), Vector2(-400, view_h - TOOLS_H - 30), Vector2(w + 800, TOOLS_H + 30)
 	)
-	var order: Array = GameCfg.d()["skillOrder"]
+	var order: Array = Skills.ids(Config.eco)
 	var y: float = view_h - TOOLS_H + 4
 	for i: int in order.size():
 		var tool: String = order[i]
-		var x: float = 40 + i * 160.0
+		var x: float = 28 + i * 142.0
 		var btn := UiKit.tile_button()
 		btn.pressed.connect(on_tool.bind(tool))
 		Anim.press_fx(btn)
@@ -248,46 +260,62 @@ func build_tools(view_h: float, intro: bool, on_tool: Callable, on_gear: Callabl
 		_tool_pos[tool] = Vector2(x + 52, y + 52)
 		if tool_locked(tool):
 			btn.face.modulate = Color(0.55, 0.6, 0.68)
-			var lock := UiKit.icon("res://assets/ui/lock.png", 62)
+			var lock := UiKit.icon("res://assets/ui/lock_skill.png", 60)
 			var gray := GameFx.tint_material()
 			gray.set_shader_parameter("gray", 1.0)
 			lock.material = gray
-			_fx.put(lock, Vector2(x + 21, y + 19))
-			var need: String = _stage.tr("UI_LEVEL") % GameCfg.unlock_level(tool)
+			_fx.put(lock, Vector2(x + 22, y + 20))
+			var need: String = _stage.tr("UI_LEVEL") % Skills.unlock_level(Config.eco, tool)
 			_fx.put(
 				UiKit.label(need, 22, Color("C9D3E6")), Vector2(x - 30, y + 106), Vector2(164, 34)
 			)
 		else:
 			_fx.put(UiKit.icon("res://assets/ui/tool_%s.png" % tool, 80), Vector2(x + 12, y + 12))
-			_fx.put(
-				UiKit.label(_stage.tr(TOOL_NAMES[tool]), 24),
-				Vector2(x - 30, y + 106),
-				Vector2(164, 34)
-			)
-			_fx.put(UiKit.badge("dot_red", 40), Vector2(x + 78, y - 12))
+			_fx.put(UiKit.label(tool_name(tool), 24), Vector2(x - 30, y + 106), Vector2(164, 34))
+			# 角标：红点是库存数；今天的免费次还在时换成绿色的「免费」
+			var dot := UiKit.badge("dot_red", 40)
+			_fx.put(dot, Vector2(x + 78, y - 12))
+			var free := UiKit.piece("fill")
+			_fx.put(free, Vector2(x + 52, y - 12), Vector2(66, 34))
 			var badge := UiKit.label("", 22)
-			_fx.put(badge, Vector2(x + 78, y - 12), Vector2(40, 40))
-			_tool_badges[tool] = badge
+			_fx.put(badge, Vector2(x + 52, y - 12), Vector2(66, 34))
+			_tool_badges[tool] = {"label": badge, "dot": dot, "free": free}
 		if intro:
 			Anim.pop_in(btn, 0.3 + 0.06 * i)
-	_fx.put(UiKit.badge("btn_gear", 64), Vector2(w - 40 - 64, y + 20))
-	var gear := UiKit.hotspot(Vector2(w - 124, y), Vector2(104, 104))
+	_fx.put(UiKit.badge("btn_gear", 64), Vector2(w - 34 - 64, y + 20))
+	var gear := UiKit.hotspot(Vector2(w - 118, y), Vector2(104, 104))
 	gear.pressed.connect(on_gear)
 	Anim.press_fx(gear)
 	_stage.add_child(gear)
 	refresh_tools()
 
 
-## 角标：数量最多显示 99，没有了显示「+」
+## 角标：免费次还在显示「免费」；否则是数量（最多显示 99），没有了显示「+」
 func refresh_tools() -> void:
 	var cap: int = int(GameCfg.d()["badgeCap"])
+	Daily.roll(Save.data, Save.today())
 	for tool: String in _tool_badges:
-		var badge: Label = _tool_badges[tool]
-		if is_instance_valid(badge):
-			var have: int = int(Save.data["tools"][tool])
+		var parts: Dictionary = _tool_badges[tool]
+		var badge: Label = parts["label"]
+		if not is_instance_valid(badge):
+			continue
+		var free: bool = Skills.free_available(Save.data, tool)
+		(parts["free"] as Control).visible = free
+		(parts["dot"] as Control).visible = not free
+		if free:
+			badge.text = _stage.tr("UI_SKILL_FREE")
+			badge.add_theme_font_size_override("font_size", 18)
+			badge.position.x = (parts["free"] as Control).position.x
+			badge.size.x = 66
+		else:
+			var have: int = Skills.count(Save.data, tool)
 			badge.text = str(mini(have, cap)) if have > 0 else "+"
+			badge.add_theme_font_size_override("font_size", 22)
+			badge.position.x = (parts["dot"] as Control).position.x
+			badge.size.x = 40
 
 
+## 暂存槽快满时，能救场的技能键发光跳动
 func _set_nudge(tool: String, on: bool) -> void:
 	if not _tool_btns.has(tool) or tool_locked(tool) or bool(_nudge.get(tool, false)) == on:
 		return
@@ -297,6 +325,12 @@ func _set_nudge(tool: String, on: bool) -> void:
 		return
 	if on:
 		btn.pivot_offset = btn.size / 2.0
+		var glow := UiKit.badge("fx_glow", 190)
+		glow.name = "Glow"
+		glow.show_behind_parent = true
+		glow.modulate = Color(1.0, 0.86, 0.3, 0.9)
+		glow.position = btn.size / 2.0 - Vector2(95, 95)
+		btn.add_child(glow)
 		var tw: Tween = btn.create_tween().set_loops()
 		tw.tween_property(btn, "scale", Vector2(1.1, 1.1), 0.3).set_trans(Tween.TRANS_SINE)
 		tw.tween_property(btn, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_SINE)
@@ -304,3 +338,53 @@ func _set_nudge(tool: String, on: bool) -> void:
 	elif btn.has_meta("nudge"):
 		(btn.get_meta("nudge") as Tween).kill()
 		btn.scale = Vector2.ONE
+		if btn.has_node("Glow"):
+			btn.get_node("Glow").queue_free()
+
+
+# ---------- 新技能的强制教学 ----------
+
+
+## 压暗全屏、只留这个技能键能点，并在上方写一句「试试新技能」。点了技能键后由 end_tutorial 收掉
+func start_tutorial(tool: String) -> void:
+	if _tutor != null and is_instance_valid(_tutor):
+		return
+	_tutor = Control.new()
+	_tutor.z_index = 85
+	_tutor.size = _stage.size
+	_stage.add_child(_tutor)
+	var shade := ColorRect.new()
+	shade.color = Color(0.01, 0.06, 0.18, 0.6)
+	shade.size = Vector2(_stage.size.x + 800, _stage.size.y)
+	shade.position = Vector2(-400, 0)
+	_tutor.add_child(shade)
+	var at: Vector2 = _tool_pos[tool]
+	var ring := UiKit.badge("fx_ring", 170)
+	ring.modulate = Color("FFF36B")
+	ring.position = at - Vector2(85, 85)
+	_tutor.add_child(ring)
+	Anim.pulse(ring, 1.18, 0.8)
+	var tile := UiKit.piece("tile")
+	tile.size = Vector2(104, 104)
+	tile.position = at - Vector2(52, 52)
+	_tutor.add_child(tile)
+	var pic := UiKit.icon("res://assets/ui/tool_%s.png" % tool, 80)
+	pic.position = at - Vector2(40, 40)
+	_tutor.add_child(pic)
+	var tip := UiKit.label(_stage.tr("UI_SKILL_TRY") % tool_name(tool), 34, UiKit.GOLD)
+	tip.size = Vector2(_stage.size.x, 50)
+	tip.position = Vector2(0, at.y - 150)
+	_tutor.add_child(tip)
+	var hot := UiKit.hotspot(at - Vector2(60, 60), Vector2(120, 120))
+	hot.pressed.connect(_on_tool.bind(tool))
+	_tutor.add_child(hot)
+	shade.modulate.a = 0.0
+	shade.create_tween().tween_property(shade, "modulate:a", 1.0, 0.2)
+	Anim.pop_in(tip, 0.1, 0.25)
+	Audio.sfx(&"unlock")
+
+
+func end_tutorial() -> void:
+	if _tutor != null and is_instance_valid(_tutor):
+		Anim.fade_out_free(_tutor, 0.15)
+	_tutor = null

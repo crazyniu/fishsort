@@ -407,6 +407,57 @@ func whirl(center: Vector2) -> void:
 	Anim.burst(stage, center, 18, BUBBLE, 620.0, 300.0, Vector2(22, 46), 0.7, 79)
 
 
+## 洋流：几道水带从左到右横扫气泡场（top 到 bottom），带着浪花和小气泡
+func current_sweep(top: float, bottom: float) -> void:
+	Audio.sfx(&"current")
+	var bands: int = 5
+	for i: int in bands:
+		var y: float = lerpf(top + 40.0, bottom - 60.0, (i + 0.5) / bands) + randf_range(-20, 20)
+		var band := ColorRect.new()
+		band.color = Color(0.75, 0.95, 1.0, 0.5)
+		band.size = Vector2(randf_range(320, 520), randf_range(8, 16))
+		band.z_index = 78
+		band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		put(band, Vector2(-band.size.x - 80, y))
+		var tw: Tween = band.create_tween()
+		tw.tween_interval(i * 0.05)
+		tw.tween_property(band, "position:x", width + 80.0, 0.55).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_callback(band.queue_free)
+	# 浪头：洋流图标领着一串气泡冲过去
+	var mid: float = (top + bottom) / 2.0
+	var wave := UiKit.icon("res://assets/ui/tool_current.png", 260)
+	wave.z_index = 80
+	wave.flip_h = true
+	put(wave, Vector2(-300, mid - 130))
+	var wt: Tween = wave.create_tween()
+	wt.tween_property(wave, "position:x", width + 60.0, 0.7).set_ease(Tween.EASE_IN_OUT)
+	wt.parallel().tween_property(wave, "position:y", mid - 190, 0.35).set_trans(Tween.TRANS_SINE)
+	wt.parallel().tween_property(wave, "position:y", mid - 130, 0.35).set_delay(0.35)
+	wt.tween_callback(wave.queue_free)
+	for i: int in 16:
+		var side: float = randf_range(18, 44)
+		var bub := UiKit.icon(BUBBLE, side)
+		bub.z_index = 79
+		put(bub, Vector2(-60 - randf_range(0, 260), randf_range(top + 20, bottom - 40)))
+		var bt: Tween = bub.create_tween()
+		bt.tween_interval(randf() * 0.2)
+		bt.tween_property(bub, "position:x", width + 60.0, randf_range(0.5, 0.8)).set_ease(
+			Tween.EASE_IN
+		)
+		bt.parallel().tween_property(bub, "position:y", bub.position.y - randf_range(20, 70), 0.7)
+		bt.tween_callback(bub.queue_free)
+	# 整片水面泛一下亮
+	var wash := ColorRect.new()
+	wash.color = Color(0.5, 0.9, 1.0, 0.0)
+	wash.z_index = 77
+	wash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	put(wash, Vector2(-400, top), Vector2(width + 800, bottom - top))
+	var ft: Tween = wash.create_tween()
+	ft.tween_property(wash, "color:a", 0.22, 0.2)
+	ft.tween_property(wash, "color:a", 0.0, 0.5)
+	ft.tween_callback(wash.queue_free)
+
+
 ## 一圈向外扩散的光环
 func ring(at: Vector2, color: Color, reach: float) -> void:
 	var r := UiKit.badge("fx_ring", 200)

@@ -23,8 +23,3 @@ static func num(section: String, key: String) -> float:
 ## 一条鱼从出发到抵达的总时长：原地一弹 + 弧线飞行
 static func travel() -> float:
 	return num("fly", "tapPop") + num("fly", "seconds")
-
-
-## 技能的解锁关
-static func unlock_level(tool: String) -> int:
-	return int((d()["skillUnlock"] as Dictionary)[tool])
