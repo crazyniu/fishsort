@@ -77,7 +77,7 @@
 | `Album.has_frame(save)` | 专属头像框是否解锁（界面用来给头像外加金框） |
 | `Album.grant(save, reward, now)` | 发一份奖励 `{coins, tools, unlimited}` 并返回奖品列表 `[{kind: coin\|skill\|inf_life, ...}]`；每日挑战也用它 |
 
-## Dex（生物图鉴）
+## Dex（救援记录）
 
 局内救过的生物累计只数，每种救够几档各领一次金币。数值在 `eco["dex"]`（`tiers` 30/100/300，`coins` 200/500/1500）。
 
