@@ -207,7 +207,6 @@ H_SHARE_PLUS,分享 +1,Share +1
 H_AD_PLUS,看广告 +1,Ad +1
 H_TEN_PULL,十连,Ten pulls
 H_BACK,返回,Back
-H_BACK_ARROW,‹ 返回,‹ Back
 H_REPLAY_HINT,重玩奖励 今日 %d/%d,Replay rewards %d/%d
 H_YOU_ARE_HERE,当前,Now
 UI_STAT_CLEAR,过关,Clear
