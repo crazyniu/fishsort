@@ -3,7 +3,19 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-GODOT="${GODOT:-godot}"
+# 找 Godot：优先用 GODOT 环境变量，其次 PATH，最后是 macOS 的应用程序目录
+find_godot() {
+  if [ -n "${GODOT:-}" ]; then echo "$GODOT"; return; fi
+  if command -v godot >/dev/null 2>&1; then echo godot; return; fi
+  local app bin
+  for app in /Applications/Godot*.app "$HOME"/Applications/Godot*.app; do
+    for bin in "$app"/Contents/MacOS/*; do
+      if [ -x "$bin" ]; then echo "$bin"; return; fi
+    done
+  done
+  echo godot
+}
+GODOT="$(find_godot)"
 
 usage() {
   cat <<'EOF'
@@ -23,7 +35,7 @@ EOF
 die() { echo "✗ $*" >&2; exit 1; }
 
 need_godot() {
-  command -v "$GODOT" >/dev/null || die "找不到 godot，可用 GODOT=/路径/godot ./run.sh 指定"
+  command -v "$GODOT" >/dev/null || die "找不到 Godot：请把 Godot.app 放进「应用程序」目录，或用 GODOT=/路径/godot ./run.sh 指定"
 }
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
@@ -67,9 +79,11 @@ case "$cmd" in
   level-verify-changed)
     need_godot; import_project
     base="${BASE_REF:-origin/main}"
-    mapfile -t files < <(git diff --name-only --diff-filter=AM "$base" -- 'config/levels/*.json' 2>/dev/null || true)
-    if [ ${#files[@]} -eq 0 ]; then echo "没有改动的关卡"; exit 0; fi
-    "$GODOT" --headless --path . -s tools/level/verify.gd -- "${files[@]}"
+    files="$(git diff --name-only --diff-filter=AM "$base" -- 'config/levels/*.json' 2>/dev/null || true)"
+    if [ -z "$files" ]; then echo "没有改动的关卡"; exit 0; fi
+    # 关卡文件名不含空格，按空白拆分即可（兼容 macOS 自带的 bash 3.2）
+    # shellcheck disable=SC2086
+    "$GODOT" --headless --path . -s tools/level/verify.gd -- $files
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;
