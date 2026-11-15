@@ -25,7 +25,7 @@ const TAB_ICONS: Array[String] = [
 ## 每个页签对应的功能开放项，空串 = 始终开放
 const TAB_FEATURES: Array[String] = ["", "homeBase", "", "album", "daily", "wheel", "rank"]
 ## 已经排了开放关、但页面还没做的功能：开放后先显示「即将开放」
-const COMING_SOON: Array[String] = ["homeBase", "daily"]
+const COMING_SOON: Array[String] = ["homeBase"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -307,6 +307,8 @@ func _make_page(tab: int) -> HomePage:
 			return RankPage.new()
 		TAB_COLLECTION:
 			return CollectionPage.new()
+		TAB_DAILY:
+			return DailyPage.new()
 	return MainPage.new()
 
 

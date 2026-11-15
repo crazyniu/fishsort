@@ -166,6 +166,13 @@
       "unlimited": 10800
     }
   },
+  "dailyChallenge": {
+    "levelStep": 5,
+    "retryCoins": 300,
+    "reward": { "coins": 500, "tools": 1 },
+    "streakDays": 7,
+    "streakReward": { "coins": 3000, "tools": 2, "unlimited": 3600 }
+  },
   "features": {
     "signin": 3,
     "skill_shuffle": 4,

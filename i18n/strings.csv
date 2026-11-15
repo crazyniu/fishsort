@@ -209,3 +209,11 @@ ALBUM_BOOK_6,传说之海,Sea of Legends
 ALBUM_CLAIMED,已领取,Claimed
 ALBUM_TAKE,领取,Claim
 H_FINAL_PRIZE,终极大奖,Ultimate prize
+DAILY_START,开始挑战,Start
+DAILY_DONE,今日已完成,Done today
+DAILY_TOMORROW,明天再来,Come back tomorrow
+DAILY_FREE,今日免费 1 次,1 free try today
+DAILY_STREAK,连续过关 %d/%d 天,Streak %d/%d days
+DAILY_CHEST,每日宝箱,Daily chest
+DAILY_BIG_CHEST,七日大宝箱,7-day chest
+DAILY_RETRY,再试一次,Try again
