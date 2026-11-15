@@ -3,7 +3,9 @@ extends Control
 ## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 抽奖 · 主页 · 排行 · 图鉴）。
 ## 数据与动作全部走 HomeModel，真实逻辑接入时只换那一个文件。
 
-enum { TAB_SHOP, TAB_WHEEL, TAB_MAIN, TAB_RANK, TAB_COLLECTION }
+## 底栏五个页签：商店、关卡、主页、排行、图鉴。关卡页签直接打开选关路线。
+## 抽奖不占页签，是从主页入口进去的子页面
+enum { TAB_SHOP, TAB_LEVELS, TAB_MAIN, TAB_RANK, TAB_COLLECTION, TAB_WHEEL }
 
 const W := 750.0
 const BAR_Y := 16.0
@@ -11,17 +13,17 @@ const BAR_H := 96.0
 const TOP_H := 124.0
 const TABS_H := 150.0
 const TAB_KEYS: Array[String] = [
-	"UI_TAB_SHOP", "H_TAB_WHEEL", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
+	"UI_TAB_SHOP", "H_ENTRY_LEVELS", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
 ]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
-	"res://assets/ui/tab_wheel.png",
+	"res://assets/kit/ic_route.png",
 	"res://assets/ui/tab_main.png",
 	"res://assets/ui/tab_rank.png",
 	"res://assets/ui/tab_collection.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["", "wheel", "", "rank", "album"]
+const TAB_FEATURES: Array[String] = ["", "levelSelect", "", "rank", "album"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -84,7 +86,8 @@ func _add(parent: Control, node: Control, pos: Vector2, area: Vector2 = Vector2.
 func toast(text: String) -> void:
 	var l := UiKit.label(text, 30)
 	l.z_index = 90
-	_add(_stage, l, Vector2(0, size.y - TABS_H - 70), Vector2(W, 50))
+	# 提示放在画面中间偏上，不压住底部的开始按钮和页签
+	_add(_stage, l, Vector2(0, size.y * 0.42), Vector2(W, 50))
 	Anim.pop_in(l, 0.0, 0.2)
 	var tw: Tween = l.create_tween()
 	tw.tween_interval(1.5)
@@ -135,7 +138,8 @@ func start_level(level: int = 0) -> void:
 
 func _build_top() -> void:
 	var mid: float = BAR_Y + BAR_H / 2.0
-	_add(_stage, UiKit.piece("glass"), Vector2(16, BAR_Y), Vector2(W - 32, BAR_H))
+	# 没有整条底板：头像、金币、生命、设置各自悬浮，只在最上面垫一层淡渐变
+	_add(_stage, UiKit.top_scrim(W + 800, BAR_Y + BAR_H + 50.0), Vector2(-400, 0))
 	var info: Dictionary = model.profile()
 	var avatar := UiKit.icon(str(info["avatar"]), 68)
 	_add(_stage, avatar, Vector2(30, mid - 34))
@@ -188,8 +192,9 @@ func _refresh_lives() -> void:
 		return
 	if model.infinite_secs() > 0:
 		_life_icon.texture = UiKit.tex("res://assets/ui/heart_inf.png")
-		_life_label.text = "∞"
-		_life_timer.text = HomePopups._fmt_time(model.infinite_secs())
+		# 心形图标自带 ∞，数字位置直接显示剩余时间，不再重复写 ∞
+		_life_label.text = HomePopups._fmt_time(model.infinite_secs())
+		_life_timer.text = ""
 		return
 	_life_icon.texture = UiKit.tex("res://assets/ui/heart.png")
 	_life_label.text = str(mini(model.lives(), 99))
@@ -238,6 +243,8 @@ func _build_tabs() -> void:
 
 
 func _tab_open(i: int) -> bool:
+	if i >= TAB_FEATURES.size():
+		return model.is_unlocked("wheel")
 	return TAB_FEATURES[i].is_empty() or model.is_unlocked(TAB_FEATURES[i])
 
 
@@ -264,32 +271,51 @@ func _mark_tabs() -> void:
 func _on_tab(i: int) -> void:
 	if i == _tab:
 		return
-	if not _tab_open(i):
-		Audio.sfx(&"error")
-		Anim.shake(_tab_icons[i], 6.0)
-		toast(tr("H_UNLOCKS_AT") % model.unlock_level(TAB_FEATURES[i]))
-		return
 	Audio.sfx(&"click")
+	if i == TAB_LEVELS and _tab_open(i):
+		# 选关路线是盖在上面的整页，关掉后回到原来的页签
+		LevelRoute.open(self)
+		return
 	var from_right: bool = i > _tab
 	_tab = i
 	_mark_tabs()
 	_show_page(true, from_right)
 
 
+func _make_page(tab: int) -> HomePage:
+	match tab:
+		TAB_SHOP:
+			return ShopPage.new()
+		TAB_WHEEL:
+			return WheelPage.new()
+		TAB_RANK:
+			return RankPage.new()
+		TAB_COLLECTION:
+			return CollectionPage.new()
+	return MainPage.new()
+
+
+## 没开放的页签：页面里用大图标和「第 N 关解锁」说明
+func _locked_page(tab: int) -> HomePage:
+	var feature: String = "wheel" if tab >= TAB_FEATURES.size() else TAB_FEATURES[tab]
+	var page := LockedPage.new()
+	if tab < TAB_KEYS.size():
+		page.feature_title = tr(TAB_KEYS[tab])
+		page.icon_path = TAB_ICONS[tab]
+	else:
+		page.feature_title = tr("H_TAB_WHEEL")
+		page.icon_path = "res://assets/ui/tab_wheel.png"
+	page.unlock_at = model.unlock_level(feature)
+	return page
+
+
 func _show_page(animate: bool, from_right: bool = true) -> void:
 	if _page != null and is_instance_valid(_page):
 		Anim.fade_out_free(_page, 0.12)
-	match _tab:
-		TAB_SHOP:
-			_page = ShopPage.new()
-		TAB_WHEEL:
-			_page = WheelPage.new()
-		TAB_MAIN:
-			_page = MainPage.new()
-		TAB_RANK:
-			_page = RankPage.new()
-		_:
-			_page = CollectionPage.new()
+	if not _tab_open(_tab):
+		_page = _locked_page(_tab)
+	else:
+		_page = _make_page(_tab)
 	var page: HomePage = _page as HomePage
 	page.host = self
 	page.size = Vector2(W, size.y - TOP_H - TABS_H)

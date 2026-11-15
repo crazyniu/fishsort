@@ -103,6 +103,25 @@ static func text(content: String, font_size: int, color: Color = BODY) -> Label:
 	return l
 
 
+## 顶部托底：一层从深蓝渐到透明的淡渐变，让悬浮在最上面的控件在任何背景上都看得清，自己不成为一条栏
+static func top_scrim(width: float, height: float, strength: float = 0.5) -> TextureRect:
+	var fade := Gradient.new()
+	fade.colors = PackedColorArray([Color(NAVY, strength), Color(NAVY, 0.0)])
+	var grad := GradientTexture2D.new()
+	grad.gradient = fade
+	grad.fill_from = Vector2(0, 0)
+	grad.fill_to = Vector2(0, 1)
+	grad.width = 8
+	grad.height = 64
+	var scrim := TextureRect.new()
+	scrim.texture = grad
+	scrim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	scrim.stretch_mode = TextureRect.STRETCH_SCALE
+	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scrim.size = Vector2(width, height)
+	return scrim
+
+
 ## 数字胶囊：深色凹槽 + 左侧图标 + 数字，三者垂直居中。返回 { box, label }
 static func capsule(icon_path: String, width: float, height: float = 56.0) -> Dictionary:
 	var box := Control.new()

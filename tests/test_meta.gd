@@ -41,15 +41,15 @@ func test_combo_tiers_and_card() -> void:
 	var combo := Combo.new()
 	var rng := Rng.new(1)
 	var last: Dictionary = {}
-	for i: int in 15:
+	for i: int in 20:
 		last = combo.hit(i * 0.5, cfg, rng)
-		if i == 1:
-			eq(last["tier"], -1, "2 连还不算连击")
-		if i == 2:
-			ok(last["tier_up"] and last["coins"] == 5, "3 连进第一档")
-	eq(last["tier"], 3, "15 连到最高档")
-	ok(combo.card_won, "15 连必送图鉴")
+		if i == 4:
+			eq(last["tier"], -1, "5 连还不算连击")
+		if i == 5:
+			ok(last["tier_up"] and last["coins"] == 5, "6 连进第一档")
+	eq(last["tier"], 3, "20 连到最高档")
+	ok(combo.card_won, "20 连必送图鉴")
 	ok(combo.coins <= int(cfg["maxCoinsPerLevel"]), "连击金币不超上限")
-	eq(combo.coins, 15 + 40 + 75 + 25, "3–5 连 5 币，6–9 连 10 币，10–14 连 15 币，15 连 25 币")
-	eq(combo.best_bonus(cfg), 150, "最高连击奖 = 15 × 10")
+	eq(combo.coins, 20 + 50 + 75 + 25, "6–9 连 5 币，10–14 连 10 币，15–19 连 15 币，20 连 25 币")
+	eq(combo.best_bonus(cfg), 200, "最高连击奖 = 20 × 10")
 	eq(combo.hit(100.0, cfg, rng)["count"], 1, "超时后重新计数")

@@ -6,20 +6,21 @@ extends Control
 ## 金币翻倍（广告）、再开一个宝箱（广告，每关一次）、分享炫耀。
 
 const W := 750.0
-const CHEST_AT := Vector2(375, 640)
+const CHEST_AT := Vector2(375, 540)
+const REWARD_Y := 760.0
+const BUTTON_Y := 950.0
 
 var _info: Dictionary
 var _result: Dictionary
 var _chest: Dictionary
-## 宝箱下面的小字：连击送的图鉴、上一个宝箱开出的东西
-var _extras: Array[String] = []
+## 已经开过的宝箱（奖励排在下面那一行里）
+var _opened: Array[Dictionary] = []
 var _on_next: Callable
 var _on_home: Callable
 var _box: Control
 var _chest_box: Control
 var _coins: int = 0
 var _doubled: bool = false
-var _ad_chest: bool = false
 var _shared: bool = false
 var _animating: bool = false
 
@@ -37,9 +38,8 @@ static func open(host: Control, info: Dictionary, on_next: Callable, on_home: Ca
 	p._coins = int(p._result["coins"])
 	p._on_next = on_next
 	p._on_home = on_home
-	var combo_card: Dictionary = info["combo_card"]
-	if not combo_card.is_empty():
-		p._extras.append(p.tr("UI_COMBO_CARD") + " " + p._card_text(combo_card))
+	if not p._chest.is_empty():
+		p._opened.append(p._chest)
 	host.add_child(p)
 	p._build(true, true)
 	return p
@@ -92,7 +92,6 @@ func _build(animate: bool, chest_anim: bool, coins_from: int = -1) -> void:
 		done.tween_interval(_cfg("buttonsAt") + 0.35)
 		done.tween_callback(func() -> void: _animating = false)
 	_banner(animate)
-	_coin_row(animate, coins_from)
 	_chest_box = Control.new()
 	_chest_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_box.add_child(_chest_box)
@@ -107,8 +106,7 @@ func _build(animate: bool, chest_anim: bool, coins_from: int = -1) -> void:
 		_chest_intro(_cfg("chestAt") if animate else 0.0)
 	else:
 		_reveal(false)
-	for i: int in _extras.size():
-		_put(UiKit.label(_extras[i], 24, Color("BFE6FF")), Vector2(0, 776 + i * 30), Vector2(W, 30))
+	_rewards(animate, coins_from)
 	_buttons(animate)
 
 
@@ -165,90 +163,82 @@ func _star_flash(at: Vector2) -> void:
 	tw.chain().tween_callback(ring.queue_free)
 
 
-## 金币总数（过关 + 连击 + 最高连击奖，翻倍后更多）滚动着涨上去，下面一行小字是明细
-func _coin_row(animate: bool, coins_from: int) -> void:
-	var cap: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 300, 68)
-	var box: Control = cap["box"]
-	_put(box, Vector2((W - 300) / 2.0, 278), Vector2(300, 68))
-	var num: Label = cap["label"]
-	num.text = "+%d" % _coins
-	var from: int = 0 if animate else coins_from
-	if from >= 0 and from != _coins:
-		num.text = "+%d" % from
-		var tw: Tween = num.create_tween()
-		tw.tween_interval(_cfg("coinsAt") if animate else 0.0)
-		tw.tween_callback(Audio.sfx.bind(&"coins"))
-		tw.tween_method(
-			func(v: float) -> void: num.text = "+%d" % int(round(v)),
-			float(from),
-			float(_coins),
-			_cfg("coinsRoll")
+## 奖励只有一排：图标在上、数字在下，不写说明文字。
+## 金币是总数（过关 + 连击 + 宝箱开出的），后面依次是技能、图鉴卡、首胜的抽奖次数和无限生命
+func _rewards(animate: bool, coins_from: int) -> void:
+	var items: Array = []
+	var total: int = _coins + _chest_coins()
+	if total > 0:
+		items.append(["res://assets/ui/coin.png", "+%d" % total])
+	for chest: Dictionary in [_chest] + _opened:
+		if not chest.is_empty() and chest["kind"] == "skill":
+			items.append(
+				["res://assets/ui/tool_%s.png" % chest["skill"], "+%d" % int(chest["count"])]
+			)
+	for card: Dictionary in _cards():
+		items.append(
+			["res://assets/fish/%s.png" % card["id"], tr("UI_NEW") if card["is_new"] else ""]
 		)
-		tw.tween_callback(Anim.bounce.bind(box, 1.15, 0.25))
-	if animate:
-		Anim.pop_in(box, _cfg("coinsAt") - 0.15, 0.2)
-	# 明细不用一行小字，改成「图标 + 数字」一排，下面是很短的说明
-	var stats: Array = []
-	if int(_result["coins_base"]) > 0:
-		stats.append(
-			["res://assets/ui/tank.png", "+%d" % int(_result["coins_base"]), tr("UI_STAT_CLEAR")]
-		)
-	if int(_result["coins_combo"]) > 0:
-		stats.append(["fx_spark", "+%d" % int(_result["coins_combo"]), tr("UI_STAT_COMBO")])
-	if int(_result["coins_best"]) > 0:
-		stats.append(
-			[
-				"res://assets/ui/star.png",
-				"+%d" % int(_result["coins_best"]),
-				tr("UI_STAT_BEST") % int(_info["best"])
-			]
-		)
-	if _doubled:
-		stats.append(
-			[
-				"res://assets/ui/coin.png",
-				"×%d" % int(Config.eco["adCoinMultiplier"]),
-				tr("UI_STAT_AD")
-			]
-		)
-	_stat_row(stats, 352, Color.WHITE)
 	if _result["first_win"]:
-		var mins: int = int(_result["unlimited"]) / 60
-		_stat_row(
-			[
-				["res://assets/ui/tab_wheel.png", "+1", tr("UI_STAT_FIRST")],
-				["res://assets/ui/heart_inf.png", tr("UI_MINUTES") % mins, tr("UI_STAT_FIRST")]
-			],
-			436,
-			UiKit.GOLD
-		)
-
-
-## 一排居中的小项：每项是图标 + 数字，下面一行短说明。items: [图标路径或部件名, 数字, 说明]
-func _stat_row(items: Array, y: float, color: Color) -> void:
+		items.append(["res://assets/ui/tab_wheel.png", "+1"])
+		items.append(["res://assets/ui/heart_inf.png", "%d:00" % (int(_result["unlimited"]) / 60)])
 	if items.is_empty():
 		return
-	var cell: float = minf(190.0, (W - 60.0) / float(items.size()))
+	var cell: float = minf(150.0, (W - 40.0) / float(items.size()))
 	var x0: float = (W - cell * float(items.size())) / 2.0
+	var at: float = _cfg("coinsAt") if animate else 0.0
 	for i: int in items.size():
-		var it: Array = items[i]
-		var x: float = x0 + cell * float(i)
-		var src: String = it[0]
-		var pic: Control
-		if src.begins_with("res://"):
-			pic = UiKit.icon(src, 40)
-		else:
-			pic = UiKit.badge(src, 40)
-			pic.modulate = UiKit.GOLD
-		pic.custom_minimum_size = Vector2(40, 40)
-		var row := HBoxContainer.new()
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 6)
-		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(pic)
-		row.add_child(UiKit.label(it[1], 30, color))
-		_put(row, Vector2(x, y), Vector2(cell, 40))
-		_put(UiKit.label(it[2], 20, Color("BFE6FF")), Vector2(x, y + 40), Vector2(cell, 28))
+		var holder := Control.new()
+		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_put(holder, Vector2(x0 + cell * float(i), REWARD_Y), Vector2(cell, 130))
+		var pic := UiKit.icon(items[i][0], 84)
+		pic.position = Vector2((cell - 84.0) / 2.0, 0)
+		holder.add_child(pic)
+		var num := UiKit.label(items[i][1], 32, UiKit.GOLD)
+		num.position = Vector2(0, 88)
+		num.size = Vector2(cell, 42)
+		holder.add_child(num)
+		if animate:
+			Anim.pop_in(holder, at + 0.08 * i, 0.25)
+		if i == 0 and total > 0:
+			_roll(num, total, animate, coins_from, at)
+
+
+## 金币数字滚动着涨上去
+func _roll(num: Label, total: int, animate: bool, coins_from: int, at: float) -> void:
+	var from: int = 0 if animate else coins_from
+	if from < 0 or from == total:
+		return
+	num.text = "+%d" % from
+	var tw: Tween = num.create_tween()
+	tw.tween_interval(at)
+	tw.tween_callback(Audio.sfx.bind(&"coins"))
+	tw.tween_method(
+		func(v: float) -> void: num.text = "+%d" % int(round(v)),
+		float(from),
+		float(total),
+		_cfg("coinsRoll")
+	)
+	tw.tween_callback(Anim.bounce.bind(num, 1.25, 0.25))
+
+
+func _chest_coins() -> int:
+	var n: int = 0
+	for chest: Dictionary in [_chest] + _opened:
+		if not chest.is_empty() and chest["kind"] == "coins":
+			n += int(chest["coins"])
+	return n
+
+
+## 本关拿到的图鉴卡：连击送的、各个宝箱开出的
+func _cards() -> Array:
+	var out: Array = []
+	if not (_info["combo_card"] as Dictionary).is_empty():
+		out.append(_info["combo_card"])
+	for chest: Dictionary in _opened:
+		if chest["kind"] == "card":
+			out.append(chest["card"])
+	return out
 
 
 # ---------- 宝箱 ----------
@@ -317,11 +307,6 @@ func _reveal(animated: bool) -> void:
 	var prize := UiKit.icon(art, 120)
 	prize.position = CHEST_AT - Vector2(60, 178)
 	_chest_box.add_child(prize)
-	var text := UiKit.label(_prize_text(_chest), 38, UiKit.GOLD)
-	text.position = Vector2(0, CHEST_AT.y + 112)
-	text.size = Vector2(W, 52)
-	text.pivot_offset = text.size / 2.0
-	_chest_box.add_child(text)
 	if not animated:
 		return
 	Anim.squash(open_box, 0.2)
@@ -338,7 +323,6 @@ func _reveal(animated: bool) -> void:
 	tw.tween_property(prize, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(
 		Tween.EASE_OUT
 	)
-	Anim.pop_in(text, 0.15, 0.25)
 	if is_coins:
 		Audio.sfx(&"coins")
 		Anim.burst(
@@ -390,59 +374,45 @@ func _rarity_fx(rarity: String) -> void:
 		Anim.confetti(self, size.x, 90)
 
 
-func _card_text(card: Dictionary) -> String:
-	var name: String = Config.species_by_id[card["id"]]["name"]
-	if card["is_new"]:
-		return tr("UI_CARD_GET") % name
-	return tr("UI_CARD_AGAIN") % [name, int(card["coins"])]
-
-
-## 一个宝箱开出了什么（一句话）
-func _prize_text(chest: Dictionary) -> String:
-	match chest["kind"]:
-		"coins":
-			return tr("UI_COINS_GAIN") % int(chest["coins"])
-		"skill":
-			return tr("UI_SKILL_GAIN") % tr(GameHud.TOOL_NAMES[chest["skill"]])
-	return _card_text(chest["card"])
-
-
-# ---------- 按钮 ----------
-
-
+## 只有一排按钮：左边看广告金币翻倍，右边下一关。回主页和分享是角上的两个小按钮
 func _buttons(animate: bool) -> void:
 	var made: Array[Button] = []
-	var ads: Array = []
-	if Ads.available():
-		if not _doubled and _coins > 0:
-			ads.append([tr("UI_DOUBLE_COINS"), UiKit.PURPLE, _double_coins])
-		if not _chest.is_empty() and not _ad_chest:
-			ads.append([tr("UI_CHEST_AGAIN"), UiKit.ORANGE, _more_chest])
-	var y: float = 846.0
-	if not ads.is_empty():
-		var bw: float = 520.0 if ads.size() == 1 else 330.0
-		var x0: float = (W - ads.size() * bw - (ads.size() - 1) * 20) / 2.0
-		for i: int in ads.size():
-			var pos := Vector2(x0 + i * (bw + 20), y)
-			made.append(_button(ads[i][0], ads[i][1], pos, Vector2(bw, 88), ads[i][2], 28))
-		y += 106
-	var next := _button(
-		tr("UI_NEXT_LEVEL"), UiKit.GREEN, Vector2(115, y), Vector2(520, 104), _next, 40
-	)
-	made.append(next)
-	y += 122
-	if _can_share():
-		made.append(
-			_button(tr("UI_HOME"), UiKit.BLUE, Vector2(115, y), Vector2(250, 76), _home, 28)
-		)
+	var ad: bool = Ads.available() and not _doubled and _coins > 0
+	var next: Button
+	if ad:
 		made.append(
 			_button(
-				tr("UI_SHARE_SHOW"), UiKit.PURPLE, Vector2(385, y), Vector2(250, 76), _share, 28
+				tr("UI_DOUBLE_SHORT"),
+				UiKit.PURPLE,
+				Vector2(40, BUTTON_Y),
+				Vector2(250, 110),
+				_double_coins,
+				36
 			)
 		)
+		next = _button(
+			tr("UI_NEXT_LEVEL"), UiKit.GREEN, Vector2(310, BUTTON_Y), Vector2(400, 110), _next, 42
+		)
 	else:
+		next = _button(
+			tr("UI_NEXT_LEVEL"), UiKit.GREEN, Vector2(125, BUTTON_Y), Vector2(500, 110), _next, 42
+		)
+	made.append(next)
+	var home := _button("", UiKit.BLUE, Vector2(24, 24), Vector2(84, 84), _home)
+	var house := UiKit.icon("res://assets/ui/tab_main.png", 60)
+	house.position = Vector2(12, 8)
+	home.add_child(house)
+	made.append(home)
+	if _can_share():
 		made.append(
-			_button(tr("UI_HOME"), UiKit.BLUE, Vector2(245, y), Vector2(260, 76), _home, 28)
+			_button(
+				tr("UI_SHARE_SHORT"),
+				UiKit.PURPLE,
+				Vector2(W - 174.0, 30),
+				Vector2(150, 72),
+				_share,
+				28
+			)
 		)
 	var at: float = _cfg("buttonsAt") if animate else 0.0
 	if animate:
@@ -485,29 +455,7 @@ func _double_coins() -> void:
 	_coins += Settle.double_coins(Save.data, Config.eco, _result)
 	Save.save()
 	_doubled = true
-	_build(false, false, before)
-
-
-## 看广告再开一个宝箱，每关一次；前一个宝箱开出的东西缩成下面的一行小字
-func _more_chest() -> void:
-	if not await Ads.rewarded(&"rv_chest") or not is_inside_tree():
-		return
-	var again: Dictionary = LevelChest.open_ad(
-		Save.data,
-		Config.eco,
-		Config.species,
-		int(_info["level"]),
-		bool(_info["challenge"]),
-		Rng.new(Time.get_ticks_usec())
-	)
-	_ad_chest = true
-	if again.is_empty():
-		_build(false, false)
-		return
-	Save.save()
-	_extras.append(_prize_text(_chest))
-	_chest = again
-	_build(false, true)
+	_build(false, false, before + _chest_coins())
 
 
 ## 分享成功才发分享奖励（每天有次数）
@@ -518,11 +466,11 @@ func _share() -> void:
 	var got: Dictionary = Share.claim(
 		Save.data, Config.eco, "card", Save.today(), Save.now(), Rng.new(Time.get_ticks_usec())
 	)
+	var before: int = _coins
 	if int(got.get("coins", 0)) > 0:
 		Save.save()
-		Audio.sfx(&"coins")
-		_extras.append(tr("UI_COINS_GAIN") % int(got["coins"]))
-	_build(false, false)
+		_coins += int(got["coins"])
+	_build(false, false, before + _chest_coins())
 
 
 func _next() -> void:

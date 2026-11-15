@@ -3,7 +3,6 @@ extends HomePage
 ## 主页（docs/01 §5.3）：中间一张海湾场景大图，两侧功能入口，下面是绿色大按钮「第 N 关」。
 ## 未开放的入口显示灰色图标和「第 N 关」，点了提示「第 N 关解锁」。
 
-const SCENE_H := 830.0
 const ENTRY := 104.0
 
 var _model: HomeModel
@@ -11,11 +10,9 @@ var _model: HomeModel
 
 func build() -> void:
 	_model = host.model
-	# 场景图直接放在背景上，圆角 18，不套边框
-	var art := UiKit.rounded_picture("res://assets/ui/scene1.jpg", Vector2(W - 60, SCENE_H), 18.0)
-	add(art, Vector2(30, 8))
-	var title_label := UiKit.label(tr("UI_TITLE"), 88, UiKit.GOLD)
-	add(title_label, Vector2(0, 40), Vector2(W, 120))
+	# 不再贴一张带边界的场景图：标题、漂浮的生物和入口直接放在整屏海底背景上
+	var title_label := UiKit.label(tr("UI_TITLE"), 96, UiKit.GOLD)
+	add(title_label, Vector2(0, 30), Vector2(W, 130))
 	Anim.pop_in(title_label, 0.05, 0.45)
 	_build_deco()
 	_build_entries()
@@ -23,10 +20,14 @@ func build() -> void:
 	_check_unlock()
 
 
-## 几条鱼在气泡里漂着当装饰
+## 几只生物在气泡里漂着，占住画面中央
 func _build_deco() -> void:
+	var mid: float = (size.y - 220.0) / 2.0 + 60.0
 	var deco: Array = [
-		["c04", 190.0, 300.0, 140.0], ["c16", 470.0, 400.0, 120.0], ["c27", 330.0, 540.0, 150.0]
+		["c04", 215.0, mid - 250.0, 210.0],
+		["c16", 420.0, mid - 120.0, 180.0],
+		["c06", 180.0, mid + 10.0, 190.0],
+		["c03", 400.0, mid + 120.0, 150.0],
 	]
 	for i: int in deco.size():
 		var d: Array = deco[i]
@@ -36,8 +37,8 @@ func _build_deco() -> void:
 		var bubble := UiKit.icon("res://assets/ui/bubble.png", side)
 		bubble.modulate.a = 0.85
 		holder.add_child(bubble)
-		var fish := UiKit.icon("res://assets/fish/%s.png" % d[0], side * 0.6)
-		fish.position = Vector2(side, side) * 0.2
+		var fish := UiKit.icon("res://assets/fish/%s.png" % d[0], side * 0.62)
+		fish.position = Vector2(side, side) * 0.19
 		holder.add_child(fish)
 		Anim.wiggle(fish, 7.0, 1.6 + i * 0.3)
 		Anim.pop_in(holder, 0.15 + 0.1 * i, 0.4)
@@ -45,18 +46,13 @@ func _build_deco() -> void:
 
 
 func _build_entries() -> void:
-	var left: Array = [
-		["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin],
-		["levelSelect", "res://assets/kit/ic_route.png", "H_ENTRY_LEVELS", _open_levels],
-	]
-	var right: Array = [
-		["skill_shuffle", "res://assets/ui/tool_shuffle.png", "H_FEAT_SKILL", _open_skills],
-		["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel],
-	]
+	# 主页两侧只留签到和抽奖；选关在底栏，技能在商店
+	var left: Array = [["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin]]
+	var right: Array = [["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel]]
 	for i: int in left.size():
-		_entry(left[i], Vector2(50, 200 + i * 170))
+		_entry(left[i], Vector2(30, 190 + i * 170))
 	for i: int in right.size():
-		_entry(right[i], Vector2(W - 50 - ENTRY, 200 + i * 170))
+		_entry(right[i], Vector2(W - 30 - ENTRY, 190 + i * 170))
 
 
 ## spec: [功能开放项, 图标, 文案键, 点击动作]
@@ -98,7 +94,10 @@ func _entry(spec: Array, pos: Vector2) -> void:
 
 
 func _on_entry(feature: String, action: Callable) -> void:
-	if host.check_unlocked(feature):
+	if feature == "wheel":
+		# 没开放也进去：抽奖页自己会显示「第 N 关解锁」
+		action.call()
+	elif host.check_unlocked(feature):
 		action.call()
 
 
@@ -130,7 +129,7 @@ func _build_start() -> void:
 		self,
 		tr("UI_LEVEL") % n,
 		UiKit.ORANGE if challenge else UiKit.GREEN,
-		Vector2(135, SCENE_H + 56.0),
+		Vector2(135, size.y - 176.0),
 		Vector2(480, 124),
 		host.start_level,
 		52
@@ -138,7 +137,7 @@ func _build_start() -> void:
 	Anim.pulse(start, 1.05, 1.2)
 	if challenge:
 		var tag := UiKit.label(tr("UI_CHALLENGE"), 26, UiKit.GOLD)
-		add(tag, Vector2(135, SCENE_H + 18.0), Vector2(480, 36))
+		add(tag, Vector2(135, size.y - 214.0), Vector2(480, 36))
 
 
 ## 功能刚开放：弹一次「新功能」，点「去看看」直接进入

@@ -77,16 +77,35 @@ func _focus_current(focus: float) -> void:
 	_scroll.scroll_vertical = int(maxf(0.0, focus - size.y * 0.62))
 
 
+## 顶部不放整条栏，让路线铺满屏幕：只有顶上一层很淡的渐变托底，
+## 左上悬一个返回胶囊，右上悬一个重玩奖励胶囊。
 func _header(stage: Control) -> void:
-	HomePage.add_to(stage, UiKit.piece("glass"), Vector2(16, 16), Vector2(W - 32, 96))
-	var back := UiKit.button(tr("H_BACK"), UiKit.BLUE, 28)
-	back.pressed.connect(close)
-	Anim.press_fx(back)
-	HomePage.add_to(stage, back, Vector2(30, 32), Vector2(130, 64))
-	HomePage.add_to(stage, UiKit.label(tr("H_ENTRY_LEVELS"), 46), Vector2(0, 28), Vector2(W, 72))
+	HomePage.add_to(stage, UiKit.top_scrim(W + 800, 170), Vector2(-400, 0))
+	var back := _pill(tr("H_BACK_ARROW"), 150.0)
+	HomePage.add_to(stage, back, Vector2(24, 26))
+	var hot := UiKit.hotspot(Vector2(-8, -8), Vector2(166, 88))
+	hot.pressed.connect(close)
+	Anim.press_fx(hot)
+	back.add_child(hot)
 	# 重玩每天前 5 次给奖励
-	var hint := UiKit.label(tr("H_REPLAY_HINT") % [_model.replay_used(), _model.replay_cap()], 22)
-	HomePage.add_to(stage, hint, Vector2(W - 230.0, 40), Vector2(200, 50))
+	var hint: String = tr("H_REPLAY_HINT") % [_model.replay_used(), _model.replay_cap()]
+	HomePage.add_to(stage, _pill(hint, 330.0), Vector2(W - 24.0 - 330.0, 26))
+
+
+## 悬浮的白色胶囊：白底深蓝字，不描边
+func _pill(caption: String, width: float) -> Control:
+	var box := Control.new()
+	box.size = Vector2(width, 72)
+	box.pivot_offset = box.size / 2.0
+	var chip := UiKit.piece("chip")
+	chip.size = box.size
+	box.add_child(chip)
+	var text := UiKit.text(caption, 26, UiKit.INK)
+	text.size = box.size
+	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	box.add_child(text)
+	return box
 
 
 func close() -> void:
