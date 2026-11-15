@@ -288,7 +288,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const total = iw + (ic && label ? gap : 0) + lw;
     let x = -total / 2;
     if (ic) {
-      icon.setPosition(x + iw / 2, 0, 0);
+      ic.setPosition(x + iw / 2, 0, 0);
       x += iw + gap;
     }
     if (label) label.node.setPosition(x + lw / 2, 0, 0);
