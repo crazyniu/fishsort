@@ -631,6 +631,7 @@ func _celebrate() -> void:
 func _show_win() -> void:
 	_won = true
 	_save_best()
+	_record_dex()
 	if daily:
 		_daily_win()
 		return
@@ -736,6 +737,15 @@ func _on_revive() -> void:
 	_over = false
 	Audio.sfx(&"unlock")
 	_play(Rules.revive(_s))
+
+
+## 过关时把这一关救的生物记进图鉴（每个鱼缸装满就是救了 cap 只）
+func _record_dex() -> void:
+	var counts: Dictionary = {}
+	for o: Dictionary in _lv.orders:
+		var id: String = _species[int(o["s"])]
+		counts[id] = int(counts.get(id, 0)) + int(o["cap"])
+	Dex.record(Save.data, counts)
 
 
 # ---------- 每日挑战 ----------

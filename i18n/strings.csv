@@ -12,7 +12,7 @@ UI_LOSE_BUFFER,暂存槽满了,The tray is full
 UI_LOSE_TIMEOUT,限时缸超时了,Time ran out
 UI_LOSE_STUCK,没有可以点的鱼了,No fish left to tap
 UI_COINS_GAIN,金币 +%d,Coins +%d
-UI_CARD_NEW,新图鉴卡：%s,New card: %s
+UI_CARD_NEW,新收藏卡：%s,New card: %s
 UI_CARD_DUPE,重复卡 %s，换成金币 +%d,Duplicate %s: coins +%d
 UI_DOUBLE_COINS,看广告 双倍金币,Watch ad: double coins
 UI_NEXT_LEVEL,下一关,Next level
@@ -43,7 +43,7 @@ UI_AD_TEST,广告测试,Ad test
 UI_TAB_SHOP,商店,Shop
 UI_TAB_MAIN,主页,Play
 UI_TAB_RANK,排行,Rank
-UI_TAB_COLLECTION,图鉴,Album
+UI_TAB_COLLECTION,收藏,Cards
 UI_FREE_COINS,免费金币 +%d,Free coins +%d
 UI_WATCH_AD_LEFT,看广告（今日剩 %d 次）,Watch ad (%d left today)
 UI_OWNED,已有 %d,Owned %d
@@ -67,15 +67,15 @@ UI_FINISH_POPUP,游戏结束,Level complete
 UI_COLLECTED,已收集 %d/%d,Collected %d/%d
 UI_RATES_TITLE,概率公示,Drop rates
 UI_RATES_LEVEL_1,过关卡,Level card
-UI_RATES_LEVEL_2,每次过关随机得 1 张普通图鉴，每 3 关至少 1 张新的,Each clear gives 1 random common card; a new one at least every 3 clears
+UI_RATES_LEVEL_2,每次过关随机得 1 张普通收藏卡，每 3 关至少 1 张新的,Each clear gives 1 random common card; a new one at least every 3 clears
 UI_RATES_PITY,连续没出新卡时会保底一张新卡,A new card is guaranteed after a dry streak
-UI_CARD_GET,图鉴获得 %s,New in album: %s
+UI_CARD_GET,收藏获得 %s,New in album: %s
 UI_CARD_AGAIN,%s 已收集，换成 %d 金币,%s already collected: +%d coins
 UI_TAP_CONTINUE,点击任意位置继续,Tap anywhere to continue
 UI_NEW,新,NEW
 UI_COMBO_COINS,连击金币 +%d,Combo coins +%d
 UI_BEST_COMBO,最高连击 %d，奖励金币 +%d,Best combo %d: coins +%d
-UI_COMBO_CARD,连击送图鉴！,Combo card!
+UI_COMBO_CARD,连击送收藏卡！,Combo card!
 UI_LEVEL_COINS,过关金币 +%d,Clear coins +%d
 TIP_LAYER,被压住的气泡要先点开上面的,Pop the bubbles on top first
 TIP_CHAIN,锁链泡：每装满一缸，数字减 1,Chained: each full tank lowers the number
@@ -137,7 +137,7 @@ H_GO_LOOK,去看看,Take a look
 H_UNLOCKS_AT,第 %d 关解锁,Unlocks at level %d
 H_FEAT_SIGNIN,签到,Daily gift
 H_FEAT_LEVELS,选关,Levels
-H_FEAT_COLLECTION,图鉴,Album
+H_FEAT_COLLECTION,收藏,Cards
 H_FEAT_WHEEL,抽奖,Spin
 H_FEAT_RANK,排行,Rank
 H_FEAT_SHOP,商店,Shop
@@ -160,7 +160,7 @@ H_AD_DOUBLE,看广告翻倍,Watch ad: x2
 H_PROFILE,个人资料,Profile
 H_CUR_LEVEL,当前关,Level
 H_BEST_COMBO,最高连击,Best combo
-H_COLLECTION,图鉴进度,Album
+H_COLLECTION,收藏进度,Cards
 H_ODDS,概率,Odds
 H_ODDS_NOTE_1,十连保底 1 张稀有以上,Ten pulls guarantee a Rare or better
 H_ODDS_NOTE_2,连续 30 次没出史诗以上，下一次必出,"After 30 pulls without Epic+, the next is guaranteed"
@@ -170,7 +170,7 @@ H_TEN_TITLE,十连结果,Ten pulls
 H_PRIZE_COIN,金币,Coins
 H_PRIZE_SKILL,技能,Skill
 H_PRIZE_INF,无限生命,Unlimited lives
-H_PRIZE_CARD,图鉴卡·%s,Card · %s
+H_PRIZE_CARD,收藏卡·%s,Card · %s
 H_PRIZE_CHEST,宝箱,Chest
 H_PRIZE_BIG_CHEST,大宝箱,Big chest
 H_PRIZE_SPIN,抽奖次数,Spin
@@ -217,3 +217,5 @@ DAILY_STREAK,连续过关 %d/%d 天,Streak %d/%d days
 DAILY_CHEST,每日宝箱,Daily chest
 DAILY_BIG_CHEST,七日大宝箱,7-day chest
 DAILY_RETRY,再试一次,Try again
+UI_TAB_DEX,图鉴,Dex
+DEX_MET,已遇见 %d/%d 种,Met %d/%d

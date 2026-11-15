@@ -81,6 +81,7 @@ func test_features_table() -> void:
 		"album": 6,
 		"wheel": 8,
 		"rank": 11,
+		"dex": 10,
 		"daily": 20,
 		"homeBase": 30
 	}
@@ -382,3 +383,19 @@ func test_daily_challenge_entry_and_streak() -> void:
 	eq(DailyChallenge.streak(save, 106), 0, "开完从头数")
 	DailyChallenge.win(save, eco, p[2], 107, 0, Rng.new(8))
 	eq(DailyChallenge.streak(save, 109), 0, "断了一天清零")
+
+
+func test_dex_counts_and_tier_rewards() -> void:
+	var p := _setup()
+	var save: Dictionary = p[0]
+	var eco: Dictionary = p[1]
+	Dex.record(save, {"c01": 29})
+	ok(not Dex.can_claim(save, eco, "c01"), "差 1 只不能领")
+	Dex.record(save, {"c01": 80, "c02": 3})
+	eq(Dex.count(save, "c01"), 109, "累计")
+	eq(Dex.claimable(save, eco), 1, "一种有奖")
+	eq(Dex.claim(save, eco, "c01"), 200, "第一档")
+	eq(Dex.claim(save, eco, "c01"), 500, "一次领一档，够两档可以连着领")
+	eq(Dex.claim(save, eco, "c01"), 0, "第三档还不够")
+	eq(Dex.next_need(save, eco, "c01"), 300, "下一档 300")
+	eq(save["coins"], 700, "金币入账")

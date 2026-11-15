@@ -25,10 +25,11 @@ func build() -> void:
 
 
 func _build_entries() -> void:
-	# 主页两侧：左边签到、选关，右边抽奖、排行。技能在商店
+	# 主页两侧：左边签到、选关、每日挑战，右边抽奖、排行。技能在商店
 	var left: Array = [
 		["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin],
 		["levelSelect", "res://assets/ui/tab_levels.png", "H_FEAT_LEVELS", _open_levels],
+		["daily", "res://assets/ui/star.png", "UI_TAB_DAILY", _open_daily],
 	]
 	var right: Array = [
 		["wheel", "res://assets/ui/chest_closed.png", "H_FEAT_WHEEL", _open_wheel],
@@ -81,7 +82,7 @@ func _entry(spec: Array, pos: Vector2) -> void:
 
 func _on_entry(feature: String, action: Callable) -> void:
 	_end_guide()
-	if feature == "wheel" or feature == "rank":
+	if feature in ["wheel", "rank", "daily"]:
 		# 没开放也进去：页面里会显示「第 N 关解锁」和大奖预览
 		action.call()
 	elif host.check_unlocked(feature):
@@ -103,6 +104,10 @@ func _open_wheel() -> void:
 
 func _open_rank() -> void:
 	host.go_tab(HomeScreen.TAB_RANK)
+
+
+func _open_daily() -> void:
+	host.go_tab(HomeScreen.TAB_DAILY)
 
 
 func _open_levels() -> void:

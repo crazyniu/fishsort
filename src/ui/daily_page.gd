@@ -8,6 +8,8 @@ const DOT := 62.0
 
 func build() -> void:
 	title(tr("UI_TAB_DAILY"))
+	# 每日挑战是主页的子页面，左上角返回
+	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _on_back, 30)
 	var day: int = Save.today()
 	var save: Dictionary = Save.data
 	var cfg: Dictionary = Config.eco["dailyChallenge"]
@@ -106,6 +108,10 @@ func _build_buttons(y: float, done: bool, free: bool, price: int) -> void:
 			36
 		)
 		coin_price(pay, price)
+
+
+func _on_back() -> void:
+	host.go_tab(HomeScreen.TAB_MAIN)
 
 
 func _start_free() -> void:

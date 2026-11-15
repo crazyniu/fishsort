@@ -166,6 +166,10 @@
       "unlimited": 10800
     }
   },
+  "dex": {
+    "tiers": [30, 100, 300],
+    "coins": [200, 500, 1500]
+  },
   "dailyChallenge": {
     "levelStep": 5,
     "retryCoins": 300,
@@ -183,6 +187,7 @@
     "skill_net": 9,
     "rank": 11,
     "skill_current": 12,
+    "dex": 10,
     "daily": 20,
     "homeBase": 30
   },
