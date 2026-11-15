@@ -296,10 +296,14 @@ func _build_field(view_h: float) -> void:
 		node.z_index = int(d["layer"]) + 1
 		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_put(node, center)
+		# 漂浮动画只动 body：node 的位置由掉落等逻辑控制，两者不能抢同一个属性
+		var body := Control.new()
+		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		node.add_child(body)
 		var skin := UiKit.icon("res://assets/ui/bubble.png", r * 2.0)
 		skin.position = -Vector2(r, r)
 		skin.modulate.a = 0.8
-		node.add_child(skin)
+		body.add_child(skin)
 		var n: int = (d["fish"] as Array).size()
 		var fs: float = clampf(r * (0.95 if n == 1 else 0.8 if n <= 3 else 0.68), 44.0, 110.0)
 		var fish_nodes: Array[TextureRect] = []
@@ -310,7 +314,7 @@ func _build_field(view_h: float) -> void:
 				off = Vector2.from_angle(TAU * k / n - PI / 2.0) * r * (0.36 if n == 2 else 0.46)
 			var f := UiKit.icon("", fs)
 			f.position = off - Vector2(fs, fs) / 2.0
-			node.add_child(f)
+			body.add_child(f)
 			# 每条鱼按自己的节奏摆尾
 			Anim.wiggle(f, 7.0, randf_range(1.2, 2.0), randf())
 			Anim.drift(f, randf_range(3.0, 6.0), randf_range(3.0, 5.0), randf())
@@ -327,24 +331,24 @@ func _build_field(view_h: float) -> void:
 			rope.pivot_offset = Vector2(0, 4)
 			rope.rotation = a.angle_to_point(offsets[int(pair[1])])
 			rope.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			node.add_child(rope)
-			node.move_child(rope, 1)
+			body.add_child(rope)
+			body.move_child(rope, 1)
 			links.append([rope, int(pair[0]), int(pair[1])])
 		var ice := UiKit.icon("res://assets/ui/ice.png", r * 1.5)
 		ice.position = -Vector2(r, r) * 0.75
 		ice.modulate.a = 0.75
-		node.add_child(ice)
+		body.add_child(ice)
 		var lock := UiKit.icon("res://assets/ui/lock.png", r * 1.1)
 		lock.position = -Vector2(r, r) * 0.55
-		node.add_child(lock)
+		body.add_child(lock)
 		var lock_n := UiKit.label("", int(r * 0.5))
 		lock_n.position = Vector2(-r * 0.5, -r * 0.1)
 		lock_n.size = Vector2(r * 0.8, r * 0.6)
-		node.add_child(lock_n)
+		body.add_child(lock_n)
 		if _intro:
 			Anim.pop_in(node, 0.25 + 0.025 * idx, 0.35)
 		# 气泡轻轻上下漂
-		Anim.bob(node, randf_range(3.0, 6.0), randf_range(2.4, 3.6), randf())
+		Anim.bob(body, randf_range(3.0, 6.0), randf_range(2.4, 3.6), randf())
 		(
 			_bubbles
 			. append(
