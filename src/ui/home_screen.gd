@@ -686,7 +686,7 @@ func _page_collection() -> void:
 		var sp: Dictionary = pool[n]
 		var owned: int = int(cards.get(sp["id"], 0))
 		var cell := UiKit.piece("card")
-		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.74, 0.82, 0.9, 0.85)
+		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.74, 0.82, 0.9)
 		_add(
 			inner,
 			cell,
