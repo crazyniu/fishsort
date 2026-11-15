@@ -23,3 +23,50 @@ UI_RETRY,再试一次,Try again
 UI_RESTART,重开,Restart
 UI_NO_COINS,金币不够,Not enough coins
 UI_TOOL_LIMIT,这个道具本关已用完,No more uses this level
+UI_LEVEL_WORD,关卡,Level
+UI_SETTINGS,设置,Settings
+UI_MUSIC_ON,音乐：开,Music: on
+UI_MUSIC_OFF,音乐：关,Music: off
+UI_SOUND_ON,音效：开,Sound: on
+UI_SOUND_OFF,音效：关,Sound: off
+UI_HOME,回主页,Home
+UI_CLOSE,关闭,Close
+UI_AD_UNAVAILABLE,广告暂时不可用,Ads are unavailable right now
+UI_SLOT_COIN,花 %d 金币开启这个缸位？,Open this slot for %d coins?
+UI_CONFIRM,确定,OK
+UI_TITLE,泡泡海湾,Bubble Bay
+UI_START,开始 第 %d 关,Play level %d
+UI_SIGNIN,签到,Daily gift
+UI_SIGNIN_DAY,第 %d 天,Day %d
+UI_CLAIM,领取,Claim
+UI_CLAIM_DOUBLE,看广告 双倍领取,Watch ad: claim double
+UI_CLAIMED,今天已领取,Claimed today
+UI_AD_TEST,广告测试,Ad test
+UI_TAB_SHOP,商店,Shop
+UI_TAB_SCENE,家园,Home
+UI_TAB_MAIN,主页,Play
+UI_TAB_RANK,排行,Rank
+UI_TAB_COLLECTION,图鉴,Album
+UI_FREE_COINS,免费金币 +%d,Free coins +%d
+UI_WATCH_AD_LEFT,看广告（今日剩 %d 次）,Watch ad (%d left today)
+UI_OWNED,已有 %d,Owned %d
+UI_BUILD,建造 ★%d,Build ★%d
+UI_BUILD_DONE,海湾已全部建好，更多场景敬请期待,All scenes are built. More coming soon
+UI_NEED_STARS,星星不够，过关可得星星,Not enough stars. Clear levels to earn more
+UI_SCENE_CHEST,场景建成！获得宝箱,Scene complete! You got a chest
+UI_RANK_TITLE,本周过关榜,Weekly ranking
+UI_RANK_RESET,%d 天后重置,Resets in %d days
+UI_RANK_LEVELS,%d 关,%d
+UI_RARITY_COMMON,普通,Common
+UI_RARITY_UNCOMMON,精良,Uncommon
+UI_RARITY_RARE,稀有,Rare
+UI_RARITY_EPIC,史诗,Epic
+UI_RARITY_LEGEND,传说,Legend
+UI_PACK,珍稀卡包（%d 鱼票）,Rare pack (%d tickets)
+UI_NEED_TICKETS,鱼票不够,Not enough tickets
+UI_PACK_RATES,珍稀卡包概率：精良 60% 稀有 28% 史诗 10% 传说 2% · 过关卡：普通 80% 精良 17% 稀有 3%,Rare pack: Uncommon 60% Rare 28% Epic 10% Legend 2% · Level card: Common 80% Uncommon 17% Rare 3%
+UI_UNKNOWN,？？？,???
+SCENE_CORAL_TOWN,珊瑚小镇,Coral Town
+SCENE_WRECK_MARKET,沉船集市,Wreck Market
+SCENE_KELP_FOREST,海藻森林,Kelp Forest
+SCENE_PEARL_LIGHTHOUSE,珍珠灯塔,Pearl Lighthouse
