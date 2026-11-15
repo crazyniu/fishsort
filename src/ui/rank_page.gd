@@ -4,11 +4,15 @@ extends HomePage
 
 
 func build() -> void:
-	title(tr("UI_RANK_TITLE"))
-	# 排行是主页的子页面，左上角返回
-	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _on_back, 30)
+	var header := UiKit.icon("res://assets/ui/rank_profile/header.svg", 430)
+	add(header, Vector2(160, 25), Vector2(430, 96))
+	add(UiKit.label(tr("UI_RANK_TITLE"), 46), Vector2(168, 25), Vector2(414, 90))
+	add(UiKit.icon("res://assets/ui/rank_profile/back.svg", 90), Vector2(26, 28))
+	var back := UiKit.hotspot(Vector2(22, 24), Vector2(98, 98))
+	back.pressed.connect(_on_back)
+	add_child(back)
 	var days_left: int = 7 - (Save.today() + 3) % 7
-	add(UiKit.label(tr("UI_RANK_RESET") % days_left, 24), Vector2(0, 84), Vector2(W, 34))
+	add(UiKit.label(tr("UI_RANK_RESET") % days_left, 24), Vector2(0, 130), Vector2(W, 40))
 	var me_score: int = (
 		int(Save.data["week"]["cleared"])
 		if int(Save.data["week"]["id"]) == (Save.today() + 3) / 7
@@ -27,28 +31,35 @@ func build() -> void:
 	rows.sort_custom(
 		func(a: Dictionary, b: Dictionary) -> bool: return int(a["score"]) > int(b["score"])
 	)
-	var medal: Array[Color] = [Color("FFC93C"), Color("DCE6F0"), Color("F2A56B")]
-	var row_h: float = minf(92.0, (size.y - 170.0) / rows.size())
-	add(UiKit.piece("deep"), Vector2(12, 126), Vector2(W - 24, rows.size() * row_h + 20.0))
+	# Keep every platform row accessible without shrinking names or avatars.
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add(scroll, Vector2(24, 200), Vector2(W - 48, maxf(150, size.y - 220)))
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 12)
+	scroll.add_child(list)
 	for i: int in rows.size():
 		var r: Dictionary = rows[i]
 		var me: bool = r.get("me", false)
-		var row := UiKit.piece("card_gold" if me else "popup_row")
-		add(row, Vector2(26, 136 + i * row_h), Vector2(W - 52, row_h - 8))
-		var ink: Color = UiKit.INK if me else Color.WHITE
-		var rank_color: Color = ink if i >= 3 or me else medal[i]
-		var rank := UiKit.text(str(i + 1), 36, rank_color)
-		add_to(row, rank, Vector2(10, 0), Vector2(70, row_h - 12))
-		add_to(row, UiKit.icon(r["avatar"], row_h - 24), Vector2(86, 6))
-		var name := UiKit.text(r["name"], 28, ink)
+		var row := Control.new()
+		row.custom_minimum_size = Vector2(686, 132)
+		list.add_child(row)
+		var skin := UiKit.icon("res://assets/ui/rank_profile/%s.svg" % ("me" if me else "row"), 686)
+		skin.stretch_mode = TextureRect.STRETCH_SCALE
+		add_to(row, skin, Vector2.ZERO, Vector2(686, 132))
+		if i < 3:
+			add_to(row, UiKit.icon("res://assets/ui/rank_profile/medal%d.svg" % (i + 1), 92), Vector2(14, 17))
+		add_to(row, UiKit.label(str(i + 1), 38), Vector2(19, 20 if i < 3 else 0), Vector2(82, 64 if i < 3 else 128))
+		add_to(row, UiKit.icon(str(r.get("avatar", "")), 110), Vector2(110, 10))
+		var name := UiKit.label(str(r.get("name", "")), 30)
 		name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		add_to(row, name, Vector2(100 + row_h - 20, 0), Vector2(300, row_h - 12))
-		var score := UiKit.text(
-			tr("UI_RANK_LEVELS") % int(r["score"]), 30, ink if me else UiKit.GOLD
-		)
-		score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		add_to(row, score, Vector2(W - 52 - 190, 0), Vector2(170, row_h - 12))
-		Anim.pop_in(row, 0.04 * i, 0.28)
+		name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		add_to(row, name, Vector2(232, 0), Vector2(228, 126))
+		var value := UiKit.icon("res://assets/ui/rank_profile/value.svg", 176)
+		add_to(row, value, Vector2(480, 33), Vector2(176, 64))
+		var score := UiKit.label(tr("UI_RANK_LEVELS") % int(r["score"]), 30)
+		add_to(row, score, Vector2(484, 31), Vector2(168, 66))
 
 
 func _on_back() -> void:

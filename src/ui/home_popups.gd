@@ -68,7 +68,8 @@ static func lives(host: Control, on_change: Callable = Callable()) -> PopupCard:
 		else:
 			buttons.append([_t("H_REFILL"), UiKit.GREEN, null, {"coin": m.price("refill")}])
 	var empty: Array[String] = []
-	var p := PopupCard.open(host, _t("H_LIVES_TITLE"), empty, buttons, 214.0)
+	var p := PopupCard.open(host, _t("H_LIVES_TITLE"), empty, buttons, 290.0)
+	OceanPopupSkin.apply(p, "res://assets/fish/c02.png")
 	# 按钮回调要能关闭自己，开好以后再接线
 	var bs: Array = _wire(p, buttons.size())
 	if full:
@@ -98,11 +99,11 @@ static func _lives_body(p: PopupCard, host: Control, on_change: Callable) -> voi
 	var y: float = p.content_y
 	var inf: bool = m.infinite_secs() > 0
 	var count_box := Control.new()
-	count_box.size = Vector2(PopupCard.CARD_W, 64)
+	count_box.size = Vector2(PopupCard.CARD_W, 80)
 	count_box.position = Vector2(0, y)
 	p.card.add_child(count_box)
 	if inf:
-		var heart := UiKit.icon("res://assets/ui/heart_inf.png", 64)
+		var heart := UiKit.icon("res://assets/ui/heart_inf.png", 80)
 		heart.position = Vector2(PopupCard.CARD_W / 2.0 - 100.0, 0)
 		count_box.add_child(heart)
 		var sign := UiKit.label("∞", 60, UiKit.GOLD)
@@ -111,35 +112,41 @@ static func _lives_body(p: PopupCard, host: Control, on_change: Callable) -> voi
 		count_box.add_child(sign)
 		Anim.wiggle(heart, 6.0, 1.4)
 	else:
-		var gap: float = 66.0
-		var x0: float = (PopupCard.CARD_W - gap * m.max_lives()) / 2.0 + 5.0
+		var gap: float = 88.0
+		var x0: float = (PopupCard.CARD_W - gap * m.max_lives()) / 2.0 + 4.0
 		for i: int in m.max_lives():
-			var heart := UiKit.icon("res://assets/ui/heart.png", 60)
+			var heart := UiKit.icon("res://assets/ui/heart.png", 80)
 			heart.position = Vector2(x0 + i * gap, 2)
 			if i >= m.lives():
 				heart.modulate = Color(0.28, 0.4, 0.62)
 			count_box.add_child(heart)
 			Anim.pop_in(heart, 0.04 * i, 0.25)
-	var timer_text := UiKit.text("", 32, UiKit.GOLD)
-	timer_text.position = Vector2(0, y + 72)
+	var timer_back := UiKit.piece("track")
+	OceanPopupSkin.paint(timer_back, "switch_off")
+	timer_back.position = Vector2(70, y + 100)
+	timer_back.size = Vector2(480, 64)
+	p.card.add_child(timer_back)
+	var timer_text := UiKit.label("", 32, Color.WHITE)
+	timer_text.position = Vector2(0, y + 108)
 	timer_text.size = Vector2(PopupCard.CARD_W, LINE_H)
 	p.card.add_child(timer_text)
 	_bind_timer(timer_text)
 	# 分享得 1 条：一整行可点，不算按钮
-	var row := _row(p.card, y + 130.0, 76.0)
+	var row := OceanPopupSkin.row(p.card, y + 184.0, 86.0)
+	OceanPopupSkin.paint(row, "switch_off")
 	var left: int = m.share_lives_left()
 	var share_icon := UiKit.icon("res://assets/kit/ic_share.png", 56)
-	share_icon.position = Vector2(14, 10)
+	share_icon.position = Vector2(14, 15)
 	row.add_child(share_icon)
 	var cap := UiKit.text(_t("H_SHARE_LIFE"), 28, Color.WHITE)
 	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	cap.position = Vector2(84, 0)
-	cap.size = Vector2(340, 76)
+	cap.size = Vector2(340, 86)
 	row.add_child(cap)
 	var cnt := UiKit.text("%d/%d" % [left, m.share_lives_cap()], 28, UiKit.GOLD)
 	cnt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	cnt.position = Vector2(row.size.x - 110.0, 0)
-	cnt.size = Vector2(90, 76)
+	cnt.size = Vector2(90, 86)
 	row.add_child(cnt)
 	var active: bool = left > 0 and m.lives() < m.max_lives()
 	if not active:
@@ -254,16 +261,12 @@ static func leave_confirm(host: Control, on_leave: Callable) -> PopupCard:
 static func slot_unlock(host: Control, on_open: Callable, on_change: Callable) -> PopupCard:
 	var m := HomeModel.get_inst()
 	var lines: Array[String] = [_t("H_SLOT_LINE")]
-	var buttons: Array = [[_t("H_SLOT_BUY"), UiKit.BLUE, Callable(), {"coin": m.price("slot")}]]
+	var buttons: Array = [[_t("H_SLOT_BUY"), UiKit.BLUE, Callable()]]
 	if Ads.available():
 		buttons.append([_t("H_WATCH_AD"), UiKit.PURPLE, Callable(), {"ad": true}])
 	var p := PopupCard.open(host, _t("H_SLOT_TITLE"), lines, buttons, 130.0)
-	var tank := UiKit.icon("res://assets/ui/tank.png", 120)
-	_centered(p.card, tank, p.content_y + 2.0)
-	var plus := UiKit.badge("plus", 48)
-	plus.position = Vector2(PopupCard.CARD_W / 2.0 + 30.0, p.content_y + 6.0)
-	p.card.add_child(plus)
-	Anim.pulse(plus, 1.15, 1.0)
+	CurrencyPopupSkin.layout(p, host, _t("H_SLOT_TITLE"), lines[0], true)
+	CurrencyPopupSkin.price(p.buttons[0], m.price("slot"))
 	var bs: Array = _wire(p, buttons.size())
 	(bs[0] as Button).disabled = not m.can_afford(m.price("slot"))
 	(bs[0] as Button).pressed.connect(
@@ -289,19 +292,49 @@ static func slot_unlock(host: Control, on_open: Callable, on_change: Callable) -
 
 
 static func revive(host: Control, on_revive: Callable, on_give_up: Callable) -> PopupCard:
-	var lines: Array[String] = [_t("H_REVIVE_LINE")]
-	var buttons: Array = [[_t("H_GIVE_UP"), UiKit.BLUE, Callable()]]
-	buttons.append([_t("H_REVIVE_AD"), UiKit.PURPLE, Callable(), {"ad": true}])
-	var p := PopupCard.open(host, _t("H_REVIVE_TITLE"), lines, buttons, 130.0, {"closable": false})
-	var bubble := UiKit.icon("res://assets/ui/bubble.png", 130)
-	_centered(p.card, bubble, p.content_y + 0.0)
-	var fish := UiKit.icon("res://assets/fish/c04.png", 80)
-	fish.position = Vector2(25, 25)
+	var p := PopupCard.open(host, "", [], [], 0.0, {"closable": false})
+	for child: Node in p.card.get_children():
+		child.queue_free()
+	p.card.texture = null
+	p.card.size = Vector2(620, 830)
+	p.card.position = (host.size - p.card.size) / 2.0
+	p.card.pivot_offset = p.card.size / 2.0
+	p.card.queue_redraw()
+	var panel := UiKit.icon("res://assets/ui/results/revive_panel.svg", 620)
+	panel.size = p.card.size
+	panel.stretch_mode = TextureRect.STRETCH_SCALE
+	p.card.add_child(panel)
+	var title := UiKit.label(_t("H_REVIVE_TITLE"), 54)
+	title.position = Vector2(72, 24)
+	title.size = Vector2(476, 88)
+	p.card.add_child(title)
+	var bubble := UiKit.icon("res://assets/ui/bubble.png", 290)
+	bubble.position = Vector2(165, 150)
+	p.card.add_child(bubble)
+	var fish := UiKit.icon("res://assets/fish/c04.png", 216)
+	fish.position = Vector2(37, 37)
 	bubble.add_child(fish)
-	Anim.wiggle(fish, 8.0, 1.2)
-	Anim.bob(bubble, 6.0, 2.0)
-	var bs: Array = _wire(p, 2)
-	(bs[0] as Button).pressed.connect(
+	Anim.bob(bubble, 5.0, 2.0)
+	var line := UiKit.label(_t("H_REVIVE_LINE"), 29)
+	line.position = Vector2(48, 458)
+	line.size = Vector2(524, 78)
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	p.card.add_child(line)
+	var revive_button := UiKit.button(_t("H_REVIVE_AD"), UiKit.GREEN, 36)
+	revive_button.position = Vector2(48, 562)
+	revive_button.size = Vector2(524, 112)
+	revive_button.pivot_offset = revive_button.size / 2.0
+	p.card.add_child(revive_button)
+	var give_up := UiKit.button(_t("H_GIVE_UP"), UiKit.BLUE, 34)
+	give_up.position = Vector2(68, 700)
+	give_up.size = Vector2(484, 82)
+	give_up.pivot_offset = give_up.size / 2.0
+	p.card.add_child(give_up)
+	p.buttons.append(give_up)
+	p.buttons.append(revive_button)
+	Anim.press_fx(give_up)
+	Anim.press_fx(revive_button)
+	give_up.pressed.connect(
 		func() -> void:
 			p.close()
 			if on_give_up.is_valid():
@@ -312,7 +345,7 @@ static func revive(host: Control, on_revive: Callable, on_give_up: Callable) -> 
 			p.close()
 		if on_revive.is_valid():
 			on_revive.call()
-	(bs[1] as Button).pressed.connect(_watch.bind(&"rv_revive", ad_done))
+	revive_button.pressed.connect(_watch.bind(&"rv_revive", ad_done))
 	return p
 
 
@@ -360,10 +393,7 @@ static func coin_shortage(host: Control, need: int, on_change: Callable) -> Popu
 	else:
 		buttons.append([_t("UI_CONFIRM"), UiKit.GREEN, Callable()])
 	var p := PopupCard.open(host, _t("H_NEED_COINS"), lines, buttons, 100.0)
-	var coin := UiKit.icon("res://assets/ui/coin.png", 90)
-	_centered(p.card, coin, p.content_y + 2.0)
-	coin.modulate = Color(0.8, 0.85, 0.95)
-	Anim.wiggle(coin, 6.0, 1.0)
+	CurrencyPopupSkin.layout(p, host, _t("H_NEED_COINS"), lines[0], false)
 	var bs: Array = _wire(p, 1)
 	if Ads.available():
 		var ad_done := func() -> void:

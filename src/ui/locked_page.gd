@@ -17,6 +17,9 @@ var with_back: bool = false
 
 
 func build() -> void:
+	if feature == "homeBase" or feature == "daily":
+		_build_preview()
+		return
 	title(feature_title)
 	if with_back:
 		btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _on_back, 30)
@@ -65,3 +68,54 @@ func _build_prizes(top: float) -> void:
 
 func _on_back() -> void:
 	host.go_tab(HomeScreen.TAB_MAIN)
+
+
+## 家园与每日挑战仍为预告页，开放条件和奖励来自现有配置。
+func _build_preview() -> void:
+	var scene_path: String = "res://assets/ui/daily_scene.png" if feature == "daily" else "res://assets/ui/bay_scene.png"
+	var scene := UiKit.icon(scene_path, W)
+	scene.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	add(scene, Vector2.ZERO, size)
+	_bay_panel(Rect2(154, 32, 442, 100), Color("0877DD"), Color("85EFFF"))
+	add(UiKit.label(feature_title, 56), Vector2(154, 32), Vector2(442, 100))
+	var status_y: float = size.y * 0.69
+	var line: String = tr("H_COMING_SOON") if coming_soon else tr("H_UNLOCKS_AT") % unlock_at
+	_bay_panel(Rect2(108, status_y, 534, 88), Color("075CCA"), UiKit.GOLD)
+	var left: float = 124.0
+	if not coming_soon:
+		add(UiKit.icon("res://assets/ui/lock_skill.png", 60), Vector2(132, status_y + 14))
+		left = 196.0
+	var label := UiKit.label(line, 38)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add(label, Vector2(left, status_y + 4), Vector2(626 - left, 80))
+	var cfg: Dictionary = GameCfg.d()["lockedPrizes"].get(feature, {})
+	if cfg.is_empty():
+		return
+	var top: float = status_y + 112.0
+	var panel_h: float = minf(192.0, size.y - top - 18.0)
+	_bay_panel(Rect2(72, top, 606, panel_h), Color("B8EBFF"), Color("68CFFF"))
+	add(UiKit.label(tr(cfg["title"]), 30), Vector2(88, top + 6), Vector2(574, 44))
+	var items: Array = cfg["items"]
+	var side: float = minf(98.0, panel_h - 66.0)
+	var slot: float = 540.0 / maxi(1, items.size())
+	for i: int in items.size():
+		var pos := Vector2(105 + slot * i + (slot - side) / 2, top + 55)
+		add(UiKit.icon(str(items[i][0]), side), pos, Vector2(side, side))
+		var amount: String = str(items[i][1])
+		if not amount.is_empty():
+			add(UiKit.label(amount, 24), pos + Vector2(-20, side - 8), Vector2(side + 40, 32))
+
+
+func _bay_panel(rect: Rect2, color: Color, rim: Color) -> void:
+	var panel := Panel.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.border_color = rim
+	style.set_border_width_all(4)
+	style.set_corner_radius_all(38)
+	style.shadow_color = Color(0.015, 0.16, 0.4, 0.4)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 5)
+	panel.add_theme_stylebox_override("panel", style)
+	add(panel, rect.position, rect.size)

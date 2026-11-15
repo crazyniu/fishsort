@@ -32,16 +32,19 @@ static func _label_left(
 ## 开关：深色轨道 + 绿色填充 + 白色旋钮。返回的节点用 set_switch 切换
 static func _make_switch(on: bool) -> Control:
 	var box := Control.new()
-	box.size = Vector2(88, 44)
+	box.size = Vector2(120, 58)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var track := UiKit.piece("track")
+	OceanPopupSkin.paint(track, "switch_off")
 	track.size = box.size
 	box.add_child(track)
 	var fill := UiKit.piece("fill")
+	OceanPopupSkin.paint(fill, "switch_on")
 	fill.size = box.size
 	box.add_child(fill)
 	var knob := UiKit.piece("seg_on")
-	knob.size = Vector2(36, 36)
+	OceanPopupSkin.paint(knob, "knob")
+	knob.size = Vector2(48, 48)
 	box.add_child(knob)
 	box.set_meta("fill", fill)
 	box.set_meta("knob", knob)
@@ -52,17 +55,17 @@ static func _make_switch(on: bool) -> Control:
 static func set_switch(box: Control, on: bool, animate: bool = true) -> void:
 	(box.get_meta("fill") as Control).visible = on
 	var knob: Control = box.get_meta("knob")
-	var x: float = 48.0 if on else 4.0
+	var x: float = 66.0 if on else 6.0
 	if animate:
 		(
 			knob
 			. create_tween()
-			. tween_property(knob, "position", Vector2(x, 4), 0.14)
+			. tween_property(knob, "position", Vector2(x, 5), 0.14)
 			. set_trans(Tween.TRANS_BACK)
 			. set_ease(Tween.EASE_OUT)
 		)
 	else:
-		knob.position = Vector2(x, 4)
+		knob.position = Vector2(x, 5)
 
 
 ## mode: "home"（设置）或 "pause"（局内暂停，多出「回主页」「重试」两个按钮）。
@@ -81,10 +84,12 @@ static func settings(
 	elif Platform.impl.id() == &"debug":
 		buttons.append([_t("UI_AD_TEST"), UiKit.BLUE, Callable()])
 	var rows: int = 4
+	var row_h := 86.0
 	var empty: Array[String] = []
 	var p := PopupCard.open(
-		host, _t("UI_SETTINGS"), empty, buttons, rows * ROW_H + (rows - 1) * GAP
+		host, _t("UI_SETTINGS"), empty, buttons, rows * row_h + (rows - 1) * GAP + 18.0
 	)
+	OceanPopupSkin.apply(p, "res://assets/fish/c01.png")
 	var settings_data: Dictionary = Save.data["settings"]
 	var model := HomeModel.get_inst()
 	var specs: Array = [
@@ -93,30 +98,33 @@ static func settings(
 		["H_VIBRATION", model.vibration_on()],
 	]
 	for i: int in specs.size():
-		var y: float = p.content_y + i * (ROW_H + GAP)
-		var row := HomePopups._row(p.card, y, ROW_H)
+		var y: float = p.content_y + i * (row_h + GAP)
+		var row := OceanPopupSkin.row(p.card, y, row_h)
 		row.add_child(
-			_label_left(_t(specs[i][0]), 30, Color.WHITE, Vector2(24, 0), Vector2(300, ROW_H))
+			_label_left(_t(specs[i][0]), 32, Color.WHITE, Vector2(84, 0), Vector2(270, row_h))
 		)
+		OceanPopupSkin.icon(["music", "sound", "vibration"][i], row)
 		var sw := _make_switch(specs[i][1])
-		sw.position = Vector2(row.size.x - 88.0 - 20.0, (ROW_H - 44.0) / 2.0)
+		sw.position = Vector2(row.size.x - 120.0 - 20.0, (row_h - 58.0) / 2.0)
 		row.add_child(sw)
 		var hot := UiKit.hotspot(Vector2.ZERO, row.size)
 		hot.pressed.connect(_toggle.bind(i, sw))
 		row.add_child(hot)
 	# 语言：两个并排的选项，选中的是亮蓝
-	var ly: float = p.content_y + 3 * (ROW_H + GAP)
-	var lrow := HomePopups._row(p.card, ly, ROW_H)
+	var ly: float = p.content_y + 3 * (row_h + GAP)
+	var lrow := OceanPopupSkin.row(p.card, ly, row_h)
 	lrow.add_child(
-		_label_left(_t("H_LANGUAGE"), 30, Color.WHITE, Vector2(24, 0), Vector2(200, ROW_H))
+		_label_left(_t("H_LANGUAGE"), 32, Color.WHITE, Vector2(84, 0), Vector2(180, row_h))
 	)
+	OceanPopupSkin.icon("language", lrow)
 	var zh: bool = TranslationServer.get_locale().begins_with("zh")
 	for k: int in 2:
 		var on: bool = (k == 0) == zh
 		var x: float = lrow.size.x - 20.0 - 2 * 128.0 - 8.0 + k * 136.0
 		var opt := UiKit.piece("tab_on" if on else "track")
-		opt.position = Vector2(x, 8)
-		opt.size = Vector2(128, ROW_H - 16.0)
+		OceanPopupSkin.paint(opt, "switch_on" if on else "switch_off")
+		opt.position = Vector2(x, 14)
+		opt.size = Vector2(128, row_h - 28.0)
 		lrow.add_child(opt)
 		var cap := UiKit.label(_t("H_LANG_ZH" if k == 0 else "H_LANG_EN"), 26)
 		cap.position = opt.position
@@ -288,17 +296,40 @@ static func _claim(p: PopupCard, host: Control, double: bool, on_change: Callabl
 
 
 static func profile(host: Control) -> PopupCard:
-	var m := HomeModel.get_inst()
-	var info: Dictionary = m.profile()
+	var info: Dictionary = HomeModel.get_inst().profile()
 	var empty: Array[String] = []
-	var p := PopupCard.open(host, _t("H_PROFILE"), empty, [], 330.0)
-	var avatar := UiKit.icon(str(info["avatar"]), 110)
-	avatar.position = Vector2(PopupCard.SIDE, p.content_y)
+	var p := PopupCard.open(host, _t("H_PROFILE"), empty, [], 450.0)
+	# A dedicated blue vector shell; do not alter the shared settings/life skin.
+	p.card.texture = load("res://assets/ui/rank_profile/panel.svg")
+	p.card._mx = 0.0
+	p.card._my = 0.0
+	p.card._pad = 0.0
+	p.card.queue_redraw()
+	for child: Node in p.card.get_children():
+		if child is Patch:
+			if child.size.x > 500:
+				child.texture = load("res://assets/ui/rank_profile/header.svg")
+				child.size = Vector2(430, 96)
+				child.position = Vector2(95, -12)
+				child._mx = 0.0
+				child._my = 0.0
+				child._pad = 0.0
+				child.queue_redraw()
+			elif child.size.x == 56:
+				OceanPopupSkin.paint(child, "close")
+				child.position = Vector2(548, 14)
+		elif child is Button:
+			child.position = Vector2(536, 2)
+	var portrait := UiKit.icon("res://assets/ui/rank_profile/avatar.svg", 174)
+	portrait.position = Vector2(42, p.content_y)
+	p.card.add_child(portrait)
+	var avatar := UiKit.icon(str(info["avatar"]), 158)
+	avatar.position = Vector2(50, p.content_y + 8)
 	p.card.add_child(avatar)
-	var name := UiKit.label(str(info["nickname"]), 38)
-	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	name.position = Vector2(PopupCard.SIDE + 130.0, p.content_y + 20.0)
-	name.size = Vector2(380, 60)
+	var name := UiKit.label(str(info["nickname"]), 36)
+	name.position = Vector2(238, p.content_y + 44)
+	name.size = Vector2(338, 80)
+	name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	p.card.add_child(name)
 	var stats: Array = [
 		["H_CUR_LEVEL", _t("UI_LEVEL") % int(info["level"])],
@@ -306,15 +337,25 @@ static func profile(host: Control) -> PopupCard:
 		["H_COLLECTION", "%d/%d" % [int(info["cards_have"]), int(info["cards_total"])]],
 	]
 	for i: int in stats.size():
-		var row := HomePopups._row(p.card, p.content_y + 130.0 + i * (60.0 + 10.0), 60.0)
-		row.add_child(
-			_label_left(_t(stats[i][0]), 28, Color.WHITE, Vector2(22, 0), Vector2(300, 60))
-		)
-		var v := UiKit.text(str(stats[i][1]), 30, UiKit.GOLD)
-		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		v.position = Vector2(row.size.x - 242.0, 0)
-		v.size = Vector2(220, 60)
-		row.add_child(v)
+		var y: float = p.content_y + 190 + i * 86
+		var row := UiKit.icon("res://assets/ui/rank_profile/stat.svg", 556)
+		row.stretch_mode = TextureRect.STRETCH_SCALE
+		row.size = Vector2(556, 78)
+		row.position = Vector2(32, y)
+		p.card.add_child(row)
+		var caption := _label_left(_t(stats[i][0]), 28, Color.WHITE, Vector2(62, y), Vector2(286, 78))
+		caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		caption.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		caption.clip_text = true
+		p.card.add_child(caption)
+		var value := UiKit.icon("res://assets/ui/rank_profile/value.svg", 188)
+		value.size = Vector2(188, 60)
+		value.position = Vector2(376, y + 9)
+		p.card.add_child(value)
+		var v := UiKit.label(str(stats[i][1]), 30)
+		v.position = Vector2(380, y + 9)
+		v.size = Vector2(180, 60)
+		p.card.add_child(v)
 	return p
 
 

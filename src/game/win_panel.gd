@@ -6,8 +6,8 @@ extends Control
 ## 金币翻倍（广告）、分享炫耀。
 
 const W := 750.0
-const CHEST_AT := Vector2(375, 540)
-const REWARD_Y := 760.0
+const CHEST_AT := Vector2(375, 500)
+const REWARD_Y := 720.0
 const BUTTON_Y := 950.0
 
 var _info: Dictionary
@@ -70,10 +70,9 @@ func _build(animate: bool, chest_anim: bool, coins_from: int = -1) -> void:
 	for c: Node in get_children():
 		c.queue_free()
 	_animating = animate
-	var shade := ColorRect.new()
-	shade.color = Color(0.01, 0.06, 0.18, 0.86)
+	var shade := UiKit.icon("res://assets/ui/bg_game.jpg", size.x)
 	shade.size = size
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shade.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	add_child(shade)
 	_box = Control.new()
 	_box.size = Vector2(W, size.y)
@@ -88,6 +87,10 @@ func _build(animate: bool, chest_anim: bool, coins_from: int = -1) -> void:
 		done.tween_interval(_cfg("buttonsAt") + 0.35)
 		done.tween_callback(func() -> void: _animating = false)
 	_banner(animate)
+	for i: int in 2:
+		var fish := UiKit.icon("res://assets/fish/%s.png" % ("c04" if i == 0 else "c01"), 178)
+		_put(fish, Vector2(30 if i == 0 else 542, 420), Vector2(178, 178))
+		Anim.bob(fish, 7.0, 2.2 + i * 0.3)
 	_chest_box = Control.new()
 	_chest_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_box.add_child(_chest_box)
@@ -113,7 +116,7 @@ func _build(animate: bool, chest_anim: bool, coins_from: int = -1) -> void:
 func _banner(animate: bool) -> void:
 	var ribbon := UiKit.piece("ribbon")
 	_put(ribbon, Vector2(55, 120), Vector2(640, 134))
-	var title := UiKit.label(tr("UI_FINISH_TITLE"), 72)
+	var title := UiKit.label(tr("UI_FINISH_TITLE"), 72, UiKit.GOLD)
 	_put(title, Vector2(55, 116), Vector2(640, 120))
 	if animate:
 		for n: Control in [ribbon, title]:
@@ -126,7 +129,7 @@ func _banner(animate: bool) -> void:
 			tw.chain().tween_property(n, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BACK)
 		Audio.sfx(&"land", 0.8)
 	for i: int in 3:
-		var side: float = 104.0 if i == 1 else 84.0
+		var side: float = 136.0 if i == 1 else 112.0
 		var star := UiKit.icon("res://assets/ui/star.png", side)
 		_put(
 			star,
@@ -180,7 +183,9 @@ func _rewards(animate: bool, coins_from: int) -> void:
 		items.append(["res://assets/ui/heart_inf.png", "%d:00" % (int(_result["unlimited"]) / 60)])
 	if items.is_empty():
 		return
-	var cell: float = minf(150.0, (W - 40.0) / float(items.size()))
+	var well := UiKit.piece("glass")
+	_put(well, Vector2(65, REWARD_Y - 22), Vector2(W - 130, 170))
+	var cell: float = minf(150.0, (W - 150.0) / float(items.size()))
 	var x0: float = (W - cell * float(items.size())) / 2.0
 	var at: float = _cfg("coinsAt") if animate else 0.0
 	for i: int in items.size():
@@ -373,50 +378,25 @@ func _rarity_fx(rarity: String) -> void:
 func _buttons(animate: bool) -> void:
 	var made: Array[Button] = []
 	var ad: bool = Ads.available() and not _doubled and _coins > 0
-	var next: Button
+	var share: bool = _can_share()
 	if ad:
-		made.append(
-			_button(
-				tr("UI_DOUBLE_SHORT"),
-				UiKit.PURPLE,
-				Vector2(40, BUTTON_Y),
-				Vector2(250, 110),
-				_double_coins,
-				36
-			)
-		)
-		next = _button(
-			tr("UI_NEXT_LEVEL"), UiKit.GREEN, Vector2(310, BUTTON_Y), Vector2(400, 110), _next, 42
-		)
-	else:
-		next = _button(
-			tr("UI_NEXT_LEVEL"), UiKit.GREEN, Vector2(125, BUTTON_Y), Vector2(500, 110), _next, 42
-		)
+		made.append(_button(tr("UI_DOUBLE_SHORT"), UiKit.ORANGE,
+			Vector2(90 if share else 200, 900), Vector2(310 if share else 350, 82), _double_coins, 30))
+	if share:
+		made.append(_button(tr("UI_SHARE_SHORT"), UiKit.BLUE,
+			Vector2(425 if ad else 225, 900), Vector2(235 if ad else 300, 82), _share, 30))
+	var next := _button(tr("UI_NEXT_LEVEL"), UiKit.GREEN,
+		Vector2(90, 1010), Vector2(570, 124), _next, 48)
 	made.append(next)
-	var home := _button("", UiKit.BLUE, Vector2(24, 24), Vector2(84, 84), _home)
-	var house := UiKit.icon("res://assets/ui/tab_main.png", 60)
-	house.position = Vector2(12, 8)
-	home.add_child(house)
-	made.append(home)
-	if _can_share():
-		made.append(
-			_button(
-				tr("UI_SHARE_SHORT"),
-				UiKit.PURPLE,
-				Vector2(W - 174.0, 30),
-				Vector2(150, 72),
-				_share,
-				28
-			)
-		)
+	made.append(_button(tr("UI_HOME"), UiKit.BLUE,
+		Vector2(225, 1160), Vector2(300, 76), _home, 32))
 	var at: float = _cfg("buttonsAt") if animate else 0.0
 	if animate:
 		for i: int in made.size():
 			Anim.pop_in(made[i], at + i * 0.04, 0.2)
-	# 「下一关」出现后一直呼吸
 	var tw: Tween = next.create_tween()
 	tw.tween_interval(at + 0.3)
-	tw.tween_callback(Anim.pulse.bind(next, 1.05, 1.0))
+	tw.tween_callback(Anim.pulse.bind(next, 1.025, 1.0))
 
 
 func _button(

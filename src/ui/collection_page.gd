@@ -3,16 +3,17 @@ extends HomePage
 ## 图鉴页（docs/01 §5.4）：60 张收藏卡分成几册，每册按关开放。
 ## 首页是册子列表和总进度；点一册进去看这一册的卡，集齐领大奖；全部集齐领终极大奖。
 
-const LIST_TOP := 190.0
-const ROW_H := 158.0
-const GRID_TOP := 250.0
+const LIST_TOP := 174.0
+const ROW_H := 182.0
+const GRID_TOP := 336.0
 
 ## 正在看的册子，-1 = 册子列表。页面每次重建都是新实例，状态放静态变量里
 static var _book: int = -1
 
 
 func build() -> void:
-	add(UiKit.piece("deep"), Vector2(12, 4), Vector2(W - 24, size.y - 14.0))
+	var background := _art("ocean")
+	add(background, Vector2(0, 0), Vector2(W, size.y))
 	if _book < 0:
 		_build_list()
 	else:
@@ -23,7 +24,7 @@ func build() -> void:
 
 
 func _build_list() -> void:
-	title(tr("UI_TAB_COLLECTION"))
+	_heading(tr("UI_TAB_COLLECTION"))
 	_build_total()
 	var eco: Dictionary = Config.eco
 	var scroll := _scroll(LIST_TOP)
@@ -41,9 +42,7 @@ func _build_total() -> void:
 	add(UiKit.label(tr("UI_COLLECTED") % [have, total], 26), Vector2(36, 104), Vector2(230, 36))
 	var bar_x: float = 270.0
 	var bar_w: float = W - 150.0 - bar_x
-	add(UiKit.piece("chip"), Vector2(bar_x, 108), Vector2(bar_w, 28))
-	if have > 0:
-		add(UiKit.piece("fill"), Vector2(bar_x, 108), Vector2(maxf(28.0, bar_w * have / total), 28))
+	_progress(self, Vector2(bar_x, 106), Vector2(bar_w, 34), have, total)
 	var chest := UiKit.icon("res://assets/ui/chest_closed.png", 96)
 	add(chest, Vector2(W - 136.0, 74), Vector2(96, 96))
 	if bool(Save.data["album"]["final"]):
@@ -61,46 +60,37 @@ func _book_row(inner: Control, i: int, book: Dictionary) -> void:
 	var open: bool = Album.is_open(eco, i, int(save["level"]))
 	var cards: Array = book["cards"]
 	var have: int = Album.have(save, eco, i)
-	var row := UiKit.piece("popup_row")
+	var row := _art("panel")
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
-	add_to(inner, row, Vector2(14, i * ROW_H + 6.0), Vector2(W - 52, ROW_H - 12.0))
-	# 封面：这一册最稀有的那张（列表最后一张）
-	var cover := UiKit.icon("res://assets/ui/tank.png", 120)
-	add_to(row, cover, Vector2(14, 12))
-	var art := UiKit.icon("res://assets/fish/%s.png" % cards[cards.size() - 1], 64)
-	add_to(row, art, Vector2(42, 46))
-	add_to(
-		row, _left(tr("ALBUM_BOOK_%d" % int(book["id"])), 34), Vector2(152, 22), Vector2(330, 46)
-	)
+	add_to(inner, row, Vector2(12, i * ROW_H + 4), Vector2(690, ROW_H - 12))
+	add_to(row, _art("cover"), Vector2(12, 12), Vector2(158, 144))
+	var fish := UiKit.icon("res://assets/fish/%s.png" % cards[cards.size() - 1], 124)
+	add_to(row, fish, Vector2(30, 22))
+	var name_label := _clear_label(tr("ALBUM_BOOK_%d" % int(book["id"])), 36, Color("123c79"))
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_to(row, name_label, Vector2(184, 14), Vector2(350, 74))
 	if not open:
-		cover.modulate = Color(0.6, 0.68, 0.8)
-		art.modulate = Color(0.04, 0.14, 0.3, 0.85)
-		var lock := UiKit.icon("res://assets/ui/lock.png", 56)
-		add_to(row, lock, Vector2(W - 52 - 86.0, 40))
-		var at := _left(tr("H_UNLOCKS_AT") % int(book["unlock"]), 26, UiKit.GOLD)
-		add_to(row, at, Vector2(152, 80), Vector2(330, 36))
+		row.modulate = Color(0.72, 0.85, 0.98)
+		fish.modulate = Color(0.08, 0.25, 0.43)
+		add_to(row, UiKit.icon("res://assets/ui/lock.png", 64), Vector2(582, 52))
+		var at := _clear_label(tr("H_UNLOCKS_AT") % int(book["unlock"]), 28, Color("123c79"))
+		at.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		add_to(row, at, Vector2(190, 100), Vector2(340, 44))
 		return
-	add_to(row, UiKit.piece("chip"), Vector2(152, 86), Vector2(250, 26))
-	if have > 0:
-		var fill_w: float = maxf(26.0, 250.0 * have / cards.size())
-		add_to(row, UiKit.piece("fill"), Vector2(152, 86), Vector2(fill_w, 26))
-	add_to(row, UiKit.label("%d/%d" % [have, cards.size()], 24), Vector2(410, 80), Vector2(80, 36))
+	_progress(row, Vector2(190, 102), Vector2(320, 36), have, cards.size())
 	var hot := UiKit.hotspot(Vector2.ZERO, row.size)
 	hot.mouse_filter = Control.MOUSE_FILTER_PASS
 	hot.pressed.connect(_open_book.bind(i))
 	row.add_child(hot)
-	var right := Vector2(W - 52 - 178.0, 38)
+	var claimed: bool = Album.is_claimed(save, i)
+	var chest_path: String = "res://assets/ui/chest_open.png" if claimed else "res://assets/ui/chest_closed.png"
+	add_to(row, UiKit.icon(chest_path, 90), Vector2(560, 18))
 	if Album.can_claim(save, eco, i):
-		var take := btn(
-			row, tr("ALBUM_TAKE"), UiKit.GREEN, right, Vector2(160, 70), _claim.bind(i), 30
-		)
-		Anim.pulse(take, 1.06, 0.9)
-	elif Album.is_claimed(save, i):
-		add_to(row, UiKit.label(tr("ALBUM_CLAIMED"), 26, UiKit.GOLD), right, Vector2(160, 70))
-	else:
-		add_to(row, UiKit.icon("res://assets/ui/chest_closed.png", 76), right + Vector2(60, -4))
-	if i < 5:
-		Anim.pop_in(row, 0.05 * i, 0.25)
+		btn(row, tr("ALBUM_TAKE"), UiKit.GREEN, Vector2(534, 106), Vector2(144, 52), _claim.bind(i), 26)
+	elif claimed:
+		add_to(row, UiKit.label(tr("ALBUM_CLAIMED"), 24), Vector2(528, 111), Vector2(150, 36))
+
 
 
 # ---------- 一册的卡 ----------
@@ -109,8 +99,8 @@ func _book_row(inner: Control, i: int, book: Dictionary) -> void:
 func _build_book() -> void:
 	var eco: Dictionary = Config.eco
 	var book: Dictionary = Album.books(eco)[_book]
-	title(tr("ALBUM_BOOK_%d" % int(book["id"])))
-	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 24), Vector2(150, 70), _close_book, 30)
+	_heading(tr("ALBUM_BOOK_%d" % int(book["id"])))
+	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(24, 30), Vector2(118, 64), _close_book, 26)
 	_build_reward(book)
 	var by_id: Dictionary = {}
 	for sp: Dictionary in Config.species:
@@ -118,10 +108,8 @@ func _build_book() -> void:
 	var scroll := _scroll(GRID_TOP)
 	var inner: Control = scroll.get_child(0)
 	var ids: Array = book["cards"]
-	var row_h: float = 214.0
+	var row_h: float = 232.0
 	var col_w: float = (W - 24 - 32) / 3.0
-	for r: int in ceili(ids.size() / 3.0):
-		add_to(inner, UiKit.piece("shelf"), Vector2(10, r * row_h + 160), Vector2(W - 44, 40))
 	for n: int in ids.size():
 		var cx: float = 16 + (n % 3) * col_w + col_w / 2.0
 		var cell := _card_cell(by_id[ids[n]])
@@ -135,27 +123,23 @@ func _build_reward(book: Dictionary) -> void:
 	var save: Dictionary = Save.data
 	var eco: Dictionary = Config.eco
 	var reward: Dictionary = book["reward"]
-	add(UiKit.piece("popup_row"), Vector2(26, 112), Vector2(W - 52, 120))
-	add(_left(tr("H_GRAND_PRIZE"), 28, UiKit.GOLD), Vector2(48, 152), Vector2(110, 40))
-	var x: float = 160.0
-	add(UiKit.icon("res://assets/ui/coin.png", 64), Vector2(x, 126))
-	add(UiKit.label(str(int(reward["coins"])), 24), Vector2(x - 18, 188), Vector2(100, 34))
-	for id: String in save["tools"]:
-		x += 84.0
-		add(UiKit.icon(HomePrize.skill_icon(id), 64), Vector2(x, 126))
-		add(UiKit.label("×%d" % int(reward["tools"]), 24), Vector2(x - 18, 188), Vector2(100, 34))
-	var right := Vector2(W - 52 - 150.0, 138)
+	add(_art("panel"), Vector2(24, 110), Vector2(702, 210))
+	add(UiKit.icon("res://assets/ui/chest_closed.png", 100), Vector2(38, 126))
+	add(_clear_label(tr("H_GRAND_PRIZE"), 34, Color("123c79")), Vector2(150, 122), Vector2(320, 42))
+	_progress(self, Vector2(150, 173), Vector2(330, 32), Album.have(save, eco, _book), book["cards"].size())
+	var tool_ids: Array = save["tools"].keys()
+	var slots: int = tool_ids.size() + 1
+	var spacing: float = 650.0 / slots
+	for index: int in slots:
+		var x: float = 50.0 + index * spacing
+		var icon_path: String = "res://assets/ui/coin.png" if index == 0 else HomePrize.skill_icon(tool_ids[index - 1])
+		var quantity: int = int(reward["coins"]) if index == 0 else int(reward["tools"])
+		add(UiKit.icon(icon_path, 48), Vector2(x + (spacing - 48) / 2, 220))
+		add(_clear_label(str(quantity), 28, Color("123c79")), Vector2(x, 270), Vector2(spacing, 38))
 	if Album.can_claim(save, eco, _book):
-		var take := btn(
-			self, tr("ALBUM_TAKE"), UiKit.GREEN, right, Vector2(160, 70), _claim.bind(_book), 30
-		)
-		Anim.pulse(take, 1.06, 0.9)
+		btn(self, tr("ALBUM_TAKE"), UiKit.GREEN, Vector2(516, 145), Vector2(180, 64), _claim.bind(_book), 30)
 	elif Album.is_claimed(save, _book):
-		add(UiKit.label(tr("ALBUM_CLAIMED"), 26, UiKit.GOLD), right, Vector2(160, 70))
-	else:
-		var cards: Array = book["cards"]
-		var text: String = "%d/%d" % [Album.have(save, eco, _book), cards.size()]
-		add(UiKit.label(text, 34), right, Vector2(160, 70))
+		add(UiKit.label(tr("ALBUM_CLAIMED"), 28), Vector2(516, 145), Vector2(180, 64))
 
 
 ## 一张卡：鱼缸里的生物，名字写在木架上并按稀有度上色；没有的是剪影
@@ -174,8 +158,12 @@ func _card_cell(sp: Dictionary) -> Control:
 	else:
 		fish.modulate = Color(0.04, 0.14, 0.3, 0.85)
 	var name_text: String = sp["name"] if owned > 0 else tr("UI_UNKNOWN")
-	var tint: Color = HomePrize.RARITY_COLORS[sp["rarity"]] if owned > 0 else Color.WHITE
-	add_to(cell, UiKit.label(name_text, 24, tint), Vector2(-10, 162), Vector2(200, 34))
+	add_to(cell, _art("name"), Vector2(-14, 166), Vector2(208, 42))
+	var fish_name := _clear_label(name_text, 27, Color.WHITE)
+	fish_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	add_to(cell, fish_name, Vector2(-10, 166), Vector2(200, 42))
+	if owned == 0:
+		add_to(cell, UiKit.icon("res://assets/ui/lock.png", 40), Vector2(70, 108))
 	if owned > 1:
 		add_to(cell, UiKit.badge("dot_red", 44), Vector2(140, 6))
 		add_to(cell, UiKit.label(str(owned), 22), Vector2(140, 6), Vector2(44, 44))
@@ -183,6 +171,53 @@ func _card_cell(sp: Dictionary) -> Control:
 
 
 # ---------- 小工具与动作 ----------
+
+
+func _clear_label(content: String, font_size: int, color: Color) -> Label:
+	var label := UiKit.text(content, font_size, color)
+	if color == Color.WHITE:
+		label.add_theme_constant_override("outline_size", 2)
+		label.add_theme_color_override("font_outline_color", Color("124981"))
+	return label
+
+
+func _art(part: String) -> TextureRect:
+	var node := UiKit.icon("res://assets/ui/album/%s.svg" % part, 1)
+	node.stretch_mode = TextureRect.STRETCH_SCALE
+	return node
+
+
+func _heading(text: String) -> void:
+	add(_art("title"), Vector2(157, 20), Vector2(436, 84))
+	var heading := _clear_label(text, 42, Color.WHITE)
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add(heading, Vector2(166, 22), Vector2(418, 76))
+
+
+func _progress(parent: Control, pos: Vector2, area: Vector2, have: int, total: int) -> void:
+	var bar := ProgressBar.new()
+	bar.min_value = 0
+	bar.max_value = maxi(1, total)
+	bar.value = clampi(have, 0, maxi(1, total))
+	bar.show_percentage = false
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var track := StyleBoxFlat.new()
+	track.bg_color = Color("124b94")
+	track.border_color = Color("a5efff")
+	track.set_border_width_all(2)
+	track.set_corner_radius_all(int(area.y / 2))
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = Color("27ab25")
+	fill.border_color = Color("86e74f")
+	fill.set_border_width_all(2)
+	fill.set_corner_radius_all(int(area.y / 2))
+	bar.add_theme_stylebox_override("background", track)
+	bar.add_theme_stylebox_override("fill", fill)
+	add_to(parent, bar, pos, area)
+	var number := _clear_label("%d/%d" % [have, total], 28, Color.WHITE)
+	number.add_theme_color_override("font_outline_color", Color("083867"))
+	number.add_theme_constant_override("outline_size", 3)
+	add_to(parent, number, pos, area)
 
 
 func _left(text: String, font: int, color: Color = Color.WHITE) -> Label:
