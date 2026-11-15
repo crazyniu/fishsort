@@ -82,8 +82,11 @@ static func _challenge(curve: Dictionary, id: int, p: Dictionary) -> void:
 	p["species"] = int(p["species"]) + int(plus[1] if id >= int(c["speciesPlusFrom"]) else plus[0])
 	p["fish"] = mini(int(float(p["fish"]) * float(c["fishMul"])), int(c["fishMax"]))
 	p["slack"] = int(p["slack"]) + int(c["slackPlus"])
-	if (c["coveredLevels"] as Array).has(id):
-		p["layers"] = 2
+	# 分层关（cap 为 0）的挑战关多压一层；掉落关的挑战关缩小场上容量。
+	# 不能靠配置里的关卡号列表判断：JSON 读出来是浮点数，和整数关卡号比对不上，
+	# 第 5、10 关就因此被错生成成了掉落关
+	if int(p["cap"]) <= 0:
+		p["layers"] = mini(int(p["layers"]) + 1, int(c["layersMax"]))
 	else:
 		p["cap"] = maxi(int(c["capMin"]), int(p["cap"]) - int(c["capMinus"]))
 
