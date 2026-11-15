@@ -58,6 +58,8 @@ Cocos 版（client/，迁移中，见 docs/09）：
   web-serve             不重新构建，直接起服务打开上次的构建
   wechat-build          构建微信小游戏包 → client/build/wechatgame
   cocos-editor          用 Cocos Creator 打开 client/
+  cdp logs [秒] | cdp eval '<表达式>'
+                        调试：读 web-serve 开的浏览器的控制台、在页面里求值
   cocos-clean           清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（Linux 上跑，结果要提交）
   ts-test               client/ 的 TypeScript 单测（Node，Linux 上跑）
@@ -111,7 +113,7 @@ web_serve() {
   # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏
   local chrome=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
   if [ -x "$chrome" ]; then
-    (sleep 1; "$chrome" --user-data-dir="${TMPDIR:-/tmp}/fishsort-chrome" --no-first-run \
+    (sleep 1; "$chrome" --user-data-dir="${TMPDIR:-/tmp}/fishsort-chrome" --no-first-run --remote-debugging-port=9333 \
       --no-default-browser-check --app="$url" --window-size=450,832 >/dev/null 2>&1) &
   elif command -v open >/dev/null; then
     (sleep 1; open "$url") &
@@ -202,6 +204,9 @@ case "$cmd" in
     ;;
   meta)
     node tools/cocos/meta.mjs "$@"
+    ;;
+  cdp)
+    node tools/cocos/cdp.mjs "$@"
     ;;
   cocos-clean)
     # 都是 Cocos 生成的缓存，不进仓库；导入状态坏了（资源被标成 importer "*"、黑屏）时清掉重来
