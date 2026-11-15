@@ -31,6 +31,7 @@ usage() {
   level-gen             生成关卡
   level-verify          全量关卡校验（慢）
   level-verify-changed  只校验改动过的关卡
+  font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
 EOF
 }
 
@@ -96,6 +97,9 @@ case "$cmd" in
     # 关卡文件名不含空格，按空白拆分即可（兼容 macOS 自带的 bash 3.2）
     # shellcheck disable=SC2086
     "$GODOT" --headless --path . -s tools/level/verify.gd -- $files
+    ;;
+  font-subset)
+    python3 tools/font/subset.py "$@"
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;
