@@ -83,24 +83,24 @@ export class ShopPage extends Page {
     const n = slice(root, 'kit/panel_glass', w, h, `skill_${id}`);
     at(n, x, y);
     const name = text(n, tr(NAME[id]), 44);
-    at(name.node, 0, h / 2 - 50);
-    const is = Math.min(160, h - 230);
+    at(name.node, 0, h / 2 - 40);
+    const is = Math.min(180, h * 0.46);
     const icon = img(n, `icon/skill_${id}`, is, is, 'icon');
-    at(icon, 0, (h / 2 - 80 + (-h / 2 + 140)) / 2);
-    const owned = text(n, '', 30);
-    at(owned.node, 0, -h / 2 + 122);
+    at(icon, 0, h * 0.07);
+    const owned = text(n, '', 28);
+    at(owned.node, 0, -h / 2 + 104);
     const buy = button(n, {
       color: 'green',
       w: w - 60,
-      h: 84,
+      h: 78,
       icon: 'icon/coin',
       label: String(Skills.price(eco, id)),
       fontSize: 44,
       onTap: () => this.buySkill(id),
     });
-    at(buy.node, 0, -h / 2 + 58);
-    const lock = slice(n, 'kit/btn_gray', w - 60, 84, 'lock');
-    at(lock, 0, -h / 2 + 58);
+    at(buy.node, 0, -h / 2 + 52);
+    const lock = slice(n, 'kit/btn_gray', w - 60, 78, 'lock');
+    at(lock, 0, -h / 2 + 52);
     const li = img(lock, 'kit/ic_lock', 44, 44, 'ic');
     at(li, -(w - 60) / 2 + 50, 2);
     at(text(lock, tr('SKILL_LOCKED', Skills.unlockLevel(eco, id)), 30).node, 20, 3);
@@ -110,21 +110,21 @@ export class ShopPage extends Page {
   private lifeRow(root: Node, x: number, y: number, w: number, h: number): Node {
     const n = slice(root, 'kit/panel_glass', w, h, 'lives');
     at(n, x, y);
-    at(text(n, tr('H_LIVES_TITLE'), 38).node, -w / 2 + 70, 26);
+    at(text(n, tr('H_LIVES_TITLE'), 32, { align: 'left' }).node, -w / 2 + 26, 36);
     this.heart = img(n, 'icon/heart', 84, 84, 'heart');
-    at(this.heart, -w / 2 + 70, -26);
+    at(this.heart, -w / 2 + 76, -22);
     this.lifeCount = text(this.heart, '', 30);
     at(this.lifeCount.node, 0, 2);
     this.lifeBtn = button(n, {
       color: 'green',
-      w: 180,
-      h: 84,
+      w: 170,
+      h: 80,
       icon: 'icon/coin',
       label: String(App.config.eco.lives.buyOneCoins),
       fontSize: 36,
       onTap: () => this.buyLife(),
     });
-    at(this.lifeBtn.node, w / 2 - 110, 0);
+    at(this.lifeBtn.node, w / 2 - 100, 0);
     return n;
   }
 
@@ -132,22 +132,22 @@ export class ShopPage extends Page {
     const eco = App.config.eco;
     const n = slice(root, 'kit/panel_glass', w, h, 'freeCoins');
     at(n, x, y);
-    at(text(n, tr('SHOP_FREE_COINS'), 34).node, -w / 2 + 80, 30);
+    at(text(n, tr('SHOP_FREE_COINS'), 32, { align: 'left' }).node, -w / 2 + 26, 36);
     const pile = box3(n);
-    at(pile, -w / 2 + 80, -22);
+    at(pile, -w / 2 + 76, -20);
     pile.setScale(0.8, 0.8, 1);
     this.adLeft = text(n, '', 24);
-    at(this.adLeft.node, w / 2 - 110, -54);
+    at(this.adLeft.node, w / 2 - 95, -50);
     this.adBtn = button(n, {
       color: 'yellow',
-      w: 180,
-      h: 80,
+      w: 170,
+      h: 76,
       icon: 'kit/ic_video',
       label: `+${eco.freeCoin.amount}`,
-      fontSize: 36,
+      fontSize: 34,
       onTap: () => void this.freeCoins(),
     });
-    at(this.adBtn.node, w / 2 - 110, 8);
+    at(this.adBtn.node, w / 2 - 95, 14);
     return n;
   }
 

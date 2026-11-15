@@ -71,6 +71,7 @@ export class CollectPage extends Page {
 
   private render(enter: boolean): void {
     const keep = this.scroller ? this.scrollOffset() : 0;
+    this.scroller?.stop();
     this.view?.destroy();
     this.view = box('view', this.root, Screen.W, Screen.H);
     this.scroller = null;

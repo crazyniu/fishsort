@@ -52,6 +52,11 @@ export class Scroller {
   }
 
   private place(): void {
+    // 页面重建时整块滚动区会被销毁，惯性动画可能还在跑
+    if (!this.content.isValid) {
+      this.stop();
+      return;
+    }
     this.content.setPosition(0, this.h / 2 + this.offset, 0);
   }
 
@@ -79,6 +84,7 @@ export class Scroller {
     this.dragging = false;
     const v = (Date.now() - this.last) / 1000 > 0.1 ? 0 : this.vel;
     const target = Math.max(0, Math.min(this.maxOffset, this.offset + v * 0.35));
+    if (Math.abs(target - this.offset) < 0.5) return;
     const dur = Math.min(0.9, 0.25 + Math.abs(target - this.offset) / 2500);
     this.anim.v = this.offset;
     tween(this.anim)
