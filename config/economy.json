@@ -34,37 +34,37 @@
   ],
   "combo": {
     "windowSeconds": 2.0,
-    "startAt": 3,
+    "startAt": 6,
     "maxCoinsPerLevel": 400,
     "tiers": [
       {
-        "at": 3,
+        "at": 6,
         "coins": 5,
         "key": "UI_COMBO_T1"
       },
       {
-        "at": 6,
+        "at": 10,
         "coins": 10,
         "key": "UI_COMBO_T2"
       },
       {
-        "at": 10,
+        "at": 15,
         "coins": 15,
         "key": "UI_COMBO_T3"
       },
       {
-        "at": 15,
+        "at": 20,
         "coins": 25,
         "key": "UI_COMBO_T4"
       }
     ],
     "cardChance": {
-      "6": 30,
-      "10": 60,
-      "15": 100
+      "10": 30,
+      "15": 60,
+      "20": 100
     },
     "bestBonus": {
-      "minCombo": 5,
+      "minCombo": 6,
       "coinsPerCombo": 10,
       "max": 200
     }

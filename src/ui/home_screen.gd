@@ -3,23 +3,27 @@ extends Control
 ## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 抽奖 · 主页 · 排行 · 图鉴）。
 ## 数据与动作全部走 HomeModel，真实逻辑接入时只换那一个文件。
 
-## 底栏四个页签；抽奖不占页签，是从主页入口进去的子页面
-enum { TAB_SHOP, TAB_MAIN, TAB_RANK, TAB_COLLECTION, TAB_WHEEL }
+## 底栏五个页签：商店、关卡、主页、排行、图鉴。关卡页签直接打开选关路线。
+## 抽奖不占页签，是从主页入口进去的子页面
+enum { TAB_SHOP, TAB_LEVELS, TAB_MAIN, TAB_RANK, TAB_COLLECTION, TAB_WHEEL }
 
 const W := 750.0
 const BAR_Y := 16.0
 const BAR_H := 96.0
 const TOP_H := 124.0
 const TABS_H := 150.0
-const TAB_KEYS: Array[String] = ["UI_TAB_SHOP", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"]
+const TAB_KEYS: Array[String] = [
+	"UI_TAB_SHOP", "H_ENTRY_LEVELS", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
+]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
+	"res://assets/kit/ic_route.png",
 	"res://assets/ui/tab_main.png",
 	"res://assets/ui/tab_rank.png",
 	"res://assets/ui/tab_collection.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["", "", "rank", "album"]
+const TAB_FEATURES: Array[String] = ["", "levelSelect", "", "rank", "album"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -82,7 +86,8 @@ func _add(parent: Control, node: Control, pos: Vector2, area: Vector2 = Vector2.
 func toast(text: String) -> void:
 	var l := UiKit.label(text, 30)
 	l.z_index = 90
-	_add(_stage, l, Vector2(0, size.y - TABS_H - 70), Vector2(W, 50))
+	# 提示放在画面中间偏上，不压住底部的开始按钮和页签
+	_add(_stage, l, Vector2(0, size.y * 0.42), Vector2(W, 50))
 	Anim.pop_in(l, 0.0, 0.2)
 	var tw: Tween = l.create_tween()
 	tw.tween_interval(1.5)
@@ -264,34 +269,51 @@ func _mark_tabs() -> void:
 func _on_tab(i: int) -> void:
 	if i == _tab:
 		return
-	if not _tab_open(i):
-		Audio.sfx(&"error")
-		var feature: String = "wheel" if i >= TAB_FEATURES.size() else TAB_FEATURES[i]
-		if i < _tab_icons.size():
-			Anim.shake(_tab_icons[i], 6.0)
-		toast(tr("H_UNLOCKS_AT") % model.unlock_level(feature))
-		return
 	Audio.sfx(&"click")
+	if i == TAB_LEVELS and _tab_open(i):
+		# 选关路线是盖在上面的整页，关掉后回到原来的页签
+		LevelRoute.open(self)
+		return
 	var from_right: bool = i > _tab
 	_tab = i
 	_mark_tabs()
 	_show_page(true, from_right)
 
 
+func _make_page(tab: int) -> HomePage:
+	match tab:
+		TAB_SHOP:
+			return ShopPage.new()
+		TAB_WHEEL:
+			return WheelPage.new()
+		TAB_RANK:
+			return RankPage.new()
+		TAB_COLLECTION:
+			return CollectionPage.new()
+	return MainPage.new()
+
+
+## 没开放的页签：页面里用大图标和「第 N 关解锁」说明
+func _locked_page(tab: int) -> HomePage:
+	var feature: String = "wheel" if tab >= TAB_FEATURES.size() else TAB_FEATURES[tab]
+	var page := LockedPage.new()
+	if tab < TAB_KEYS.size():
+		page.feature_title = tr(TAB_KEYS[tab])
+		page.icon_path = TAB_ICONS[tab]
+	else:
+		page.feature_title = tr("H_TAB_WHEEL")
+		page.icon_path = "res://assets/ui/tab_wheel.png"
+	page.unlock_at = model.unlock_level(feature)
+	return page
+
+
 func _show_page(animate: bool, from_right: bool = true) -> void:
 	if _page != null and is_instance_valid(_page):
 		Anim.fade_out_free(_page, 0.12)
-	match _tab:
-		TAB_SHOP:
-			_page = ShopPage.new()
-		TAB_WHEEL:
-			_page = WheelPage.new()
-		TAB_MAIN:
-			_page = MainPage.new()
-		TAB_RANK:
-			_page = RankPage.new()
-		_:
-			_page = CollectionPage.new()
+	if not _tab_open(_tab):
+		_page = _locked_page(_tab)
+	else:
+		_page = _make_page(_tab)
 	var page: HomePage = _page as HomePage
 	page.host = self
 	page.size = Vector2(W, size.y - TOP_H - TABS_H)

@@ -4,7 +4,7 @@ extends Control
 ## GameHud（顶部、暂存槽、技能键）、GameShelf（鱼缸和订单卡）、GameField（气泡场）、GameFx（特效）。
 
 const W := 750.0
-const FIELD_Y := 396.0
+const FIELD_Y := 440.0
 const TOOLS_H := GameHud.TOOLS_H
 const LEVEL_COUNT := 120
 

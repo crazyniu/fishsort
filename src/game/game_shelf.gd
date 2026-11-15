@@ -7,7 +7,8 @@ extends RefCounted
 const TANK := "res://assets/ui/tank.png"
 const SHELF_Y := 78.0
 const PLANK_Y := SHELF_Y + 142.0
-const CARD_SIZE := Vector2(108, 46)
+const CARD_SIZE := Vector2(120, 110)
+const CARD_ART := "res://assets/ui/order_card.png"
 const CLOSED := Color(0.62, 0.78, 1.0, 0.62)
 
 var _stage: Control
@@ -107,30 +108,30 @@ func _make_view(i: int, order: int, species: int, cap: int) -> Dictionary:
 	timer.pivot_offset = timer.size / 2.0
 	timer.visible = false
 	root.add_child(timer)
-	# 订单卡：两根细绳挂在木架下面，深色实底，生物图 + 进度
+	# 订单卡：一张用图钉钉在木架下的小照片，生物图在中间，进度数字压在下沿。
+	# 卡片整体左右各歪一点（只有图和数字，没有汉字）
 	var card := Control.new()
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.size = CARD_SIZE
-	card.pivot_offset = Vector2(CARD_SIZE.x / 2.0, 0)
-	card.position = Vector2(-CARD_SIZE.x / 2.0, PLANK_Y + 40.0 - c.y)
+	card.pivot_offset = Vector2(CARD_SIZE.x / 2.0, 8)
+	card.position = Vector2(-CARD_SIZE.x / 2.0, PLANK_Y + 12.0 - c.y)
+	card.rotation = deg_to_rad(-3.5 if i % 2 == 0 else 3.5)
 	root.add_child(card)
-	for x: float in [22.0, CARD_SIZE.x - 25.0]:
-		var rope := ColorRect.new()
-		rope.color = Color("8A4B1E")
-		rope.size = Vector2(3, 12)
-		rope.position = Vector2(x, -11)
-		rope.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(rope)
-	var face := UiKit.piece("track")
+	var face := TextureRect.new()
+	face.texture = UiKit.tex(CARD_ART)
+	# 图是 144×144、内容高 132：按内容拉满卡片
+	face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	face.stretch_mode = TextureRect.STRETCH_SCALE
 	face.size = CARD_SIZE
+	face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(face)
-	var pic := UiKit.icon("", 40)
+	var pic := UiKit.icon("", 60)
 	pic.texture = _tex.call(species)
-	pic.position = Vector2(8, 3)
+	pic.position = Vector2((CARD_SIZE.x - 60.0) / 2.0, 26)
 	card.add_child(pic)
-	var num := UiKit.label("", 24)
-	num.position = Vector2(48, 0)
-	num.size = Vector2(CARD_SIZE.x - 54, CARD_SIZE.y)
+	var num := UiKit.label("", 26)
+	num.position = Vector2(0, CARD_SIZE.y - 40.0)
+	num.size = Vector2(CARD_SIZE.x, 34)
 	num.pivot_offset = num.size / 2.0
 	card.add_child(num)
 	var view: Dictionary = {

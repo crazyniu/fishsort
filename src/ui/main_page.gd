@@ -46,14 +46,9 @@ func _build_deco() -> void:
 
 
 func _build_entries() -> void:
-	var left: Array = [
-		["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin],
-		["levelSelect", "res://assets/kit/ic_route.png", "H_ENTRY_LEVELS", _open_levels],
-	]
-	var right: Array = [
-		["skill_shuffle", "res://assets/ui/tool_shuffle.png", "H_FEAT_SKILL", _open_skills],
-		["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel],
-	]
+	# 主页两侧只留签到和抽奖；选关在底栏，技能在商店
+	var left: Array = [["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin]]
+	var right: Array = [["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel]]
 	for i: int in left.size():
 		_entry(left[i], Vector2(30, 190 + i * 170))
 	for i: int in right.size():
@@ -99,7 +94,10 @@ func _entry(spec: Array, pos: Vector2) -> void:
 
 
 func _on_entry(feature: String, action: Callable) -> void:
-	if host.check_unlocked(feature):
+	if feature == "wheel":
+		# 没开放也进去：抽奖页自己会显示「第 N 关解锁」
+		action.call()
+	elif host.check_unlocked(feature):
 		action.call()
 
 

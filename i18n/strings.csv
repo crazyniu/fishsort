@@ -215,3 +215,5 @@ UI_STAT_BEST,最高连击 ×%d,Best combo ×%d
 UI_STAT_AD,看广告,Ad bonus
 UI_STAT_FIRST,今日首胜,First win
 UI_MINUTES,%d 分钟,%d min
+UI_DOUBLE_SHORT,金币 ×2,Coins ×2
+UI_SHARE_SHORT,分享,Share

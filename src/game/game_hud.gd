@@ -4,9 +4,9 @@ extends RefCounted
 
 const BAR_Y := 14.0
 const BAR_H := 52.0
-const ROW_Y := 326.0
-const SLOT := 56.0
-const SLOT_GAP := 66.0
+const ROW_Y := 352.0
+const SLOT := 70.0
+const SLOT_GAP := 76.0
 const TOOLS_H := 150.0
 const TOOL_NAMES: Dictionary = {
 	"net": "UI_TOOL_NET",
@@ -111,23 +111,43 @@ func build_buffer(cap: int, fish: Array[Texture2D], intro: bool) -> void:
 	_slots.clear()
 	_fish.clear()
 	for i: int in cap:
-		var slot := UiKit.piece("track")
-		slot.modulate = Color(1, 1, 1, 0.82)
+		# 水玻璃格：半透明浅蓝、亮边、顶部一道高光；一道亮光每隔几秒从左到右依次扫过
+		var slot := Panel.new()
+		var glass := StyleBoxFlat.new()
+		glass.bg_color = Color(0.45, 0.8, 1.0, 0.3)
+		glass.border_color = Color(0.82, 0.96, 1.0, 0.85)
+		glass.set_border_width_all(3)
+		glass.set_corner_radius_all(12)
+		slot.add_theme_stylebox_override("panel", glass)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_fx.put(slot, buffer_pos(i) - Vector2(SLOT, SLOT) / 2.0, Vector2(SLOT, SLOT))
+		var shine := ColorRect.new()
+		shine.color = Color(1, 1, 1, 0.35)
+		shine.position = Vector2(10, 7)
+		shine.size = Vector2(SLOT - 20.0, 5)
+		shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(shine)
 		_slots.append(slot)
 		if intro:
 			Anim.pop_in(slot, 0.2 + 0.04 * i)
+		var wave: Tween = slot.create_tween().set_loops()
+		wave.tween_interval(1.2 + 0.14 * i)
+		wave.tween_property(slot, "modulate", Color(1.35, 1.35, 1.35), 0.16)
+		wave.parallel().tween_property(slot, "scale", Vector2(1.07, 1.07), 0.16)
+		wave.tween_property(slot, "modulate", Color.WHITE, 0.3)
+		wave.parallel().tween_property(slot, "scale", Vector2.ONE, 0.3)
+		wave.tween_interval(2.2 - 0.14 * i)
 	# 告警框：只剩一格时套在那一格上闪
 	_warn = Panel.new()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(1.0, 0.2, 0.15, 0.18)
 	sb.border_color = Color("FF4433")
 	sb.set_border_width_all(4)
-	sb.set_corner_radius_all(11)
+	sb.set_corner_radius_all(14)
 	_warn.add_theme_stylebox_override("panel", sb)
 	_warn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_warn.visible = false
-	_fx.put(_warn, Vector2.ZERO, Vector2(SLOT + 8, SLOT + 8))
+	_fx.put(_warn, Vector2.ZERO, Vector2(SLOT + 10, SLOT + 10))
 	for tex: Texture2D in fish:
 		buffer_land(buffer_add(tex))
 	_layout(false)
@@ -135,11 +155,11 @@ func build_buffer(cap: int, fish: Array[Texture2D], intro: bool) -> void:
 
 ## 一条鱼正飞向暂存槽：先占位（隐藏），落地时调 buffer_land
 func buffer_add(tex: Texture2D) -> TextureRect:
-	var f := UiKit.icon("", 48)
+	var f := UiKit.icon("", 60)
 	f.texture = tex
 	f.visible = false
 	f.z_index = 1
-	_fx.put(f, buffer_pos(_fish.size()) - Vector2(24, 24))
+	_fx.put(f, buffer_pos(_fish.size()) - Vector2(30, 30))
 	_fish.append(f)
 	_update_warn()
 	return f
@@ -163,7 +183,7 @@ func buffer_take(i: int) -> Vector2:
 		return buffer_pos(i)
 	var f: TextureRect = _fish[i]
 	_fish.remove_at(i)
-	var at: Vector2 = f.position + Vector2(24, 24)
+	var at: Vector2 = f.position + Vector2(30, 30)
 	f.queue_free()
 	_layout(true)
 	return at
@@ -183,7 +203,7 @@ func buffer_clear() -> void:
 
 func _layout(animate: bool) -> void:
 	for i: int in _fish.size():
-		var to: Vector2 = buffer_pos(i) - Vector2(24, 24)
+		var to: Vector2 = buffer_pos(i) - Vector2(30, 30)
 		if animate:
 			_fish[i].create_tween().tween_property(_fish[i], "position", to, 0.18).set_ease(
 				Tween.EASE_OUT

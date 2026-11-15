@@ -39,17 +39,59 @@ func build(lv: LevelData, s: GameState, top: float, bottom: float, intro: bool) 
 	_bubbles.clear()
 	_held.clear()
 	_deferred.clear()
+	var centers: Array[Vector2] = []
+	var radii: Array[float] = []
+	var covered: bool = false
+	for d: Dictionary in lv.bubbles:
+		radii.append(float(d["r"]) * field_w)
+		centers.append(origin + Vector2(d["x"], d["y"]) * field_w)
+		covered = covered or not (d["under"] as Array).is_empty()
+	# 没有遮挡关系的关卡（平铺、掉落）：把气泡放大到铺满场地，再推开到互不重叠。
+	# 有遮挡的关卡重叠是规则的一部分，保持原样
+	if not covered:
+		var on_field: int = lv.field_cap if lv.field_cap > 0 else radii.size()
+		_fit(centers, radii, mini(on_field, radii.size()), Rect2(0, top, _fx.width, avail))
 	for idx: int in lv.bubbles.size():
-		var d: Dictionary = lv.bubbles[idx]
-		var r: float = float(d["r"]) * field_w
-		var center: Vector2 = origin + Vector2(d["x"], d["y"]) * field_w
-		_bubbles.append(_make_bubble(d, center, r))
+		_bubbles.append(_make_bubble(lv.bubbles[idx], centers[idx], radii[idx]))
 	_return_box = _fx.put(Control.new(), Vector2.ZERO)
 	_return_box.z_index = 20
 	_return_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	refresh(s, false)
 	if intro:
 		_intro(s)
+
+
+## 放大气泡让开局在场的 n 个占掉场地的 fill 比例，然后迭代推开重叠、收回边界内
+func _fit(centers: Array[Vector2], radii: Array[float], n: int, area: Rect2) -> void:
+	var cfg: Dictionary = GameCfg.d()["field"]
+	var sum: float = 0.0
+	for i: int in n:
+		sum += PI * radii[i] * radii[i]
+	if sum <= 0.0:
+		return
+	var k: float = clampf(
+		sqrt(float(cfg["fill"]) * area.size.x * area.size.y / sum), 1.0, float(cfg["maxScale"])
+	)
+	for i: int in radii.size():
+		radii[i] *= k
+	var gap: float = float(cfg["gap"])
+	for step: int in int(cfg["relaxSteps"]):
+		for i: int in n:
+			for j: int in range(i + 1, n):
+				var delta: Vector2 = centers[j] - centers[i]
+				var dist: float = delta.length()
+				var need: float = radii[i] + radii[j] + gap
+				if dist >= need:
+					continue
+				# 圆心重合时按下标给一个固定方向，结果可复现
+				var dir: Vector2 = delta / dist if dist > 0.01 else Vector2.from_angle(i * 2.4)
+				var push: Vector2 = dir * (need - dist) * 0.5
+				centers[i] -= push
+				centers[j] += push
+		for i: int in n:
+			var m: float = radii[i] + gap
+			centers[i].x = clampf(centers[i].x, area.position.x + m, area.end.x - m)
+			centers[i].y = clampf(centers[i].y, area.position.y + m, area.end.y - m)
 
 
 func _make_bubble(d: Dictionary, center: Vector2, r: float) -> Dictionary:
@@ -66,7 +108,7 @@ func _make_bubble(d: Dictionary, center: Vector2, r: float) -> Dictionary:
 	skin.modulate.a = 0.8
 	body.add_child(skin)
 	var n: int = (d["fish"] as Array).size()
-	var fs: float = clampf(r * (0.95 if n == 1 else 0.8 if n <= 3 else 0.68), 44.0, 110.0)
+	var fs: float = clampf(r * (0.95 if n == 1 else 0.8 if n <= 3 else 0.68), 44.0, 150.0)
 	var fish_nodes: Array[TextureRect] = []
 	var offsets: Array[Vector2] = []
 	for k: int in n:
