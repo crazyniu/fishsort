@@ -30,6 +30,24 @@ def mallet(freq: float, sec: float, bright: float = 0.35) -> np.ndarray:
     return wave_ * np.exp(-x * (5.0 / sec)) * np.minimum(1, x * 400)
 
 
+def bell(freq: float, sec: float) -> np.ndarray:
+    """清亮的铃/钢片琴：带不谐和泛音，起音快，比 mallet 更「脆」。"""
+    x = t(sec)
+    out = np.sin(2 * np.pi * freq * x)
+    out += 0.45 * np.sin(2 * np.pi * freq * 2.76 * x) * np.exp(-x * 14)
+    out += 0.25 * np.sin(2 * np.pi * freq * 5.4 * x) * np.exp(-x * 26)
+    out += 0.3 * np.sin(2 * np.pi * freq * 2 * x) * np.exp(-x * 6)
+    return out * np.exp(-x * (5.5 / sec)) * np.minimum(1, x * 900)
+
+
+def brass(freq: float, sec: float) -> np.ndarray:
+    """号角：锯齿感的谐波叠加，起音稍慢，尾部收住。"""
+    x = t(sec)
+    out = sum(np.sin(2 * np.pi * freq * k * x) / k for k in range(1, 9))
+    env = np.minimum(1, x * 45) * np.minimum(1, (sec - x) * 14) * (0.75 + 0.25 * np.exp(-x * 5))
+    return out * env
+
+
 def sweep(f0: float, f1: float, sec: float, decay: float = 6.0) -> np.ndarray:
     x = t(sec)
     freq = f0 * (f1 / f0) ** (x / sec)
@@ -77,13 +95,38 @@ def sfx() -> None:
     save("unlock", mix(0.4, (0, sweep(400, 1400, 0.25, 3), 0.7), (0.2, mallet(hz("A5"), 0.2), 1)), 0.5)
     save("error", mix(0.16, (0, sweep(190, 140, 0.15, 3) * np.sign(np.sin(2 * np.pi * 45 * t(0.15))), 1)), 0.35)
     save("shuffle", mix(0.5, *[(i * 0.05, mallet(hz(n), 0.18), 0.8) for i, n in enumerate(["C5", "E5", "G5", "C6", "G5", "E6"])]), 0.5)
-    # 过关：一记鼓点 + 快速上行琶音 + 明亮的大三和弦收尾 + 高音闪烁
-    win = [(0, sweep(190, 55, 0.22, 3), 1.2)]
-    win += [(0.04 + i * 0.065, mallet(hz(n), 0.4, 0.5), 0.9) for i, n in enumerate(["C5", "E5", "G5", "C6", "E6", "G6"])]
-    win += [(0.46, mallet(hz(n), 1.5, 0.45), 0.75) for n in ["C5", "G5", "C6", "E6", "G6", "C7"]]
-    win += [(0.46, sweep(160, 50, 0.3, 3), 1.0)]
-    win += [(0.7 + i * 0.09, mallet(hz(n), 0.3, 0.6), 0.35) for i, n in enumerate(["E7", "G7", "C7", "G7", "E7", "C8"])]
-    save("win", mix(2.4, *win), 0.75)
+    # 连击命中：有分量的「叮」= 低频鼓点 + 明亮铃音 + 高八度泛音 + 一点擦音。游戏里按五声音阶逐级升调
+    click = np.convolve(rng.standard_normal(int(SR * 0.03)), np.ones(3) / 3, mode="same") * np.exp(-t(0.03) * 160)
+    save("combo", mix(0.4, (0, sweep(220, 70, 0.1, 4), 0.9), (0, bell(hz("C6"), 0.36), 1.0), (0.0, bell(hz("C7"), 0.2), 0.35), (0, click, 0.35)), 0.7)
+    # 升档：三连上行 + 和弦 + 镲
+    crash = np.convolve(rng.standard_normal(int(SR * 0.7)), np.ones(2) / 2, mode="same") * np.exp(-t(0.7) * 7)
+    tier = [(i * 0.07, bell(hz(n), 0.3), 0.9) for i, n in enumerate(["G5", "C6", "E6"])]
+    tier += [(0.21, bell(hz(n), 0.7), 0.7) for n in ["C6", "E6", "G6", "C7"]]
+    tier += [(0.21, crash, 0.22), (0.21, sweep(200, 60, 0.2, 3), 1.0)]
+    save("tier", mix(1.0, *tier), 0.75)
+    # 得图鉴：一串上行的闪亮音 + 高音颤动
+    card = [(i * 0.055, bell(hz(n), 0.5), 0.8) for i, n in enumerate(["C6", "E6", "G6", "B6", "C7", "E7", "G7"])]
+    card += [(0.4 + i * 0.05, bell(hz(n), 0.25), 0.3) for i, n in enumerate(["G7", "E7", "G7", "C8", "G7", "C8"])]
+    save("card", mix(1.2, *card), 0.6)
+    # 烟花：升空哨音 + 炸开的噪声 + 低频「嘭」
+    boom = np.convolve(rng.standard_normal(int(SR * 0.6)), np.ones(5) / 5, mode="same") * np.exp(-t(0.6) * 6)
+    save("firework", mix(0.9, (0, sweep(500, 1900, 0.22, 1.0), 0.35), (0.22, boom, 1.0), (0.22, sweep(160, 45, 0.3, 3), 1.2)), 0.6)
+    # 金币雨：一串密集的金币声
+    rain = [(i * 0.045, bell(hz(n), 0.18), 0.8) for i, n in enumerate(["B5", "E6", "B5", "E6", "G#6", "E6", "B6", "E6", "G#6", "B6", "E7", "B6"])]
+    save("coins", mix(0.9, *rain), 0.55)
+    # 道具：渔网甩出的「唰—噗」、吹泡的上行泡泡串、洗牌的旋转声
+    save("net", mix(0.5, (0, wn[: int(SR * 0.25)] * np.sin(np.pi * t(0.25) / 0.25) ** 2, 0.6), (0.2, sweep(700, 250, 0.2, 4), 0.9), (0.24, bell(hz("E6"), 0.2), 0.4)), 0.55)
+    save("blow", mix(0.7, *[(i * 0.07, sweep(400 + i * 110, 1100 + i * 220, 0.08, 4.5), 0.9) for i in range(7)]), 0.5)
+    # 过关：军鼓滚奏 → 铜管号角「哒哒哒—当」→ 大三和弦长音 + 镲 + 高音闪烁
+    roll = np.concatenate([np.convolve(rng.standard_normal(int(SR * 0.04)), np.ones(4) / 4, mode="same") * np.exp(-t(0.04) * 60) * (0.4 + 0.6 * i / 7) for i in range(8)])
+    win = [(0, roll, 0.5), (0.3, sweep(200, 50, 0.25, 3), 1.3)]
+    win += [(0.32 + i * 0.13, brass(hz(n), 0.14), 0.8) for i, n in enumerate(["G4", "G4", "G4"])]
+    win += [(0.32 + i * 0.13, brass(hz(n), 0.14), 0.6) for i, n in enumerate(["C5", "C5", "C5"])]
+    win += [(0.72, brass(hz(n), 1.3), 0.75) for n in ["C4", "G4", "C5", "E5", "G5"]]
+    win += [(0.72, bell(hz(n), 1.4), 0.5) for n in ["C6", "E6", "G6"]]
+    win += [(0.72, crash, 0.3), (0.72, sweep(180, 45, 0.35, 3), 1.3)]
+    win += [(1.0 + i * 0.08, bell(hz(n), 0.3), 0.3) for i, n in enumerate(["E7", "G7", "C8", "G7", "E7", "G7", "C8", "E7"])]
+    save("win", mix(2.6, *win), 0.8)
     lose = [(i * 0.2, mallet(hz(n), 0.6, 0.1), 1) for i, n in enumerate(["G4", "D#4", "C4"])]
     save("lose", mix(1.2, *lose), 0.6)
 

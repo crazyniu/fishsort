@@ -1,14 +1,14 @@
 class_name WinFx
 extends Control
-## 过关演出：白闪 → 旋转光芒 → 大字砸下 → 三颗星依次亮起 → 两侧彩纸炮 → 金币喷涌。
-## 整段约 1.8 秒，结束后由调用方弹出结算弹窗。
+## 过关演出：白闪 → 旋转光芒 → 两侧彩纸炮 + 三发烟花 → 金币喷涌。
+## 只有 1 秒多，随后调用方直接给出结算页（标题、星星、图鉴、奖励都在那一页）。
 
 const COLORS: Array[Color] = [
-	Color("FFC93C"),
-	Color("4CC42E"),
-	Color("2F8FF0"),
-	Color("F0503C"),
-	Color("A274E6"),
+	Color("FFD23A"),
+	Color("FF4D6D"),
+	Color("3DDCFF"),
+	Color("7CFF6B"),
+	Color("C06BFF"),
 	Color("FFFFFF")
 ]
 const GRAVITY := 1500.0
@@ -19,17 +19,17 @@ var _rays: float = 0.0
 var _center: Vector2
 
 
-static func play(host: Control, title: String, coin_target: Vector2) -> WinFx:
+static func play(host: Control, coin_target: Vector2) -> WinFx:
 	var fx := WinFx.new()
 	fx.size = host.size
 	fx.z_index = 95
 	fx.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	host.add_child(fx)
-	fx._run(title, coin_target)
+	fx._run(coin_target)
 	return fx
 
 
-func _run(title: String, coin_target: Vector2) -> void:
+func _run(coin_target: Vector2) -> void:
 	_center = Vector2(size.x / 2.0, size.y * 0.36)
 	Audio.sfx(&"whoosh")
 	Audio.sfx(&"win")
@@ -44,61 +44,28 @@ func _run(title: String, coin_target: Vector2) -> void:
 	create_tween().tween_property(self, "_rays", 1.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(
 		Tween.EASE_OUT
 	)
-	# 大字从 3 倍砸到原大，再回弹
-	var word := UiKit.label(title, 132, UiKit.GOLD)
-	word.size = Vector2(size.x, 190)
-	word.position = Vector2(0, _center.y - 95)
-	word.pivot_offset = word.size / 2.0
-	word.scale = Vector2(3.2, 3.2)
-	word.modulate.a = 0.0
-	add_child(word)
-	var tw: Tween = word.create_tween()
-	tw.set_parallel()
-	tw.tween_property(word, "scale", Vector2.ONE, 0.32).set_trans(Tween.TRANS_BACK).set_ease(
-		Tween.EASE_OUT
-	)
-	tw.tween_property(word, "modulate:a", 1.0, 0.12)
-	tw.chain().tween_callback(func() -> void: Anim.pulse(word, 1.06, 0.7))
-	# 砸下的瞬间两侧开炮
-	get_tree().create_timer(0.22).timeout.connect(
-		func() -> void:
-			_cannon(Vector2(-20, size.y * 0.78), Vector2(520, -1250), 80)
-			_cannon(Vector2(size.x + 20, size.y * 0.78), Vector2(-520, -1250), 80)
-	)
-	get_tree().create_timer(0.75).timeout.connect(
-		func() -> void: _cannon(_center, Vector2(0, -700), 70, 620.0)
-	)
-	# 三颗星依次亮起
-	for i: int in 3:
-		var star := UiKit.icon("res://assets/ui/star.png", 120 if i == 1 else 96)
-		star.position = Vector2(
-			size.x / 2.0 + (i - 1) * 150 - star.size.x / 2.0,
-			_center.y - 190 - (36 if i == 1 else 0)
+	# 两侧彩纸炮 + 三发烟花，标题和星星交给随后的结算页
+	_cannon(Vector2(-20, size.y * 0.78), Vector2(560, -1300), 90)
+	_cannon(Vector2(size.x + 20, size.y * 0.78), Vector2(-560, -1300), 90)
+	var spots: Array[Vector2] = [Vector2(0.28, 0.3), Vector2(0.74, 0.24), Vector2(0.5, 0.42)]
+	for i: int in spots.size():
+		get_tree().create_timer(0.08 + i * 0.22).timeout.connect(
+			_firework.bind(spots[i] * size, COLORS[i * 2 % COLORS.size()], 1.0 + i * 0.1)
 		)
-		star.scale = Vector2.ZERO
-		star.rotation = -0.6
-		add_child(star)
-		var st: Tween = star.create_tween()
-		st.tween_interval(0.45 + i * 0.16)
-		st.tween_callback(Audio.sfx.bind(&"star", 1.0 + i * 0.12))
-		st.set_parallel()
-		st.tween_property(star, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(
-			Tween.EASE_OUT
-		)
-		st.tween_property(star, "rotation", 0.0, 0.3)
 	# 金币从中间喷出，再飞进金币栏
-	for i: int in 14:
+	Audio.sfx(&"coins")
+	for i: int in 20:
 		var coin := UiKit.icon("res://assets/ui/coin.png", 54)
 		coin.position = _center - Vector2(27, 27)
 		coin.scale = Vector2.ZERO
 		add_child(coin)
 		var spread: Vector2 = (
 			_center
-			+ Vector2.from_angle(TAU * i / 14.0 + randf() * 0.4) * randf_range(120, 240)
+			+ Vector2.from_angle(TAU * i / 20.0 + randf() * 0.4) * randf_range(120, 240)
 			- Vector2(27, 27)
 		)
 		var ct: Tween = coin.create_tween()
-		ct.tween_interval(0.55 + i * 0.02)
+		ct.tween_interval(0.2 + i * 0.015)
 		ct.set_parallel()
 		ct.tween_property(coin, "scale", Vector2.ONE, 0.18)
 		ct.tween_property(coin, "position", spread, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(
@@ -112,8 +79,42 @@ func _run(title: String, coin_target: Vector2) -> void:
 			. set_trans(Tween.TRANS_QUAD)
 			. set_ease(Tween.EASE_IN)
 		)
-		ct.chain().tween_callback(Audio.sfx.bind(&"coin", 1.0 + i * 0.03))
 		ct.chain().tween_callback(coin.queue_free)
+
+
+## 一发烟花：亮光一闪、光环扩散、一圈同色火星炸开
+func _firework(at: Vector2, color: Color, pitch: float) -> void:
+	Audio.sfx(&"firework", pitch)
+	var glow := UiKit.badge("fx_glow", 520)
+	glow.position = at - Vector2(260, 260)
+	glow.modulate = color.lightened(0.3)
+	add_child(glow)
+	Anim.fade_out_free(glow, 0.5)
+	var ring := UiKit.badge("fx_ring", 240)
+	ring.position = at - Vector2(120, 120)
+	ring.modulate = color
+	ring.scale = Vector2(0.2, 0.2)
+	add_child(ring)
+	var tw: Tween = ring.create_tween().set_parallel()
+	tw.tween_property(ring, "scale", Vector2(2.6, 2.6), 0.5).set_ease(Tween.EASE_OUT)
+	tw.tween_property(ring, "modulate:a", 0.0, 0.5)
+	tw.chain().tween_callback(ring.queue_free)
+	for i: int in 44:
+		var a: float = TAU * i / 44.0 + randf() * 0.1
+		(
+			_bits
+			. append(
+				{
+					"p": at,
+					"v": Vector2.from_angle(a) * randf_range(420, 900),
+					"r": a,
+					"vr": 0.0,
+					"c": color if i % 3 else Color.WHITE,
+					"s": Vector2(22, 7),
+					"life": randf_range(0.7, 1.2),
+				}
+			)
+		)
 
 
 ## 朝 velocity 方向喷一批彩纸，spread 是速度的随机幅度

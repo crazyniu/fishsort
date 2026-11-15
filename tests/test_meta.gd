@@ -105,3 +105,21 @@ func test_old_save_gets_new_fields() -> void:
 	eq(save["level"], 9, "保留旧进度")
 	eq(save["tools"]["blow"], 1, "补齐缺失字段")
 	eq(save["version"], PlayerData.VERSION, "版本号更新")
+
+
+func test_combo_tiers_and_card() -> void:
+	var cfg: Dictionary = _cfg("economy")["combo"]
+	var combo := Combo.new()
+	var rng := Rng.new(1)
+	var last: Dictionary = {}
+	for i: int in 15:
+		last = combo.hit(i * 0.5, cfg, rng)
+		if i == 1:
+			eq(last["tier"], -1, "2 连还不算连击")
+		if i == 2:
+			ok(last["tier_up"] and last["coins"] == 1, "3 连进第一档")
+	eq(last["tier"], 3, "15 连到最高档")
+	ok(combo.card_won, "15 连必送图鉴")
+	ok(combo.coins <= int(cfg["maxCoinsPerLevel"]), "连击金币不超上限")
+	eq(combo.best_bonus(cfg), 30, "最高连击奖 = 15 × 2")
+	eq(combo.hit(100.0, cfg, rng)["count"], 1, "超时后重新计数")

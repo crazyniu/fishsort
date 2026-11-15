@@ -764,27 +764,8 @@ func _on_pack() -> void:
 		Audio.sfx(&"error")
 		return
 	Save.save()
-	Audio.sfx(&"win")
 	_refresh_stats()
-	var sp: Dictionary = Config.species_by_id[card["id"]]
-	var line: String = (
-		tr("UI_CARD_NEW") % sp["name"]
-		if card["is_new"]
-		else tr("UI_CARD_DUPE") % [sp["name"], int(card["coins"])]
-	)
-	_rarity = RARITIES.find(sp["rarity"])
+	_rarity = RARITIES.find(Config.species_by_id[card["id"]]["rarity"])
 	_show_page(false)
-	_popup = PopupCard.open(
-		self,
-		tr("UI_RARITY_" + str(sp["rarity"]).to_upper()),
-		[line],
-		[[tr("UI_CONFIRM"), UiKit.GREEN, _close_popup]],
-		220
-	)
-	var art_path: String = "res://assets/fish/%s.png" % sp["id"]
-	var show: Control = (
-		UiKit.icon(art_path, 200) if ResourceLoader.exists(art_path) else UiKit.label("?", 140)
-	)
-	_add(_popup.card, show, Vector2(210, _popup.content_y + 6), Vector2(200, 200))
-	Anim.pop_in(show, 0.2, 0.5)
-	Anim.confetti(self, size.x, 40)
+	# 开包演出：全屏展示这张卡，点一下回到图鉴
+	CardReveal.open(self, card, func() -> void: pass)

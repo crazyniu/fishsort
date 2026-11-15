@@ -169,3 +169,108 @@ func coin_to(from: Vector2, to: Vector2, pitch: float, on_arrive: Callable) -> v
 	tw.tween_callback(Audio.sfx.bind(&"coin", pitch))
 	tw.tween_callback(on_arrive)
 	tw.tween_callback(coin.queue_free)
+
+
+## 金币数字「+N」从命中处冒出来往上飘
+func gain(text: String, at: Vector2) -> void:
+	var l := UiKit.label(text, 40, UiKit.GOLD)
+	l.z_index = 72
+	put(l, at - Vector2(60, 70), Vector2(120, 50))
+	l.scale = Vector2(0.3, 0.3)
+	var tw: Tween = l.create_tween().set_parallel()
+	tw.tween_property(l, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
+	tw.tween_property(l, "position:y", l.position.y - 70, 0.7).set_ease(Tween.EASE_OUT)
+	tw.tween_property(l, "modulate:a", 0.0, 0.25).set_delay(0.45)
+	tw.chain().tween_callback(l.queue_free)
+
+
+## 渔网：从道具键甩出一张大网，划弧线扣到鱼缸上再收走
+func net_swing(from: Vector2, to: Vector2) -> void:
+	var net := UiKit.icon("res://assets/ui/tool_net.png", 220)
+	net.z_index = 80
+	put(net, from - Vector2(110, 110), Vector2(220, 220))
+	net.scale = Vector2(0.3, 0.3)
+	net.rotation = -1.2
+	Audio.sfx(&"net")
+	var top: Vector2 = Vector2((from.x + to.x) / 2.0, minf(from.y, to.y) - 60) - Vector2(110, 110)
+	var tw: Tween = net.create_tween()
+	tw.tween_property(net, "position", top, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(
+		Tween.EASE_OUT
+	)
+	tw.parallel().tween_property(net, "scale", Vector2(1.25, 1.25), 0.24)
+	tw.parallel().tween_property(net, "rotation", 0.3, 0.24)
+	(
+		tw
+		. tween_property(net, "position", to - Vector2(110, 110), 0.2)
+		. set_trans(Tween.TRANS_QUAD)
+		. set_ease(Tween.EASE_IN)
+	)
+	tw.parallel().tween_property(net, "rotation", 1.0, 0.2)
+	tw.tween_callback(ring.bind(to, Color.WHITE, 2.2))
+	tw.tween_property(net, "scale", Vector2(0.8, 0.8), 0.12)
+	tw.tween_property(net, "modulate:a", 0.0, 0.2)
+	tw.tween_callback(net.queue_free)
+
+
+## 吹泡：一串小泡泡从道具键飘向回流位，最后鼓出一个大泡
+func blow(from: Vector2, to: Vector2) -> void:
+	Audio.sfx(&"blow")
+	for i: int in 12:
+		var bub := UiKit.icon(BUBBLE, randf_range(26, 54))
+		bub.z_index = 80
+		put(bub, from - bub.size / 2.0)
+		bub.scale = Vector2.ZERO
+		var mid: Vector2 = (from + to) / 2.0 + Vector2(randf_range(-160, 160), randf_range(-60, 60))
+		var tw: Tween = bub.create_tween()
+		tw.tween_interval(i * 0.04)
+		tw.tween_property(bub, "scale", Vector2.ONE, 0.1)
+		tw.parallel().tween_property(bub, "position", mid, 0.28).set_ease(Tween.EASE_OUT)
+		tw.tween_property(bub, "position", to - bub.size / 2.0, 0.26).set_ease(Tween.EASE_IN)
+		tw.tween_property(bub, "scale", Vector2.ZERO, 0.08)
+		tw.tween_callback(bub.queue_free)
+	stage.get_tree().create_timer(0.62).timeout.connect(ring.bind(to, Color("9FE8FF"), 2.4))
+
+
+## 洗牌：场地中央一个大风车转起来，带一圈水花
+func whirl(center: Vector2) -> void:
+	var wheel := UiKit.icon("res://assets/ui/tool_shuffle.png", 300)
+	wheel.z_index = 80
+	put(wheel, center - Vector2(150, 150), Vector2(300, 300))
+	wheel.scale = Vector2(0.2, 0.2)
+	var tw: Tween = wheel.create_tween().set_parallel()
+	tw.tween_property(wheel, "rotation", TAU * 2.5, 0.7).set_ease(Tween.EASE_OUT)
+	tw.tween_property(wheel, "scale", Vector2(1.3, 1.3), 0.35).set_trans(Tween.TRANS_BACK).set_ease(
+		Tween.EASE_OUT
+	)
+	tw.tween_property(wheel, "modulate:a", 0.0, 0.25).set_delay(0.45)
+	tw.chain().tween_callback(wheel.queue_free)
+	ring(center, Color.WHITE, 3.4)
+	Anim.burst(stage, center, 18, BUBBLE, 620.0, 300.0, Vector2(22, 46), 0.7, 79)
+
+
+## 一圈向外扩散的光环
+func ring(at: Vector2, color: Color, reach: float) -> void:
+	var r := UiKit.badge("fx_ring", 200)
+	r.z_index = 79
+	r.modulate = color
+	put(r, at - Vector2(100, 100))
+	r.scale = Vector2(0.2, 0.2)
+	var tw: Tween = r.create_tween().set_parallel()
+	tw.tween_property(r, "scale", Vector2(reach, reach), 0.45).set_ease(Tween.EASE_OUT).set_trans(
+		Tween.TRANS_CUBIC
+	)
+	tw.tween_property(r, "modulate:a", 0.0, 0.45).set_ease(Tween.EASE_IN)
+	tw.chain().tween_callback(r.queue_free)
+
+
+## 提示：在该点的鱼上套一个呼吸的光圈，返回节点由调用方负责清掉
+func hint(at: Vector2) -> Control:
+	var r := UiKit.badge("fx_ring", 120)
+	r.z_index = 45
+	r.modulate = Color("FFF36B")
+	put(r, at - Vector2(60, 60))
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Anim.pulse(r, 1.25, 0.8)
+	return r

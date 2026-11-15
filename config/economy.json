@@ -60,14 +60,40 @@
     4
   ],
   "combo": {
-    "windowSeconds": 1.6,
+    "windowSeconds": 2.0,
     "startAt": 3,
-    "coinPerHit": 1,
-    "maxCoinsPerLevel": 30,
-    "praiseAt": {
-      "5": "UI_COMBO_NICE",
-      "8": "UI_COMBO_GREAT",
-      "12": "UI_COMBO_SUPER"
+    "maxCoinsPerLevel": 80,
+    "tiers": [
+      {
+        "at": 3,
+        "coins": 1,
+        "key": "UI_COMBO_T1"
+      },
+      {
+        "at": 6,
+        "coins": 2,
+        "key": "UI_COMBO_T2"
+      },
+      {
+        "at": 10,
+        "coins": 3,
+        "key": "UI_COMBO_T3"
+      },
+      {
+        "at": 15,
+        "coins": 5,
+        "key": "UI_COMBO_T4"
+      }
+    ],
+    "cardChance": {
+      "6": 30,
+      "10": 60,
+      "15": 100
+    },
+    "bestBonus": {
+      "minCombo": 5,
+      "coinsPerCombo": 2,
+      "max": 40
     }
   }
 }

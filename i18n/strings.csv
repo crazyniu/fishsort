@@ -75,9 +75,10 @@ UI_NEED_STARS_MORE,还差 %d 颗星星，每过一关得 1 颗,You need %d more 
 UI_GO_PLAY,去闯关,Play a level
 UI_STARS_HAVE,我的星星 %d,My stars: %d
 UI_COMBO_WORD,连击,COMBO
-UI_COMBO_NICE,漂亮！,Nice!
-UI_COMBO_GREAT,太强了！,Great!
-UI_COMBO_SUPER,无敌！,Unstoppable!
+UI_COMBO_T1,不错！,Good!
+UI_COMBO_T2,漂亮！,Nice!
+UI_COMBO_T3,太强了！,Awesome!
+UI_COMBO_T4,无敌！,Unstoppable!
 UI_FINISH_TITLE,过关！,Cleared!
 UI_FINISH_POPUP,游戏结束,Level complete
 UI_COLLECTED,已收集 %d/%d,Collected %d/%d
@@ -92,3 +93,8 @@ UI_CARD_GET,图鉴获得 %s,New in album: %s
 UI_CARD_AGAIN,%s 已收集，换成 %d 金币,%s already collected: +%d coins
 UI_TAP_CONTINUE,点击任意位置继续,Tap anywhere to continue
 UI_NEW,新,NEW
+UI_COMBO_COINS,连击金币 +%d,Combo coins +%d
+UI_BEST_COMBO,最高连击 %d，奖励金币 +%d,Best combo %d: coins +%d
+UI_COMBO_CARD,连击送图鉴！,Combo card!
+UI_LEVEL_COINS,过关金币 +%d,Clear coins +%d
+UI_DOUBLE_TICKETS,首胜鱼票翻倍,Double first-win tickets
