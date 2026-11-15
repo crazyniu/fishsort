@@ -7,6 +7,19 @@ const MAX_STEPS := 2000
 
 ## kind: "greedy" 或 "random"。slots: 开几个缸位
 static func play(lv: LevelData, kind: String, rng: Rng, slots: int) -> bool:
+	return _run(lv, kind, rng, slots, [])
+
+
+## 用贪心机器人找一条 2 缸位、不用道具的通关步骤，找不到返回空数组
+static func solve(lv: LevelData, tries: int) -> Array:
+	for i: int in tries:
+		var taps: Array = []
+		if _run(lv, "greedy", Rng.new(i * 104729 + 31), 2, taps):
+			return taps
+	return []
+
+
+static func _run(lv: LevelData, kind: String, rng: Rng, slots: int, taps: Array) -> bool:
 	var s: GameState = GameState.from_level(lv)
 	s.open_slots = slots
 	Rules.start(s)
@@ -25,6 +38,7 @@ static func play(lv: LevelData, kind: String, rng: Rng, slots: int) -> bool:
 		if opts.is_empty():
 			break
 		var choice: Array = rng.pick(opts) if kind == "random" else _greedy(s, opts, rng)
+		taps.append([choice[0], choice[1]])
 		Rules.tap(s, choice[0], choice[1])
 	return s.status == GameState.Status.WON
 

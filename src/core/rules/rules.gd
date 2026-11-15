@@ -36,7 +36,7 @@ static func apply(s: GameState, action: Dictionary) -> Array[Dictionary]:
 static func _covered(s: GameState) -> Dictionary:
 	var covered: Dictionary = {}
 	for b: GameState.Bubble in s.bubbles:
-		if b.count() > 0:
+		if b.on_field and b.count() > 0:
 			for u: int in b.under:
 				covered[u] = true
 	return covered
@@ -46,7 +46,7 @@ static func is_open(s: GameState, b: int) -> bool:
 	if b == GameState.RETURN_BUBBLE:
 		return not s.return_fish.is_empty()
 	var bub: GameState.Bubble = s.bubbles[b]
-	if bub.count() == 0 or bub.chain > 0 or bub.frozen:
+	if not bub.on_field or bub.count() == 0 or bub.chain > 0 or bub.frozen:
 		return false
 	return not _covered(s).has(b)
 
@@ -56,7 +56,13 @@ static func open_bubbles(s: GameState) -> Array[int]:
 	var covered: Dictionary = _covered(s)
 	for i: int in s.bubbles.size():
 		var bub: GameState.Bubble = s.bubbles[i]
-		if bub.count() > 0 and bub.chain == 0 and not bub.frozen and not covered.has(i):
+		if (
+			bub.on_field
+			and bub.count() > 0
+			and bub.chain == 0
+			and not bub.frozen
+			and not covered.has(i)
+		):
 			out.append(i)
 	return out
 
@@ -149,10 +155,13 @@ static func use_net(s: GameState, slot: int) -> Array[Dictionary]:
 			)
 		else:
 			k += 1
-	# 先捞开放气泡里的，不够再捞被挡住的
+	# 先捞开放气泡里的，再捞场上其它的，最后捞候场队列里的
 	var order: Array[int] = open_bubbles(s)
 	for i: int in s.bubbles.size():
-		if not order.has(i):
+		if not order.has(i) and s.bubbles[i].on_field:
+			order.append(i)
+	for i: int in s.bubbles.size():
+		if not s.bubbles[i].on_field:
 			order.append(i)
 	for b: int in order:
 		var bub: GameState.Bubble = s.bubbles[b]
@@ -306,12 +315,35 @@ static func _settle(s: GameState, ev: Array[Dictionary]) -> void:
 
 
 static func _pop(s: GameState, b: int, ev: Array[Dictionary]) -> void:
-	ev.append({"t": &"bubble_pop", "b": b})
+	var on_field: bool = s.bubbles[b].on_field
+	# 还在候场队列里就被渔网捞空的气泡，界面上从没出现过，不发破裂事件也不补落
+	if on_field:
+		ev.append({"t": &"bubble_pop", "b": b})
 	for i: int in s.bubbles.size():
 		var bub: GameState.Bubble = s.bubbles[i]
 		if bub.frozen and bub.ice.has(b):
 			bub.frozen = false
 			ev.append({"t": &"ice_melt", "b": i})
+	if on_field:
+		_drop(s, ev)
+
+
+## 掉落关：场上空出一个位置，候场队列的队头落下
+static func _drop(s: GameState, ev: Array[Dictionary]) -> void:
+	while s.next_drop < s.bubbles.size():
+		var i: int = s.next_drop
+		s.next_drop += 1
+		var bub: GameState.Bubble = s.bubbles[i]
+		if bub.count() == 0:
+			continue
+		bub.on_field = true
+		# 依赖的邻居可能在它落下之前就破了
+		bub.frozen = false
+		for dep: int in bub.ice:
+			if s.bubbles[dep].count() > 0:
+				bub.frozen = true
+		ev.append({"t": &"bubble_drop", "b": i})
+		return
 
 
 static func _lose(s: GameState, reason: GameState.LoseReason, ev: Array[Dictionary]) -> void:

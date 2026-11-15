@@ -38,6 +38,7 @@ static func errors(lv: LevelData) -> Array[String]:
 		need[o["s"]] = int(need.get(o["s"], 0)) + int(o["cap"])
 	var have: Dictionary = {}
 	var layer: Dictionary = {}
+	var chain_sum: int = 0
 	for b: Dictionary in lv.bubbles:
 		layer[b["id"]] = b["layer"]
 	for idx: int in lv.bubbles.size():
@@ -51,6 +52,12 @@ static func errors(lv: LevelData) -> Array[String]:
 			if f < 0 or f >= lv.palette:
 				out.append("气泡 %d 有非法鱼种 %d" % [idx, f])
 			have[f] = int(have.get(f, 0)) + 1
+		if lv.field_cap > 0:
+			if not (b["under"] as Array).is_empty():
+				out.append("掉落关的气泡 %d 不能压住别的气泡" % idx)
+			if b["layer"] != 1:
+				out.append("掉落关的气泡 %d layer 必须为 1" % idx)
+		chain_sum += int(b["chain"])
 		for u: int in b["under"]:
 			if not layer.has(u) or layer[u] >= b["layer"]:
 				out.append("气泡 %d 压住了不比它低的气泡 %d" % [idx, u])
@@ -59,6 +66,10 @@ static func errors(lv: LevelData) -> Array[String]:
 				out.append("气泡 %d 的冰封依赖非法" % idx)
 			elif not (lv.bubbles[dep]["ice"] as Array).is_empty():
 				out.append("气泡 %d 的冰封依赖 %d 自身也被冰封" % [idx, dep])
+			elif lv.field_cap > 0 and dep > idx:
+				out.append("掉落关里气泡 %d 的冰封依赖 %d 排在它后面，可能永远解不开" % [idx, dep])
+	if chain_sum > lv.orders.size():
+		out.append("锁链数字之和 %d 超过订单数 %d" % [chain_sum, lv.orders.size()])
 	if need != have:
 		out.append("各鱼种数量与订单容量不一致: 需要 %s 实有 %s" % [need, have])
 	if out.is_empty() and not replay(lv)["won"]:

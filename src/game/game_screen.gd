@@ -393,6 +393,18 @@ func _build_tools(view_h: float) -> void:
 			Anim.pop_in(btn, 0.3 + 0.06 * i)
 
 
+## 掉落关：新气泡落到刚空出来的位置
+func _drop_in(b: int, freed: int) -> void:
+	var node: Control = _bubbles[b]["node"]
+	if freed >= 0:
+		_bubbles[b]["center"] = _bubbles[freed]["center"]
+		node.position = _bubbles[b]["center"]
+	var to_y: float = node.position.y
+	node.position.y = FIELD_Y - 160.0
+	var tw: Tween = node.create_tween().set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(node, "position:y", to_y, 0.55).set_delay(0.25)
+
+
 # ---------- 刷新 ----------
 
 
@@ -406,7 +418,7 @@ func _refresh_field(animate: bool = true) -> void:
 		var view: Dictionary = _bubbles[b]
 		var bub: GameState.Bubble = _s.bubbles[b]
 		var node: Control = view["node"]
-		node.visible = bub.count() > 0
+		node.visible = bub.count() > 0 and bub.on_field
 		if not node.visible:
 			continue
 		var is_open: bool = open.has(b)
@@ -536,7 +548,8 @@ func _on_field_input(event: InputEvent, input: Control) -> void:
 	var top: int = -1
 	for b: int in _bubbles.size():
 		var view: Dictionary = _bubbles[b]
-		if _s.bubbles[b].count() > 0 and p.distance_to(view["center"]) < float(view["r"]):
+		var live: bool = _s.bubbles[b].count() > 0 and _s.bubbles[b].on_field
+		if live and p.distance_to(view["center"]) < float(view["r"]):
 			if (
 				top < 0
 				or (view["node"] as Control).z_index > (_bubbles[top]["node"] as Control).z_index
@@ -727,6 +740,7 @@ func _play(events: Array[Dictionary]) -> void:
 		return
 	var flights: int = 0
 	var bowl_done: bool = false
+	var freed: int = -1
 	for e: Dictionary in events:
 		var delay: float = flights * 0.06
 		match e["t"]:
@@ -768,6 +782,9 @@ func _play(events: Array[Dictionary]) -> void:
 				flights += 1
 			&"bubble_pop":
 				_pop_fx(e["b"])
+				freed = e["b"]
+			&"bubble_drop":
+				_drop_in(e["b"], freed)
 			&"bowl_done":
 				bowl_done = true
 				get_tree().create_timer(FLY_TIME + delay).timeout.connect(
