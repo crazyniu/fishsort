@@ -18,6 +18,8 @@ var _tick_pitch: float = 1.0
 func build() -> void:
 	_model = host.model
 	title(tr("H_TAB_WHEEL"))
+	# 抽奖是主页的子页面，左上角返回
+	btn(self, tr("H_BACK"), UiKit.BLUE, Vector2(30, 22), Vector2(130, 56), _on_back, 26)
 	var odds := btn(
 		self,
 		tr("H_ODDS"),
@@ -33,6 +35,11 @@ func build() -> void:
 	wheel.ticked.connect(_on_tick)
 	Anim.pop_in(wheel, 0.05, 0.4)
 	_build_controls()
+
+
+func _on_back() -> void:
+	if not _spinning:
+		host.go_tab(HomeScreen.TAB_MAIN)
 
 
 func _build_controls() -> void:

@@ -37,7 +37,7 @@ texture={
 
 [gui]
 
-theme/custom_font="res://assets/fonts/MaokenAssortedSans-Lite.ttf"
+theme/custom_font="res://assets/fonts/ResourceHanRoundedCN-Heavy.ttf"
 
 [input_devices]
 

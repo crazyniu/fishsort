@@ -3,25 +3,23 @@ extends Control
 ## 主界面：顶栏 + 中间页面 + 底部五个页签（商店 · 抽奖 · 主页 · 排行 · 图鉴）。
 ## 数据与动作全部走 HomeModel，真实逻辑接入时只换那一个文件。
 
-enum { TAB_SHOP, TAB_WHEEL, TAB_MAIN, TAB_RANK, TAB_COLLECTION }
+## 底栏四个页签；抽奖不占页签，是从主页入口进去的子页面
+enum { TAB_SHOP, TAB_MAIN, TAB_RANK, TAB_COLLECTION, TAB_WHEEL }
 
 const W := 750.0
 const BAR_Y := 16.0
 const BAR_H := 96.0
 const TOP_H := 124.0
 const TABS_H := 150.0
-const TAB_KEYS: Array[String] = [
-	"UI_TAB_SHOP", "H_TAB_WHEEL", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
-]
+const TAB_KEYS: Array[String] = ["UI_TAB_SHOP", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
-	"res://assets/ui/tab_wheel.png",
 	"res://assets/ui/tab_main.png",
 	"res://assets/ui/tab_rank.png",
 	"res://assets/ui/tab_collection.png",
 ]
 ## 每个页签对应的功能开放项，空串 = 始终开放
-const TAB_FEATURES: Array[String] = ["", "wheel", "", "rank", "album"]
+const TAB_FEATURES: Array[String] = ["", "", "rank", "album"]
 
 var start_tab: int = TAB_MAIN
 var model: HomeModel
@@ -238,6 +236,8 @@ func _build_tabs() -> void:
 
 
 func _tab_open(i: int) -> bool:
+	if i >= TAB_FEATURES.size():
+		return model.is_unlocked("wheel")
 	return TAB_FEATURES[i].is_empty() or model.is_unlocked(TAB_FEATURES[i])
 
 
@@ -266,8 +266,10 @@ func _on_tab(i: int) -> void:
 		return
 	if not _tab_open(i):
 		Audio.sfx(&"error")
-		Anim.shake(_tab_icons[i], 6.0)
-		toast(tr("H_UNLOCKS_AT") % model.unlock_level(TAB_FEATURES[i]))
+		var feature: String = "wheel" if i >= TAB_FEATURES.size() else TAB_FEATURES[i]
+		if i < _tab_icons.size():
+			Anim.shake(_tab_icons[i], 6.0)
+		toast(tr("H_UNLOCKS_AT") % model.unlock_level(feature))
 		return
 	Audio.sfx(&"click")
 	var from_right: bool = i > _tab
