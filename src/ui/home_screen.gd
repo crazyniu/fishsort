@@ -17,7 +17,7 @@ const TAB_KEYS: Array[String] = [
 ]
 const TAB_ICONS: Array[String] = [
 	"res://assets/ui/tab_shop.png",
-	"res://assets/kit/ic_route.png",
+	"res://assets/ui/tab_levels.png",
 	"res://assets/ui/tab_main.png",
 	"res://assets/ui/tab_rank.png",
 	"res://assets/ui/tab_collection.png",
