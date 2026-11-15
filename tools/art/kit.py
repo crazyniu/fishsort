@@ -50,10 +50,11 @@ def tint(mask: Image.Image, color) -> Image.Image:
     return Image.merge("RGBA", [Image.new("L", mask.size, c) for c in color[:3]] + [alpha])
 
 
-def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, blur=0.0, drop=0.0, shine=0.0):
+def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, blur=0.0, drop=0.0, shine=0.0, hard=0.0, edge=None):
     """一个圆角块。返回 (图, 投影留边)。尺寸单位是设计像素。"""
     bottom = bottom or top
     pad = math.ceil(blur * 2 + drop) if shadow else 0
+    pad = max(pad, math.ceil(hard))
     size = ((w + pad * 2) * K, (h + pad * 2) * K)
     p, bw = pad * K, round(border_w * K)
     outer = (p, p, p + w * K - 1, p + h * K - 1)
@@ -66,6 +67,10 @@ def box(w, h, radius, top, bottom=None, border=None, border_w=0.0, shadow=0.0, b
         sh = sh.filter(ImageFilter.GaussianBlur(blur * K))
         # 投影只留在部件外面，否则会透过半透明的玻璃把它压暗
         img.alpha_composite(tint(ImageChops.subtract(sh, outer_mask), NAVY + (round(shadow * 255),)))
+    if hard:
+        # 2.5D 的厚度：同形状往下错开，用更深的同色系
+        hs = shape(size, (outer[0], outer[1] + hard * K, outer[2], outer[3] + hard * K), radius * K)
+        img.alpha_composite(tint(hs, edge))
     if border and bw:
         img.alpha_composite(tint(ImageChops.subtract(outer_mask, inner_mask), border))
     face = gradient(size, top, bottom, inner[1], inner[3])
@@ -149,43 +154,49 @@ def main() -> None:
     for old in list(OUT.glob("*.png")) + list(OUT.glob("*.png.import")):
         old.unlink()
     white = rgba("FFFFFF")
-
-    # 按钮：淡渐变 + 细白边 + 一条高光线 + 柔和投影
+    # 按钮：纵向渐变 + 一条高光线 + 下沿深色厚度，不描粗边
     families = {
-        "blue": ("4AA5F8", "2A86EA"),
-        "green": ("63D444", "43B528"),
-        "orange": ("FFAE45", "F58A12"),
-        "purple": ("A274E6", "8553D6"),
-        "red": ("F56B59", "E0452F"),
+        "blue": ("52B0FF", "2A7FE6", "1A57B0"),
+        "green": ("74DA4E", "43B528", "2A8618"),
+        "orange": ("FFBA4A", "F58A12", "B85F00"),
+        "purple": ("AE7EF0", "8553D6", "5B32A3"),
+        "red": ("FF7A66", "E0452F", "A52A18"),
     }
 
-    def button(name, radius=30, w=96, h=92):
-        top, bottom = (rgba(c) for c in families[name])
-        return box(w, h, radius, top, bottom, rgba("FFFFFF", 0.55), 2, shadow=0.24, blur=5, drop=6, shine=0.5)
+    def button(name, radius=22, w=96, h=92):
+        top, bottom, edge = (rgba(c) for c in families[name])
+        return box(w, h, radius, top, bottom, rgba("FFFFFF", 0.6), 2, shadow=0.22, blur=4, drop=6, shine=0.55, hard=6, edge=edge)
 
     for name in families:
         save(f"btn_{name}", button(name))
-    save("tile", button("blue", 30, 108, 108))
-    save("btn_gear", stamp(button("blue", 22, 72, 72), gear(44)), stretch=False)
-    save("btn_close", stamp(button("red", 22, 72, 72), cross(44, False)), stretch=False)
+    save("tile", button("blue", 22, 108, 108))
+    save("btn_gear", stamp(button("blue", 18, 72, 72), gear(44)), stretch=False)
+    save("btn_close", stamp(button("red", 18, 72, 72), cross(44, False)), stretch=False)
 
-    # 实心面板：顶栏、底栏、暂存槽托盘、选中的页签（不透明，背景再花也读得清）
-    save("glass", box(96, 96, 30, rgba("2C7AD2"), rgba("1C5AAE"), rgba("A5D4FF", 0.9), 2.5, shadow=0.3, blur=6, drop=6, shine=0.35))
-    save("tab_on", box(72, 72, 24, rgba("5DB8FF"), rgba("2F8FEA"), rgba("FFFFFF", 0.85), 2.5, shine=0.5))
-    # 深色胶囊：数字底、进度条底、暂存格（同样实心）
-    save("chip", box(72, 60, 30, rgba("123F84"), rgba("0E3170"), rgba("6FB0F0", 0.7), 2))
-    save("slot", box(76, 76, 18, rgba("1A5CAB"), rgba("144C93"), rgba("5AA0EA", 0.8), 2))
-    save("fill", box(72, 44, 22, rgba("63D444"), rgba("43B528"), rgba("FFFFFF", 0.5), 2, shine=0.45))
+    # 实色蓝条：顶栏、底栏、暂存槽托盘
+    save("glass", box(96, 96, 22, rgba("3E95F2"), rgba("2364CC"), rgba("8CCBFF"), 2.5, shadow=0.3, blur=5, drop=5, shine=0.45, hard=4, edge=rgba("163F8E")))
+    # 选中的页签：更亮的青蓝，带白边
+    save("tab_on", box(72, 72, 18, rgba("6CD0FF"), rgba("2F9BF0"), white, 2.5, shine=0.6, hard=4, edge=rgba("1A62B8")))
+    # 白色胶囊：数字、进度底；深蓝字
+    save("chip", box(72, 60, 30, rgba("FFFFFF"), rgba("E2EEFB"), None, 0, shadow=0.25, blur=2, drop=2, hard=2.5, edge=rgba("9DB8DA")))
+    # 暂存格：深一点的蓝色凹槽
+    save("slot", box(76, 76, 12, rgba("1A4F9E"), rgba("2563BE"), rgba("74B8FF"), 2))
+    save("fill", box(72, 44, 22, rgba("74DA4E"), rgba("43B528"), None, 0, shine=0.45))
+    # 深海底板：图鉴等列表页的内容区
+    save("deep", box(96, 96, 24, rgba("1A3E80"), rgba("102A5C"), rgba("3A6CC0"), 2.5, shadow=0.3, blur=6, drop=6))
+    # 深色轨道 + 白色选中块：分段页签
+    save("track", box(72, 60, 30, rgba("0F2C63"), rgba("173A7A"), rgba("3C6FC4"), 2))
+    save("seg_on", box(72, 60, 26, rgba("FFFFFF"), rgba("DCEBFC"), None, 0, shadow=0.25, blur=2, drop=2))
     # 浅色面板：弹窗、列表行、卡片
-    save("panel", box(120, 120, 44, rgba("FFFFFF"), rgba("EEF7FF"), white, 3, shadow=0.34, blur=12, drop=14))
-    save("row", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
-    save("card", box(96, 96, 28, rgba("FFFFFF"), rgba("EAF4FF"), white, 3, shadow=0.16, blur=5, drop=5))
-    save("card_gold", box(96, 96, 28, rgba("FFF1BF"), rgba("FFDF86"), white, 3, shadow=0.2, blur=5, drop=5))
-    # 鱼缸架：一条玻璃搁板
-    save("shelf", box(96, 24, 12, rgba("9AD6F6"), rgba("5CB0E4"), rgba("D8F1FF"), 2, shadow=0.25, blur=4, drop=4))
+    save("panel", box(120, 120, 34, white, rgba("EEF6FF"), white, 3, shadow=0.34, blur=12, drop=14))
+    save("row", box(96, 96, 22, white, rgba("EAF4FF"), None, 0, shadow=0.2, blur=4, drop=4, hard=3, edge=rgba("A9C4E6")))
+    save("card", box(96, 96, 22, white, rgba("EAF4FF"), None, 0, shadow=0.2, blur=4, drop=4, hard=3, edge=rgba("A9C4E6")))
+    save("card_gold", box(96, 96, 22, rgba("FFF1BF"), rgba("FFDC7A"), None, 0, shadow=0.2, blur=4, drop=4, hard=3, edge=rgba("D9A93A")))
+    # 木架子：暖色木板 + 顶部亮线 + 下沿深色厚度
+    save("shelf", box(96, 28, 8, rgba("F2B46A"), rgba("D78A44"), rgba("FFD9A3"), 2, shadow=0.3, blur=4, drop=4, shine=0.6, hard=6, edge=rgba("9A5A26")))
 
     # 底部渐隐条：从透明过渡到深蓝，衬托页签和道具键
-    fade = gradient((8 * K, 96 * K), NAVY + (0,), NAVY + (215,), 0, 96 * K)
+    fade = gradient((8 * K, 96 * K), NAVY + (0,), NAVY + (190,), 0, 96 * K)
     save("fade", fade)
 
     save("badge_green", circle(80, rgba("63D444"), rgba("3FAE25")), stretch=False)

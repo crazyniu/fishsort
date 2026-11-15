@@ -123,25 +123,30 @@ func _refresh_stats() -> void:
 # ---------- 底部页签 ----------
 
 
-## 底部页签：一条玻璃横栏，选中的页签有高亮底、图标放大上浮
+## 底部页签：一条实色蓝底，选中的页签是抬高的亮色块并显示文字，其余只显示图标
 func _build_tabs() -> void:
 	var y: float = size.y - TABS_H
-	_add(_stage, UiKit.piece("fade"), Vector2(-400, y - 60), Vector2(W + 800, TABS_H + 60))
-	_add(_stage, UiKit.piece("glass"), Vector2(16, y + 14), Vector2(W - 32, TABS_H - 28))
+	_add(_stage, UiKit.piece("fade"), Vector2(-400, y - 40), Vector2(W + 800, TABS_H + 40))
+	_add(_stage, UiKit.piece("glass"), Vector2(8, y + 34), Vector2(W - 16, TABS_H - 42))
 	_tab_icons.clear()
 	_tab_marks.clear()
 	_tab_labels.clear()
-	var tab_w: float = (W - 48) / TAB_KEYS.size()
+	var tab_w: float = (W - 32) / TAB_KEYS.size()
 	for i: int in TAB_KEYS.size():
-		var x: float = 24 + i * tab_w
+		var x: float = 16 + i * tab_w
 		var mark := UiKit.piece("tab_on")
-		_add(_stage, mark, Vector2(x + 4, y + 20), Vector2(tab_w - 8, TABS_H - 40))
+		_add(_stage, mark, Vector2(x + 2, y + 8), Vector2(tab_w - 4, TABS_H - 20))
 		_tab_marks.append(mark)
-		var icon := UiKit.icon("res://assets/ui/%s.png" % TAB_ICONS[i], 78)
-		_add(_stage, icon, Vector2(x + (tab_w - 78) / 2.0, y + 22))
+		if i > 0:
+			var line := ColorRect.new()
+			line.color = Color("1B4FA6")
+			line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_add(_stage, line, Vector2(x - 1, y + 50), Vector2(2, TABS_H - 76))
+		var icon := UiKit.icon("res://assets/ui/%s.png" % TAB_ICONS[i], 76)
+		_add(_stage, icon, Vector2(x + (tab_w - 76) / 2.0, y + 46))
 		_tab_icons.append(icon)
-		var text := UiKit.label(tr(TAB_KEYS[i]), 22)
-		_add(_stage, text, Vector2(x, y + 94), Vector2(tab_w, 30))
+		var text := UiKit.label(tr(TAB_KEYS[i]), 24)
+		_add(_stage, text, Vector2(x, y + 96), Vector2(tab_w, 32))
 		_tab_labels.append(text)
 		var hot := UiKit.hotspot(Vector2(x, y), Vector2(tab_w, TABS_H))
 		hot.pressed.connect(_on_tab.bind(i))
@@ -154,18 +159,19 @@ func _mark_tabs() -> void:
 	for i: int in _tab_marks.size():
 		var on: bool = i == _tab
 		_tab_marks[i].visible = on
-		# 选中的图标放大并上浮一点，其余稍微暗一些
+		_tab_labels[i].visible = on
+		# 选中的图标放大并上浮，给文字让出位置
 		var icon: Control = _tab_icons[i]
 		var tw: Tween = icon.create_tween().set_parallel()
 		(
 			tw
-			. tween_property(icon, "scale", Vector2.ONE * (1.22 if on else 1.0), 0.18)
+			. tween_property(icon, "scale", Vector2.ONE * (1.15 if on else 1.0), 0.18)
 			. set_trans(Tween.TRANS_BACK)
 			. set_ease(Tween.EASE_OUT)
 		)
-		tw.tween_property(icon, "position:y", y + (10.0 if on else 22.0), 0.18)
-		icon.modulate = Color.WHITE if on else Color(0.86, 0.9, 0.96)
-		_tab_labels[i].add_theme_color_override("font_color", UiKit.GOLD if on else Color.WHITE)
+		tw.tween_property(icon, "position:y", y + (16.0 if on else 46.0), 0.18)
+		if on:
+			Anim.bounce(_tab_labels[i], 1.2)
 
 
 func _on_tab(i: int) -> void:
@@ -629,26 +635,28 @@ func _page_rank() -> void:
 
 
 func _page_collection() -> void:
-	# 稀有度分段页签：一条玻璃底上五段，选中的那段是彩色按钮
-	_add(_page, UiKit.piece("glass"), Vector2(16, 8), Vector2(W - 32, 84))
-	var seg_w: float = (W - 32 - 16) / RARITIES.size()
+	# 深海底板托住整页内容，背景图只露在外圈
+	var deep_h: float = _page.size.y - 122.0
+	_add(_page, UiKit.piece("deep"), Vector2(12, 4), Vector2(W - 24, deep_h))
+	# 稀有度分段页签：深色轨道，选中段是白色块
+	var seg_w: float = (W - 64 - 8) / RARITIES.size()
+	_add(_page, UiKit.piece("track"), Vector2(32, 20), Vector2(W - 64, 64))
 	for i: int in RARITIES.size():
 		var text: String = tr("UI_RARITY_" + RARITIES[i].to_upper())
-		var pos := Vector2(24 + i * seg_w, 16)
+		var pos := Vector2(36 + i * seg_w, 24)
 		if i == _rarity:
-			var on := _btn(
+			var on := UiKit.piece("seg_on")
+			_add(_page, on, pos, Vector2(seg_w, 56))
+			Anim.bounce(on, 1.06, 0.2)
+			_add(
 				_page,
-				text,
-				RARITY_BUTTONS[i],
-				pos + Vector2(3, 0),
-				Vector2(seg_w - 6, 68),
-				_on_rarity.bind(i),
-				28
+				UiKit.text(text, 28, RARITY_BUTTONS[i].darkened(0.25)),
+				pos,
+				Vector2(seg_w, 56)
 			)
-			Anim.bounce(on, 1.08, 0.22)
 		else:
-			_add(_page, UiKit.label(text, 26, Color(0.92, 0.96, 1.0)), pos, Vector2(seg_w, 68))
-			var hot := UiKit.hotspot(pos, Vector2(seg_w, 68))
+			_add(_page, UiKit.label(text, 26), pos, Vector2(seg_w, 56))
+			var hot := UiKit.hotspot(pos, Vector2(seg_w, 56))
 			hot.pressed.connect(_on_rarity.bind(i))
 			_page.add_child(hot)
 	# 收集进度
@@ -657,67 +665,62 @@ func _page_collection() -> void:
 		func(sp: Dictionary) -> bool: return sp["rarity"] == RARITIES[_rarity]
 	)
 	var have: int = pool.filter(func(sp: Dictionary) -> bool: return cards.has(sp["id"])).size()
-	_add(_page, UiKit.piece("chip"), Vector2(16, 104), Vector2(W - 32, 44))
+	_add(_page, UiKit.piece("chip"), Vector2(32, 98), Vector2(W - 64, 36))
 	if have > 0:
-		_add(
-			_page,
-			UiKit.piece("fill"),
-			Vector2(16, 104),
-			Vector2(maxf(44.0, (W - 32) * have / pool.size()), 44)
-		)
+		var fill_w: float = maxf(36.0, (W - 64) * have / pool.size())
+		_add(_page, UiKit.piece("fill"), Vector2(32, 98), Vector2(fill_w, 36))
 	_add(
 		_page,
-		UiKit.label(tr("UI_COLLECTED") % [have, pool.size()], 24),
-		Vector2(16, 104),
-		Vector2(W - 32, 42)
+		UiKit.text(tr("UI_COLLECTED") % [have, pool.size()], 22, UiKit.INK),
+		Vector2(32, 98),
+		Vector2(W - 64, 36)
 	)
-	# 卡片列表
-	var list_top: float = 162.0
-	var list_h: float = _page.size.y - list_top - 122.0
+	# 鱼缸一排三个摆在木架上，可上下滑动
+	var list_top: float = 146.0
+	var list_h: float = deep_h - list_top - 4.0
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_add(_page, scroll, Vector2(0, list_top), Vector2(W, list_h))
+	scroll.clip_contents = true
+	_add(_page, scroll, Vector2(12, list_top), Vector2(W - 24, list_h))
 	var inner := Control.new()
 	# 默认会拦下滚轮和拖动，放行给外层的滚动容器
 	inner.mouse_filter = Control.MOUSE_FILTER_PASS
 	scroll.add_child(inner)
-	var cell_w: float = (W - 32 - 24) / 3.0
+	var row_h: float = 214.0
+	var col_w: float = (W - 24 - 32) / 3.0
+	for r: int in ceili(pool.size() / 3.0):
+		_add(inner, UiKit.piece("shelf"), Vector2(10, r * row_h + 160), Vector2(W - 44, 40))
 	for n: int in pool.size():
 		var sp: Dictionary = pool[n]
 		var owned: int = int(cards.get(sp["id"], 0))
-		var cell := UiKit.piece("card")
-		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.74, 0.82, 0.9)
-		_add(
-			inner,
-			cell,
-			Vector2(16 + (n % 3) * (cell_w + 12), 6 + (n / 3) * 262),
-			Vector2(cell_w, 250)
-		)
+		var cx: float = 16 + (n % 3) * col_w + col_w / 2.0
+		var top: float = (n / 3) * row_h
+		var cell := Control.new()
+		cell.mouse_filter = Control.MOUSE_FILTER_PASS
+		_add(inner, cell, Vector2(cx - 90, top), Vector2(180, 200))
+		var tank := UiKit.icon("res://assets/ui/tank.png", 176)
+		_add(cell, tank, Vector2(2, 0))
+		if owned == 0:
+			tank.modulate = Color(0.78, 0.86, 0.95)
 		var art_path: String = "res://assets/fish/%s.png" % sp["id"]
-		var bub := UiKit.icon("res://assets/ui/bubble.png", 164)
-		_add(cell, bub, Vector2((cell_w - 164) / 2.0, 10)).modulate.a = 0.75
 		if ResourceLoader.exists(art_path):
-			var fish := UiKit.icon(art_path, 112)
-			_add(cell, fish, Vector2((cell_w - 112) / 2.0, 36))
+			var fish := UiKit.icon(art_path, 92)
+			_add(cell, fish, Vector2(44, 52))
 			if owned > 0:
 				Anim.wiggle(fish, 6.0, 1.8, randf())
 			else:
-				fish.modulate = Color(0.05, 0.2, 0.3, 0.7)
+				fish.modulate = Color(0.04, 0.14, 0.3, 0.85)
 		else:
-			_add(cell, UiKit.label("?", 84), Vector2((cell_w - 164) / 2.0, 10), Vector2(164, 164))
+			_add(cell, UiKit.label("?", 72), Vector2(40, 40), Vector2(100, 110))
 		var name_text: String = sp["name"] if owned > 0 else tr("UI_UNKNOWN")
-		_add(
-			cell,
-			UiKit.text(name_text, 28, UiKit.NAVY if owned > 0 else UiKit.BODY),
-			Vector2(0, 186),
-			Vector2(cell_w, 44)
-		)
+		# 名字写在木架上
+		_add(cell, UiKit.label(name_text, 24), Vector2(-10, 162), Vector2(200, 34))
 		if owned > 1:
-			_add(cell, UiKit.badge("dot_red", 44), Vector2(cell_w - 52, 8))
-			_add(cell, UiKit.label(str(owned), 22), Vector2(cell_w - 52, 8), Vector2(44, 44))
+			_add(cell, UiKit.badge("dot_red", 44), Vector2(140, 6))
+			_add(cell, UiKit.label(str(owned), 22), Vector2(140, 6), Vector2(44, 44))
 		if n < 12:
 			Anim.pop_in(cell, 0.03 * n, 0.25)
-	inner.custom_minimum_size = Vector2(W, 12 + ceili(pool.size() / 3.0) * 262)
+	inner.custom_minimum_size = Vector2(W - 24, ceili(pool.size() / 3.0) * row_h + 8)
 	# 珍稀卡包：图标 + 名称 + 价格胶囊，旁边是概率说明
 	var y: float = _page.size.y - 108
 	var pack := _btn(_page, "", UiKit.PURPLE, Vector2(16, y), Vector2(W - 32 - 100, 92), _on_pack)

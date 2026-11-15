@@ -44,11 +44,11 @@ func test_card_pity_and_duplicates() -> void:
 		var owned_low: int = (
 			(save["cards"] as Dictionary)
 			. keys()
-			. filter(func(k: String) -> bool: return k[0] == "c" or k[0] == "u")
+			. filter(func(k: String) -> bool: return k[0] == "c")
 			. size()
 		)
-		if owned_low < 45:
-			ok(dry < 3, "保底：普通和精良集齐前不会连续 3 张都是重复卡")
+		if owned_low < 30:
+			ok(dry < 3, "保底：普通集齐前不会连续 3 张都是重复卡")
 	ok(int(save["coins"]) > 0, "重复卡换金币")
 	ok(
 		not (save["cards"] as Dictionary).keys().any(

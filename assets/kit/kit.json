@@ -2,59 +2,59 @@
  "density": 3,
  "pieces": {
   "btn_blue": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 14,
+   "mx": 61,
+   "my": 59
   },
   "btn_green": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 14,
+   "mx": 61,
+   "my": 59
   },
   "btn_orange": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 14,
+   "mx": 61,
+   "my": 59
   },
   "btn_purple": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 14,
+   "mx": 61,
+   "my": 59
   },
   "btn_red": {
-   "pad": 16,
-   "mx": 63,
-   "my": 61
+   "pad": 14,
+   "mx": 61,
+   "my": 59
   },
   "tile": {
-   "pad": 16,
-   "mx": 69,
-   "my": 69
+   "pad": 14,
+   "mx": 67,
+   "my": 67
   },
   "btn_gear": {
-   "pad": 16,
+   "pad": 14,
    "mx": 0,
    "my": 0
   },
   "btn_close": {
-   "pad": 16,
+   "pad": 14,
    "mx": 0,
    "my": 0
   },
   "glass": {
-   "pad": 18,
-   "mx": 65,
-   "my": 65
+   "pad": 15,
+   "mx": 62,
+   "my": 62
   },
   "tab_on": {
-   "pad": 0,
-   "mx": 35,
-   "my": 35
+   "pad": 4,
+   "mx": 39,
+   "my": 39
   },
   "chip": {
-   "pad": 0,
-   "mx": 35,
-   "my": 29
+   "pad": 6,
+   "mx": 41,
+   "my": 35
   },
   "slot": {
    "pad": 0,
@@ -66,30 +66,45 @@
    "mx": 35,
    "my": 21
   },
+  "deep": {
+   "pad": 18,
+   "mx": 65,
+   "my": 65
+  },
+  "track": {
+   "pad": 0,
+   "mx": 35,
+   "my": 29
+  },
+  "seg_on": {
+   "pad": 6,
+   "mx": 41,
+   "my": 35
+  },
   "panel": {
    "pad": 38,
    "mx": 97,
    "my": 97
   },
   "row": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 12,
+   "mx": 59,
+   "my": 59
   },
   "card": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 12,
+   "mx": 59,
+   "my": 59
   },
   "card_gold": {
-   "pad": 15,
-   "mx": 62,
-   "my": 62
+   "pad": 12,
+   "mx": 59,
+   "my": 59
   },
   "shelf": {
    "pad": 12,
    "mx": 59,
-   "my": 23
+   "my": 25
   },
   "fade": {
    "pad": 0,

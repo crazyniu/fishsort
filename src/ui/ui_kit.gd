@@ -12,6 +12,8 @@ const RED := Color("F0503C")
 const GOLD := Color("FFC93C")
 ## 浅色面板上的正文色
 const BODY := Color("27508F")
+## 白色胶囊上的字：深蓝，不描边
+const INK := Color("1A2F6B")
 
 static var _cache: Dictionary = {}
 
@@ -86,7 +88,7 @@ static func capsule(icon_path: String, width: float, height: float = 56.0) -> Di
 	var pic := icon(icon_path, side)
 	pic.position = Vector2(5, 4)
 	box.add_child(pic)
-	var num := label("0", int(height * 0.5))
+	var num := text("0", int(height * 0.5), INK)
 	num.position = Vector2(side + 6, 0)
 	num.size = Vector2(width - side - 18, height)
 	box.add_child(num)
