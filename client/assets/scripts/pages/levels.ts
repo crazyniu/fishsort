@@ -7,13 +7,14 @@ import * as Daily from '../core/meta/daily';
 import * as HomeBase from '../core/meta/homeBase';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
+import * as Seas from '../core/meta/seas';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, iconButton, img, lazyImg, opacity, slice, text } from '../ui/kit';
+import { at, box, hex, iconButton, img, lazyImg, opacity, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
@@ -29,6 +30,9 @@ const AHEAD = 12;
 export class LevelsPage extends Page {
   readonly tab = null;
   private content!: Node;
+  private bg!: Node;
+  private sea = '';
+  private deco: Node[] = [];
   private pathLayer!: Node;
   private nodeLayer!: Node;
   private replayLabel!: ReturnType<typeof text>;
@@ -46,11 +50,21 @@ export class LevelsPage extends Page {
   private scroll = { y: 0 };
 
   build(root: Node): void {
-    const bgH = Math.max(Screen.H, Screen.W * 1.5);
-    lazyImg(root, 'bg/sea_shore', (bgH * 1024) / 1536, bgH);
+    this.bg = box('bg', root);
     this.content = box('content', root, Screen.W, Screen.H);
     this.pathLayer = box('path', this.content);
     this.nodeLayer = box('nodes', this.content);
+    // 两边游的鱼（不跟着滚）
+    for (const [id, x, y, sz] of [
+      ['c03', -Screen.W / 2 + 90, -60, 150],
+      ['c05', Screen.W / 2 - 90, 220, 120],
+      ['c01', Screen.W / 2 - 100, -380, 170],
+    ] as const) {
+      const f = img(root, `fish/${id}`, sz, sz, `deco_${id}`);
+      at(f, x, y);
+      if (x > 0) f.setScale(-1, 1, 1);
+      this.deco.push(f);
+    }
     // 顶部：返回 + 标题 + 今日重玩奖励剩余
     const top = Screen.top;
     const head = box('head', root, Screen.W, 220);
@@ -81,6 +95,19 @@ export class LevelsPage extends Page {
 
   override show(): void {
     const s = App.save.data;
+    // 背景跟当前关所在的海域
+    const eco = App.config.eco;
+    const sea = eco.seas?.[Seas.forLevel(eco, Meta.levelFile(s.level, App.config.levelCount))]?.id ?? 'shore';
+    if (sea !== this.sea) {
+      this.sea = sea;
+      this.bg.destroyAllChildren();
+      const bgH = Math.max(Screen.H, Screen.W * 1.5);
+      lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
+    }
+    this.deco.forEach((f, i) => {
+      Tween.stopAllByTarget(f);
+      fx.bob(f, 14, 2.2 + i * 0.4, i * 0.5);
+    });
     this.last = s.level + AHEAD;
     for (const n of this.built.values()) n.destroy();
     this.built.clear();
@@ -115,6 +142,7 @@ export class LevelsPage extends Page {
 
   override hide(): void {
     Tween.stopAllByTarget(this.scroll);
+    for (const f of this.deco) Tween.stopAllByTarget(f);
   }
 
   private setY(y: number): void {
@@ -172,7 +200,7 @@ export class LevelsPage extends Page {
     }
     const skin = cur ? 'kit/node_current' : done ? (hard ? 'kit/node_challenge_done' : 'kit/node_done') : hard ? 'kit/node_challenge' : 'kit/node_locked';
     const ball = img(holder, skin, size, size, 'ball');
-    const num = text(ball, String(n), cur ? 64 : 52, { color: done || cur || hard ? COLOR.white : COLOR.navy });
+    const num = text(ball, String(n), cur ? 64 : 52, { outline: done || cur || hard ? undefined : hex('#5E6B7D') });
     at(num.node, 0, done ? 12 : 6);
     if (hard) {
       // 挑战关：插一面「挑战」旗
