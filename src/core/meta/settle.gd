@@ -6,7 +6,8 @@ extends RefCounted
 
 ## args: { level, challenge, day, now, combo_coins, best_combo }
 ## 返回 { rewarded, replay, first_win, coins_base, coins_combo, coins_best, coins,
-##        level_up, new_skills, new_features, wheel_spin, unlimited, chest_ok }
+##        level_up, new_skills, new_features, wheel_spin, unlimited, chest_ok, stars }
+## stars：家园星星，只在首次通过时发（普通关 1、挑战关 2），重玩不给；每日挑战不走这里
 static func win(save: Dictionary, eco: Dictionary, args: Dictionary) -> Dictionary:
 	var day: int = int(args["day"])
 	Daily.roll(save, day)
@@ -32,6 +33,7 @@ static func win(save: Dictionary, eco: Dictionary, args: Dictionary) -> Dictiona
 		"wheel_spin": false,
 		"unlimited": 0,
 		"chest_ok": rewarded,
+		"stars": 0,
 	}
 	if rewarded:
 		res["coins_base"] = int(eco["challengeCoins"] if challenge else eco["levelCoins"])
@@ -52,6 +54,8 @@ static func win(save: Dictionary, eco: Dictionary, args: Dictionary) -> Dictiona
 		var old: int = int(save["level"])
 		save["level"] = level_id + 1
 		res["level_up"] = true
+		res["stars"] = HomeBase.stars_for_level(eco, challenge)
+		HomeBase.add_stars(save, int(res["stars"]))
 		res["new_features"] = Features.newly_unlocked(eco, old, level_id + 1)
 		res["new_skills"] = Skills.sync_unlocks(save, eco)
 	return res
