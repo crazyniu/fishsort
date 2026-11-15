@@ -29,12 +29,25 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}
+
+[gui]
+
+theme/custom_font="res://assets/fonts/game_font.tres"
+
 [internationalization]
 
 locale/translations=PackedStringArray("res://i18n/strings.zh_CN.translation", "res://i18n/strings.en.translation")
 locale/fallback="zh_CN"
 
 [rendering]
+
+textures/canvas_textures/default_texture_filter=2
+anti_aliasing/quality/msaa_2d=2
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

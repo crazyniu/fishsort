@@ -21,17 +21,17 @@ func _build() -> void:
 	_box = Control.new()
 	_box.position = Vector2((size.x - W) / 2.0, 0)
 	add_child(_box)
-	_put(UiKit.label("广告测试", 48, UiKit.LEMON), Vector2(0, 20), Vector2(W, 64))
+	_put(UiKit.label("广告测试", 48, UiKit.GOLD), Vector2(0, 20), Vector2(W, 64))
 	var debug: PlatformDebug = Platform.impl as PlatformDebug
 	var on: bool = debug != null and debug.ads_on
 	_button(
 		"广告：可用" if on else "广告：不可用",
-		UiKit.GREEN if on else UiKit.CORAL,
+		UiKit.GREEN if on else UiKit.ORANGE,
 		Vector2(30, 96),
 		Vector2(330, 70),
 		_toggle
 	)
-	_button("重置频控", UiKit.MINT, Vector2(390, 96), Vector2(330, 70), _reset)
+	_button("重置频控", UiKit.BLUE, Vector2(390, 96), Vector2(330, 70), _reset)
 	var placements: Dictionary = Config.ads["placements"]
 	var i: int = 0
 	var row_h: float = minf(92.0, (size.y - 290.0) / placements.size())
@@ -45,13 +45,13 @@ func _build() -> void:
 		_put(text, Vector2(30, y), Vector2(470, row_h - 8))
 		_button(
 			"触发",
-			UiKit.BERRY,
+			UiKit.PURPLE,
 			Vector2(540, y + 4),
 			Vector2(180, row_h - 16),
 			_fire.bind(StringName(id), kind)
 		)
 		i += 1
-	_button("关闭", UiKit.CORAL, Vector2(225, size.y - 96), Vector2(300, 76), _close)
+	_button("关闭", UiKit.ORANGE, Vector2(225, size.y - 96), Vector2(300, 76), _close)
 
 
 func _put(node: Control, pos: Vector2, area: Vector2) -> void:

@@ -45,7 +45,7 @@ func _build() -> void:
 	_popup = null
 	_stat_shown.clear()
 	var bg := TextureRect.new()
-	bg.texture = UiKit.tex("res://assets/ui/bg.jpg")
+	bg.texture = UiKit.tex("res://assets/ui/bg_home.jpg")
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.size = size
@@ -88,23 +88,22 @@ func _btn(
 
 
 func _build_top() -> void:
-	_add(_stage, UiKit.panel(UiKit.MINT, 0), Vector2(-400, -40), Vector2(W + 800, TOP_H + 36))
+	_add(_stage, UiKit.slice3("bar"), Vector2(-40, -34), Vector2(W + 80, TOP_H + 40))
 	var profile: Dictionary = Platform.impl.get_profile()
-	_add(_stage, UiKit.icon(profile.get("avatar", ""), 84), Vector2(14, 8))
-	var name := UiKit.label(profile.get("nickname", ""), 26)
+	_add(_stage, UiKit.icon(profile.get("avatar", ""), 92), Vector2(12, 4))
+	var name := UiKit.label(profile.get("nickname", ""), 24)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_add(_stage, name, Vector2(106, 8), Vector2(200, 40))
+	name.clip_text = true
+	_add(_stage, name, Vector2(112, 6), Vector2(150, 38))
 	var stats: Array = [
-		["coins", "coin", 106.0, 48.0],
-		["tickets", "ticket", 330.0, 26.0],
-		["stars", "star", 540.0, 26.0]
+		["coins", "coin", 112.0, 44.0, 170.0],
+		["tickets", "ticket", 322.0, 24.0, 190.0],
+		["stars", "star", 536.0, 24.0, 190.0]
 	]
 	for st: Array in stats:
-		_add(_stage, UiKit.icon("res://assets/ui/%s.png" % st[1], 46), Vector2(st[2], st[3]))
-		var l := UiKit.label("0", 30)
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		_add(_stage, l, Vector2(float(st[2]) + 52, float(st[3]) + 1), Vector2(140, 44))
-		_stat_labels[st[0]] = l
+		var cap: Dictionary = UiKit.capsule("res://assets/ui/%s.png" % st[1], st[4])
+		_add(_stage, cap["box"], Vector2(st[2], st[3]))
+		_stat_labels[st[0]] = cap["label"]
 	_refresh_stats()
 
 
@@ -124,12 +123,12 @@ func _refresh_stats() -> void:
 
 func _build_tabs() -> void:
 	var y: float = size.y - TABS_H
-	_add(_stage, UiKit.panel(UiKit.MINT, 0), Vector2(-400, y + 10), Vector2(W + 800, TABS_H + 40))
+	_add(_stage, UiKit.slice3("bar"), Vector2(-40, y + 4), Vector2(W + 80, TABS_H + 50))
 	_tab_icons.clear()
 	_tab_marks.clear()
 	for i: int in TAB_KEYS.size():
 		var x: float = i * 150.0
-		var mark := UiKit.panel(UiKit.LEMON, 30)
+		var mark := UiKit.stretch("card_gold")
 		_add(_stage, mark, Vector2(x + 12, y - 4), Vector2(126, 148))
 		_tab_marks.append(mark)
 		var icon := UiKit.icon("res://assets/ui/%s.png" % TAB_ICONS[i], 92)
@@ -213,7 +212,7 @@ func _close_popup() -> void:
 
 func _page_main() -> void:
 	var h: float = _page.size.y
-	var title := UiKit.label(tr("UI_TITLE"), 96, UiKit.LEMON)
+	var title := UiKit.label(tr("UI_TITLE"), 96, UiKit.GOLD)
 	_add(_page, title, Vector2(0, h * 0.1), Vector2(W, 130))
 	Anim.pop_in(title, 0.05, 0.45)
 	# 几条鱼在泡泡里漂着当装饰
@@ -258,7 +257,7 @@ func _page_main() -> void:
 		_btn(
 			_page,
 			tr("UI_AD_TEST"),
-			UiKit.BERRY,
+			UiKit.PURPLE,
 			Vector2(16, 24),
 			Vector2(170, 64),
 			_show_ad_test,
@@ -279,8 +278,8 @@ func _show_signin() -> void:
 	if can:
 		buttons.append([tr("UI_CLAIM"), UiKit.GREEN, _claim_signin.bind(false)])
 		if Ads.available():
-			buttons.append([tr("UI_CLAIM_DOUBLE"), UiKit.BERRY, _claim_signin.bind(true)])
-	buttons.append([tr("UI_CLOSE"), UiKit.CORAL, _close_popup])
+			buttons.append([tr("UI_CLAIM_DOUBLE"), UiKit.PURPLE, _claim_signin.bind(true)])
+	buttons.append([tr("UI_CLOSE"), UiKit.ORANGE, _close_popup])
 	var lines: Array[String] = []
 	if not can:
 		lines.append(tr("UI_CLAIMED"))
@@ -299,12 +298,13 @@ func _show_signin() -> void:
 			cell_w = 276.0
 		var claimed: bool = i < idx or (i == idx and not can)
 		var color: Color = (
-			UiKit.LEMON if (i == idx and can) else (Color("CFE9E4") if claimed else Color.WHITE)
+			UiKit.GOLD if (i == idx and can) else (Color("CFE9E4") if claimed else Color.WHITE)
 		)
-		var cell := UiKit.panel(color, 20)
+		var cell_tex: String = "card_gold" if color == UiKit.GOLD else "card"
+		var cell: Control = UiKit.stretch(cell_tex) if cell_w < 200.0 else UiKit.nine(cell_tex, 60)
+		cell.self_modulate = Color(0.72, 0.8, 0.86) if claimed else Color.WHITE
 		_add(_popup.card, cell, pos, Vector2(cell_w, 148))
-		var day_label := UiKit.label(tr("UI_SIGNIN_DAY") % (i + 1), 22, UiKit.INK)
-		day_label.add_theme_constant_override("outline_size", 0)
+		var day_label := UiKit.text(tr("UI_SIGNIN_DAY") % (i + 1), 22)
 		_add(cell, day_label, Vector2(0, 8), Vector2(cell_w, 30))
 		var reward: Dictionary = days[i]
 		var icon_path: String = "res://assets/ui/coin.png"
@@ -369,7 +369,7 @@ func _page_shop() -> void:
 		"res://assets/ui/coin.png",
 		tr("UI_FREE_COINS") % int(eco["freeCoin"]["amount"]),
 		tr("UI_WATCH_AD_LEFT") % left,
-		UiKit.BERRY,
+		UiKit.PURPLE,
 		_on_free_coin,
 		left > 0 and Ads.available()
 	)
@@ -399,11 +399,10 @@ func _shop_row(
 	on_press: Callable,
 	enabled: bool
 ) -> void:
-	var row := UiKit.panel(UiKit.CREAM, 26)
+	var row := UiKit.slice3("row", 60)
 	_add(_page, row, Vector2(30, 110 + i * 150), Vector2(W - 60, 132))
 	_add(row, UiKit.icon(icon, 96), Vector2(18, 16))
-	var l := UiKit.label(title, 28, UiKit.INK)
-	l.add_theme_constant_override("outline_size", 0)
+	var l := UiKit.text(title, 28)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_add(row, l, Vector2(130, 12), Vector2(250, 108))
 	var b := _btn(row, action, color, Vector2(384, 26), Vector2(290, 80), on_press, 22)
@@ -442,24 +441,24 @@ func _page_scene() -> void:
 	var scene: Dictionary = list[mini(index, list.size() - 1)]
 	_title(tr(scene["name"]))
 	var side: float = minf(620.0, _page.size.y - 330.0)
-	var frame := UiKit.panel(UiKit.CREAM, 30)
+	var frame := UiKit.nine("panel", 130)
 	_add(_page, frame, Vector2((W - side) / 2.0 - 12, 96), Vector2(side + 24, side + 24))
 	var art := TextureRect.new()
 	art.texture = UiKit.tex("res://assets/ui/scene1.jpg")
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.size = Vector2(side, side)
-	art.position = Vector2(12, 12)
+	art.size = Vector2(side - 60, side - 60)
+	art.position = Vector2(42, 42)
 	frame.add_child(art)
 	var steps: Array = scene["steps"]
 	var step: int = steps.size() if done_all else int(Save.data["sceneStep"])
 	# 还没建的部分用灰度表示：建得越多画面越鲜亮
 	art.modulate = Color.WHITE.lerp(Color(0.45, 0.5, 0.55), 1.0 - float(step) / steps.size())
 	var y: float = side + 140
-	_add(_page, UiKit.panel(Color(UiKit.INK, 0.5), 20), Vector2(95, y), Vector2(560, 44))
+	_add(_page, UiKit.slice3("track"), Vector2(95, y - 4), Vector2(560, 52))
 	if step > 0:
 		_add(
 			_page,
-			UiKit.panel(UiKit.GREEN, 20),
+			UiKit.slice3("fill"),
 			Vector2(95, y),
 			Vector2(maxf(48.0, 560.0 * step / steps.size()), 44)
 		)
@@ -471,7 +470,7 @@ func _page_scene() -> void:
 	var build := _btn(
 		_page,
 		tr("UI_BUILD") % cost,
-		UiKit.CORAL,
+		UiKit.ORANGE,
 		Vector2(175, y + 62),
 		Vector2(400, 96),
 		_on_build.bind(frame),
@@ -525,14 +524,15 @@ func _page_rank() -> void:
 	rows.sort_custom(
 		func(a: Dictionary, b: Dictionary) -> bool: return int(a["score"]) > int(b["score"])
 	)
-	var medal: Array[Color] = [Color("F5B301"), Color("AEB8C4"), Color("D98B4A")]
+	var medal: Array[Color] = [Color("FFE08A"), Color("DCE6F0"), Color("F2C29B")]
 	var row_h: float = minf(96.0, (_page.size.y - 140.0) / rows.size())
 	for i: int in rows.size():
 		var r: Dictionary = rows[i]
 		var color: Color = (
-			UiKit.GREEN if r.get("me", false) else (medal[i] if i < 3 else UiKit.CREAM)
+			Color(0.62, 1.0, 0.62) if r.get("me", false) else (medal[i] if i < 3 else Color.WHITE)
 		)
-		var row := UiKit.panel(color, 24)
+		var row := UiKit.slice3("row", 60)
+		row.self_modulate = color
 		_add(_page, row, Vector2(30, 128 + i * row_h), Vector2(W - 60, row_h - 10))
 		_add(row, UiKit.label(str(i + 1), 34), Vector2(10, 0), Vector2(70, row_h - 14))
 		_add(row, UiKit.icon(r["avatar"], row_h - 26), Vector2(86, 6))
@@ -556,7 +556,7 @@ func _page_collection() -> void:
 		var b := _btn(
 			_page,
 			tr("UI_RARITY_" + RARITIES[i].to_upper()),
-			RARITY_COLORS[i] if i == _rarity else Color("9FB4B8"),
+			UiKit.GREEN if i == _rarity else UiKit.BLUE,
 			Vector2(14 + i * 146, 14),
 			Vector2(138, 66),
 			_on_rarity.bind(i),
@@ -576,7 +576,8 @@ func _page_collection() -> void:
 		if sp["rarity"] != RARITIES[_rarity]:
 			continue
 		var owned: int = int(cards.get(sp["id"], 0))
-		var cell := UiKit.panel(UiKit.CREAM if owned > 0 else Color("B9CCD0"), 26)
+		var cell := UiKit.stretch("card")
+		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.7, 0.78, 0.84)
 		_add(inner, cell, Vector2(22 + (n % 3) * 240, 6 + (n / 3) * 250), Vector2(226, 236))
 		var art_path: String = "res://assets/fish/%s.png" % sp["id"]
 		_add(cell, UiKit.icon("res://assets/ui/bubble.png", 160), Vector2(33, 8)).modulate.a = 0.7
@@ -589,8 +590,7 @@ func _page_collection() -> void:
 				fish.modulate = Color(0.05, 0.2, 0.25, 0.75)
 		else:
 			_add(cell, UiKit.label("?", 80), Vector2(33, 8), Vector2(160, 160))
-		var name := UiKit.label(sp["name"] if owned > 0 else tr("UI_UNKNOWN"), 26, UiKit.INK)
-		name.add_theme_constant_override("outline_size", 0)
+		var name := UiKit.text(sp["name"] if owned > 0 else tr("UI_UNKNOWN"), 26)
 		_add(cell, name, Vector2(0, 170), Vector2(226, 34))
 		if owned > 1:
 			_add(cell, UiKit.label("×%d" % owned, 24), Vector2(150, 198), Vector2(70, 32))
@@ -602,7 +602,7 @@ func _page_collection() -> void:
 	_btn(
 		_page,
 		tr("UI_PACK") % cost,
-		UiKit.BERRY,
+		UiKit.PURPLE,
 		Vector2(135, _page.size.y - 150),
 		Vector2(480, 84),
 		_on_pack,

@@ -87,7 +87,7 @@ func _process(delta: float) -> void:
 			timer.text = text
 			# 最后 10 秒变红并逐秒跳动
 			if bowl.timer <= 10.0:
-				timer.add_theme_color_override("font_color", UiKit.CORAL)
+				timer.add_theme_color_override("font_color", UiKit.ORANGE)
 				Anim.bounce(timer, 1.3)
 				Audio.sfx(&"click", 1.4)
 	if not events.is_empty():
@@ -108,7 +108,7 @@ func _build() -> void:
 	_coins_shown = -1
 	var view: Vector2 = size
 	var bg := TextureRect.new()
-	bg.texture = UiKit.tex("res://assets/ui/bg.jpg")
+	bg.texture = UiKit.tex("res://assets/ui/bg_game.jpg")
 	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.size = view
@@ -139,19 +139,18 @@ func _put(node: Control, pos: Vector2, area: Vector2 = Vector2.ZERO) -> Control:
 
 ## 顶栏：左边圆形关卡牌，中间一条横栏放金币，右边设置齿轮
 func _build_top() -> void:
-	_put(UiKit.panel(UiKit.MINT, 34), Vector2(58, 26), Vector2(W - 74, 68))
-	var badge := UiKit.panel(UiKit.BERRY if _lv.challenge else UiKit.GREEN, 56)
-	_put(badge, Vector2(8, 4), Vector2(112, 112))
+	_put(UiKit.slice3("bar"), Vector2(50, 22), Vector2(W - 60, 76))
+	var badge := UiKit.pic("badge_purple" if _lv.challenge else "badge_green", 120)
+	_put(badge, Vector2(4, 0), Vector2(120, 120))
 	var word: String = tr("UI_CHALLENGE") if _lv.challenge else tr("UI_LEVEL_WORD")
 	_put(UiKit.label(word, 22), Vector2(8, 18), Vector2(112, 30))
 	_put(UiKit.label(str(_level_id), 46), Vector2(8, 42), Vector2(112, 56))
 	if _intro:
 		Anim.pop_in(badge)
-	_put(UiKit.icon("res://assets/ui/coin.png", 52), Vector2(140, 34))
-	_coins = UiKit.label("0", 34)
-	_coins.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_put(_coins, Vector2(200, 34), Vector2(200, 52))
-	_put(UiKit.icon("res://assets/ui/gear.png", 62), Vector2(W - 88, 29))
+	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 210)
+	_put(coin["box"], Vector2(146, 34))
+	_coins = coin["label"]
+	_put(UiKit.pic("btn_gear", 76), Vector2(W - 94, 22))
 	var gear := UiKit.hotspot(Vector2(W - 96, 22), Vector2(80, 76))
 	gear.pressed.connect(_show_settings)
 	Anim.press_fx(gear)
@@ -164,7 +163,7 @@ func _bowl_pos(i: int) -> Vector2:
 
 func _build_shelf() -> void:
 	# 珊瑚色的架子
-	_put(UiKit.panel(UiKit.CORAL, 14), Vector2(8, SHELF_Y + 150), Vector2(W - 16, 30))
+	_put(UiKit.slice3("shelf", 90), Vector2(2, SHELF_Y + 138), Vector2(W - 4, 60))
 	_bowls.clear()
 	for i: int in GameState.MAX_SLOTS:
 		var c: Vector2 = _bowl_pos(i)
@@ -175,9 +174,11 @@ func _build_shelf() -> void:
 		var plus := UiKit.icon("res://assets/ui/plus.png", 64)
 		_put(plus, c - Vector2(32, 22))
 		Anim.pulse(plus, 1.12)
-		var count := UiKit.label("", 30)
-		_put(count, c + Vector2(-60, 60), Vector2(120, 40))
-		var timer := UiKit.label("", 28, UiKit.LEMON)
+		var pill := UiKit.slice3("track")
+		_put(pill, c + Vector2(-50, 64), Vector2(100, 38))
+		var count := UiKit.label("", 26)
+		_put(count, c + Vector2(-60, 62), Vector2(120, 40))
+		var timer := UiKit.label("", 28, UiKit.GOLD)
 		_put(timer, c + Vector2(-60, -104), Vector2(120, 36))
 		var hot := UiKit.hotspot(c - Vector2(85, 92), Vector2(170, 190))
 		hot.pressed.connect(_on_bowl_pressed.bind(i))
@@ -191,6 +192,7 @@ func _build_shelf() -> void:
 				"plus": plus,
 				"count": count,
 				"timer": timer,
+				"pill": pill,
 				"species": -1
 			}
 		)
@@ -201,8 +203,10 @@ func _buffer_pos(i: int) -> Vector2:
 
 
 func _build_row() -> void:
-	_progress = UiKit.label("", 30)
+	_put(UiKit.slice3("track"), Vector2(10, ROW_Y + 18), Vector2(170, 50))
+	_progress = UiKit.label("", 26)
 	_put(_progress, Vector2(8, ROW_Y + 16), Vector2(176, 52))
+	_put(UiKit.slice3("track"), Vector2(186, ROW_Y - 8), Vector2(440, 100))
 	for i: int in _s.buffer_cap:
 		var slot := UiKit.icon("res://assets/ui/slot.png", 82)
 		_put(slot, _buffer_pos(i) - Vector2(41, 41))
@@ -294,20 +298,20 @@ func _build_tools(view_h: float) -> void:
 	var names: Dictionary = {
 		"net": "UI_TOOL_NET", "blow": "UI_TOOL_BLOW", "shuffle": "UI_TOOL_SHUFFLE"
 	}
-	var strip := UiKit.panel(Color(UiKit.INK, 0.6), 0)
+	var strip := UiKit.shade(Color(UiKit.NAVY, 0.55))
 	_put(strip, Vector2(-400, view_h - TOOLS_H + 6), Vector2(W + 800, TOOLS_H + 40))
 	for i: int in TOOLS.size():
 		var tool: String = TOOLS[i]
 		var x: float = 135 + i * 240 - 56
 		var y: float = view_h - TOOLS_H + 16
-		var btn := UiKit.button("", UiKit.MINT)
+		var btn := UiKit.tile_button()
 		btn.pressed.connect(_on_tool.bind(tool))
 		Anim.press_fx(btn)
-		_put(btn, Vector2(x, y), Vector2(112, 104))
+		_put(btn, Vector2(x, y), Vector2(112, 112))
 		_put(UiKit.icon("res://assets/ui/tool_%s.png" % tool, 84), Vector2(x + 14, y + 2))
-		_put(UiKit.panel(UiKit.CORAL, 16), Vector2(x - 8, y + 88), Vector2(128, 36))
+		_put(UiKit.slice3("btn_orange"), Vector2(x - 8, y + 86), Vector2(128, 40))
 		_put(UiKit.label(tr(names[tool]), 22), Vector2(x - 8, y + 88), Vector2(128, 34))
-		_put(UiKit.panel(UiKit.BERRY, 21), Vector2(x + 84, y - 12), Vector2(42, 42))
+		_put(UiKit.pic("dot_red", 50), Vector2(x + 80, y - 16))
 		var badge := UiKit.label("", 24)
 		_put(badge, Vector2(x + 84, y - 12), Vector2(42, 40))
 		_tool_badges[tool] = badge
@@ -385,6 +389,7 @@ func _refresh_top() -> void:
 		var bowl: GameState.Bowl = _s.slots[i] if usable else null
 		(view["tank"] as Control).modulate = Color.WHITE if bowl != null else Color(1, 1, 1, 0.45)
 		(view["fish"] as TextureRect).visible = bowl != null
+		(view["pill"] as Control).visible = bowl != null
 		var count: Label = view["count"]
 		count.visible = bowl != null
 		# 只有紧挨着的下一个缸位能开
@@ -509,7 +514,7 @@ func _on_bowl_pressed(i: int) -> void:
 			[tr("UI_SLOT_COIN") % price],
 			[
 				[tr("UI_CONFIRM"), UiKit.GREEN, _pay_slot.bind(price)],
-				[tr("UI_CLOSE"), UiKit.CORAL, _close_popup],
+				[tr("UI_CLOSE"), UiKit.ORANGE, _close_popup],
 			]
 		)
 	)
@@ -807,10 +812,10 @@ func _show_settings() -> void:
 		tr("UI_SETTINGS"),
 		[],
 		[
-			[tr("UI_MUSIC_ON" if music else "UI_MUSIC_OFF"), UiKit.MINT, _toggle_music],
-			[tr("UI_SOUND_ON" if sound else "UI_SOUND_OFF"), UiKit.MINT, _toggle_sound],
-			[tr("UI_RESTART"), UiKit.CORAL, start_level.bind(_level_id)],
-			[tr("UI_HOME"), UiKit.BERRY, _go_home],
+			[tr("UI_MUSIC_ON" if music else "UI_MUSIC_OFF"), UiKit.BLUE, _toggle_music],
+			[tr("UI_SOUND_ON" if sound else "UI_SOUND_OFF"), UiKit.BLUE, _toggle_sound],
+			[tr("UI_RESTART"), UiKit.ORANGE, start_level.bind(_level_id)],
+			[tr("UI_HOME"), UiKit.PURPLE, _go_home],
 			[tr("UI_CLOSE"), UiKit.GREEN, _close_popup],
 		]
 	)
@@ -860,9 +865,9 @@ func _win_popup(reward: Dictionary, card: Dictionary, doubled: bool) -> void:
 		lines.append(tr("UI_CARD_DUPE") % [card_name, int(card["coins"])])
 	var buttons: Array = []
 	if not doubled and Ads.available():
-		buttons.append([tr("UI_DOUBLE_COINS"), UiKit.BERRY, _on_double.bind(reward, card)])
+		buttons.append([tr("UI_DOUBLE_COINS"), UiKit.PURPLE, _on_double.bind(reward, card)])
 	buttons.append([tr("UI_NEXT_LEVEL"), UiKit.GREEN, _on_next])
-	buttons.append([tr("UI_HOME"), UiKit.MINT, _go_home])
+	buttons.append([tr("UI_HOME"), UiKit.BLUE, _go_home])
 	_open_popup(tr("UI_WIN"), lines, buttons)
 	_refresh_top()
 
@@ -895,9 +900,9 @@ func _show_lose(reason: int) -> void:
 	var lines: Array[String] = [tr(why[reason])]
 	var buttons: Array = []
 	if not _s.revived and Ads.available():
-		buttons.append([tr("UI_REVIVE"), UiKit.BERRY, _on_revive])
-	buttons.append([tr("UI_RETRY"), UiKit.CORAL, func() -> void: start_level(_level_id)])
-	buttons.append([tr("UI_HOME"), UiKit.MINT, _go_home])
+		buttons.append([tr("UI_REVIVE"), UiKit.PURPLE, _on_revive])
+	buttons.append([tr("UI_RETRY"), UiKit.ORANGE, func() -> void: start_level(_level_id)])
+	buttons.append([tr("UI_HOME"), UiKit.BLUE, _go_home])
 	_open_popup(tr("UI_LOSE"), lines, buttons)
 	Ads.banner(true)
 

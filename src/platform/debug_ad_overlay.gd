@@ -36,7 +36,7 @@ func _base(title: String, placement: StringName) -> VBoxContainer:
 	box.position = Vector2(-280, -330)
 	box.add_theme_constant_override("separation", 22)
 	shade.add_child(box)
-	box.add_child(UiKit.label(title, 52, UiKit.LEMON))
+	box.add_child(UiKit.label(title, 52, UiKit.GOLD))
 	box.add_child(UiKit.label("广告位：%s" % placement, 28))
 	return box
 
@@ -55,14 +55,14 @@ func rewarded(placement: StringName) -> void:
 	box.add_child(_countdown)
 	box.add_child(UiKit.label("倒计时结束自动算作看完", 24))
 	_button(box, "看完（发奖励）", UiKit.GREEN, PlatformBase.AdResult.DONE)
-	_button(box, "中途关闭（不发奖）", UiKit.CORAL, PlatformBase.AdResult.SKIPPED)
-	_button(box, "加载失败", UiKit.BERRY, PlatformBase.AdResult.UNAVAILABLE)
+	_button(box, "中途关闭（不发奖）", UiKit.ORANGE, PlatformBase.AdResult.SKIPPED)
+	_button(box, "加载失败", UiKit.PURPLE, PlatformBase.AdResult.UNAVAILABLE)
 
 
 func interstitial(placement: StringName) -> void:
 	var box: VBoxContainer = _base("模拟插屏广告", placement)
 	box.add_child(UiKit.label("1 秒后可关闭", 26))
-	var b := UiKit.button("关闭", UiKit.CORAL, 32)
+	var b := UiKit.button("关闭", UiKit.ORANGE, 32)
 	b.custom_minimum_size = Vector2(560, 88)
 	b.disabled = true
 	b.pressed.connect(_finish.bind(PlatformBase.AdResult.DONE))
