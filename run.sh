@@ -87,7 +87,14 @@ web_serve() {
   local dir="$CLIENT/build/web-mobile" url="http://localhost:$WEB_PORT/"
   need_file "$dir/index.html" "先跑 ./run.sh web-build"
   echo "→ ${url}（Ctrl+C 停止）"
-  if command -v open >/dev/null; then (sleep 1; open "$url") & fi
+  # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏
+  local chrome=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
+  if [ -x "$chrome" ]; then
+    (sleep 1; "$chrome" --user-data-dir="${TMPDIR:-/tmp}/fishsort-chrome" --no-first-run \
+      --no-default-browser-check --app="$url" --window-size=450,832 >/dev/null 2>&1) &
+  elif command -v open >/dev/null; then
+    (sleep 1; open "$url") &
+  fi
   exec python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 --directory "$dir"
 }
 
