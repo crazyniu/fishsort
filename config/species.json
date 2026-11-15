@@ -2,147 +2,147 @@
  "species": [
   {
    "id": "c01",
-   "name": "番茄仔",
+   "name": "小丑丑",
    "rarity": "common",
-   "group": "red-solid",
-   "hue": "red",
-   "pattern": "solid",
-   "shape": "fish"
+   "group": "orange-round",
+   "hue": "orange",
+   "pattern": "stripe",
+   "shape": "round"
   },
   {
    "id": "c02",
-   "name": "糖葫芦",
+   "name": "泡泡豚",
    "rarity": "common",
-   "group": "red-stripe",
-   "hue": "red",
-   "pattern": "stripe",
-   "shape": "fish"
+   "group": "yellow-ball",
+   "hue": "yellow",
+   "pattern": "spot",
+   "shape": "ball"
   },
   {
    "id": "c03",
-   "name": "草莓籽",
+   "name": "星星糖",
    "rarity": "common",
-   "group": "red-spot",
+   "group": "red-star",
    "hue": "red",
    "pattern": "spot",
-   "shape": "fish"
+   "shape": "star"
   },
   {
    "id": "c04",
-   "name": "橘团子",
+   "name": "鲨小宝",
    "rarity": "common",
-   "group": "orange-solid",
-   "hue": "orange",
+   "group": "navy-shark",
+   "hue": "navy",
    "pattern": "solid",
-   "shape": "fish"
+   "shape": "shark"
   },
   {
    "id": "c05",
-   "name": "虎皮卷",
+   "name": "钳钳",
    "rarity": "common",
-   "group": "orange-stripe",
-   "hue": "orange",
-   "pattern": "stripe",
-   "shape": "fish"
+   "group": "vermilion-claws",
+   "hue": "vermilion",
+   "pattern": "solid",
+   "shape": "claws"
   },
   {
    "id": "c06",
-   "name": "芝士豆",
+   "name": "八爪团",
    "rarity": "common",
-   "group": "orange-spot",
-   "hue": "orange",
+   "group": "purple-legs",
+   "hue": "purple",
    "pattern": "spot",
-   "shape": "fish"
+   "shape": "legs"
   },
   {
    "id": "c07",
-   "name": "焦糖丁",
+   "name": "卷卷马",
    "rarity": "common",
-   "group": "amber-solid",
-   "hue": "amber",
-   "pattern": "solid",
-   "shape": "fish"
+   "group": "lime-tall",
+   "hue": "lime",
+   "pattern": "spot",
+   "shape": "tall"
   },
   {
    "id": "c08",
-   "name": "蜂蜜条",
+   "name": "果冻伞",
    "rarity": "common",
-   "group": "amber-stripe",
-   "hue": "amber",
-   "pattern": "stripe",
-   "shape": "fish"
+   "group": "cyan-umbrella",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "umbrella"
   },
   {
    "id": "c09",
-   "name": "柠檬球",
+   "name": "慢慢龟",
    "rarity": "common",
-   "group": "yellow-solid",
-   "hue": "yellow",
+   "group": "green-shell",
+   "hue": "green",
    "pattern": "solid",
-   "shape": "fish"
+   "shape": "shell"
   },
   {
    "id": "c10",
-   "name": "玉米棒",
+   "name": "飞毯",
    "rarity": "common",
-   "group": "yellow-stripe",
-   "hue": "yellow",
-   "pattern": "stripe",
-   "shape": "fish"
+   "group": "indigo-diamond",
+   "hue": "indigo",
+   "pattern": "spot",
+   "shape": "diamond"
   },
   {
    "id": "c11",
-   "name": "香蕉斑",
+   "name": "珍珠贝",
    "rarity": "common",
-   "group": "yellow-spot",
-   "hue": "yellow",
-   "pattern": "spot",
-   "shape": "fish"
+   "group": "amber-clam",
+   "hue": "amber",
+   "pattern": "solid",
+   "shape": "clam"
   },
   {
    "id": "c12",
-   "name": "青柠片",
+   "name": "墨墨",
    "rarity": "common",
-   "group": "lime-solid",
-   "hue": "lime",
-   "pattern": "solid",
-   "shape": "fish"
+   "group": "blue-squid",
+   "hue": "blue",
+   "pattern": "stripe",
+   "shape": "squid"
   },
   {
    "id": "c13",
-   "name": "春笋",
+   "name": "红须须",
    "rarity": "common",
-   "group": "lime-stripe",
-   "hue": "lime",
-   "pattern": "stripe",
-   "shape": "fish"
+   "group": "crimson-lobster",
+   "hue": "crimson",
+   "pattern": "solid",
+   "shape": "lobster"
   },
   {
    "id": "c14",
-   "name": "豌豆仔",
+   "name": "小灯笼",
    "rarity": "common",
-   "group": "green-solid",
-   "hue": "green",
-   "pattern": "solid",
-   "shape": "fish"
+   "group": "azure-lantern",
+   "hue": "azure",
+   "pattern": "spot",
+   "shape": "lantern"
   },
   {
    "id": "c15",
-   "name": "抹茶丸",
+   "name": "尖尖",
    "rarity": "common",
-   "group": "green-spot",
-   "hue": "green",
-   "pattern": "spot",
-   "shape": "fish"
+   "group": "teal-snout",
+   "hue": "teal",
+   "pattern": "stripe",
+   "shape": "snout"
   },
   {
    "id": "c16",
-   "name": "薄荷糖",
+   "name": "跳跳豚",
    "rarity": "common",
-   "group": "mint-solid",
-   "hue": "mint",
+   "group": "sky-dolphin",
+   "hue": "sky",
    "pattern": "solid",
-   "shape": "fish"
+   "shape": "dolphin"
   },
   {
    "id": "c17",
