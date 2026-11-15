@@ -80,23 +80,42 @@ need_cocos() {
 }
 
 # 命令行构建；Cocos 成功时退出码是 36（32 = 参数错误，34 = 构建出错）
-cocos_build() {
+cocos_build_once() {
   local platform="$1" code=0
-  need_cocos
   # Cocos 3.8.8 命令行构建在已有缓存上增量导入时，资源会全被标成 importer "*"、运行黑屏（Mac 上反复遇到）；
   # 每次从空缓存导入最稳。COCOS_KEEP_CACHE=1 可以跳过
   [ "${COCOS_KEEP_CACHE:-}" = "1" ] || rm -rf "$CLIENT/library" "$CLIENT/temp"
   "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
-  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 ${code}）"
+  return "$code"
+}
+
+# 导入坏了：.meta 被改成 importer "*"（编辑器启动时插件重载和资源库启动抢跑，偶发）
+import_broken() {
+  grep -rlq '"importer": "\*"' "$CLIENT/assets" --include='*.meta'
+}
+
+cocos_build() {
+  local platform="$1" code=0 try
+  need_cocos
+  for try in 1 2 3; do
+    code=0
+    cocos_build_once "$platform" || code=$?
+    if [ "$code" -eq 36 ] && ! import_broken; then break; fi
+    if import_broken; then
+      echo "! 第 $try 次构建资源导入坏了（importer \"*\"），还原 .meta 后清缓存重来"
+      git checkout -- "$CLIENT/assets"
+      code=1
+    fi
+  done
+  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 $code）"
   echo "✓ 已构建 $platform → client/build/$platform"
   # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
   if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
     echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
-    git status --short -- client
+    git status --short -- client | head -20
   fi
 }
 
-# 调试开关走网页地址参数（client/assets/scripts/services/launch.ts）
 web_url() {
   local q=""
   [ "${1:-}" = "real" ] && q="${q}&real=1"

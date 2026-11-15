@@ -147,7 +147,7 @@
 - **存档**：结构沿用 `docs/meta-api.md`。**现在是测试开发版，不导入任何旧存档**（Godot 版的存档、金币等都不迁移，用户 2026-11-15 定）：Cocos 版存档从 `version` 1 开始；读档时版本不对或损坏就开新档，版本对就只把缺的字段补成默认值。正式上线后结构再变才写迁移函数。
 - **黄金数据怎么来**：Mac 上 `./run.sh golden <临时目录>` 导出（只读配置和关卡，不写仓库），打包成 gzip + base64 打印到终端，Linux 上分段读回、校验 sha256 后存成 `client/tests/golden/*.json.gz`，由 `client/tests/golden.test.ts` 对比。Godot 版核心逻辑再改，要重新导出。
 - **Linux 上检查界面层代码**：用到 `cc` 的脚本靠 `client/.cc-types/`（从 Mac 的 Cocos 3.8.8 安装目录取的 `cc.d.ts` 等，不进仓库）做类型检查，`./run.sh ts-check` 有它就查、没有就跳过。
-- **踩过的坑**：Cocos 构建用的 Babel 不认 `as X | Y`（打包脚本失败，`ts-check` 已加检查）；它的松散模式把 `[...Map 或 Set 或迭代器]` 编成 `[].concat(...)`，结果不对，一律用 `Array.from`（`ts-check` 有检查）；`resources.load` 成功时回调的 `err` 是 `undefined` 不是 `null`；命令行构建在已有缓存上增量导入时资源会全被标成 `importer: "*"`、运行黑屏，所以 `run.sh` 每次构建前清掉 `library`、`temp`（`COCOS_KEEP_CACHE=1` 跳过）。
+- **踩过的坑**：Cocos 构建用的 Babel 不认 `as X | Y`（打包脚本失败，`ts-check` 已加检查）；它的松散模式把 `[...Map 或 Set 或迭代器]` 编成 `[].concat(...)`，结果不对，一律用 `Array.from`（`ts-check` 有检查）；`resources.load` 成功时回调的 `err` 是 `undefined` 不是 `null`；命令行构建偶发把资源全标成 `importer: "*"`、运行黑屏（编辑器插件重载和资源库启动抢跑），所以 `run.sh` 每次构建前清掉 `library`、`temp`，构建后查到 `importer "*"` 就还原 `.meta`、清缓存重建，最多三次。
 - **关卡工具**：`./run.sh ts-level-verify`、`ts-level-gen` 是 TS 版，读写 `client/assets/resources/config/levels`。现有关卡是 #53 分段并行、只挑更接近目标的关拼出来的，任何一次生成都复现不了原文件，所以不做逐字节对比；生成器和胜率已由黄金数据证明一致。
 - **平台**：`PlatformBase` 接口照搬 `docs/04` 第 5 节；本分支只做 `debug` 实现（模拟广告、假排行、本地存档），其余平台留空实现。构建验证：`web-mobile`（浏览器试玩、截图）和 `wechatgame` 能打出包即可；Android / iOS / Facebook 之后单独做。
 - **调试开关**：`FISHSORT_LEVEL`、`FISHSORT_AUTOPLAY` 改为网页地址参数 `?level=65&autoplay=1`，并保留「资源加满」的试玩模式与 `real` 模式。
