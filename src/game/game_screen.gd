@@ -66,8 +66,8 @@ func start_level(id: int) -> void:
 	Ads.banner(false)
 	_level_id = id
 	var ease: int = 0 if daily else Meta.ease_for(Save.data, Config.eco, id)
-	# 关卡数有限，超出后循环使用
-	_lv = Config.load_level((id - 1) % LEVEL_COUNT + 1, ease)
+	# 关卡数有限，超出后在后半段里循环（Meta.level_file，docs/01 §5.7）
+	_lv = Config.load_level(Meta.level_file(id, LEVEL_COUNT), ease)
 	_s = GameState.from_level(_lv)
 	if not daily:
 		_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
@@ -84,8 +84,8 @@ func start_level(id: int) -> void:
 		var here: bool = (
 			id == int(Save.data["level"]) and id == Skills.unlock_level(Config.eco, tool)
 		)
-		# 每个技能的强制教学只出一次，重进解锁关不再出
-		if here and not PlayerData.tip_seen(Save.data, "skill_" + tool):
+		# 每个技能的强制教学只出一次，重进解锁关不再出；每日挑战不出
+		if here and not daily and not PlayerData.tip_seen(Save.data, "skill_" + tool):
 			_tutor = tool
 	_run += 1
 	_moved = false
@@ -102,7 +102,15 @@ func start_level(id: int) -> void:
 	_intro = true
 	_build()
 	_intro = false
-	# 新机制第一次出现的关卡，开局说明一句
+	# 每日挑战不出机制说明和一次性提示（docs/01 §5.11）
+	if not daily:
+		_show_tips(id)
+	if _tutor != "":
+		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
+
+
+## 新机制第一次出现的关卡，开局说明一句
+func _show_tips(id: int) -> void:
 	var tips: Array[String] = []
 	# 生命、掉落这类一次性提示：配置里按关卡给文案键，看过就记下
 	var once: String = (GameCfg.d()["tips"] as Dictionary).get(str(id), "")
@@ -117,8 +125,6 @@ func start_level(id: int) -> void:
 	for i: int in tips.size():
 		var wait: float = 0.9 + i * GameCfg.num("tutorial", "tipGap")
 		get_tree().create_timer(wait).timeout.connect(_toast.bind(tr(tips[i])))
-	if _tutor != "":
-		get_tree().create_timer(GameCfg.num("tutorial", "delay")).timeout.connect(_check_tutorial)
 
 
 func _process(delta: float) -> void:
@@ -220,8 +226,16 @@ func _tap(b: int, k: int) -> void:
 	# 点击处一圈水波，短促的「啵」
 	_fx.ripple(from)
 	Audio.sfx(&"bo", randf_range(0.95, 1.1))
-	_moved = true
+	_mark_moved()
 	_play(events)
+
+
+## 走了一步。每日挑战免费进来的那一次，第一步时才记次数（docs/01 §5.11）
+func _mark_moved() -> void:
+	if daily and not _moved and DailyChallenge.can_start_free(Save.data, Save.today()):
+		DailyChallenge.enter(Save.data, Config.eco, Save.today(), "free")
+		Save.save()
+	_moved = true
 
 
 ## 连击命中一次：规则和奖励在 Combo 里算，这里只管演出。run 对不上说明已经换关了
@@ -230,10 +244,12 @@ func _combo_hit(from: Vector2, run: int) -> void:
 		return
 	var cfg: Dictionary = Config.eco["combo"]
 	var rng := Rng.new(Time.get_ticks_usec())
-	var res: Dictionary = _combo.hit(Time.get_ticks_msec() / 1000.0, cfg, rng)
+	# 收藏没开放前连击不送卡
+	var cards_open: bool = Features.is_unlocked(Config.eco, "album", int(Save.data["level"]))
+	var res: Dictionary = _combo.hit(Time.get_ticks_msec() / 1000.0, cfg, rng, cards_open)
 	if int(res["count"]) <= 1:
 		_streak_coins = 0
-	# 连击金币只在这里显示，入账由结算（Settle.win）统一做
+	# 连击金币只在这里显示，入账由结算（Settle.win / DailyChallenge.win）统一做
 	var gain: int = res["coins"]
 	_streak_coins += gain
 	var tier: int = res["tier"]
@@ -386,7 +402,7 @@ func _spend_tool(tool: String) -> bool:
 	if not res["ok"]:
 		return false
 	_tool_uses[tool] = int(_tool_uses[tool]) + 1
-	_moved = true
+	_mark_moved()
 	Save.save()
 	_hud.refresh_tools()
 	return true
@@ -596,7 +612,10 @@ func _go_home() -> void:
 
 func _retry() -> void:
 	_save_best()
-	if daily:
+	# 免费进来还没走过：重开不算一次
+	if daily and DailyChallenge.can_start_free(Save.data, Save.today()):
+		start_level(_level_id)
+	elif daily:
 		_daily_again(tr("UI_TAB_DAILY"), true)
 	else:
 		_enter(_level_id)
@@ -739,8 +758,11 @@ func _on_revive() -> void:
 	_play(Rules.revive(_s))
 
 
-## 过关时把这一关救的生物记进图鉴（每个鱼缸装满就是救了 cap 只）
+## 过关时把这一关救的生物记进图鉴（每个鱼缸装满就是救了 cap 只）。
+## 只算首次通关和每日挑战，重玩旧关不算；要在 Settle.win 推进进度之前调
 func _record_dex() -> void:
+	if not Dex.counts_win(Save.data, _level_id, daily):
+		return
 	var counts: Dictionary = {}
 	for o: Dictionary in _lv.orders:
 		var id: String = _species[int(o["s"])]
@@ -759,7 +781,8 @@ func _daily_win() -> void:
 		Config.species,
 		Save.today(),
 		Save.now(),
-		Rng.new(Time.get_ticks_usec())
+		Rng.new(Time.get_ticks_usec()),
+		_combo.coins
 	)
 	Save.save()
 	var prizes: Array = r["prizes"]

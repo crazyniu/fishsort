@@ -15,26 +15,21 @@ func build() -> void:
 		else 0
 	)
 	var profile: Dictionary = Platform.impl.get_profile()
-	var rows: Array = Platform.impl.get_rank_list(&"weekly")
-	rows.append(
-		{
-			"name": profile.get("nickname", ""),
-			"avatar": profile.get("avatar", ""),
-			"score": me_score,
-			"me": true
-		}
-	)
-	rows.sort_custom(
-		func(a: Dictionary, b: Dictionary) -> bool: return int(a["score"]) > int(b["score"])
-	)
+	var mine: Dictionary = {
+		"name": profile.get("nickname", ""), "avatar": profile.get("avatar", ""), "score": me_score
+	}
+	# 排序规则和每周结算（WeeklyRank）用同一个
+	var rows: Array = WeeklyRank.sorted(Platform.impl.get_rank_list(&"weekly"), mine)
+	_build_prize_note(118.0)
 	var medal: Array[Color] = [Color("FFC93C"), Color("DCE6F0"), Color("F2A56B")]
-	var row_h: float = minf(92.0, (size.y - 170.0) / rows.size())
-	add(UiKit.piece("deep"), Vector2(12, 126), Vector2(W - 24, rows.size() * row_h + 20.0))
+	var top: float = 190.0
+	var row_h: float = minf(92.0, (size.y - top - 44.0) / rows.size())
+	add(UiKit.piece("deep"), Vector2(12, top), Vector2(W - 24, rows.size() * row_h + 20.0))
 	for i: int in rows.size():
 		var r: Dictionary = rows[i]
 		var me: bool = r.get("me", false)
 		var row := UiKit.piece("card_gold" if me else "popup_row")
-		add(row, Vector2(26, 136 + i * row_h), Vector2(W - 52, row_h - 8))
+		add(row, Vector2(26, top + 10.0 + i * row_h), Vector2(W - 52, row_h - 8))
 		var ink: Color = UiKit.INK if me else Color.WHITE
 		var rank_color: Color = ink if i >= 3 or me else medal[i]
 		var rank := UiKit.text(str(i + 1), 36, rank_color)
@@ -49,6 +44,19 @@ func build() -> void:
 		score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		add_to(row, score, Vector2(W - 52 - 190, 0), Vector2(170, row_h - 12))
 		Anim.pop_in(row, 0.04 * i, 0.28)
+
+
+## 每周奖励说明，两行：周一按上周名次发奖、第 1 名的奖励；第 2–3 名、4–10 名和其余上榜的金币
+func _build_prize_note(y: float) -> void:
+	var cfg: Dictionary = Config.eco["rankReward"]
+	var t: Array = cfg["tiers"]
+	var first: String = tr("RANK_PRIZE_TOP") % [int(t[0]["coins"]), int(t[0]["tools"])]
+	var rest: String = (
+		tr("RANK_PRIZE_REST")
+		% [int(t[1]["coins"]), int(t[2]["coins"]), int(t[3]["coins"]), int(cfg["rest"]["coins"])]
+	)
+	add(UiKit.label(first, 22, UiKit.GOLD), Vector2(0, y), Vector2(W, 32))
+	add(UiKit.label(rest, 22, UiKit.GOLD), Vector2(0, y + 32.0), Vector2(W, 32))
 
 
 func _on_back() -> void:

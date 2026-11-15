@@ -219,3 +219,6 @@ DAILY_BIG_CHEST,七日大宝箱,7-day chest
 DAILY_RETRY,再试一次,Try again
 UI_TAB_DEX,图鉴,Dex
 DEX_MET,已遇见 %d/%d 种,Met %d/%d
+RANK_PRIZE_TOP,每周一按上周名次发奖：第 1 名 %d 金币 + 每种技能 %d 个,Weekly prizes every Monday: No.1 gets %d coins + %d of each skill
+RANK_PRIZE_REST,第 2 / 3 名 %d / %d 金币 + 技能 · 4–10 名 %d · 其余上榜 %d,No.2 / 3: %d / %d coins + skills · 4–10: %d · others: %d
+RANK_WEEK_PRIZE,上周排名第 %d,Last week: No.%d
