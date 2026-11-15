@@ -4,7 +4,7 @@ extends Control
 
 const CARD_W := 620.0
 
-var card: NinePatchRect
+var card: Patch
 ## 标题和文字行之后的下一个可用 y
 var content_y: float = 0.0
 
@@ -23,21 +23,16 @@ static func open(
 	shade.modulate.a = 0.0
 	p.add_child(shade)
 	shade.create_tween().tween_property(shade, "modulate:a", 1.0, 0.18)
-	var h: float = 140 + lines.size() * 52 + extra_h + buttons.size() * 102 + 20
-	p.card = UiKit.nine("panel", 130)
+	var h: float = 130 + lines.size() * 52 + extra_h + buttons.size() * 104 + 26
+	p.card = UiKit.piece("panel")
 	p.card.mouse_filter = Control.MOUSE_FILTER_STOP
 	p.card.size = Vector2(CARD_W, h)
 	p.card.position = Vector2((host.size.x - CARD_W) / 2.0, (host.size.y - h) / 2.0)
 	p.card.pivot_offset = p.card.size / 2.0
 	p.add_child(p.card)
-	# 金色丝带压在面板上沿，标题写在丝带上
-	var ribbon := UiKit.icon("res://assets/kit/ribbon.png", 520)
-	ribbon.size = Vector2(520, 156)
-	ribbon.position = Vector2((CARD_W - 520) / 2.0, -74)
-	p.card.add_child(ribbon)
-	var head := UiKit.label(title, 46)
-	head.position = Vector2(0, -60)
-	head.size = Vector2(CARD_W, 84)
+	var head := UiKit.text(title, 50, UiKit.NAVY)
+	head.position = Vector2(0, 26)
+	head.size = Vector2(CARD_W, 76)
 	p.card.add_child(head)
 	var y: float = 118
 	for text: String in lines:
@@ -50,12 +45,12 @@ static func open(
 	y += extra_h + 10
 	for spec: Array in buttons:
 		var b := UiKit.button(spec[0], spec[1])
-		b.position = Vector2(105, y)
-		b.size = Vector2(CARD_W - 210, 92)
+		b.position = Vector2(70, y)
+		b.size = Vector2(CARD_W - 140, 88)
 		b.pressed.connect(spec[2])
 		Anim.press_fx(b)
 		p.card.add_child(b)
-		y += 102
+		y += 104
 	Anim.pop_in(p.card)
 	return p
 

@@ -5,7 +5,9 @@ extends Control
 enum { TAB_SHOP, TAB_SCENE, TAB_MAIN, TAB_RANK, TAB_COLLECTION }
 
 const W := 750.0
-const TOP_H := 110.0
+const BAR_Y := 16.0
+const BAR_H := 96.0
+const TOP_H := 124.0
 const TABS_H := 150.0
 const TAB_KEYS: Array[String] = [
 	"UI_TAB_SHOP", "UI_TAB_SCENE", "UI_TAB_MAIN", "UI_TAB_RANK", "UI_TAB_COLLECTION"
@@ -87,23 +89,21 @@ func _btn(
 # ---------- 顶部资料栏 ----------
 
 
+## 顶栏：玻璃横栏里头像、昵称、三个资源胶囊，全部垂直居中
 func _build_top() -> void:
-	_add(_stage, UiKit.slice3("bar"), Vector2(-40, -34), Vector2(W + 80, TOP_H + 40))
+	var mid: float = BAR_Y + BAR_H / 2.0
+	_add(_stage, UiKit.piece("glass"), Vector2(16, BAR_Y), Vector2(W - 32, BAR_H))
 	var profile: Dictionary = Platform.impl.get_profile()
-	_add(_stage, UiKit.icon(profile.get("avatar", ""), 92), Vector2(12, 4))
-	var name := UiKit.label(profile.get("nickname", ""), 24)
+	_add(_stage, UiKit.icon(profile.get("avatar", ""), 76), Vector2(26, mid - 38))
+	var name := UiKit.label(profile.get("nickname", ""), 22)
 	name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	name.clip_text = true
-	_add(_stage, name, Vector2(112, 6), Vector2(150, 38))
-	var stats: Array = [
-		["coins", "coin", 112.0, 44.0, 170.0],
-		["tickets", "ticket", 322.0, 24.0, 190.0],
-		["stars", "star", 536.0, 24.0, 190.0]
-	]
-	for st: Array in stats:
-		var cap: Dictionary = UiKit.capsule("res://assets/ui/%s.png" % st[1], st[4])
-		_add(_stage, cap["box"], Vector2(st[2], st[3]))
-		_stat_labels[st[0]] = cap["label"]
+	_add(_stage, name, Vector2(110, mid - 20), Vector2(112, 40))
+	var keys: Array = [["coins", "coin"], ["tickets", "ticket"], ["stars", "star"]]
+	for i: int in keys.size():
+		var cap: Dictionary = UiKit.capsule("res://assets/ui/%s.png" % keys[i][1], 158)
+		_add(_stage, cap["box"], Vector2(230 + i * 166, mid - 28))
+		_stat_labels[keys[i][0]] = cap["label"]
 	_refresh_stats()
 
 
@@ -123,12 +123,12 @@ func _refresh_stats() -> void:
 
 func _build_tabs() -> void:
 	var y: float = size.y - TABS_H
-	_add(_stage, UiKit.slice3("bar"), Vector2(-40, y + 4), Vector2(W + 80, TABS_H + 50))
+	_add(_stage, UiKit.piece("fade"), Vector2(-400, y - 40), Vector2(W + 800, TABS_H + 40))
 	_tab_icons.clear()
 	_tab_marks.clear()
 	for i: int in TAB_KEYS.size():
 		var x: float = i * 150.0
-		var mark := UiKit.stretch("card_gold")
+		var mark := UiKit.piece("tab_on")
 		_add(_stage, mark, Vector2(x + 12, y - 4), Vector2(126, 148))
 		_tab_marks.append(mark)
 		var icon := UiKit.icon("res://assets/ui/%s.png" % TAB_ICONS[i], 92)
@@ -301,7 +301,7 @@ func _show_signin() -> void:
 			UiKit.GOLD if (i == idx and can) else (Color("CFE9E4") if claimed else Color.WHITE)
 		)
 		var cell_tex: String = "card_gold" if color == UiKit.GOLD else "card"
-		var cell: Control = UiKit.stretch(cell_tex) if cell_w < 200.0 else UiKit.nine(cell_tex, 60)
+		var cell: Control = UiKit.piece(cell_tex)
 		cell.self_modulate = Color(0.72, 0.8, 0.86) if claimed else Color.WHITE
 		_add(_popup.card, cell, pos, Vector2(cell_w, 148))
 		var day_label := UiKit.text(tr("UI_SIGNIN_DAY") % (i + 1), 22)
@@ -399,7 +399,7 @@ func _shop_row(
 	on_press: Callable,
 	enabled: bool
 ) -> void:
-	var row := UiKit.slice3("row", 60)
+	var row := UiKit.piece("row")
 	_add(_page, row, Vector2(30, 110 + i * 150), Vector2(W - 60, 132))
 	_add(row, UiKit.icon(icon, 96), Vector2(18, 16))
 	var l := UiKit.text(title, 28)
@@ -441,24 +441,24 @@ func _page_scene() -> void:
 	var scene: Dictionary = list[mini(index, list.size() - 1)]
 	_title(tr(scene["name"]))
 	var side: float = minf(620.0, _page.size.y - 330.0)
-	var frame := UiKit.nine("panel", 130)
+	var frame := UiKit.piece("row")
 	_add(_page, frame, Vector2((W - side) / 2.0 - 12, 96), Vector2(side + 24, side + 24))
 	var art := TextureRect.new()
 	art.texture = UiKit.tex("res://assets/ui/scene1.jpg")
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.size = Vector2(side - 60, side - 60)
-	art.position = Vector2(42, 42)
+	art.size = Vector2(side, side)
+	art.position = Vector2(12, 12)
 	frame.add_child(art)
 	var steps: Array = scene["steps"]
 	var step: int = steps.size() if done_all else int(Save.data["sceneStep"])
 	# 还没建的部分用灰度表示：建得越多画面越鲜亮
 	art.modulate = Color.WHITE.lerp(Color(0.45, 0.5, 0.55), 1.0 - float(step) / steps.size())
 	var y: float = side + 140
-	_add(_page, UiKit.slice3("track"), Vector2(95, y - 4), Vector2(560, 52))
+	_add(_page, UiKit.piece("chip"), Vector2(95, y - 4), Vector2(560, 52))
 	if step > 0:
 		_add(
 			_page,
-			UiKit.slice3("fill"),
+			UiKit.piece("fill"),
 			Vector2(95, y),
 			Vector2(maxf(48.0, 560.0 * step / steps.size()), 44)
 		)
@@ -483,12 +483,22 @@ func _page_scene() -> void:
 func _on_build(frame: Control) -> void:
 	var before: int = int(Save.data["scene"])
 	if not Meta.build_step(Save.data, Config.scenes):
-		_toast(tr("UI_NEED_STARS"))
-		Audio.sfx(&"error")
+		_show_need_stars()
 		return
 	Save.save()
 	Audio.sfx(&"bowl_done")
-	Anim.bounce(frame, 1.06, 0.35)
+	Anim.squash(frame, 0.05)
+	Anim.burst(
+		_stage,
+		frame.position + frame.size / 2.0 + Vector2(0, TOP_H),
+		14,
+		"res://assets/ui/star.png",
+		520.0,
+		700.0,
+		Vector2(26, 46),
+		0.8,
+		60
+	)
 	_refresh_stats()
 	if int(Save.data["scene"]) != before:
 		Audio.sfx(&"win")
@@ -497,6 +507,32 @@ func _on_build(frame: Control) -> void:
 	await get_tree().create_timer(0.35).timeout
 	if is_inside_tree() and _tab == TAB_SCENE:
 		_show_page(false)
+
+
+## 星星不够：告诉玩家还差几颗，并给一个直接去闯关的按钮
+func _show_need_stars() -> void:
+	Audio.sfx(&"error")
+	var list: Array = Config.scenes["scenes"]
+	var steps: Array = list[int(Save.data["scene"])]["steps"]
+	var missing: int = int(steps[int(Save.data["sceneStep"])]) - int(Save.data["stars"])
+	var lines: Array[String] = [tr("UI_NEED_STARS_MORE") % missing]
+	_popup = (
+		PopupCard
+		. open(
+			self,
+			tr("UI_NEED_STARS_TITLE"),
+			lines,
+			[
+				[tr("UI_GO_PLAY"), UiKit.GREEN, _on_start],
+				[tr("UI_CLOSE"), UiKit.BLUE, _close_popup],
+			],
+			150
+		)
+	)
+	var star := UiKit.icon("res://assets/ui/star.png", 130)
+	_add(_popup.card, star, Vector2((PopupCard.CARD_W - 130) / 2.0, _popup.content_y + 6))
+	star.modulate = Color(0.75, 0.8, 0.9, 0.9)
+	Anim.wiggle(star, 10.0, 0.9)
 
 
 # ---------- 排行 ----------
@@ -531,7 +567,7 @@ func _page_rank() -> void:
 		var color: Color = (
 			Color(0.62, 1.0, 0.62) if r.get("me", false) else (medal[i] if i < 3 else Color.WHITE)
 		)
-		var row := UiKit.slice3("row", 60)
+		var row := UiKit.piece("row")
 		row.self_modulate = color
 		_add(_page, row, Vector2(30, 128 + i * row_h), Vector2(W - 60, row_h - 10))
 		_add(row, UiKit.label(str(i + 1), 34), Vector2(10, 0), Vector2(70, row_h - 14))
@@ -569,6 +605,8 @@ func _page_collection() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_add(_page, scroll, Vector2(0, 92), Vector2(W, list_h))
 	var inner := Control.new()
+	# 默认会拦下滚轮和拖动，放行给外层的滚动容器
+	inner.mouse_filter = Control.MOUSE_FILTER_PASS
 	scroll.add_child(inner)
 	var cards: Dictionary = Save.data["cards"]
 	var n: int = 0
@@ -576,7 +614,7 @@ func _page_collection() -> void:
 		if sp["rarity"] != RARITIES[_rarity]:
 			continue
 		var owned: int = int(cards.get(sp["id"], 0))
-		var cell := UiKit.stretch("card")
+		var cell := UiKit.piece("card")
 		cell.self_modulate = Color.WHITE if owned > 0 else Color(0.7, 0.78, 0.84)
 		_add(inner, cell, Vector2(22 + (n % 3) * 240, 6 + (n / 3) * 250), Vector2(226, 236))
 		var art_path: String = "res://assets/fish/%s.png" % sp["id"]

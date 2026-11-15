@@ -37,7 +37,11 @@ texture={
 
 [gui]
 
-theme/custom_font="res://assets/fonts/game_font.tres"
+theme/custom_font="res://assets/fonts/ResourceHanRoundedCN-Heavy.ttf"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
 
 [internationalization]
 

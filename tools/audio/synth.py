@@ -61,16 +61,29 @@ def sfx() -> None:
     save("click", sweep(700, 900, 0.04), 0.4)
     save("bowl", mix(0.22, (0, sweep(380, 1250, 0.09, 4), 1), (0.05, mallet(hz("E6"), 0.16), 0.5)), 0.6)
     save("buffer", mix(0.14, (0, sweep(300, 180, 0.12, 5), 1)), 0.5)
-    noise = rng.standard_normal(int(SR * 0.05)) * np.exp(-t(0.05) * 70)
-    save("pop", mix(0.14, (0, noise, 0.5), (0, sweep(1300, 320, 0.11, 5), 1)), 0.6)
+    # 破泡：短促上扬的「啵」，像水滴声，尾巴带一点清脆的泛音；不用噪声，听起来不刺耳
+    pop = mix(0.2, (0, sweep(480, 1500, 0.075, 4.5), 1.0), (0.0, sweep(960, 3000, 0.05, 7), 0.22), (0.055, mallet(hz("G6"), 0.12, 0.15), 0.3))
+    save("pop", pop, 0.55)
+    # 入缸的水花：很轻的一声「噗通」
+    splash_noise = np.convolve(rng.standard_normal(int(SR * 0.16)), np.ones(14) / 14, mode="same") * np.exp(-t(0.16) * 22)
+    save("splash", mix(0.2, (0, splash_noise, 0.8), (0, sweep(300, 900, 0.09, 4), 0.9)), 0.4)
+    # 过关开场的「唰」
+    wn = np.convolve(rng.standard_normal(int(SR * 0.4)), np.ones(9) / 9, mode="same")
+    save("whoosh", wn * np.sin(np.pi * t(0.4) / 0.4) ** 2, 0.35)
+    # 星星依次亮起的铃音
+    save("star", mix(0.5, (0, mallet(hz("C7"), 0.45, 0.5), 1), (0.02, mallet(hz("G7"), 0.4, 0.4), 0.5)), 0.5)
     save("bowl_done", mix(0.6, (0, mallet(hz("C6"), 0.3), 1), (0.09, mallet(hz("E6"), 0.3), 1), (0.18, mallet(hz("G6"), 0.4), 1)), 0.6)
     save("coin", mix(0.4, (0, mallet(hz("B5"), 0.15, 0.6), 1), (0.07, mallet(hz("E6"), 0.3, 0.6), 1)), 0.5)
     save("unlock", mix(0.4, (0, sweep(400, 1400, 0.25, 3), 0.7), (0.2, mallet(hz("A5"), 0.2), 1)), 0.5)
     save("error", mix(0.16, (0, sweep(190, 140, 0.15, 3) * np.sign(np.sin(2 * np.pi * 45 * t(0.15))), 1)), 0.35)
     save("shuffle", mix(0.5, *[(i * 0.05, mallet(hz(n), 0.18), 0.8) for i, n in enumerate(["C5", "E5", "G5", "C6", "G5", "E6"])]), 0.5)
-    win = [(i * 0.11, mallet(hz(n), 0.5), 1) for i, n in enumerate(["C5", "E5", "G5", "C6", "E6"])]
-    win += [(0.6, mallet(hz(n), 1.0), 0.7) for n in ["C5", "G5", "C6", "E6"]]
-    save("win", mix(1.8, *win), 0.7)
+    # 过关：一记鼓点 + 快速上行琶音 + 明亮的大三和弦收尾 + 高音闪烁
+    win = [(0, sweep(190, 55, 0.22, 3), 1.2)]
+    win += [(0.04 + i * 0.065, mallet(hz(n), 0.4, 0.5), 0.9) for i, n in enumerate(["C5", "E5", "G5", "C6", "E6", "G6"])]
+    win += [(0.46, mallet(hz(n), 1.5, 0.45), 0.75) for n in ["C5", "G5", "C6", "E6", "G6", "C7"]]
+    win += [(0.46, sweep(160, 50, 0.3, 3), 1.0)]
+    win += [(0.7 + i * 0.09, mallet(hz(n), 0.3, 0.6), 0.35) for i, n in enumerate(["E7", "G7", "C7", "G7", "E7", "C8"])]
+    save("win", mix(2.4, *win), 0.75)
     lose = [(i * 0.2, mallet(hz(n), 0.6, 0.1), 1) for i, n in enumerate(["G4", "D#4", "C4"])]
     save("lose", mix(1.2, *lose), 0.6)
 

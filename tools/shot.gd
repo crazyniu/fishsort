@@ -2,7 +2,8 @@ extends SceneTree
 ## 开发辅助：在虚拟显示器里跑游戏并截图，用来在没有屏幕的机器上检查界面。
 ## 用法：xvfb-run -a godot --path . --rendering-driver opengl3 --resolution 750x1334 \
 ##       -s tools/shot.gd -- <输出.png> game [关卡号] [自动点击步数]
-##       -s tools/shot.gd -- <输出.png> home [页签 0-4] [popup: signin|adtest]
+##       -s tools/shot.gd -- <输出.png> home [页签 0-4] [signin|adtest|stars]
+## 最后可再加一个数字：截图前等待的秒数
 
 
 func _init() -> void:
@@ -19,7 +20,10 @@ func _init() -> void:
 		await create_timer(0.3).timeout
 		if args.size() > 3:
 			var home: Node = app.get_child(app.get_child_count() - 1)
-			home.call("_show_signin" if args[3] == "signin" else "_show_ad_test")
+			var calls: Dictionary = {
+				"signin": "_show_signin", "adtest": "_show_ad_test", "stars": "_show_need_stars"
+			}
+			home.call(calls[args[3]])
 	else:
 		# -s 脚本编译时还没有 autoload 名字，只能按路径取
 		(root.get_node("Save").get("data") as Dictionary)["level"] = (
@@ -42,6 +46,7 @@ func _init() -> void:
 					game.call("_tap", b, k)
 					break
 			await create_timer(0.12).timeout
-	await create_timer(1.5).timeout
+	# 第 5 个参数：截图前再等几秒（看动画播到哪）
+	await create_timer(float(args[4]) if args.size() > 4 else 1.5).timeout
 	root.get_viewport().get_texture().get_image().save_png(out)
 	quit()

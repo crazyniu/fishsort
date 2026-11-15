@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://oishqg7g15j"
-path="res://.godot/imported/track.png-e4b332b421c6722e2b4b42ae488c44bc.ctex"
+uid="uid://qexpk4whpacy"
+path="res://.godot/imported/tab_on.png-d761ab921c89c75d789e1807f730cea0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/kit/track.png"
-dest_files=["res://.godot/imported/track.png-e4b332b421c6722e2b4b42ae488c44bc.ctex"]
+source_file="res://assets/kit/tab_on.png"
+dest_files=["res://.godot/imported/tab_on.png-d761ab921c89c75d789e1807f730cea0.ctex"]
 
 [params]
 
