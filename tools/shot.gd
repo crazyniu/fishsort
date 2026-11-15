@@ -47,12 +47,27 @@ func _init() -> void:
 					break
 			await create_timer(0.12).timeout
 		# 第 6 个参数填 combo：直接触发一次连击演出（数字,夸奖词）
-		if args.size() > 5 and args[5] == "reveal":
+		# 第 6 个参数：win = 直接出结算页；数字 = 触发一次该连击数的演出（第 7 个是档位）
+		if args.size() > 5 and args[5] == "win":
 			var card: Dictionary = {"id": "c01", "is_new": true, "rarity": "common", "coins": 0}
-			load("res://src/ui/card_reveal.gd").call("open", game, card, func() -> void: pass)
+			var reward: Dictionary = {
+				"coins": 20,
+				"stars": 1,
+				"tickets": 1,
+				"first_win": true,
+				"combo_coins": 23,
+				"best": 12,
+				"best_bonus": 24
+			}
+			var cards: Array[Dictionary] = [card]
+			var nop := func() -> void: pass
+			load("res://src/game/win_panel.gd").call("open", game, reward, cards, nop, nop, nop)
 		elif args.size() > 5:
-			game.set("_combo", int(args[5]))
-			game.call("_show_combo", args[6] if args.size() > 6 else "", 1.6)
+			var hud: Object = load("res://src/game/combo_hud.gd").new(
+				game.get("_stage"), Vector2(0, 398), Vector2(750, 250)
+			)
+			var tier: int = int(args[6]) if args.size() > 6 else 0
+			hud.call("hit", int(args[5]), tier, true, "太强了！", 2.0)
 	# 第 5 个参数：截图前再等几秒（看动画播到哪）
 	await create_timer(float(args[4]) if args.size() > 4 else 1.5).timeout
 	root.get_viewport().get_texture().get_image().save_png(out)

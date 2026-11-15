@@ -6,8 +6,8 @@ const W := 750.0
 const BAR_Y := 8.0
 const BAR_H := 68.0
 const SHELF_Y := 84.0
-const ROW_Y := 236.0
-const FIELD_Y := 322.0
+const ROW_Y := 272.0
+const FIELD_Y := 358.0
 const TOOLS_H := 150.0
 const FLY_TIME := GameFx.FLY_TIME
 const LEVEL_COUNT := 60
@@ -47,12 +47,16 @@ var _coins_shown: int = -1
 var _tool_badges: Dictionary = {}
 var _popup: PopupCard
 ## 连击：短时间内连续把鱼送进缸
-var _combo: int = 0
-var _combo_at: float = -100.0
-var _combo_coins: int = 0
+var _combo: Combo = Combo.new()
+## 本关连击送的图鉴卡（Meta.draw_card 的返回值），没有则为空
+var _combo_card: Dictionary = {}
 var _combo_hud: ComboHud
-## 最后一条鱼由游戏自己收尾，期间不接受点击
+## 只剩一种鱼时由游戏自己收尾，期间不接受点击
 var _auto: bool = false
+var _tool_pos: Dictionary = {}
+## 提示光圈：玩家一段时间没操作时指出一条能进缸的鱼
+var _hint: Control
+var _idle: float = 0.0
 
 
 func _ready() -> void:
@@ -77,8 +81,10 @@ func start_level(id: int) -> void:
 	_net_mode = false
 	_over = false
 	_auto = false
-	_combo = 0
-	_combo_coins = 0
+	_combo = Combo.new()
+	_combo_card = {}
+	_hint = null
+	_idle = 0.0
 	_total_fish = _s.fish_left()
 	_intro = true
 	_build()
@@ -88,6 +94,10 @@ func start_level(id: int) -> void:
 func _process(delta: float) -> void:
 	if _s == null or _over or _popup != null:
 		return
+	_idle += delta
+	# 前 3 关是教学，提示来得快；之后发呆久了才提示
+	if _hint == null and not _auto and _idle > (2.0 if _level_id <= 3 else 7.0):
+		_show_hint()
 	var events: Array[Dictionary] = Rules.tick(_s, delta)
 	for i: int in _bowls.size():
 		var bowl: GameState.Bowl = _s.slots[i] if i < _s.open_slots else null
@@ -155,18 +165,18 @@ func _put(node: Control, pos: Vector2, area: Vector2 = Vector2.ZERO) -> Control:
 func _build_top() -> void:
 	var mid: float = BAR_Y + BAR_H / 2.0
 	_put(UiKit.piece("glass"), Vector2(16, BAR_Y), Vector2(W - 32, BAR_H))
-	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 200, 46.0)
-	_put(coin["box"], Vector2(34, mid - 23))
+	var coin: Dictionary = UiKit.capsule("res://assets/ui/coin.png", 190, 44.0)
+	_put(coin["box"], Vector2(40, mid - 22))
 	_coins = coin["label"]
 	var title: String = tr("UI_LEVEL") % _level_id
 	if _lv.challenge:
 		title = "%s · %s" % [tr("UI_CHALLENGE"), title]
-	var chip := UiKit.piece("chip")
-	_put(chip, Vector2(W / 2.0 - 110, mid - 23), Vector2(220, 46))
-	var ink: Color = UiKit.PURPLE if _lv.challenge else UiKit.INK
-	_put(UiKit.text(title, 26, ink), Vector2(W / 2.0 - 110, mid - 23), Vector2(220, 46))
+	# 关卡名只用文字，不再垫底块
+	var ink: Color = UiKit.GOLD if _lv.challenge else Color.WHITE
+	var level_lbl := UiKit.label(title, 34, ink)
+	_put(level_lbl, Vector2(W / 2.0 - 150, mid - 26), Vector2(300, 52))
 	if _intro:
-		Anim.pop_in(chip)
+		Anim.pop_in(level_lbl)
 	_put(UiKit.badge("btn_gear", 54), Vector2(W - 26 - 54, mid - 27))
 	var gear := UiKit.hotspot(Vector2(W - 100, BAR_Y), Vector2(84, BAR_H))
 	gear.pressed.connect(_show_settings)
@@ -181,47 +191,51 @@ func _fill_dots(box: Control, have: int, cap: int) -> bool:
 	box.set_meta("have", have)
 	for k: Node in box.get_children():
 		k.queue_free()
-	var gap: float = 20.0
+	var gap: float = 24.0
 	var x0: float = (box.size.x - gap * (cap - 1)) / 2.0
 	for i: int in cap:
 		var dot := Panel.new()
 		var sb := StyleBoxFlat.new()
-		sb.set_corner_radius_all(8)
-		sb.bg_color = UiKit.GOLD if i < have else Color("C3D3EE")
+		sb.set_corner_radius_all(9)
+		sb.set_border_width_all(2)
+		sb.border_color = Color("7A3E10")
+		sb.bg_color = Color("FFE14D") if i < have else Color("A8642C")
 		dot.add_theme_stylebox_override("panel", sb)
-		dot.size = Vector2(16, 16)
-		dot.position = Vector2(x0 + i * gap - 8, box.size.y / 2.0 - 8)
+		dot.size = Vector2(18, 18)
+		dot.position = Vector2(x0 + i * gap - 9, box.size.y / 2.0 - 9)
 		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(dot)
 	return true
 
 
 func _bowl_pos(i: int) -> Vector2:
-	return Vector2(20 + i * 180 + 85, SHELF_Y + 70)
+	return Vector2(20 + i * 180 + 85, SHELF_Y + 86)
 
 
 func _build_shelf() -> void:
 	# 珊瑚色的架子
-	_put(UiKit.piece("shelf"), Vector2(12, SHELF_Y + 112), Vector2(W - 24, 28))
+	_put(UiKit.piece("shelf"), Vector2(12, SHELF_Y + 142), Vector2(W - 24, 30))
 	_bowls.clear()
 	for i: int in GameState.MAX_SLOTS:
 		var c: Vector2 = _bowl_pos(i)
-		var tank := UiKit.icon("res://assets/ui/tank.png", 124)
-		_put(tank, c - Vector2(62, 66))
-		var fish := UiKit.icon("", 58)
-		_put(fish, c - Vector2(29, 20))
-		var plus := UiKit.badge("plus", 44)
-		_put(plus, c - Vector2(22, 12))
+		var tank := UiKit.icon("res://assets/ui/tank.png", 160)
+		_put(tank, c - Vector2(80, 86))
+		var fish := UiKit.icon("", 74)
+		_put(fish, c - Vector2(37, 28))
+		var plus := UiKit.badge("plus", 52)
+		_put(plus, c - Vector2(26, 16))
 		Anim.pulse(plus, 1.12)
-		var pill := UiKit.piece("chip")
-		_put(pill, c + Vector2(-40, 46), Vector2(80, 32))
+		# 进度圆点直接画在木架上，不垫底块
+		var pill := Control.new()
+		pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_put(pill, c + Vector2(-40, 57), Vector2(80, 28))
 		var count := Control.new()
 		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		count.pivot_offset = Vector2(40, 16)
-		_put(count, c + Vector2(-40, 46), Vector2(80, 32))
+		count.pivot_offset = Vector2(40, 14)
+		_put(count, c + Vector2(-40, 57), Vector2(80, 28))
 		var timer := UiKit.label("", 28, UiKit.GOLD)
-		_put(timer, c + Vector2(-60, -84), Vector2(120, 30))
-		var hot := UiKit.hotspot(c - Vector2(62, 66), Vector2(124, 150))
+		_put(timer, c + Vector2(-60, -106), Vector2(120, 30))
+		var hot := UiKit.hotspot(c - Vector2(80, 86), Vector2(160, 180))
 		hot.pressed.connect(_on_bowl_pressed.bind(i))
 		_stage.add_child(hot)
 		if _intro:
@@ -244,9 +258,9 @@ func _buffer_pos(i: int) -> Vector2:
 
 
 func _build_row() -> void:
-	_put(UiKit.piece("chip"), Vector2(20, ROW_Y + 14), Vector2(150, 46))
-	_progress = UiKit.text("", 26, UiKit.INK)
-	_put(_progress, Vector2(20, ROW_Y + 14), Vector2(150, 46))
+	_put(UiKit.piece("track"), Vector2(24, ROW_Y + 16), Vector2(140, 42))
+	_progress = UiKit.label("", 24)
+	_put(_progress, Vector2(24, ROW_Y + 16), Vector2(140, 42))
 	_put(UiKit.piece("glass"), Vector2(182, ROW_Y), Vector2(436, 74))
 	for i: int in _s.buffer_cap:
 		var slot := UiKit.piece("slot")
@@ -355,6 +369,7 @@ func _build_tools(view_h: float) -> void:
 		var badge := UiKit.label("", 22)
 		_put(badge, Vector2(x + 78, y - 12), Vector2(40, 40))
 		_tool_badges[tool] = badge
+		_tool_pos[tool] = Vector2(x + 52, y + 52)
 		if _intro:
 			Anim.pop_in(btn, 0.3 + 0.06 * i)
 
@@ -525,32 +540,57 @@ func _tap(b: int, k: int) -> void:
 	var events: Array[Dictionary] = Rules.tap(_s, b, k)
 	if events.is_empty():
 		return
-	_count_combo(events, from)
-	Audio.sfx(&"tap", minf(1.0 + _combo * 0.05, 1.6))
+	_idle = 0.0
+	if _hint != null:
+		_hint.queue_free()
+		_hint = null
+	if not _count_combo(events, from):
+		Audio.sfx(&"tap")
 	_play(events)
 
 
-## 连击：在时间窗内连续把点到的鱼送进缸就累加；进了暂存槽或超时就断
-func _count_combo(events: Array[Dictionary], from: Vector2) -> void:
+## 连击：规则和奖励在 Combo 里算，这里只管演出。返回这次点击是否算连击
+func _count_combo(events: Array[Dictionary], from: Vector2) -> bool:
+	if events[0]["t"] != &"fish_to_bowl":
+		_combo.miss()
+		return false
 	var cfg: Dictionary = Config.eco["combo"]
-	var now: float = Time.get_ticks_msec() / 1000.0
-	var hit: bool = events[0]["t"] == &"fish_to_bowl"
-	if not hit or now - _combo_at > float(cfg["windowSeconds"]):
-		_combo = 0
-	if not hit:
-		return
-	_combo += 1
-	_combo_at = now
-	if _combo < int(cfg["startAt"]):
-		return
-	var praise: String = (cfg["praiseAt"] as Dictionary).get(str(_combo), "")
-	_show_combo(tr(praise) if praise != "" else "", float(cfg["windowSeconds"]))
-	if _combo_coins >= int(cfg["maxCoinsPerLevel"]):
-		return
-	var gain: int = int(cfg["coinPerHit"])
-	_combo_coins += gain
-	Save.data["coins"] = int(Save.data["coins"]) + gain
-	_fx.coin_to(from, Vector2(100, BAR_Y + 34), minf(1.0 + _combo * 0.04, 1.5), _refresh_top)
+	var rng := Rng.new(Time.get_ticks_usec())
+	var res: Dictionary = _combo.hit(Time.get_ticks_msec() / 1000.0, cfg, rng)
+	var tier: int = res["tier"]
+	if tier < 0:
+		return false
+	if _combo_hud == null or not is_instance_valid(_combo_hud):
+		_combo_hud = ComboHud.new(_stage, Vector2(0, FIELD_Y + 40), Vector2(W, 250))
+	var praise: String = tr(cfg["tiers"][tier]["key"])
+	_combo_hud.hit(res["count"], tier, res["tier_up"], praise, float(cfg["windowSeconds"]))
+	# 整个画面跟着顿一下
+	_stage.pivot_offset = _stage.size / 2.0
+	_stage.scale = Vector2.ONE * (1.012 + tier * 0.004)
+	_stage.create_tween().tween_property(_stage, "scale", Vector2.ONE, 0.16)
+	var gain: int = res["coins"]
+	if gain > 0:
+		Save.data["coins"] = int(Save.data["coins"]) + gain
+		_fx.gain("+%d" % gain, from)
+		_fx.coin_to(from, Vector2(100, BAR_Y + 34), 1.0 + tier * 0.12, _refresh_top)
+	if res["card"]:
+		_combo_card = Meta.draw_card(Save.data, Config.eco, Config.species, "levelCard", rng)
+		_combo_hud.gift()
+	return true
+
+
+## 找一条点了就能直接进缸的鱼，套上提示光圈
+func _show_hint() -> void:
+	var wanted: Dictionary = {}
+	for i: int in _s.open_slots:
+		if _s.slots[i] != null:
+			wanted[_s.slots[i].species] = true
+	for b: int in Rules.open_bubbles(_s):
+		for k: int in _s.bubbles[b].fish.size():
+			if wanted.has(_s.bubbles[b].fish[k]):
+				_hint = _fx.hint(_fish_pos(b, k))
+				return
+	_idle = 0.0
 
 
 func _on_bowl_pressed(i: int) -> void:
@@ -560,6 +600,7 @@ func _on_bowl_pressed(i: int) -> void:
 		if i < _s.open_slots and _s.slots[i] != null:
 			_net_mode = false
 			_spend_tool("net")
+			_fx.net_swing(_tool_pos["net"], _bowl_pos(i))
 			_play(Rules.use_net(_s, i))
 		return
 	if i != _s.open_slots:
@@ -618,16 +659,23 @@ func _on_tool(tool: String) -> void:
 			var events: Array[Dictionary] = Rules.use_blow(_s)
 			if not events.is_empty():
 				_spend_tool(tool)
-				Audio.sfx(&"pop")
+				_fx.blow(_tool_pos[tool], _return_pos(0))
 				_play(events)
 		"shuffle":
 			var events: Array[Dictionary] = Rules.use_shuffle(_s, Time.get_ticks_usec())
 			if not events.is_empty():
 				_spend_tool(tool)
 				Audio.sfx(&"shuffle")
-				for i: int in _bubbles.size():
-					Anim.bounce(_bubbles[i]["node"], 1.15, 0.35)
+				_fx.whirl(Vector2(W / 2.0, (FIELD_Y + size.y - TOOLS_H) / 2.0))
 				_play(events)
+				# 每个气泡转一圈，把换鱼的瞬间盖过去
+				for i: int in _bubbles.size():
+					var node: Control = _bubbles[i]["node"]
+					node.rotation = -TAU
+					node.scale = Vector2(0.5, 0.5)
+					var tw: Tween = node.create_tween().set_parallel()
+					tw.tween_property(node, "rotation", 0.0, 0.5).set_ease(Tween.EASE_OUT)
+					tw.tween_property(node, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_BACK)
 
 
 ## 道具用完了：金币够就买，不够就看广告拿一个
@@ -722,16 +770,33 @@ func _play(events: Array[Dictionary]) -> void:
 	_auto_finish()
 
 
-## 只剩最后一条鱼时不用玩家再点：气泡自己破掉，鱼自己入缸
+## 场上只剩一种鱼时不用玩家再点：气泡依次自己破掉，鱼自己入缸
 func _auto_finish() -> void:
-	if _over or _auto or _s.status != GameState.Status.PLAYING or _s.fish_left() != 1:
+	if _over or _auto or _s.status != GameState.Status.PLAYING:
+		return
+	var kinds: Dictionary = {}
+	for bub: GameState.Bubble in _s.bubbles:
+		for f: int in bub.fish:
+			if f >= 0:
+				kinds[f] = true
+	if kinds.size() != 1:
+		return
+	_auto = true
+	get_tree().create_timer(0.45).timeout.connect(_auto_step)
+
+
+func _auto_step() -> void:
+	if _over or not is_inside_tree() or _s.status != GameState.Status.PLAYING:
+		_auto = false
 		return
 	for b: int in Rules.open_bubbles(_s):
 		for k: int in _s.bubbles[b].fish.size():
 			if _s.bubbles[b].fish[k] >= 0:
-				_auto = true
-				get_tree().create_timer(0.55).timeout.connect(_tap.bind(b, k))
+				_tap(b, k)
+				get_tree().create_timer(0.2).timeout.connect(_auto_step)
 				return
+	# 剩下的都被锁着或压着，交还给玩家
+	_auto = false
 
 
 # ---------- 弹窗 ----------
@@ -787,55 +852,29 @@ func _celebrate() -> void:
 	Anim.shake(_stage, 16.0)
 	for i: int in _bowls.size():
 		Anim.squash(_bowls[i]["tank"], 0.2)
-	WinFx.play(self, tr("UI_FINISH_TITLE"), _stage.position + Vector2(100, BAR_Y + 34))
-	get_tree().create_timer(1.9).timeout.connect(_show_win)
+	WinFx.play(self, _stage.position + Vector2(100, BAR_Y + 34))
+	get_tree().create_timer(1.15).timeout.connect(_show_win)
 
 
 func _show_win() -> void:
 	var reward: Dictionary = Meta.finish_level(
 		Save.data, Config.eco, _level_id, _lv.challenge, Save.today()
 	)
+	reward["combo_coins"] = _combo.coins
+	reward["best"] = _combo.best
+	reward["best_bonus"] = _combo.best_bonus(Config.eco["combo"])
+	Save.data["coins"] = int(Save.data["coins"]) + int(reward["best_bonus"])
 	var card: Dictionary = Meta.draw_card(
 		Save.data, Config.eco, Config.species, "levelCard", Rng.new(Time.get_ticks_usec())
 	)
 	Save.save()
 	_refresh_top()
-	CardReveal.open(self, card, _after_reveal.bind(reward, card))
-
-
-func _after_reveal(reward: Dictionary, card: Dictionary) -> void:
-	if is_inside_tree():
-		_win_popup(reward, card, false)
-		Ads.banner(true)
-
-
-func _win_popup(reward: Dictionary, card: Dictionary, doubled: bool) -> void:
-	var coins: int = int(reward["coins"]) * (int(Config.eco["adCoinMultiplier"]) if doubled else 1)
-	var lines: Array[String] = [
-		tr("UI_COINS_GAIN") % (coins + _combo_coins), tr("UI_STARS_GAIN") % int(reward["stars"])
-	]
-	if int(reward["tickets"]) > 0:
-		lines.append(tr("UI_TICKETS_GAIN") % int(reward["tickets"]))
-	var card_name: String = Config.species_by_id[card["id"]]["name"]
-	if card["is_new"]:
-		lines.append(tr("UI_CARD_NEW") % card_name)
-	else:
-		lines.append(tr("UI_CARD_DUPE") % [card_name, int(card["coins"])])
-	var buttons: Array = []
-	if not doubled and Ads.available():
-		buttons.append([tr("UI_DOUBLE_COINS"), UiKit.PURPLE, _on_double.bind(reward, card)])
-	buttons.append([tr("UI_NEXT_LEVEL"), UiKit.GREEN, _on_next])
-	buttons.append([tr("UI_HOME"), UiKit.BLUE, _go_home])
-	_open_popup(tr("UI_FINISH_POPUP"), lines, buttons)
-	_refresh_top()
-
-
-func _on_double(reward: Dictionary, card: Dictionary) -> void:
-	if await Ads.rewarded(&"rv_double_coin") and is_inside_tree():
-		Meta.double_coins(Save.data, Config.eco, reward)
-		Save.save()
-		Audio.sfx(&"coin")
-		_win_popup(reward, card, true)
+	var cards: Array[Dictionary] = [card]
+	if not _combo_card.is_empty():
+		cards.append(_combo_card)
+	# 图鉴、奖励、按钮都在同一个结算页里，不再分几次弹
+	WinPanel.open(self, reward, cards, _on_next, _go_home, _refresh_top)
+	Ads.banner(true)
 
 
 func _on_next() -> void:
@@ -910,9 +949,3 @@ func _drop_fx(path: String, b: int) -> void:
 
 func _toast(text: String) -> void:
 	_fx.toast(text, FIELD_Y - 4)
-
-
-func _show_combo(praise: String, window: float) -> void:
-	if _combo_hud == null or not is_instance_valid(_combo_hud):
-		_combo_hud = ComboHud.new(_stage, Vector2(0, FIELD_Y + 50), Vector2(W, 240))
-	_combo_hud.hit(_combo, clampf((_combo - 3) / 9.0, 0.0, 1.0), praise, window)

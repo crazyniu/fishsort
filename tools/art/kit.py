@@ -149,6 +149,77 @@ def cross(size, plus: bool):
     return tint(img, (255, 255, 255, 255))
 
 
+def radial(size: int, inner: float, outer: float, power: float = 2.0) -> Image.Image:
+    """白色径向渐变：inner 以内全亮，到 outer 渐隐。用于光晕，由代码染色。"""
+    S = size * DENSITY * SS
+    img = Image.new("L", (S, S), 0)
+    px = img.load()
+    c = (S - 1) / 2
+    for y in range(S):
+        for x in range(S):
+            d = math.hypot(x - c, y - c) / c
+            v = 1.0 if d <= inner else max(0.0, 1 - (d - inner) / (outer - inner)) ** power
+            px[x, y] = round(v * 255)
+    return tint(img, (255, 255, 255, 255))
+
+
+def ring(size: int, width: float) -> Image.Image:
+    S = size * K
+    img = Image.new("L", (S, S), 0)
+    w = round(width * K)
+    ImageDraw.Draw(img).ellipse((w, w, S - w, S - w), outline=255, width=w)
+    return tint(img.filter(ImageFilter.GaussianBlur(K * 0.8)), (255, 255, 255, 255))
+
+
+def spark(size: int) -> Image.Image:
+    """四角星闪光。"""
+    S = size * K
+    img = Image.new("L", (S, S), 0)
+    c = S / 2
+    pts = []
+    for i in range(8):
+        a = math.tau * i / 8
+        r = c * (1.0 if i % 2 == 0 else 0.16)
+        pts.append((c + math.cos(a) * r, c + math.sin(a) * r))
+    ImageDraw.Draw(img).polygon(pts, fill=255)
+    return tint(img.filter(ImageFilter.GaussianBlur(K * 0.5)), (255, 255, 255, 255))
+
+
+def edge_glow(size: int, depth: float) -> Image.Image:
+    """四边向内渐隐的白色边光，中间透明；九宫格拉伸后铺满全屏。"""
+    S = size * DENSITY * SS
+    img = Image.new("L", (S, S), 0)
+    px = img.load()
+    d = depth * DENSITY * SS
+    for y in range(S):
+        for x in range(S):
+            m = min(x, y, S - 1 - x, S - 1 - y)
+            px[x, y] = round(max(0.0, 1 - m / d) ** 1.8 * 255)
+    return tint(img, (255, 255, 255, 255))
+
+
+def ribbon(w: int, h: int) -> Image.Image:
+    """过关横幅：红色缎带，两端燕尾，后面露出深色折角。"""
+    W, H = w * K, h * K
+    img = Image.new("RGBA", (W, H + 14 * K), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    tail, fold = 70 * K, 46 * K
+    dark, deep = rgba("B3261A"), rgba("7E150D")
+    for sx in (0, 1):
+        x0 = 0 if sx == 0 else W
+        sgn = 1 if sx == 0 else -1
+        y0 = 14 * K
+        d.polygon([(x0, y0), (x0 + sgn * (tail + fold), y0), (x0 + sgn * (tail + fold), y0 + H), (x0, y0 + H), (x0 + sgn * 30 * K, y0 + H / 2)], fill=dark)
+        d.polygon([(x0 + sgn * tail, H), (x0 + sgn * (tail + fold), H), (x0 + sgn * (tail + fold), H + 14 * K)], fill=deep)
+    body = gradient((W - 2 * tail, H), rgba("FF6A55"), rgba("E23A28"), 0, H)
+    mask = shape((W - 2 * tail, H), (0, 0, W - 2 * tail - 1, H - 1), 10 * K)
+    body.putalpha(mask)
+    img.alpha_composite(body, (tail, 0))
+    d.line((tail + 16 * K, 9 * K, W - tail - 16 * K, 9 * K), fill=rgba("FFFFFF", 0.45), width=2 * K)
+    d.line((tail + 16 * K, H - 9 * K, W - tail - 16 * K, H - 9 * K), fill=rgba("7E150D", 0.5), width=2 * K)
+    return img
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for old in list(OUT.glob("*.png")) + list(OUT.glob("*.png.import")):
@@ -203,6 +274,13 @@ def main() -> None:
     save("badge_purple", circle(80, rgba("A274E6"), rgba("7B49CC")), stretch=False)
     save("dot_red", circle(40, rgba("F56B59"), rgba("E0452F"), ring_w=3), stretch=False)
     save("plus", stamp(circle(56, rgba("63D444"), rgba("3FAE25")), cross(40, True)), stretch=False)
+
+    # 特效贴图：白色，由代码染色
+    save("fx_glow", radial(128, 0.05, 1.0, 2.2), stretch=False)
+    save("fx_ring", ring(128, 7), stretch=False)
+    save("fx_spark", spark(64), stretch=False)
+    save("fx_edge", edge_glow(96, 46))
+    save("ribbon", ribbon(640, 120), stretch=False)
 
     (OUT / "kit.json").write_text(json.dumps({"density": DENSITY, "pieces": pieces}, indent=1) + "\n")
     print(f"✓ 生成 {len(pieces)} 个部件 → {OUT}")

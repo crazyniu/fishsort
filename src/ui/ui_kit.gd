@@ -76,21 +76,22 @@ static func text(content: String, font_size: int, color: Color = BODY) -> Label:
 	return l
 
 
-## 数字胶囊：深色胶囊 + 左侧图标 + 数字，三者垂直居中。返回 { box, label }
+## 数字胶囊：深色凹槽 + 左侧图标 + 数字，三者垂直居中。返回 { box, label }
 static func capsule(icon_path: String, width: float, height: float = 56.0) -> Dictionary:
 	var box := Control.new()
 	box.size = Vector2(width, height)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var chip := piece("chip")
+	var chip := piece("track")
 	chip.size = box.size
 	box.add_child(chip)
-	var side: float = height - 8.0
+	# 图标比胶囊略大，压在左端外沿
+	var side: float = height + 6.0
 	var pic := icon(icon_path, side)
-	pic.position = Vector2(5, 4)
+	pic.position = Vector2(-6, -3)
 	box.add_child(pic)
-	var num := text("0", int(height * 0.5), INK)
-	num.position = Vector2(side + 6, 0)
-	num.size = Vector2(width - side - 18, height)
+	var num := label("0", int(height * 0.52))
+	num.position = Vector2(side - 4, 0)
+	num.size = Vector2(width - side - 8, height)
 	box.add_child(num)
 	return {"box": box, "label": num}
 

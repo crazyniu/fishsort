@@ -130,6 +130,31 @@
    "pad": 11,
    "mx": 0,
    "my": 0
+  },
+  "fx_glow": {
+   "pad": 0,
+   "mx": 0,
+   "my": 0
+  },
+  "fx_ring": {
+   "pad": 0,
+   "mx": 0,
+   "my": 0
+  },
+  "fx_spark": {
+   "pad": 0,
+   "mx": 0,
+   "my": 0
+  },
+  "fx_edge": {
+   "pad": 0,
+   "mx": 47,
+   "my": 47
+  },
+  "ribbon": {
+   "pad": 0,
+   "mx": 0,
+   "my": 0
   }
  }
 }
