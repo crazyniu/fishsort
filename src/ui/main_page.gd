@@ -6,6 +6,10 @@ extends HomePage
 const ENTRY := 104.0
 
 var _model: HomeModel
+## 功能开放项 → 它在主页上的入口节点
+var _entries: Dictionary = {}
+## 解锁后指路的光环，点了目标就收掉
+var _guide: Control
 
 
 func build() -> void:
@@ -14,41 +18,16 @@ func build() -> void:
 	var title_label := UiKit.label(tr("UI_TITLE"), 96, UiKit.GOLD)
 	add(title_label, Vector2(0, 30), Vector2(W, 130))
 	Anim.pop_in(title_label, 0.05, 0.45)
-	_build_deco()
+	HomeDeco.build(self, size)
 	_build_entries()
 	_build_start()
 	_check_unlock()
 
 
-## 几只生物在气泡里漂着，占住画面中央
-func _build_deco() -> void:
-	var mid: float = (size.y - 220.0) / 2.0 + 60.0
-	var deco: Array = [
-		["c04", 215.0, mid - 250.0, 210.0],
-		["c16", 420.0, mid - 120.0, 180.0],
-		["c06", 180.0, mid + 10.0, 190.0],
-		["c03", 400.0, mid + 120.0, 150.0],
-	]
-	for i: int in deco.size():
-		var d: Array = deco[i]
-		var side: float = d[3]
-		var holder := Control.new()
-		add(holder, Vector2(d[1], d[2]))
-		var bubble := UiKit.icon("res://assets/ui/bubble.png", side)
-		bubble.modulate.a = 0.85
-		holder.add_child(bubble)
-		var fish := UiKit.icon("res://assets/fish/%s.png" % d[0], side * 0.62)
-		fish.position = Vector2(side, side) * 0.19
-		holder.add_child(fish)
-		Anim.wiggle(fish, 7.0, 1.6 + i * 0.3)
-		Anim.pop_in(holder, 0.15 + 0.1 * i, 0.4)
-		Anim.bob(holder, 10.0, 3.0 + i * 0.5, i * 0.3)
-
-
 func _build_entries() -> void:
 	# 主页两侧只留签到和抽奖；选关在底栏，技能在商店
 	var left: Array = [["signin", "res://assets/ui/gift.png", "UI_SIGNIN", _open_signin]]
-	var right: Array = [["wheel", "res://assets/ui/tab_wheel.png", "H_FEAT_WHEEL", _open_wheel]]
+	var right: Array = [["wheel", "res://assets/ui/chest_closed.png", "H_FEAT_WHEEL", _open_wheel]]
 	for i: int in left.size():
 		_entry(left[i], Vector2(30, 190 + i * 170))
 	for i: int in right.size():
@@ -61,6 +40,7 @@ func _entry(spec: Array, pos: Vector2) -> void:
 	var open: bool = _model.is_unlocked(feature)
 	var holder := Control.new()
 	add(holder, pos, Vector2(ENTRY, ENTRY + 40))
+	_entries[feature] = holder
 	var tile := UiKit.piece("tile")
 	holder.add_child(tile)
 	tile.size = Vector2(ENTRY, ENTRY)
@@ -94,6 +74,7 @@ func _entry(spec: Array, pos: Vector2) -> void:
 
 
 func _on_entry(feature: String, action: Callable) -> void:
+	_end_guide()
 	if feature == "wheel":
 		# 没开放也进去：抽奖页自己会显示「第 N 关解锁」
 		action.call()
@@ -108,14 +89,6 @@ func _open_signin() -> void:
 func _after_signin() -> void:
 	host.refresh_top()
 	host.rebuild_page()
-
-
-func _open_levels() -> void:
-	LevelRoute.open(host)
-
-
-func _open_skills() -> void:
-	host.go_tab(HomeScreen.TAB_SHOP)
 
 
 func _open_wheel() -> void:
@@ -140,29 +113,36 @@ func _build_start() -> void:
 		add(tag, Vector2(135, size.y - 214.0), Vector2(480, 36))
 
 
-## 功能刚开放：弹一次「新功能」，点「去看看」直接进入
+## 功能刚开放：在对应入口或页签上放解锁动画，再用光环指着它等玩家点（不弹窗）
 func _check_unlock() -> void:
 	var feature: String = _model.take_pending_unlock()
 	if feature.is_empty():
 		return
-	var tw: Tween = create_tween()
-	tw.tween_interval(0.5)
-	tw.tween_callback(
-		func() -> void: HomePopups.feature_unlocked(host, feature, _go_feature.bind(feature))
-	)
+	var tab: int = _unlock_tab(feature)
+	if _entries.has(feature):
+		var holder: Control = _entries[feature]
+		var at: Vector2 = holder.position + Vector2(ENTRY, ENTRY) / 2.0
+		_guide = HomeGuide.play(self, at, holder, ENTRY)
+	else:
+		# 页签在页面下方：页面坐标里它的图标中心
+		var tab_w: float = (W - 32.0) / HomeScreen.TAB_KEYS.size()
+		var at := Vector2(16.0 + (tab + 0.5) * tab_w, size.y + 84.0)
+		_guide = HomeGuide.play(self, at, null, 96.0)
 
 
-func _go_feature(feature: String) -> void:
+## 开放的功能落在哪个页签上（技能和商店都在商店页签）
+func _unlock_tab(feature: String) -> int:
 	match feature:
-		"signin":
-			_open_signin()
 		"levelSelect":
-			_open_levels()
-		"wheel":
-			_open_wheel()
+			return HomeScreen.TAB_LEVELS
 		"album":
-			host.go_tab(HomeScreen.TAB_COLLECTION)
+			return HomeScreen.TAB_COLLECTION
 		"rank":
-			host.go_tab(HomeScreen.TAB_RANK)
-		_:
-			_open_skills()
+			return HomeScreen.TAB_RANK
+	return HomeScreen.TAB_SHOP
+
+
+func _end_guide() -> void:
+	if _guide != null and is_instance_valid(_guide):
+		Anim.fade_out_free(_guide, 0.15)
+	_guide = null

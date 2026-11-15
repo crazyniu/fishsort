@@ -19,6 +19,12 @@ var _return_box: Control
 var _held: Dictionary = {}
 ## 逻辑上已经落下、画面上还没轮到落的气泡
 var _deferred: Dictionary = {}
+## 已经破掉、画面上可能还没收走的气泡：重新排布时不再算它们
+var _gone: Dictionary = {}
+## 气泡场的可用范围（没有遮挡的关卡才用得上）
+var _area: Rect2 = Rect2()
+## 本关气泡是否可以自由挪位（没有遮挡关系）
+var _free_layout: bool = false
 
 
 func _init(stage: Control, fx: GameFx, tex: Callable, on_tap: Callable) -> void:
@@ -39,6 +45,7 @@ func build(lv: LevelData, s: GameState, top: float, bottom: float, intro: bool) 
 	_bubbles.clear()
 	_held.clear()
 	_deferred.clear()
+	_gone.clear()
 	var centers: Array[Vector2] = []
 	var radii: Array[float] = []
 	var covered: bool = false
@@ -48,9 +55,11 @@ func build(lv: LevelData, s: GameState, top: float, bottom: float, intro: bool) 
 		covered = covered or not (d["under"] as Array).is_empty()
 	# 没有遮挡关系的关卡（平铺、掉落）：把气泡放大到铺满场地，再推开到互不重叠。
 	# 有遮挡的关卡重叠是规则的一部分，保持原样
+	_free_layout = not covered
+	_area = Rect2(0, top, _fx.width, avail)
 	if not covered:
 		var on_field: int = lv.field_cap if lv.field_cap > 0 else radii.size()
-		_fit(centers, radii, mini(on_field, radii.size()), Rect2(0, top, _fx.width, avail))
+		_fit(centers, radii, mini(on_field, radii.size()), _area)
 	for idx: int in lv.bubbles.size():
 		_bubbles.append(_make_bubble(lv.bubbles[idx], centers[idx], radii[idx]))
 	_return_box = _fx.put(Control.new(), Vector2.ZERO)
@@ -74,6 +83,14 @@ func _fit(centers: Array[Vector2], radii: Array[float], n: int, area: Rect2) -> 
 	)
 	for i: int in radii.size():
 		radii[i] *= k
+	_relax(centers, radii, n, area, [])
+
+
+## 迭代推开重叠的气泡并收回边界内。pinned 里的下标不动（对方被整个推开）
+func _relax(
+	centers: Array[Vector2], radii: Array[float], n: int, area: Rect2, pinned: Array[int]
+) -> void:
+	var cfg: Dictionary = GameCfg.d()["field"]
 	var gap: float = float(cfg["gap"])
 	for step: int in int(cfg["relaxSteps"]):
 		for i: int in n:
@@ -85,10 +102,16 @@ func _fit(centers: Array[Vector2], radii: Array[float], n: int, area: Rect2) -> 
 					continue
 				# 圆心重合时按下标给一个固定方向，结果可复现
 				var dir: Vector2 = delta / dist if dist > 0.01 else Vector2.from_angle(i * 2.4)
-				var push: Vector2 = dir * (need - dist) * 0.5
-				centers[i] -= push
-				centers[j] += push
+				var push: Vector2 = dir * (need - dist)
+				var fix_i: bool = pinned.has(i)
+				var fix_j: bool = pinned.has(j)
+				if fix_i and fix_j:
+					continue
+				centers[i] -= push * (0.0 if fix_i else 1.0 if fix_j else 0.5)
+				centers[j] += push * (0.0 if fix_j else 1.0 if fix_i else 0.5)
 		for i: int in n:
+			if pinned.has(i):
+				continue
 			var m: float = radii[i] + gap
 			centers[i].x = clampf(centers[i].x, area.position.x + m, area.end.x - m)
 			centers[i].y = clampf(centers[i].y, area.position.y + m, area.end.y - m)
@@ -340,6 +363,7 @@ func reject(s: GameState, p: Vector2) -> bool:
 
 ## 气泡破裂：碎成小泡沫，旁边的气泡被震得晃一下
 func pop(b: int) -> void:
+	_gone[b] = true
 	var c: Vector2 = center(b)
 	var r: float = radius(b)
 	_fx.pop(c, r)
@@ -349,17 +373,63 @@ func pop(b: int) -> void:
 			Anim.bounce(_bubbles[i]["node"], 1.05, 0.25)
 
 
-## 掉落关：新气泡从屏幕上方落到刚空出来的位置，落地轻弹，把周围的气泡挤开一点
+## 掉落关：新气泡从屏幕上方落到刚空出来的位置，落地轻弹，把周围的气泡挤开一点。
+## 新气泡半径可能和空出来的那个不同，所以先把场上的气泡重新排一遍，互不重叠
 func drop_in(b: int, freed: int) -> void:
 	_deferred.erase(b)
 	var view: Dictionary = _bubbles[b]
 	var node: Control = view["node"]
 	if freed >= 0:
 		view["home"] = _bubbles[freed]["home"]
+	if _free_layout:
+		_replace(b)
 	var home: Vector2 = view["home"]
 	node.position = Vector2(home.x, -radius(b) - 40.0)
 	var cfg: Dictionary = GameCfg.d()["drop"]
 	_fx.fall_in(node, home.y, float(cfg["delay"]), float(cfg["fallSeconds"]), _landed.bind(b))
+
+
+## 以 b 的 home 为起点，对场上所有气泡重新松弛；停稳的气泡缓动到新位置，
+## 还在下落途中的气泡原地不动（只当障碍）。点击判定看的是 node 的真实位置，不受影响
+func _replace(b: int) -> void:
+	var ids: Array[int] = []
+	var centers: Array[Vector2] = []
+	var radii: Array[float] = []
+	var pinned: Array[int] = []
+	for i: int in _bubbles.size():
+		if i != b and (_gone.has(i) or _deferred.has(i) or not _visible(i)):
+			continue
+		var node: Control = _bubbles[i]["node"]
+		var home: Vector2 = _bubbles[i]["home"]
+		if i != b and node.position.distance_to(home) > GameCfg.num("drop", "nudge") + 1.0:
+			pinned.append(ids.size())
+		ids.append(i)
+		centers.append(home)
+		radii.append(float(_bubbles[i]["r"]))
+	_relax(centers, radii, ids.size(), _area, pinned)
+	var secs: float = GameCfg.num("drop", "relaxSeconds")
+	for n: int in ids.size():
+		var i: int = ids[n]
+		var view: Dictionary = _bubbles[i]
+		if (view["home"] as Vector2).is_equal_approx(centers[n]):
+			continue
+		view["home"] = centers[n]
+		if i == b or pinned.has(n):
+			continue
+		var node: Control = view["node"]
+		_kill(view)
+		var tw: Tween = node.create_tween()
+		tw.tween_property(node, "position", centers[n], secs).set_trans(Tween.TRANS_SINE).set_ease(
+			Tween.EASE_OUT
+		)
+		view["move_tw"] = tw
+
+
+func _kill(view: Dictionary) -> void:
+	for key: String in ["move_tw", "nudge_tw"]:
+		var old: Tween = view.get(key)
+		if old != null and old.is_valid():
+			old.kill()
 
 
 func _landed(b: int) -> void:
@@ -368,7 +438,7 @@ func _landed(b: int) -> void:
 	Audio.sfx(&"land", randf_range(0.95, 1.1))
 	_fx.ring_small(c + Vector2(0, radius(b) * 0.8))
 	for i: int in _bubbles.size():
-		if i == b or not _visible(i):
+		if i == b or not _visible(i) or _gone.has(i):
 			continue
 		var home: Vector2 = _bubbles[i]["home"]
 		if c.distance_to(home) > radius(b) + radius(i) + 36.0:
@@ -383,6 +453,7 @@ func _landed(b: int) -> void:
 		tw.tween_property(node, "position", home, 0.26).set_trans(Tween.TRANS_BACK).set_ease(
 			Tween.EASE_OUT
 		)
+		_bubbles[i]["nudge_tw"] = tw
 
 
 ## 锁或冰块从气泡上脱落
