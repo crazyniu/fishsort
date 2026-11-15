@@ -53,3 +53,16 @@ func test_combo_tiers_and_card() -> void:
 	eq(combo.coins, 20 + 50 + 75 + 25, "6–9 连 5 币，10–14 连 10 币，15–19 连 15 币，20 连 25 币")
 	eq(combo.best_bonus(cfg), 200, "最高连击奖 = 20 × 10")
 	eq(combo.hit(100.0, cfg, rng)["count"], 1, "超时后重新计数")
+
+
+func test_free_third_bowl_after_four_fails() -> void:
+	var eco := JSON.parse_string(FileAccess.get_file_as_string("res://config/economy.json"))
+	var save := PlayerData.create(eco)
+	eq(Meta.open_slots_for(save, eco, 7, 2), 2, "没失败过不送")
+	for i in 3:
+		Meta.fail_level(save, eco, 7)
+	eq(Meta.open_slots_for(save, eco, 7, 2), 2, "失败 3 次不送")
+	Meta.fail_level(save, eco, 7)
+	eq(Meta.open_slots_for(save, eco, 7, 2), 3, "失败 4 次送第 3 缸位")
+	eq(Meta.open_slots_for(save, eco, 8, 2), 2, "换一关不送")
+	eq(Meta.open_slots_for(save, eco, 7, 4), 4, "本来就开得更多则不变")

@@ -16,7 +16,7 @@
   },
   "toolMaxPerLevel": 2,
   "bowlSlotCoinPrice": 650,
-  "freeBowlSlotUntil": 0,
+  "freeBowlSlotAfterFails": 4,
   "dupeCoins": {
     "common": 50,
     "uncommon": 125,

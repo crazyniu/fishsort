@@ -60,8 +60,7 @@ func start_level(id: int) -> void:
 	# 关卡数有限，超出后循环使用
 	_lv = Config.load_level((id - 1) % LEVEL_COUNT + 1, ease)
 	_s = GameState.from_level(_lv)
-	if id <= int(Config.eco["freeBowlSlotUntil"]):
-		_s.open_slots = 3
+	_s.open_slots = Meta.open_slots_for(Save.data, Config.eco, id, _s.open_slots)
 	Rules.start(_s)
 	_species = GameSpecies.pick(_lv.level_seed, _lv.palette)
 	_tool_uses = {}
@@ -290,6 +289,10 @@ func _on_tool(tool: String) -> void:
 		_net_mode = false
 		return
 	# 先确认现在能用、用了有效果，免得白扣一次
+	if _hud.tool_locked(tool):
+		Audio.sfx(&"error")
+		_hud.shake_tool(tool)
+		return
 	var seed_value: int = Time.get_ticks_usec()
 	var blocked: String = _tool_blocked(tool, seed_value)
 	if blocked != "":
@@ -327,8 +330,6 @@ func _on_tool(tool: String) -> void:
 
 ## 这个技能现在不能用的原因（给玩家看的一句话）；能用返回空串
 func _tool_blocked(tool: String, seed_value: int) -> String:
-	if _hud.tool_locked(tool):
-		return tr("UI_SKILL_LOCKED") % Skills.unlock_level(Config.eco, tool)
 	if int(_tool_uses[tool]) >= int(Config.eco["toolMaxPerLevel"]):
 		return tr("UI_TOOL_LIMIT")
 	var idle: Dictionary = {

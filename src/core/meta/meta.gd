@@ -29,6 +29,15 @@ static func ease_for(save: Dictionary, eco: Dictionary, level_id: int) -> int:
 	return ease
 
 
+## 同一关连续失败够次数后，下次开局免费送第 3 缸位；返回开局该开的缸位数（base 是关卡默认值）
+static func open_slots_for(save: Dictionary, eco: Dictionary, level_id: int, base: int) -> int:
+	if save["fails"]["level"] != level_id:
+		return base
+	if int(save["fails"]["count"]) >= int(eco["freeBowlSlotAfterFails"]):
+		return maxi(base, 3)
+	return base
+
+
 static func buy_tool(save: Dictionary, eco: Dictionary, tool: String) -> bool:
 	var price: int = int(eco["toolPrice"][tool])
 	if int(save["coins"]) < price:

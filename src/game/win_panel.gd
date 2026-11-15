@@ -2,8 +2,8 @@ class_name WinPanel
 extends Control
 ## 过关结算页（docs/01 第 3.3、3.4 节）：同一屏里依次是横幅砸下、三颗星逐个点亮、
 ## 金币数字滚动、宝箱晃动发光后弹开亮出奖品、按钮出现。动画期间点任意处直接跳到最终状态。
-## 金币和宝箱在打开本页之前已经由 Settle / LevelChest 入账，这里只负责演出和三个追加动作：
-## 金币翻倍（广告）、再开一个宝箱（广告，每关一次）、分享炫耀。
+## 金币和宝箱在打开本页之前已经由 Settle / LevelChest 入账，这里只负责演出和两个追加动作：
+## 金币翻倍（广告）、分享炫耀。
 
 const W := 750.0
 const CHEST_AT := Vector2(375, 540)
@@ -13,8 +13,6 @@ const BUTTON_Y := 950.0
 var _info: Dictionary
 var _result: Dictionary
 var _chest: Dictionary
-## 已经开过的宝箱（奖励排在下面那一行里）
-var _opened: Array[Dictionary] = []
 var _on_next: Callable
 var _on_home: Callable
 var _box: Control
@@ -38,8 +36,6 @@ static func open(host: Control, info: Dictionary, on_next: Callable, on_home: Ca
 	p._coins = int(p._result["coins"])
 	p._on_next = on_next
 	p._on_home = on_home
-	if not p._chest.is_empty():
-		p._opened.append(p._chest)
 	host.add_child(p)
 	p._build(true, true)
 	return p
@@ -170,7 +166,7 @@ func _rewards(animate: bool, coins_from: int) -> void:
 	var total: int = _coins + _chest_coins()
 	if total > 0:
 		items.append(["res://assets/ui/coin.png", "+%d" % total])
-	for chest: Dictionary in [_chest] + _opened:
+	for chest: Dictionary in [_chest]:
 		if not chest.is_empty() and chest["kind"] == "skill":
 			items.append(
 				["res://assets/ui/tool_%s.png" % chest["skill"], "+%d" % int(chest["count"])]
@@ -224,7 +220,7 @@ func _roll(num: Label, total: int, animate: bool, coins_from: int, at: float) ->
 
 func _chest_coins() -> int:
 	var n: int = 0
-	for chest: Dictionary in [_chest] + _opened:
+	for chest: Dictionary in [_chest]:
 		if not chest.is_empty() and chest["kind"] == "coins":
 			n += int(chest["coins"])
 	return n
@@ -235,9 +231,8 @@ func _cards() -> Array:
 	var out: Array = []
 	if not (_info["combo_card"] as Dictionary).is_empty():
 		out.append(_info["combo_card"])
-	for chest: Dictionary in _opened:
-		if chest["kind"] == "card":
-			out.append(chest["card"])
+	if not _chest.is_empty() and _chest["kind"] == "card":
+		out.append(_chest["card"])
 	return out
 
 
