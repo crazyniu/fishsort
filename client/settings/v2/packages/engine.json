@@ -14,6 +14,9 @@
           "gfx-webgl2": {
             "_value": true
           },
+          "gfx-webgpu": {
+            "_value": false
+          },
           "animation": {
             "_value": true
           },
@@ -23,8 +26,14 @@
           "3d": {
             "_value": false
           },
+          "meshopt": {
+            "_value": false
+          },
           "2d": {
             "_value": true
+          },
+          "sorting-2d": {
+            "_value": false
           },
           "rich-text": {
             "_value": false
@@ -35,11 +44,11 @@
           "graphics": {
             "_value": true
           },
-          "affine-transform": {
+          "ui-skew": {
             "_value": true
           },
-          "xr": {
-            "_value": false
+          "affine-transform": {
+            "_value": true
           },
           "ui": {
             "_value": true
@@ -52,13 +61,19 @@
             "_option": "physics-ammo"
           },
           "physics-ammo": {
-            "_value": false
+            "_value": false,
+            "_flags": {
+              "LOAD_BULLET_MANUALLY": false
+            }
           },
           "physics-cannon": {
             "_value": false
           },
           "physics-physx": {
-            "_value": false
+            "_value": false,
+            "_flags": {
+              "LOAD_PHYSX_MANUALLY": false
+            }
           },
           "physics-builtin": {
             "_value": false
@@ -70,7 +85,16 @@
           "physics-2d-box2d": {
             "_value": false
           },
+          "physics-2d-box2d-wasm": {
+            "_value": false,
+            "_flags": {
+              "LOAD_BOX2D_MANUALLY": false
+            }
+          },
           "physics-2d-builtin": {
+            "_value": false
+          },
+          "physics-2d-box2d-jsb": {
             "_value": false
           },
           "intersection-2d": {
@@ -121,9 +145,24 @@
           "tiled-map": {
             "_value": false
           },
+          "vendor-google": {
+            "_value": false
+          },
           "spine": {
             "_value": false,
             "_option": "spine-3.8"
+          },
+          "spine-3.8": {
+            "_value": true,
+            "_flags": {
+              "LOAD_SPINE_MANUALLY": false
+            }
+          },
+          "spine-4.2": {
+            "_value": false,
+            "_flags": {
+              "LOAD_SPINE_MANUALLY": false
+            }
           },
           "dragon-bones": {
             "_value": false
@@ -131,8 +170,24 @@
           "marionette": {
             "_value": false
           },
+          "procedural-animation": {
+            "_value": false
+          },
+          "custom-pipeline-post-process": {
+            "_value": false
+          },
           "render-pipeline": {
+            "_value": true,
             "_option": "custom-pipeline"
+          },
+          "custom-pipeline": {
+            "_value": true
+          },
+          "legacy-pipeline": {
+            "_value": false
+          },
+          "xr": {
+            "_value": false
           }
         },
         "includeModules": [
@@ -141,6 +196,7 @@
           "animation",
           "audio",
           "base",
+          "custom-pipeline",
           "gfx-webgl",
           "gfx-webgl2",
           "graphics",
@@ -148,7 +204,7 @@
           "profiler",
           "tween",
           "ui",
-          "custom-pipeline"
+          "ui-skew"
         ],
         "noDeprecatedFeatures": {
           "value": false,
