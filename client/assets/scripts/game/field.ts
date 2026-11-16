@@ -14,6 +14,8 @@ interface View {
   node: Node;
   body: Node;
   skin: Node;
+  /** 磨砂底：上层（能点）的气泡垫一层浅色，把下层透上来的鱼挡掉一些 */
+  fill: Node;
   fish: (Node | null)[];
   offsets: [number, number][];
   r: number;
@@ -32,8 +34,9 @@ interface View {
 const SILHOUETTE = new Color(30, 50, 90, 255);
 const WHITE = new Color(255, 255, 255, 255);
 /** 下层（被压住、还不能点）的气泡和鱼 */
-const UNDER_BUBBLE = new Color(105, 140, 205, 255);
-const UNDER_FISH = new Color(150, 165, 195, 255);
+const UNDER_BUBBLE = new Color(70, 105, 180, 255);
+const UNDER_FISH = new Color(120, 135, 170, 255);
+const FROST = new Color(225, 247, 255, 255);
 
 export class Field {
   node: Node;
@@ -62,6 +65,9 @@ export class Field {
     this.node.on(Node.EventType.TOUCH_END, (e: EventTouch) => this.touch(e));
   }
 
+  /** 这关有叠层：上层气泡垫磨砂底 */
+  private layered = false;
+
   spriteFor(sp: number): string {
     return `fish/${this.species[sp] ?? this.species[0]}`;
   }
@@ -77,6 +83,7 @@ export class Field {
       covered = covered || d.under.length > 0;
     }
     this.freeLayout = !covered;
+    this.layered = covered;
     if (!covered) {
       const onField = this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length;
       this.fit(centers, radii, Math.min(onField, radii.length));
@@ -199,6 +206,9 @@ export class Field {
     at(node, c[0], c[1]);
     // 漂浮只动 body：node 的位置留给掉落、推开
     const body = box('body', node, r * 2, r * 2);
+    const fill = img(body, 'kit/circle_white', r * 1.92, r * 1.92, 'fill');
+    (fill.getComponent(Sprite) as Sprite).color = FROST;
+    opacity(fill).opacity = 0;
     const skin = img(body, 'kit/bubble', r * 2, r * 2, 'skin');
     const n = d.fish.length;
     const fs = this.fishSize(n, r);
@@ -220,6 +230,7 @@ export class Field {
       node,
       body,
       skin,
+      fill,
       fish,
       offsets: offs,
       r,
@@ -288,7 +299,7 @@ export class Field {
       // 被压住的（下层）：气泡染成深一点的蓝、鱼压暗、整颗缩小一点，和能点的上层一眼分开（用户 2026-11-16）
       const dimmed = !isOpen && b.onField;
       const op = opacity(v.body);
-      const target = dimmed ? 225 : 255;
+      const target = dimmed ? 215 : 255;
       const sc = dimmed ? 0.93 : 1;
       Tween.stopAllByTarget(op);
       if (animate) {
@@ -299,6 +310,7 @@ export class Field {
         v.body.setScale(sc, sc, 1);
       }
       (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
+      opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
       for (const f of v.fish) {
         if (!f) continue;
         (f.getComponent(Sprite) as Sprite).color = b.fog && !isOpen ? SILHOUETTE : dimmed ? UNDER_FISH : WHITE;
