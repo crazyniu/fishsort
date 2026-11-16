@@ -124,7 +124,11 @@ export class ResultPage extends Page {
       x += widths[i];
     });
     for (const e of extras) e.active = false;
-    if (!r.rewarded) coinLabel.string = tr('UI_REPLAY_NO_REWARD');
+    if (!r.rewarded) {
+      // 今天重玩的奖励领完了：整条只写一句话，居中、放得下
+      coinCell.active = false;
+      at(text(pill, tr('UI_REPLAY_NO_REWARD'), 34, { width: 600 }).node, 0, 0);
+    }
 
     // 按钮
     const s = App.save.data;

@@ -61,7 +61,7 @@ export class WheelPage extends Page {
     const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, top - 80);
     // 标题行：左返回 · 中标题 · 右金币（同一行）
-    const title = slice(v, 'kit/title_page', 340, 104, 'title');
+    const title = slice(v, 'kit/title_page', 290, 104, 'title');
     at(title, 0, top - 80);
     at(text(title, tr('H_FEAT_WHEEL'), 56).node, 0, 0);
     const coins = capsule(v, 220, 64, 'icon/coin', fmt(s.coins), 28);
