@@ -252,7 +252,7 @@ export interface CurveConfig {
   gen: Record<string, number>;
 }
 
-/** 界面数值（动画时长、场地、家园物件位置），assets/resources/config/game_ui.json */
+/** 界面数值（动画时长、场地、主页装饰），assets/resources/config/game_ui.json */
 export interface GameUiConfig {
   fly: { seconds: number; tapPop: number; stagger: number; bufferSeconds: number };
   bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number };
