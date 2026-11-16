@@ -151,7 +151,6 @@ export interface EconomyConfig {
     streakReward: Reward;
   };
   tasks?: TasksConfig;
-  homeBase: { stars: { level: number; challenge: number; challengeEvery: number }; areas: Area[] };
   features: Record<string, number>;
   chest: {
     normal: { coins: number; skill: number; card: number; coinMin: number; coinMax: number };
@@ -277,6 +276,5 @@ export interface GameUiConfig {
   /** 场地：…maxRadius 是气泡半径的上限（气泡少的关卡放大到它为止） */
   field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; maxRadius: number };
   badgeCap: number;
-  basePage: { scene: number; buildFx: number; chestDelay: number; steps: Record<string, [number, number, number][]> };
   homeDeco: { school: [string, number, number, number][] };
 }

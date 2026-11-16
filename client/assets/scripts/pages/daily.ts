@@ -11,10 +11,10 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, fmt, hex, iconButton, img, lazyImg, opacity, pageTitle, setImg, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, setImg, slice, text } from '../ui/kit';
 import { needCoins, prizeCell, prizeItems, revealCards, rewardPopup, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, ui } from '../ui/shell';
+import { Page, pageHead, ui } from '../ui/shell';
 
 interface WonArg {
   won?: { prizes: Prize[]; big: boolean };
@@ -57,9 +57,7 @@ export class DailyPage extends Page {
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
     const top = Screen.top;
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
-    at(back, -Screen.W / 2 + 70, top - 80);
-    at(pageTitle(v, tr('DAILY_TITLE')), 0, top - 80);
+    pageHead(v, tr('DAILY_TITLE'), { onBack: () => this.back() });
 
     // 大宝箱
     const chestY = top - 200 - (Screen.H - 1334) * 0.15 - 170;

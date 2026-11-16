@@ -15,7 +15,7 @@ UI_AD_UNAVAILABLE,广告暂时不可用,Ads are unavailable right now
 UI_SIGNIN,签到,Daily gift
 UI_SIGNIN_DAY,第 %d 天,Day %d
 UI_CLAIM,领取,Claim
-UI_CLAIM_DOUBLE,看广告 双倍领取,Watch ad: claim double
+UI_CLAIM_DOUBLE,双倍,2x
 UI_CLAIMED,今天已领取,Claimed today
 UI_AD_TEST,广告测试,Ad test
 UI_TAB_SHOP,商店,Shop
@@ -43,7 +43,7 @@ TIP_PAIR,结伴鱼：点一条，两条一起走，各进各的缸,Buddies: tap 
 UI_PRAISE_1,不错！,Good!
 UI_PRAISE_2,真棒！,Great!
 UI_PRAISE_3,太强了！,Awesome!
-UI_SKILL_FREE,免费,Free
+UI_SKILL_FREE,FREE,FREE
 UI_SKILL_TRY,试试新技能：%s,Try the new skill: %s
 UI_BLOW_EMPTY,暂存槽里没有鱼,Nothing to blow back
 UI_CURRENT_EMPTY,现在没有能直接进缸的鱼,No fish can go straight in
@@ -52,10 +52,9 @@ UI_REPLAY_NO_REWARD,今天重玩的奖励已领完,No more replay rewards today
 H_LIVES_TITLE,生命,Lives
 H_BUY_ONE,买1条,Buy 1
 H_REFILL,补满,Refill
-H_WATCH_COINS,看广告领 %d 金币,Watch ad: +%d coins
-H_SHARE_LIFE,分享得 1 条生命,Share for 1 life
+H_WATCH_COINS,+%d 金币,+%d coins
 H_INF_LEFT,无限生命 %s,Unlimited lives %s
-H_NEXT_LIFE,下一条 %s,Next life %s
+H_NEXT_LIFE,下一条 %s,Next %s
 H_LIVES_FULL,生命已满,Lives full
 H_LEAVE_TITLE,离开,Leave
 H_LEAVE_LINE,现在离开会失去 1 条生命,Leaving now costs 1 life
@@ -64,7 +63,7 @@ H_LEAVE,离开,Leave
 H_SLOT_TITLE,解锁缸位,Unlock a tank
 H_WATCH_AD,看广告,Watch ad
 H_REVIVE_LINE,吹出一个新气泡，接着闯关,Blow a fresh bubble and go on
-H_REVIVE_AD,看广告复活,Watch ad to revive
+H_REVIVE_AD,复活,Revive
 H_GIVE_UP,放弃,Give up
 H_UNLOCK_TITLE,新功能,New feature
 H_UNLOCK_LINE,「%s」已开放,"""%s"" is open"
@@ -87,14 +86,13 @@ H_LANGUAGE,语言,Language
 H_TO_HOME,回主页,Home
 H_RETRY,重试,Retry
 H_CONGRATS,恭喜获得,You got
-H_SPINS_LEFT,剩余开箱 %d 次,Chests left: %d
+H_SPINS_LEFT,剩 %d 次,%d left
 H_SPIN,开箱,Open
-H_TEN_PULL,十连开箱,Open ten
+H_TEN_PULL,十连,×10
 UI_MINUTES,%d 分钟,%d min
 UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途离开会失去 1 条生命,From here on leaving mid-level costs a life
 TIP_DROP,后面还有气泡会掉下来,More bubbles will drop in later
-UI_TAB_BASE,家园,Bay
 UI_TAB_DAILY,每日挑战,Daily
 H_GRAND_PRIZE,大奖,Grand prize
 ALBUM_BOOK_1,晨光沙滩,Sunrise Shore
@@ -115,48 +113,6 @@ DAILY_BIG_CHEST,七日大宝箱,7-day chest
 DAILY_RETRY,再试一次,Try again
 H_PRIZE_FRAME,头像框,Avatar frame
 UI_CARD_OWNED,重复卡，已自动换成,"Duplicate, converted to"
-BASE_AREA_SHORE,晨光沙滩,Sunrise Shore
-BASE_AREA_CORAL,珊瑚花园,Coral Garden
-BASE_AREA_WRECK,沉船湾,Shipwreck Cove
-BASE_AREA_CRYSTAL,水晶洞窟,Crystal Grotto
-BASE_AREA_PALACE,海底宫殿,Sea Palace
-BASE_STEP_SHORE_1,修好栈桥,Fix the pier
-BASE_STEP_SHORE_2,挂起彩旗,Hang the bunting
-BASE_STEP_SHORE_3,铺贝壳小路,Lay a shell path
-BASE_STEP_SHORE_4,搭沙滩小屋,Build a beach hut
-BASE_STEP_SHORE_5,点亮灯塔,Light the lighthouse
-BASE_STEP_CORAL_1,种下珊瑚丛,Plant the corals
-BASE_STEP_CORAL_2,铺海葵花床,Grow an anemone bed
-BASE_STEP_CORAL_3,立起石拱门,Raise a stone arch
-BASE_STEP_CORAL_4,放上珍珠蚌,Place the pearl clam
-BASE_STEP_CORAL_5,挂起泡泡灯,Hang bubble lamps
-BASE_STEP_WRECK_1,扶正船身,Right the hull
-BASE_STEP_WRECK_2,立起桅杆,Raise the mast
-BASE_STEP_WRECK_3,挂上船帆,Hoist the sail
-BASE_STEP_WRECK_4,擦亮船锚,Polish the anchor
-BASE_STEP_WRECK_5,打开宝藏舱,Open the treasure hold
-BASE_STEP_CRYSTAL_1,点亮水晶簇,Light the crystals
-BASE_STEP_CRYSTAL_2,凿出石阶,Carve stone steps
-BASE_STEP_CRYSTAL_3,引来泡泡泉,Start the bubble spring
-BASE_STEP_CRYSTAL_4,种发光海草,Plant glowing kelp
-BASE_STEP_CRYSTAL_5,挂起星星灯,Hang star lanterns
-BASE_STEP_PALACE_1,重建宫门,Rebuild the gate
-BASE_STEP_PALACE_2,立起左廊柱,Raise the left pillar
-BASE_STEP_PALACE_3,立起右廊柱,Raise the right pillar
-BASE_STEP_PALACE_4,修好喷泉,Fix the fountain
-BASE_STEP_PALACE_5,升起穹顶,Raise the dome
-BASE_BUILD,建造,Build
-BASE_PROGRESS,区域 %d/%d,Area %d/%d
-BASE_STEP_OF,第 %d/%d 步：%s,Step %d/%d: %s
-BASE_NEED_STARS,星星不够：首次过关得星星,Need more stars: clear new levels
-BASE_ALL_DONE,海湾已全部重建,The bay is rebuilt!
-BASE_AREA_DONE,区域重建完成！,Area rebuilt!
-BASE_AREA_KELP,海草森林,Kelp Forest
-BASE_STEP_KELP_1,种下海草丛,Plant the kelp
-BASE_STEP_KELP_2,搭蘑菇小屋,Build the mushroom hut
-BASE_STEP_KELP_3,挂起吊床,Hang the hammock
-BASE_STEP_KELP_4,点亮海草灯,Light the lanterns
-BASE_STEP_KELP_5,编起海草拱门,Weave the kelp arch
 REVIVE_TITLE,再试一次,Try again
 REVIVE_BUFFER,吹走暂存槽里的鱼，接着闯关,Blow the waiting fish back and keep going
 REVIVE_TIMEOUT,限时缸再加 30 秒,+30 seconds for the timed bowl
@@ -164,18 +120,18 @@ REVIVE_STUCK,解开锁链和冰封，接着闯关,Break the chains and ice and k
 LIFE_MINUS,生命 −1,Life −1
 PAUSE_TITLE,暂停,Paused
 WIN_TITLE,通关成功,Level clear!
-WIN_DOUBLE,奖励翻倍,Double it
+WIN_DOUBLE,翻倍,Double
 RETURN_HOME,返回主页,Home
 SKILL_BUY_TITLE,补充%s,More %s
-SKILL_AD,看广告得 1 个,Watch ad: +1
+SKILL_AD,+1,+1
 SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
 TEN_REWARD,十连奖励,10× rewards
 CARD_RARITY_NEW,新收藏！,New card!
-TAP_CONTINUE,点击继续,Tap to continue
+TAP_CONTINUE,继续,Continue
 UI_PLAY,开始,Play
 UI_CHALLENGE_TAG,挑战,Hard
 DAILY_TITLE,每日挑战,Daily challenge
-ADS_LEFT,今日剩余 %d 次,%d left today
+ADS_LEFT,剩 %d 次,%d left
 MECH_TITLE,新玩法,New!
 GOT_IT,知道了,Got it
 SLOT_LINE,多一个鱼缸，这一关更好过。,One more bowl makes this level easier.
@@ -184,7 +140,7 @@ H_FEAT_DAILY,每日挑战,Daily
 PRIZE_HOURS,%d 小时,%dh
 LV_CURRENT,当前,Now
 LV_LOCKED,先通过前面的关卡,Clear the earlier levels first
-LV_REPLAY_LEFT,今日重玩奖励 %d/%d,Replay rewards today %d/%d
+LV_REPLAY_LEFT,重玩奖励 %d/%d,Replay rewards %d/%d
 SHOP_AD_LEFT,今日 %d/%d,Today %d/%d
 SHOP_AD_DONE,今天的免费金币领完了,No more free coins today
 UI_FULL,已满,Full
@@ -268,19 +224,17 @@ PROFILE_PICK_AVATAR,选择头像,Choose avatar
 PROFILE_DEFAULT_AVATAR,默认,Default
 UI_TAB_TASKS,任务,Tasks
 TASK_TITLE,任务中心,Tasks
-TASK_DAY_POINTS,今日积分 %d/%d,Today %d/%d
-TASK_WEEK_POINTS,本周积分 %d/%d,This week %d/%d
-TASK_POINTS,+%d 分,+%d
 TASK_GO,前往,Go
 TASK_NAME_WIN,过 %d 关,Clear %d levels
 TASK_NAME_RESCUE,救 %d 只小鱼,Rescue %d fish
 TASK_NAME_AD,看 %d 次广告,Watch %d ad
 TASK_NAME_COMBO,打出 %d 连击,Hit a %d combo
 TASK_NAME_SKILL,用 %d 次技能,Use %d skill
-TASK_NAME_DAILY,完成 %d 次每日挑战,Win %d daily challenge
-TASK_NAME_WHEEL,开 %d 次抽奖宝箱,Open %d prize chest
-TASK_NAME_BUILD,家园建造 %d 步,Build %d step in the bay
+TASK_NAME_DAILY,每日挑战 %d 次,Daily challenge ×%d
+TASK_NAME_WHEEL,抽奖 %d 次,Open %d chest
 TASK_NAME_SHARE,分享 %d 次,Share %d time
 TASK_CHEST_DAY,每日任务宝箱,Daily task chest
 TASK_CHEST_WEEK,本周任务宝箱,Weekly task chest
 TASK_CARD_MIN,%s以上,%s+
+TASK_TAB_DAY,今日,Today
+TASK_TAB_WEEK,本周,Week

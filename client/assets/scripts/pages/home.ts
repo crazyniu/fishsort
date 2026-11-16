@@ -1,12 +1,11 @@
 // 主页：全游戏的总入口，没有底栏（用户 2026-11-16 定；docs/01 5.3）。
-// 顶栏下面左右各一列四个入口——左列签到、选关、每日挑战、抽奖，右列商店、家园、收藏、任务；中间三个装着鱼的气泡；最下面是「开始」。
+// 顶栏下面左右各一列三个入口——左列签到、每日挑战、抽奖，右列商店、收藏、任务；中间三个装着鱼的气泡；最下面是「开始」，旁边一个选关键。
 // 气泡一直是活的；小泡泡往上冒；「开始」呼吸；进场依次弹出（≤ 0.8 秒）。
 import { Color, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Dex from '../core/meta/dex';
 import * as Features from '../core/meta/features';
-import * as HomeBase from '../core/meta/homeBase';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
 import * as SignIn from '../core/meta/signIn';
@@ -26,7 +25,7 @@ import { signInPopup } from './signin';
 
 /**
  * 入口：左右各一列贴着屏幕边，每个入口是同样大的半透明白格子，图标放在格子里，格子下沿压一块蓝色标签牌。
- * 一列四个，所以比原来两个一列时小一号（用户 2026-11-16：八个入口加五个气泡「太挤」）
+ * 入口比最早那版小一号、气泡从五个减到三个（用户 2026-11-16：入口加五个气泡「太挤」）
  */
 const ENTRY_TILE = 112;
 const ENTRY_ICON = 90;
@@ -43,10 +42,12 @@ const BUBBLE_K = 1.42;
 /** 泡膜上转动的那层流光的颜色（和局内的气泡一样） */
 const SHEEN = new Color(255, 200, 240, 255);
 const WHITE = new Color(255, 255, 255, 255);
-/** 「开始」按钮：上面大字「开始」，下面小字「第 N 关」；按钮底边离屏幕底 START_BOTTOM */
-const START_W = 480;
+/** 「开始」按钮：上面大字「开始」，下面小字「第 N 关」；按钮底边离屏幕底 START_BOTTOM。右边紧挨着一个选关键（选哪一关和开始是一件事，放一起） */
+const START_W = 430;
 const START_H = 156;
 const START_BOTTOM = 50;
+const LEVELS_W = 140;
+const START_GAP = 16;
 /** 顶栏占掉的高 */
 const TOP_H = 144;
 /** 顶栏到开始按钮之间的高，1334 高的屏上是这么多；更高的屏按比例把入口间距、气泡拉开一点 */
@@ -78,6 +79,8 @@ interface EntryDef {
 
 interface Entry {
   def: EntryDef;
+  /** 标签牌多宽（字太长时按它缩小） */
+  labelW: number;
   node: Node;
   icon: Node;
   lock: Node;
@@ -136,13 +139,11 @@ export class HomePage extends Page {
     // 入口：左列是「每天来点一下」的活动，右列是常驻的系统；从顶栏下面往下排
     const left: EntryDef[] = [
       { id: 'signin', feature: 'signin', icon: 'icon/entry_signin', name: 'H_FEAT_SIGNIN', open: () => signInPopup(() => ui.refresh()) },
-      { id: 'levelSelect', feature: 'levelSelect', icon: 'icon/entry_levels', name: 'H_FEAT_LEVELS', open: () => ui.go('levels'), iconScale: 1.1 },
       { id: 'daily', feature: 'daily', icon: 'icon/entry_daily', name: 'UI_TAB_DAILY', open: () => ui.go('daily') },
       { id: 'wheel', feature: 'wheel', icon: 'icon/entry_wheel', name: 'H_FEAT_WHEEL', open: () => ui.go('wheel') },
     ];
     const right: EntryDef[] = [
       { id: 'shop', feature: null, icon: 'icon/tab_shop', name: 'UI_TAB_SHOP', open: () => ui.go('shop') },
-      { id: 'homeBase', feature: 'homeBase', icon: 'icon/tab_base', name: 'UI_TAB_BASE', open: () => ui.go('base') },
       { id: 'album', feature: 'album', icon: 'icon/tab_collect', name: 'H_FEAT_COLLECTION', open: () => ui.go('collect') },
       { id: 'tasks', feature: 'tasks', icon: 'icon/tab_tasks', name: 'UI_TAB_TASKS', open: () => ui.go('tasks') },
     ];
@@ -153,7 +154,9 @@ export class HomePage extends Page {
     right.forEach((d, i) => this.entry(root, d, x0, row1 - i * step));
     // 「开始」：全屏唯一的主按钮，平面绿色大按钮，两行字
     this.start = button(root, { color: 'green', w: START_W, h: START_H, onTap: () => Flow.startLevel(App.save.data.level) });
-    at(this.start.node, 0, btnY);
+    const startX = -(LEVELS_W + START_GAP) / 2;
+    at(this.start.node, startX, btnY);
+    this.levelsKey(root, startX + START_W / 2 + START_GAP + LEVELS_W / 2, btnY);
     const row = this.start.node.getChildByName('row') as Node;
     const play = text(row, tr('UI_PLAY'), 66);
     at(play.node, 0, 22);
@@ -183,7 +186,24 @@ export class HomePage extends Page {
     const dot = redDot(n, ENTRY_TILE / 2 - 6, ENTRY_TILE / 2 - 6, 28);
     // 没有底栏了，切页的「嘟嘟」声放在入口上
     onTap(n, () => this.tapEntry(def), { sound: 'tab' });
-    this.entries.set(def.id, { def, node: n, icon: ic, lock, dot, label });
+    this.entries.set(def.id, { def, labelW: LABEL_W, node: n, icon: ic, lock, dot, label });
+  }
+
+  /** 选关键：和「开始」一样高的蓝色按钮，图标 + 小字；红点、锁、解锁引导和别的入口一样 */
+  private levelsKey(root: Node, x: number, y: number): void {
+    const def: EntryDef = { id: 'levelSelect', feature: 'levelSelect', icon: 'icon/entry_levels', name: 'H_FEAT_LEVELS', open: () => ui.go('levels') };
+    const b = button(root, { color: 'blue', w: LEVELS_W, h: START_H });
+    at(b.node, x, y);
+    const row = b.node.getChildByName('row') as Node;
+    const ic = img(row, def.icon, 92, 92, 'icon');
+    at(ic, 0, 20);
+    const label = text(row, tr(def.name), 26);
+    at(label.node, 0, -44);
+    const lock = img(b.node, 'kit/ic_lock', 40, 40, 'lock');
+    at(lock, LEVELS_W / 2 - 26, START_H / 2 - 30);
+    const dot = redDot(b.node, LEVELS_W / 2 - 6, START_H / 2 - 6, 28);
+    onTap(b.node, () => this.tapEntry(def), { press: 0.96, sound: 'tab' });
+    this.entries.set(def.id, { def, labelW: LEVELS_W, node: b.node, icon: ic, lock, dot, label });
   }
 
   private tapEntry(def: EntryDef): void {
@@ -195,7 +215,7 @@ export class HomePage extends Page {
   override show(arg?: unknown): void {
     this.refresh();
     const nodes = Array.from(this.entries.values()).map((e) => e.node);
-    enterStagger([...nodes, this.start.node], 0.05);
+    enterStagger([...nodes.filter((n) => n !== this.entries.get('levelSelect')?.node), this.start.node, (this.entries.get('levelSelect') as Entry).node], 0.06);
     Tween.stopAllByTarget(this.start.node);
     fx.delay(this.node, 0.6, () => {
       this.start.node.setScale(1, 1, 1);
@@ -461,7 +481,7 @@ export class HomePage extends Page {
       opacity(e.icon).opacity = open ? 255 : 120;
       // 没开放时标签写「第 N 关解锁」；字比标签牌宽就缩小，牌的大小不变（一列里的牌一样宽才整齐）
       e.label.string = f === null || open ? tr(e.def.name) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, f));
-      fit(e.label, LABEL_W - 16, LABEL_FONT, 16);
+      fit(e.label, e.labelW - 16, LABEL_FONT, 16);
       e.dot.active = open && this.hasNews(e.def.id);
     }
   }
@@ -478,8 +498,6 @@ export class HomePage extends Page {
         return Wheel.spinsLeft(s, eco, day) > 0;
       case 'daily':
         return DailyChallenge.canStartFree(s, day);
-      case 'homeBase':
-        return HomeBase.canBuild(s, eco);
       case 'album':
         return Album.claimable(s, eco) + Dex.claimable(s, eco) > 0;
       case 'tasks':

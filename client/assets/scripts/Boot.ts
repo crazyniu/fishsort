@@ -6,7 +6,6 @@ import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { AdTestPage } from './pages/adtest';
-import { BasePage } from './pages/base';
 import { PlatformDebug } from './platform/platformDebug';
 import { mockAdView } from './ui/mockAd';
 import { CollectPage } from './pages/collect';
@@ -73,7 +72,6 @@ export class Boot extends Component {
     ui.register('result', () => new ResultPage());
     ui.register('lock', () => new LockPage());
     ui.register('shop', () => new ShopPage());
-    ui.register('base', () => new BasePage());
     ui.register('collect', () => new CollectPage());
     ui.register('tasks', () => new TasksPage());
     // 好友周榜：先隐藏，没有入口，等接平台好友榜时再放出来（用户 2026-11-16）；调试时 ./run.sh page rank 能看

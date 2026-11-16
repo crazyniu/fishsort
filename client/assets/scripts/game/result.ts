@@ -10,7 +10,7 @@ import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, box, button, hex, img, lazyImg, onTap, opacity, plate, setImg, slice, text } from '../ui/kit';
+import { at, box, Btn, button, COLOR, fit, img, lazyImg, onTap, opacity, plate, setImg, slice, text } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
@@ -67,10 +67,11 @@ export class ResultPage extends Page {
     const chestC = chestY + chestS * 0.09;
 
     // 横幅与星星
-    const ribbon = plate(c, 'skin/j_ribbon', 700, 200, 'ribbon');
+    const ribbon = plate(c, 'skin/f_ribbon', 700, 200, 'ribbon');
     at(ribbon, 0, ribbonY);
-    const title = text(ribbon, tr('WIN_TITLE'), 88, { color: COLOR.yellow, outline: hex('#B4500A'), outlineWidth: 8 });
+    const title = text(ribbon, tr('WIN_TITLE'), 80);
     at(title.node, 0, 14);
+    fit(title, 470, 80, 44);
     const stars: Node[] = [];
     const starPos: [number, number][] = [0, 1, 2].map((i) => [(i - 1) * 170, top - 130 + (i === 1 ? 30 : 0)]);
     for (let i = 0; i < 3; i++) {
@@ -91,7 +92,7 @@ export class ResultPage extends Page {
     const chest = img(c, chestIcon, chestS, chestS, 'chest');
     at(chest, 0, chestC);
 
-    // 奖励一排：金币总数、技能、收藏卡、家园星星、首胜（docs/01 3.3：图标 + 数字，不写明细）
+    // 奖励一排：金币总数、技能、收藏卡、首胜（docs/01 3.3：图标 + 数字，不写明细）
     const pill = slice(c, 'kit/panel_glass', 660, 170, 'rewards');
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
@@ -104,13 +105,6 @@ export class ResultPage extends Page {
     at(coinLabel.node, -24, 0);
     items.push(coinCell);
     const extras: Node[] = [];
-    if (r.stars > 0) {
-      const st = box('stars', pill, 130, 150);
-      const ic = img(st, 'icon/star', 80, 80, 'icon');
-      at(ic, 0, 18);
-      at(text(st, `+${r.stars}`, 34).node, 0, -46);
-      extras.push(st);
-    }
     const chestPrize = d.chest;
     if (chestPrize && chestPrize.kind === 'skill' && chestPrize.skill) {
       extras.push(prizeCell(pill, { icon: `icon/skill_${chestPrize.skill}`, amount: '×1' }, 96));

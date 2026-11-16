@@ -5,8 +5,6 @@ import * as Album from '../assets/scripts/core/meta/album';
 import * as Cards from '../assets/scripts/core/meta/cards';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Features from '../assets/scripts/core/meta/features';
-import * as HomeBase from '../assets/scripts/core/meta/homeBase';
-import * as Lives from '../assets/scripts/core/meta/lives';
 import * as PlayerData from '../assets/scripts/core/meta/playerData';
 import type { SaveData } from '../assets/scripts/core/meta/save';
 import * as Seas from '../assets/scripts/core/meta/seas';
@@ -31,14 +29,11 @@ function fresh(level: number): SaveData {
 }
 
 describe('海域（docs/01 5.0）', () => {
-  it('6 个海域：收藏册、家园区域按同一顺序，开放关按表', () => {
+  it('6 个海域：收藏册按同一顺序，开放关按表', () => {
     assert.deepEqual(Seas.list(ECO).map((s) => s.id), SEAS);
     assert.deepEqual(Album.books(ECO).map((b) => b.sea), SEAS);
-    assert.deepEqual(HomeBase.areas(ECO).map((a) => a.id), SEAS);
     assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 20, 40, 60, 80, 100]);
-    assert.deepEqual(HomeBase.areas(ECO).map((a) => a.unlock), [8, 25, 45, 65, 85, 105]);
     assert.equal(Album.books(ECO)[0].unlock, Features.unlockLevel(ECO, 'album'), '第一册随收藏开放');
-    assert.equal(HomeBase.unlockLevel(ECO, 0), Features.unlockLevel(ECO, 'homeBase'), '第一区随家园开放');
   });
 
   it('关卡背景：第 1–19 关沙滩 … 第 100–120 关宫殿', () => {
@@ -73,64 +68,6 @@ describe('海域（docs/01 5.0）', () => {
   });
 });
 
-describe('家园 6 个区域（docs/01 5.12）', () => {
-  it('表格数字：合计 76 星、73600 金币，宝箱返还 24500', () => {
-    assert.equal(HomeBase.areaCount(ECO), 6);
-    for (let i = 0; i < 6; i++) assert.equal(HomeBase.stepCount(ECO, i), 5);
-    assert.deepEqual(HomeBase.totalCost(ECO), { stars: 76, coins: 73600 });
-    const perArea = HomeBase.areas(ECO).map((a) => [a.steps.reduce((s, x) => s + x[0], 0), a.steps.reduce((s, x) => s + x[1], 0)]);
-    assert.deepEqual(perArea, [[7, 2600], [12, 8000], [13, 10000], [14, 12000], [15, 17000], [15, 24000]]);
-    assert.equal(HomeBase.areas(ECO).reduce((s, a) => s + (a.reward.coins ?? 0), 0), 24500);
-    assert.equal(HomeBase.areas(ECO).reduce((s, a) => s + (a.reward.tools ?? 0) * 4, 0), 40, '技能 ×40');
-    assert.equal(HomeBase.areas(ECO).reduce((s, a) => s + (a.reward.unlimited ?? 0), 0), 10 * 3600, '10 小时无限生命');
-  });
-
-  it('星星一直够：到每个区域开放关时，攒的星星够建完它和之前所有区域', () => {
-    let need = 0;
-    for (const a of HomeBase.areas(ECO)) {
-      need += a.steps.reduce((s, x) => s + x[0], 0);
-      assert.ok(HomeBase.starsThrough(ECO, a.unlock - 1) >= need, `${a.id}：第 ${a.unlock} 关时 ${HomeBase.starsThrough(ECO, a.unlock - 1)} 颗，要 ${need}`);
-    }
-  });
-
-  it('第 8 关开放时手里 8 颗星，正好能开始建', () => {
-    assert.equal(HomeBase.starsThrough(ECO, 7), 8);
-  });
-
-  it('建造流程：第一步 1 星 300 金币，建完开区域宝箱，下一区要到开放关', () => {
-    const save = fresh(7);
-    save.coins = 100000;
-    save.base.stars = 100;
-    assert.equal(HomeBase.check(save, ECO), 'locked');
-    save.level = 8;
-    assert.deepEqual(HomeBase.nextCost(save, ECO), { stars: 1, coins: 300 });
-    let r = HomeBase.build(save, ECO, NOW);
-    assert.ok(r.ok && r.area === 0 && r.step === 0 && !r.completed);
-    for (let i = 0; i < 3; i++) HomeBase.build(save, ECO, NOW);
-    r = HomeBase.build(save, ECO, NOW);
-    assert.ok(r.completed && r.prizes.length > 0);
-    assert.equal(save.coins, 100000 - 2600 + 1000);
-    assert.equal(save.tools.net, 1);
-    assert.ok(Lives.isUnlimited(save, NOW + 3599));
-    assert.equal(HomeBase.check(save, ECO), 'locked', '区域 2 要到第 25 关');
-    save.level = 25;
-    assert.ok(HomeBase.canBuild(save, ECO));
-    save.coins = 0;
-    assert.equal(HomeBase.check(save, ECO), 'coins');
-  });
-
-  it('全部建完：6 个区域宝箱', () => {
-    const save = fresh(200);
-    save.coins = 1_000_000;
-    save.base.stars = 1000;
-    let chests = 0;
-    while (HomeBase.canBuild(save, ECO)) if (HomeBase.build(save, ECO, NOW).completed) chests++;
-    assert.equal(chests, 6);
-    assert.ok(HomeBase.allDone(save, ECO));
-    assert.equal(HomeBase.nextCost(save, ECO), null);
-  });
-});
-
 describe('任务中心（docs/01 5.9）', () => {
   const MON = 4 + 7 * 100; // 周一
   const win = (save: SaveData, level: number, day: number) =>
@@ -149,7 +86,7 @@ describe('任务中心（docs/01 5.9）', () => {
     assert.deepEqual(Tasks.pick(ECO, MON, 30), ids);
     const seen = new Set<string>();
     for (let d = 0; d < 60; d++) for (const id of Tasks.pick(ECO, MON + d, 30)) seen.add(id);
-    assert.equal(seen.size, 9, '9 种任务都会轮到');
+    assert.equal(seen.size, 8, '8 种任务都会轮到');
     for (let d = 0; d < 60; d++) assert.ok(!Tasks.pick(ECO, MON + d, 11).includes('daily'), '每日挑战第 20 关才开');
     const sum = Tasks.list(save, ECO, MON).reduce((a, t) => a + t.points, 0);
     assert.equal(sum, 130, '能拿到的一共 130 分');
@@ -296,7 +233,7 @@ describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', ()
     delete raw.dex;
     delete (raw.daily as Record<string, unknown>).lifeAd;
     delete (raw.week as Record<string, unknown>).taskClaimed;
-    raw.base = 'broken';
+    raw.chest = 'broken';
     const back = PlayerData.load(raw, ECO);
     assert.equal(back.level, 42);
     assert.equal(back.coins, 1234);
@@ -304,7 +241,7 @@ describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', ()
     assert.deepEqual(back.dex, { seen: {}, claimed: {} });
     assert.equal(back.daily.lifeAd, 0);
     assert.deepEqual(back.week.taskClaimed, []);
-    assert.deepEqual(back.base, { stars: 0, built: [] }, '类型不对的字段换成默认值');
+    assert.deepEqual(back.chest, PlayerData.create(ECO).chest, '类型不对的字段换成默认值');
     assert.deepEqual(PlayerData.load(structuredClone(back), ECO), back, '再读一遍不变');
   });
 
@@ -352,9 +289,6 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.ok(ECO.levelCoins + ECO.combo.maxCoinsPerLevel + ECO.combo.bestBonus.max <= 200, '普通关最多 200');
     assert.ok(levelMax <= 200);
     assert.ok(ECO.lives.buyOneCoins >= 2 * 170, '一条命 ≥ 两关收入（一关约 170）');
-    const oneOff = 11200 + 5000 + 7200;
-    const base = HomeBase.totalCost(ECO).coins - HomeBase.areas(ECO).reduce((s, a) => s + (a.reward.coins ?? 0), 0);
-    assert.ok(base > oneOff, `家园净消耗 ${base} 大于一次性奖励 ${oneOff}`);
   });
 });
 

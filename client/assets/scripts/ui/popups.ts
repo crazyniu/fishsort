@@ -13,10 +13,10 @@ import { buzz, applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import { language, setLanguage, tr } from './i18n';
-import { COLOR, DARK_INK, at, box, button, fmt, hex, img, onTap, opacity, setImg, setInk, slice, text, twoLines } from './kit';
+import { at, box, button, COLOR, DARK_INK, fit, fmt, hex, img, INK, onTap, opacity, setImg, setInk, slice, text, textWidth, twoLines } from './kit';
 
 /** 语言选择里没选中那一段的字色 */
-const SEG_DIM = hex('#A9C8F0');
+const SEG_DIM = hex('#5E86C0');
 import { openPopup, Popup } from './popup';
 import { Screen } from './screen';
 import { ui } from './shell';
@@ -86,7 +86,7 @@ export function cardItem(c: CardResult): PrizeItem {
 export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
   const n = box('prize', parent, s, s + 40);
   if (it.rarity) {
-    const f = img(n, `skin/j_card_${it.rarity}`, s * 0.82, s * 1.1, 'frame');
+    const f = img(n, `skin/f_card_${it.rarity}`, s * 0.82, s * 1.1, 'frame');
     at(f, 0, 14);
     const icon = img(n, it.icon, s * 0.64, s * 0.64, 'icon');
     at(icon, 0, 26);
@@ -213,33 +213,37 @@ export function confirmLeave(onLeave: () => void): void {
 
 const mmss = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 
-/** 生命弹窗（定版图 16 右）：五颗心、恢复倒计时、看广告得 1 条（主按钮）、分享、金币买 */
+/**
+ * 生命弹窗：五颗心、一行恢复倒计时，下面四个一样大的按钮排成两行——看广告 +1、分享 +1、金币买 1 条、金币补满。
+ * 按钮上只写结果（+1、补满）和代价（剩几次、多少金币），不写长句（用户 2026-11-16）
+ */
 export function livesPopup(onChange?: () => void): void {
   const eco = App.config.eco;
   const s = App.save.data;
-  const p = openPopup({ w: 640, h: 760, title: tr('H_LIVES_TITLE'), mascot: 'c01' });
+  const p = openPopup({ w: 620, h: 530, title: tr('H_LIVES_TITLE') });
   const hearts: Node[] = [];
   for (let i = 0; i < eco.lives.max; i++) {
-    const h = img(p.body, 'icon/heart', 96, 96, 'heart');
-    at(h, (i - (eco.lives.max - 1) / 2) * 104, 240);
+    const h = img(p.body, 'icon/heart', 92, 92, 'heart');
+    at(h, (i - (eco.lives.max - 1) / 2) * 102, 176);
     hearts.push(h);
   }
-  const lbl = text(p.body, '', 34);
-  at(lbl.node, 0, 150);
-  const timerPill = slice(p.body, 'kit/capsule', 300, 76, 'timer');
-  at(timerPill, 0, 80);
-  const tIcon = img(timerPill, 'kit/ic_timer', 50, 50, 'icon');
-  at(tIcon, -100, 0);
-  const tLabel = text(timerPill, '', 40);
-  at(tLabel.node, 20, 0);
+  const pill = slice(p.body, 'kit/row', 380, 68, 'timer');
+  at(pill, 0, 82);
+  const tIcon = img(pill, 'kit/ic_timer', 40, 40, 'icon');
+  const tLabel = text(pill, '', 32);
   const refresh = () => {
     const t = now();
     const n = Lives.count(s, eco, t);
     hearts.forEach((h, i) => ((h.getComponent(Sprite) as Sprite).grayscale = i >= n));
     const inf = Lives.isUnlimited(s, t);
-    timerPill.active = inf || n < eco.lives.max;
-    lbl.string = inf ? tr('H_INF_LEFT', '') : n >= eco.lives.max ? tr('H_LIVES_FULL') : tr('H_NEXT_LIFE', '');
-    tLabel.string = inf ? mmss(Lives.unlimitedLeft(s, t)) : mmss(Lives.secondsToNext(s, eco, t));
+    const full = !inf && n >= eco.lives.max;
+    tLabel.string = inf ? tr('H_INF_LEFT', mmss(Lives.unlimitedLeft(s, t))) : full ? tr('H_LIVES_FULL') : tr('H_NEXT_LIFE', mmss(Lives.secondsToNext(s, eco, t)));
+    fit(tLabel, 380 - 100, 32, 20);
+    // 图标 + 字一起居中；满了就只有字
+    tIcon.active = !full;
+    const w = textWidth(tLabel);
+    at(tIcon, -w / 2 - 6, 0);
+    at(tLabel.node, full ? 0 : 22, 0);
   };
   refresh();
   tween(p.body)
@@ -252,72 +256,89 @@ export function livesPopup(onChange?: () => void): void {
     ui.refresh();
     onChange?.();
   };
+  const isFull = () => Lives.count(s, eco, now()) >= eco.lives.max;
   const day = today();
   const adLeft = Lives.adLeft(s, eco, day);
-  let y = -20;
+  const shareLeft = Share.remaining(s, eco, 'life', day);
+  // [颜色, 主文字, 主文字前的图标, 小字, 小字前的图标, 能不能点, 点了做什么]
+  type Opt = { color: 'yellow' | 'blue' | 'green'; main: string; mainIcon: string | null; sub: string; subIcon: string | null; on: boolean; tap: () => void };
+  const opts: Opt[] = [];
   if (adLeft > 0 && App.platform.adsAvailable()) {
-    const ad = button(p.body, {
+    opts.push({
       color: 'yellow',
-      w: 520,
-      h: 100,
-      icon: 'kit/ic_video',
-      label: `${tr('H_WATCH_AD')} +1 · ${tr('ADS_LEFT', adLeft)}`,
-      fontSize: 32,
-      onTap: async () => {
-        if (Lives.count(s, eco, now()) >= eco.lives.max) return ui.toast(tr('H_LIVES_FULL'));
+      main: '+1',
+      mainIcon: 'kit/ic_video',
+      sub: tr('ADS_LEFT', adLeft),
+      subIcon: null,
+      on: true,
+      tap: async () => {
+        if (isFull()) return ui.toast(tr('H_LIVES_FULL'));
         if (!(await watchAd('rv_life'))) return;
         Lives.claimAd(s, eco, today(), now());
         changed();
       },
     });
-    at(ad.node, 0, y);
-    y -= 110;
   }
-  const shareLeft = Share.remaining(s, eco, 'life', day);
-  const share = button(p.body, {
+  opts.push({
     color: 'blue',
-    w: 520,
-    h: 90,
-    icon: 'kit/ic_share',
-    label: `${tr('H_SHARE_LIFE')} (${shareLeft})`,
-    fontSize: 32,
-    onTap: async () => {
-      if (Share.remaining(s, eco, 'life', today()) <= 0 || Lives.count(s, eco, now()) >= eco.lives.max) return;
+    main: '+1',
+    mainIcon: 'kit/ic_share',
+    sub: tr('ADS_LEFT', shareLeft),
+    subIcon: null,
+    on: shareLeft > 0,
+    tap: async () => {
+      if (Share.remaining(s, eco, 'life', today()) <= 0 || isFull()) return;
       if (!(await App.platform.share({ kind: 'life' }))) return;
       Share.claim(s, eco, 'life', today(), now(), new Rng(Date.now() >>> 0));
       changed();
     },
   });
-  share.setEnabled(shareLeft > 0);
-  at(share.node, 0, y);
-  y -= 115;
-  const one = button(p.body, {
+  opts.push({
     color: 'blue',
-    w: 250,
-    h: 96,
-    onTap: () => {
-      if (Lives.count(s, eco, now()) >= eco.lives.max) return ui.toast(tr('H_LIVES_FULL'));
+    main: '+1',
+    mainIcon: 'icon/heart',
+    sub: fmt(eco.lives.buyOneCoins),
+    subIcon: 'icon/coin',
+    on: true,
+    tap: () => {
+      if (isFull()) return ui.toast(tr('H_LIVES_FULL'));
       if (!spend(eco.lives.buyOneCoins)) return;
       Lives.buyOne(s, eco, now());
       changed();
     },
   });
-  at(one.node, -135, y);
-  const fill = button(p.body, {
+  opts.push({
     color: 'green',
-    w: 250,
-    h: 96,
-    onTap: () => {
-      if (Lives.count(s, eco, now()) >= eco.lives.max) return ui.toast(tr('H_LIVES_FULL'));
+    main: tr('H_REFILL'),
+    mainIcon: null,
+    sub: fmt(eco.lives.refillCoins),
+    subIcon: 'icon/coin',
+    on: true,
+    tap: () => {
+      if (isFull()) return ui.toast(tr('H_LIVES_FULL'));
       if (!spend(eco.lives.refillCoins)) return;
       Lives.buyRefill(s, eco, now());
       changed();
     },
   });
-  at(fill.node, 135, y);
-  // 说明字放进按钮里：上「买 1 条 / 补满」，下金币价
-  twoLines(one, tr('H_BUY_ONE'), fmt(eco.lives.buyOneCoins), 'icon/coin');
-  twoLines(fill, tr('H_REFILL'), fmt(eco.lives.refillCoins), 'icon/coin');
+  // 两个一行；只有三个时第一个占一整行
+  const W = 270;
+  const H = 112;
+  const G = 16;
+  let y = -28;
+  let i = 0;
+  while (i < opts.length) {
+    const wide = (opts.length - i) % 2 === 1;
+    const row = wide ? [opts[i]] : [opts[i], opts[i + 1]];
+    row.forEach((o, k) => {
+      const b = button(p.body, { color: o.color, w: wide ? W * 2 + G : W, h: H, onTap: () => void o.tap() });
+      at(b.node, wide ? 0 : (k - 0.5) * (W + G), y);
+      twoLines(b, o.main, o.sub, o.subIcon, o.mainIcon);
+      b.setEnabled(o.on);
+    });
+    i += row.length;
+    y -= H + G;
+  }
 }
 
 // ---------------------------------------------------------------- 设置 / 暂停
@@ -340,14 +361,14 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     at(ic, -556 / 2 + 24 + 24, 0);
     const l = text(row, tr(key), 32, { align: 'left' });
     at(l.node, -556 / 2 + 96, 0);
-    const tg = img(row, s.settings[field] ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55, 'toggle');
+    const tg = img(row, s.settings[field] ? 'skin/f_toggle_on' : 'skin/f_toggle_off', 116, 55, 'toggle');
     at(tg, 196, 0);
     onTap(
       row,
       () => {
         (s.settings as unknown as Record<string, boolean>)[field] = !s.settings[field];
         const on = s.settings[field];
-        setImg(tg, on ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55);
+        setImg(tg, on ? 'skin/f_toggle_on' : 'skin/f_toggle_off', 116, 55);
         // 开 = 两个音往上，关 = 两个音往下；开关把手顿一下；打开震动时震一下让人知道是什么手感
         sfx(on ? 'toggleOn' : 'toggleOff');
         fx.squash(tg, 0.88);
@@ -436,14 +457,15 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   at(card, 0, 60);
   const back = img(card, 'icon/card_back', 370, 508, 'back');
   const front = box('front', card, 380, 508);
-  img(front, `skin/j_card_${c.rarity}`, 380, 508, 'frame');
-  const art = img(front, `fish/${c.id}`, 280, 280, 'art');
-  at(art, 0, 40);
+  img(front, `skin/f_card_${c.rarity}`, 380, 508, 'frame');
+  const art = img(front, `fish/${c.id}`, 270, 270, 'art');
+  at(art, 0, 64);
   fx.bob(art, 6, 2.2);
   const sp = App.config.speciesById.get(c.id);
-  // 名字在卡框下沿的彩色名牌上（白字深描边）
-  const name = text(front, sp ? speciesName(sp.id) : c.id, 42);
-  at(name.node, 0, -181);
+  // 名字在卡框下面那条浅色名字条上：深蓝字、不描边
+  const name = text(front, sp ? speciesName(sp.id) : c.id, 40, { color: INK.ink, outline: null, shadow: false });
+  at(name.node, 0, -160);
+  fit(name, 250, 40, 24);
   // 稀有度写在卡片上面（用户 2026-11-16：放下面挤着「已自动换成」那一行），翻完才出来
   const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 44, { color: RARITY_GLOW[c.rarity] });
   at(rar.node, 0, 60 + 254 + 50);
@@ -466,8 +488,9 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
     at(amount.node, tw / 2 + 14 + 48 + 8, 0);
   }
   line.node.active = false;
-  const cont = text(p.body, tr('TAP_CONTINUE'), 30);
-  at(cont.node, 0, lineY - 96);
+  // 「继续」是个按钮（用户 2026-11-16：原来是一行「点击继续」的字）；翻完才出来
+  const cont = button(p.body, { color: 'green', w: 300, h: 92, label: tr('TAP_CONTINUE'), onTap: () => ready && p.close() });
+  at(cont.node, 0, lineY - 110);
   cont.node.active = false;
   let ready = false;
   fx.popIn(card, 0.05, 0.35);
@@ -492,7 +515,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
       line.node.active = true;
       rar.node.active = true;
       cont.node.active = true;
-      fx.breathe(cont.node, 0.06, 1.2);
+      fx.popIn(cont.node, 0, 0.25);
       ready = true;
       // 机器人代打：没人点，看一眼就自己翻下一张
       if (App.flags.autoplay) fx.delay(p.body, 1.2, () => p.close());

@@ -7,11 +7,11 @@ import * as WeeklyRank from '../core/meta/weeklyRank';
 import { App } from '../services/app';
 import { today } from '../services/clock';
 import { tr } from '../ui/i18n';
-import { at, box, capsule, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
+import { at, box, capsule, img, lazyImg, slice, text } from '../ui/kit';
 import { Scroller } from '../ui/scroll';
 import { avatarPath } from './profile';
 import { Screen } from '../ui/screen';
-import { Page, enterStagger, ui } from '../ui/shell';
+import { enterStagger, Page, pageHead } from '../ui/shell';
 
 const ROW_H = 120;
 const ROW_GAP = 12;
@@ -52,9 +52,7 @@ export class RankPage extends Page {
     this.scroller = null;
     const top = Screen.top;
 
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-    at(back, -Screen.W / 2 + 70, top - 90);
-    at(pageTitle(v, tr('RANK_TITLE')), 0, top - 90);
+    pageHead(v, tr('RANK_TITLE'));
     const left = 7 - ((day + 3) % 7);
     const reset = capsule(v, 240, 52, null, tr('RANK_RESET_IN', left), 26);
     at(reset.node, 0, top - 168);

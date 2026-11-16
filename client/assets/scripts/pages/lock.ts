@@ -3,18 +3,16 @@
 import { Node } from 'cc';
 import type { Reward } from '../core/config';
 import * as Features from '../core/meta/features';
-import * as HomeBase from '../core/meta/homeBase';
 import { App } from '../services/app';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, fmt, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
+import { at, box, fmt, img, lazyImg, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { PAGE_BOTTOM, Page, ui } from '../ui/shell';
+import { Page, PAGE_BOTTOM, pageHead } from '../ui/shell';
 import { tierPreview } from './tasks';
 
 const NAME: Record<string, string> = {
-  homeBase: 'UI_TAB_BASE',
   album: 'UI_TAB_COLLECTION',
   tasks: 'TASK_TITLE',
   daily: 'H_FEAT_DAILY',
@@ -23,7 +21,6 @@ const NAME: Record<string, string> = {
   levelSelect: 'H_FEAT_LEVELS',
 };
 const ART: Record<string, string> = {
-  homeBase: 'icon/tab_base',
   album: 'icon/tab_collect',
   tasks: 'icon/tab_tasks',
   daily: 'icon/chest_daily',
@@ -42,23 +39,9 @@ function rewardItems(r: Reward, mult = 1): PrizeItem[] {
   return out;
 }
 
-function sum(rs: Reward[]): Reward {
-  return rs.reduce<Reward>(
-    (a, r) => ({
-      coins: (a.coins ?? 0) + (r.coins ?? 0),
-      tools: (a.tools ?? 0) + (r.tools ?? 0),
-      skills: (a.skills ?? 0) + (r.skills ?? 0),
-      unlimited: (a.unlimited ?? 0) + (r.unlimited ?? 0),
-    }),
-    {},
-  );
-}
-
 export function lockPrizes(feature: string): PrizeItem[] {
   const eco = App.config.eco;
   switch (feature) {
-    case 'homeBase':
-      return rewardItems(sum(HomeBase.areas(eco).map((a) => a.reward)));
     case 'album':
       return [...rewardItems(eco.album.final), { icon: 'kit/fx_ring', amount: tr('H_PRIZE_FRAME') }];
     case 'tasks': {
@@ -93,8 +76,7 @@ function lockView(parent: Node, feature: string): void {
   const bgH = Math.max(Screen.H, Screen.W * 1.5);
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
   const top = Screen.top;
-  // 页头和别的子页面一致：标题牌在 top - 80，返回键 96、在左上同一高度
-  at(pageTitle(parent, tr(NAME[feature] ?? feature)), 0, top - 80);
+  pageHead(parent, tr(NAME[feature] ?? feature));
   const span = top - 170 - (Screen.bottom + PAGE_BOTTOM);
   const artY = top - 170 - span * 0.32;
   const rays = fx.rays(parent, 520);
@@ -134,7 +116,5 @@ export class LockPage extends Page {
     const feature = (arg as { feature: string }).feature;
     const holder = box('holder', this.root);
     lockView(holder, feature);
-    const back = iconButton(this.root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-    at(back, -Screen.W / 2 + 70, Screen.top - 80);
   }
 }

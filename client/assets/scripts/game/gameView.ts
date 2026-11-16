@@ -19,7 +19,7 @@ import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { language, tr } from '../ui/i18n';
-import { Capsule, COLOR, artNumber, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -81,10 +81,15 @@ const BOWL_SINK = 5;
 const AMBIENT_TAG = 9201;
 /** 夸奖字出现时让连击计让开的 tween 标签 */
 const PRAISE_TAG = 9202;
-/** 技能数量角标的红 */
-const BADGE_RED = new Color(235, 64, 64, 255);
+/** 技能键（半透明格子）多大 */
+const SKILL_S = 128;
+/** 技能数量角标的最小宽、高 */
+const BADGE_W = 48;
+const BADGE_H = 40;
 /** 订单卡的高宽比（skin/j_order 是 200×257） */
 const ORDER_RATIO = 257 / 200;
+/** 订单卡的中心比缸底高出卡高的几分之几（卡的下半截垂到木架前面） */
+const CARD_LIFT = 0.2;
 
 export class GamePage extends Page {
   // 一局的状态
@@ -116,11 +121,9 @@ export class GamePage extends Page {
   private comboNum!: Node;
   private comboWord!: Node;
   private comboWordW = 78;
-  private comboBar!: Node;
   /** 连击计的位置：屏幕正中、鱼缸那一排 */
   private comboX = 0;
   private comboY = 0;
-  private comboBarW = 220;
   /** 连击时屏幕四边的光框（一个节点装四条边，整体调亮度） */
   private frame!: Node;
   private frameHi = 0;
@@ -274,16 +277,12 @@ export class GamePage extends Page {
       this.comboWordW = (word.node.getComponent(UITransform) as UITransform).width;
     }
     this.comboNum = box('num', this.comboBadge);
-    this.comboBar = tint(this.comboBadge, this.comboBarW, 8, COLOR.yellow, 'bar');
-    (this.comboBar.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
-    at(this.comboBar, -this.comboBarW / 2, -54);
     this.comboRow.active = false;
     // 连击光框：四边各一条柔光，6 连以上常亮、随档位换色，每次命中闪一下，断连熄灭。盖在玩法上面、不挡点击
-    this.frame = box('frame', this.fly, Screen.W, Screen.H);
+    this.frame = box('frame', this.under, Screen.W, Screen.H);
     for (const sx of [-1, 1]) at(img(this.frame, 'kit/fx_glow', 300, Screen.H * 1.2, 'side'), (sx * Screen.W) / 2, 0);
     for (const sy of [-1, 1]) at(img(this.frame, 'kit/fx_glow', Screen.W * 1.2, 280, 'cap'), 0, (sy * Screen.H) / 2);
     opacity(this.frame).opacity = 0;
-    this.frame.setSiblingIndex(0);
     // 连击放射光：垫在玩法后面，整屏大，慢慢转
     const raysS = Math.hypot(Screen.W, Screen.H) * 1.15;
     this.feverRays = img(this.under, 'kit/fx_rays', raysS, raysS, 'rays');
@@ -323,12 +322,12 @@ export class GamePage extends Page {
     }
 
     // 技能栏
-    const skillY = Screen.bottom + 100;
-    SKILLS.forEach((id, i) => this.buildSkill(id, -Screen.W / 2 + (Screen.W / 4) * (i + 0.5), skillY));
+    const skillY = Screen.bottom + 26 + SKILL_S / 2;
+    SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + 36), skillY));
 
     // 场地：暂存槽和技能栏之间全部高度（用户 2026-11-16：场地尽量大）
     this.fieldTop = this.bufferY - 60;
-    this.fieldBottom = skillY + 96;
+    this.fieldBottom = skillY + SKILL_S / 2 + 18;
     this.returnY = this.fieldTop - 40;
     const fh = this.fieldTop - this.fieldBottom;
     at(this.feverRays, 0, (this.fieldTop + this.fieldBottom) / 2);
@@ -356,30 +355,32 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
-  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的扁平红色圆角标（只写数字，不带乘号；用户 2026-11-16），没有了换绿色加号 */
+  /**
+   * 技能键：半透明白格子（和主页入口、暂存格同一种）里放插画图标，下面一行小字是名字；右上角红色小标签是数量（免费时写 FREE），
+   * 没有了换绿色加号。用户 2026-11-16：原来是四块大蓝按钮，压在场地下面太重；角标也要和整体风格一致
+   */
   private buildSkill(id: SkillId, x: number, y: number): void {
-    const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
+    const S = SKILL_S;
+    const node = img(this.stage, 'skin/f_skill', S, S, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 108, 108, 'icon');
-    at(icon, 0, 16);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 30);
-    at(name.node, 0, -54);
-    // 常见的扁平角标：白边红底白字，不要反光（用户 2026-11-16）
-    const badge = img(node, 'kit/circle_white', 52, 52, 'badge');
-    at(badge, 156 / 2 - 16, 168 / 2 - 14);
-    const dot = img(badge, 'kit/circle_white', 44, 44, 'dot');
-    (dot.getComponent(Sprite) as Sprite).color = BADGE_RED;
-    const count = text(badge, '', 26, { outline: null, shadow: false });
-    // 白底圆片会被当成浅色面、字换成深色：这里直接写死白字
-    count.color = new Color(255, 255, 255, 255);
-    const plus = keyButton(node, 'green', 'kit/ic_plus', 50, null, 0.62);
-    at(plus, 156 / 2 - 18, 168 / 2 - 14);
-    const lock = box('lock', node, 156, 168);
-    const lockIcon = img(lock, 'kit/ic_lock', 48, 48, 'icon');
-    at(lockIcon, 0, 18);
-    const lockLabel = text(lock, '', 24);
-    at(lockLabel.node, 0, -56);
+    const icon = img(node, `icon/skill_${id}`, 92, 92, 'icon');
+    at(icon, 0, 12);
+    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 24);
+    at(name.node, 0, -46);
+    fit(name, S - 12, 24, 16);
+    const badge = slice(node, 'kit/tag_red', BADGE_W, BADGE_H, 'badge');
+    at(badge, S / 2 - BADGE_W / 2 + 8, S / 2 - 10);
+    const count = text(badge, '', 26);
+    at(count.node, 0, 2);
+    const plus = keyButton(node, 'green', 'kit/ic_plus', 46, null, 0.56);
+    at(plus, S / 2 - 14, S / 2 - 12);
+    const lock = box('lock', node, S, S);
+    const lockIcon = img(lock, 'kit/ic_lock', 44, 44, 'icon');
+    at(lockIcon, 0, 14);
+    const lockLabel = text(lock, '', 22);
+    at(lockLabel.node, 0, -46);
     lockLabel.string = tr('H_UNLOCKS_AT', Skills.unlockLevel(App.config.eco, id));
+    fit(lockLabel, S - 8, 22, 14);
     onTap(node, () => Flow.useSkill(this, id));
     this.skillNodes.set(id, { node, icon, count, lock, plus, name: name.node, badge });
   }
@@ -399,9 +400,10 @@ export class GamePage extends Page {
       v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
-      // 「免费」两个字比数字宽，字号小一点才放得进圆角标
-      v.count.fontSize = free ? 19 : 26;
-      v.count.lineHeight = Math.round(v.count.fontSize * 1.25);
+      // 标签跟着字宽走：FREE 比数字宽
+      const bw = Math.max(BADGE_W, Math.round(textWidth(v.count) + 24));
+      resizeSlice(v.badge, bw, BADGE_H);
+      at(v.badge, SKILL_S / 2 - bw / 2 + 8, SKILL_S / 2 - 10);
     }
   }
 
@@ -747,14 +749,14 @@ export class GamePage extends Page {
     // 要什么、还差几条，看缸前面叠着的订单卡：一张卡一条鱼，进一条揭掉一张
     const inside = box('inside', node, s, h);
     const cards: Node[] = [];
-    const cw = big ? 56 : 68;
+    // 用户 2026-11-16：卡大一号、每张都要看得到——后一张压住前一张的右半边，最右边那张完整露着，不再摆成歪的扇形
+    const cw = big ? 68 : 80;
     const ch = cw * ORDER_RATIO;
-    const step = cap > 1 ? Math.min(cw * 0.42, (s * 0.86 - cw) / (cap - 1)) : 0;
+    const step = cap > 1 ? Math.min(cw * 0.46, (s - cw) / (cap - 1)) : 0;
     for (let i = 0; i < cap; i++) {
       const k = i - (cap - 1) / 2;
-      const card = img(node, 'skin/j_order', cw, ch, `card${i}`);
-      at(card, k * step, -h / 2 + ch * 0.16 + Math.abs(k) * 2.5);
-      card.angle = -k * 7;
+      const card = img(node, 'skin/f_order', cw, ch, `card${i}`);
+      at(card, k * step, -h / 2 + ch * CARD_LIFT);
       // 鱼画在纸面中间偏上一点，不压住卡边的手绘描线和左下角的小浪花
       const fish = img(card, this.field.spriteFor(sp), cw * 0.8, cw * 0.8, 'fish');
       at(fish, 0, ch * 0.04);
@@ -804,7 +806,7 @@ export class GamePage extends Page {
       const k = i - (n - 1) / 2;
       Tween.stopAllByTarget(c);
       tween(c)
-        .to(0.18, { position: new Vec3(k * step, -view.h / 2 + ch * 0.16 + Math.abs(k) * 2.5, 0), angle: -k * 7 }, { easing: 'quadOut' })
+        .to(0.18, { position: new Vec3(k * step, -view.h / 2 + ch * CARD_LIFT, 0) }, { easing: 'quadOut' })
         .start();
     });
   }
@@ -909,7 +911,7 @@ export class GamePage extends Page {
     if (r.tier < 0) {
       this.showCombo(false);
       // 蓄势（还没到起算数）：鱼缸上方冒个小数字，一次比一次大
-      if (r.count >= 2) this.hitPop(bowlX, `×${r.count}`, 24 + r.count * 3);
+      if (r.count >= 2) this.hitPop(`×${r.count}`, 30 + r.count * 4);
       return;
     }
     const col = COMBO_COLORS[r.tier] ?? COLOR.white;
@@ -926,7 +928,6 @@ export class GamePage extends Page {
       at(img(cl.node, 'icon/coin', 28, 28, 'coin'), -34, 0);
       fx.floatUp(this.fly, cl.node, this.comboX + groupW / 2 + 50, this.comboY - 10, 26, 0.6);
     }
-    (this.comboBar.getComponent(Sprite) as Sprite).color = col;
     if (!was) {
       Tween.stopAllByTarget(this.comboRow);
       Tween.stopAllByTarget(opacity(this.comboRow));
@@ -947,11 +948,11 @@ export class GamePage extends Page {
     tween(bd).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' }).start();
     const cx = this.comboX;
     const cy = this.comboY;
-    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 150, col, 28);
-    // 满屏跟着这一击动：鱼缸炸一圈档位色的光和火花，整个场面顿一下，四边光框闪一下
-    fx.glowPop(this.fly, bowlX, this.bowlY, 260 + r.tier * 40, col, 0.3, 220);
-    fx.ring(this.fly, bowlX, this.bowlY, 80, 240 + r.tier * 40, col);
-    fx.sparkle(this.fly, bowlX, this.bowlY, 8 + r.tier * 2, 130 + r.tier * 15, col, 30);
+    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 110, col, 28);
+    // 满屏跟着这一击动：鱼缸背后炸一圈档位色的光和火花（垫在缸后面，不盖缸和订单卡），整个场面顿一下，四边光框闪一下
+    fx.glowPop(this.under, bowlX, this.bowlY, 300 + r.tier * 40, col, 0.3, 240);
+    fx.ring(this.under, bowlX, this.bowlY, 80, 280 + r.tier * 40, col);
+    fx.sparkle(this.under, bowlX, this.bowlY, 8 + r.tier * 2, 150 + r.tier * 15, col, 30);
     fx.punch(this.stage, 1.008 + r.tier * 0.004);
     this.setFever(r.tier, col);
     this.pulseFrame();
@@ -963,12 +964,12 @@ export class GamePage extends Page {
     this.comboRow.active = on;
   }
 
-  /** 鱼缸上方冒一个数字：略歪着弹出来，往上飘一点、淡出（不冲进顶栏） */
-  private hitPop(x: number, s: string, size0: number): void {
+  /** 蓄势时在连击计的位置冒一个数字：略歪着弹出来，往上飘一点、淡出（用户 2026-11-16：不盖鱼缸和订单卡） */
+  private hitPop(s: string, size0: number): void {
     const n = box('pop', null);
     artNumber(n, s, size0);
     n.angle = (Math.random() - 0.5) * 14;
-    fx.floatUp(this.fly, n, x, this.bowlY + 6, 30, 0.5);
+    fx.floatUp(this.fly, n, this.comboX, this.comboY - 6, 24, 0.5);
   }
 
   /**
@@ -1080,19 +1081,17 @@ export class GamePage extends Page {
 
   private spawnRise(): void {
     const tier = Math.max(0, this.comboTier);
-    const front = Math.random() < 0.3;
     const bubble = Math.random() < 0.3;
-    const s0 = front ? 16 + Math.random() * 16 : 22 + Math.random() * 30;
-    const n = img(front ? this.fly : this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
+    const s0 = 22 + Math.random() * 30;
+    const n = img(this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
     if (!bubble) (n.getComponent(Sprite) as Sprite).color = this.comboColor;
-    const half = Screen.W / 2;
-    const x = front ? (Math.random() < 0.5 ? -1 : 1) * (half - 10 - Math.random() * 70) : (Math.random() - 0.5) * Screen.W;
+    const x = (Math.random() - 0.5) * Screen.W;
     const y0 = Screen.bottom - 30;
     const y1 = Screen.bottom + Screen.H * (0.55 + Math.random() * 0.5);
     const dur = (1.5 + Math.random() * 0.9) * (1 - tier * 0.1);
     at(n, x, y0);
     const op = opacity(n);
-    op.opacity = front ? 190 : 235;
+    op.opacity = 235;
     tween(n)
       .to(dur, { position: new Vec3(x + (Math.random() - 0.5) * 90, y1, 0), angle: bubble ? 0 : 200 }, { easing: 'quadOut' })
       .call(() => n.destroy())
@@ -1101,12 +1100,12 @@ export class GamePage extends Page {
   }
 
   /** 一发烟花：柔光一闪、两圈光环、一大一小两圈火花 */
-  private boom(x: number, y: number, col: Color, loud = true): void {
-    fx.glowPop(this.fly, x, y, 380, col, 0.3);
-    fx.ring(this.fly, x, y, 60, 420, col);
-    fx.ring(this.fly, x, y, 30, 240, COLOR.white);
-    fx.sparkle(this.fly, x, y, 26, 280, col, 52);
-    fx.sparkle(this.fly, x, y, 12, 140, COLOR.white, 30);
+  private boom(x: number, y: number, col: Color, loud = true, layer: Node = this.fly): void {
+    fx.glowPop(layer, x, y, 380, col, 0.3);
+    fx.ring(layer, x, y, 60, 420, col);
+    fx.ring(layer, x, y, 30, 240, COLOR.white);
+    fx.sparkle(layer, x, y, 26, 280, col, 52);
+    fx.sparkle(layer, x, y, 12, 140, COLOR.white, 30);
     if (loud) sfx('firework');
   }
 
@@ -1117,8 +1116,8 @@ export class GamePage extends Page {
    * 升档音按档位换（越高越长越亮），震动中 / 重。停一下后夸奖词缩小飞进顶上的连击计
    */
   private praise(word: string, tier: number, col: Color): void {
-    // 小一点、放在暂存槽那一排：不盖住下面的气泡（用户 2026-11-16）
-    const y = this.bufferY - 16;
+    // 小一点、放在暂存槽那一排，不伸到上面的鱼缸、订单卡和下面的气泡上（用户 2026-11-16）
+    const y = this.bufferY - 6;
     if (this.praiseNode?.isValid) this.praiseNode.destroy();
     // 夸奖字和连击计在同一排：夸奖字在的时候连击计淡出，播完再回来
     const meter = opacity(this.comboBadge);
@@ -1128,15 +1127,15 @@ export class GamePage extends Page {
     this.praiseNode = holder;
     at(holder, 0, y);
     // 背后：档位色柔光 + Codex 画的爆炸星（慢慢转）；字：中文用 Codex 艺术字，其它语言用字
-    const glow = img(holder, 'kit/fx_glow', 520, 280, 'glow');
+    const glow = img(holder, 'kit/fx_glow', 380, 200, 'glow');
     (glow.getComponent(Sprite) as Sprite).color = col;
     glow.setScale(0.3, 0.3, 1);
     tween(glow).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    const star = img(holder, 'skin/j_burst', 290, 311, 'burst');
+    const star = img(holder, 'skin/j_burst', 190, 204, 'burst');
     star.setScale(0.2, 0.2, 1);
     tween(star).to(0.2, { scale: new Vec3(1.1, 1.1, 1) }, { easing: 'quadOut' }).to(0.12, { scale: new Vec3(1, 1, 1) }).start();
     tween(star).by(1.4, { angle: -50 }).start();
-    const ww = 380;
+    const ww = 290;
     const l = {
       node:
         language() === 'zh_CN'
@@ -1183,22 +1182,22 @@ export class GamePage extends Page {
     sfx('tier', tier + 1);
   }
 
-  /** 夸奖词落地的那一下：整屏的冲击都在这一帧 */
+  /** 夸奖词落地的那一下：整屏的冲击都在这一帧。闪光、放射光、冲击波、彩纸、烟花全垫在玩法后面：气泡、鱼缸、订单卡都画在它上面，不被挡（用户 2026-11-16） */
   private praiseImpact(y: number, tier: number, col: Color): void {
     const half = Screen.W / 2;
     const reach = Math.hypot(Screen.W, Screen.H);
     buzz(tier >= 2 ? 'heavy' : 'medium');
     fx.trauma(this.stage, 0.5 + tier * 0.12, 20);
-    fx.flash(this.fly, Screen.W, Screen.H, 90 + tier * 25, col);
-    fx.rayBurst(this.fly, 0, y, reach * 1.2, col, 0.6, 190);
-    fx.ring(this.fly, 0, y, 140, reach * 1.1, col, 0.55);
-    fx.ring(this.fly, 0, y, 100, 620, COLOR.white, 0.4);
-    fx.sparkle(this.fly, 0, y, 18 + tier * 4, 340, col, 44);
-    fx.sparkle(this.fly, 0, y, 10 + tier * 2, 180, COLOR.white, 30);
+    fx.flash(this.under, Screen.W, Screen.H, 90 + tier * 25, col);
+    fx.rayBurst(this.under, 0, y, reach * 1.2, col, 0.6, 190);
+    fx.ring(this.under, 0, y, 140, reach * 1.1, col, 0.55);
+    fx.ring(this.under, 0, y, 100, 620, COLOR.white, 0.4);
+    fx.sparkle(this.under, 0, y, 18 + tier * 4, 340, col, 44);
+    fx.sparkle(this.fly, 0, y, 10 + tier * 2, 110, COLOR.white, 28);
     // 两个下角往中间喷彩纸
     const n = 16 + tier * 10;
-    fx.cannon(this.fly, -half - 10, this.fieldBottom - 20, 66, n, 900 + tier * 110);
-    fx.cannon(this.fly, half + 10, this.fieldBottom - 20, 114, n, 900 + tier * 110);
+    fx.cannon(this.under, -half - 10, this.fieldBottom - 20, 66, n, 900 + tier * 110);
+    fx.cannon(this.under, half + 10, this.fieldBottom - 20, 114, n, 900 + tier * 110);
     // 全场气泡从夸奖词往外鼓一圈；鱼缸依次跳一下
     const holder = this.field.node.parent as Node;
     this.field.ripple(-holder.position.x, y - holder.position.y, 0.1 + tier * 0.02);
@@ -1217,8 +1216,8 @@ export class GamePage extends Page {
     const mid = (this.fieldTop + this.fieldBottom) / 2;
     const span = (this.fieldTop - this.fieldBottom) / 2;
     for (let i = 0; i < (tier >= 3 ? 5 : tier >= 2 ? 3 : 0); i++) {
-      fx.delay(this.fly, 0.12 + i * 0.14, () => {
-        this.boom((Math.random() - 0.5) * (Screen.W - 160), mid + (Math.random() - 0.5) * span * 1.4, COMBO_COLORS[(tier + i) % COMBO_COLORS.length], i % 2 === 0);
+      fx.delay(this.under, 0.12 + i * 0.14, () => {
+        this.boom((Math.random() - 0.5) * (Screen.W - 160), mid + (Math.random() - 0.5) * span * 1.4, COMBO_COLORS[(tier + i) % COMBO_COLORS.length], i % 2 === 0, this.under);
         if (i === 0) buzz('medium');
       });
     }
@@ -1286,10 +1285,9 @@ export class GamePage extends Page {
     // 弹窗开着（提示、开缸位、买技能…）时局内暂停：限时缸不走、代打不点
     if (this.paused || ui.currentName !== 'game' || popupCount() > 0) return;
     this.clock += dt;
-    // 连击倒计时细条
+    // 连击的时限（用户 2026-11-16：不要倒计时条）：到点就断
     if (this.comboRow.active && !this.comboBreaking) {
       const left = Math.max(0, 1 - (this.clock - this.lastHit()) / App.config.eco.combo.windowSeconds);
-      size(this.comboBar, this.comboBarW * left, 8);
       if (left <= 0) this.missCombo();
     }
     // 连击中：光点按档位的频率往上冒

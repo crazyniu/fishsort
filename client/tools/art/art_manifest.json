@@ -9,218 +9,33 @@
   750,
   "jpg"
  ],
- "ui/base/shore_bg": [
-  "raw:cocos1/base_shore_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/shore_1": [
-  "raw:cocos1/base_shore_1.png",
-  210,
-  "png"
- ],
- "ui/base/shore_2": [
-  "raw:cocos1/base_shore_2.png",
-  210,
-  "png"
- ],
- "ui/base/shore_3": [
-  "raw:cocos1/base_shore_3.png",
-  210,
-  "png"
- ],
- "ui/base/shore_4": [
-  "raw:cocos1/base_shore_4.png",
-  210,
-  "png"
- ],
- "ui/base/shore_5": [
-  "raw:cocos1/base_shore_5.png",
-  210,
-  "png"
- ],
  "ui/bg/sea_coral": [
   "raw:cocos1/bg_sea_coral.png",
   750,
   "jpg"
- ],
- "ui/base/coral_bg": [
-  "raw:cocos1/base_coral_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/coral_1": [
-  "raw:cocos1/base_coral_1.png",
-  210,
-  "png"
- ],
- "ui/base/coral_2": [
-  "raw:cocos1/base_coral_2.png",
-  210,
-  "png"
- ],
- "ui/base/coral_3": [
-  "raw:cocos1/base_coral_3.png",
-  210,
-  "png"
- ],
- "ui/base/coral_4": [
-  "raw:cocos1/base_coral_4.png",
-  210,
-  "png"
- ],
- "ui/base/coral_5": [
-  "raw:cocos1/base_coral_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_kelp": [
   "raw:cocos1/bg_sea_kelp.png",
   750,
   "jpg"
  ],
- "ui/base/kelp_bg": [
-  "raw:cocos1/base_kelp_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/kelp_1": [
-  "raw:cocos1/base_kelp_1.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_2": [
-  "raw:cocos1/base_kelp_2.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_3": [
-  "raw:cocos1/base_kelp_3.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_4": [
-  "raw:cocos1/base_kelp_4.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_5": [
-  "raw:cocos1/base_kelp_5.png",
-  210,
-  "png"
- ],
  "ui/bg/sea_wreck": [
   "raw:cocos1/bg_sea_wreck.png",
   750,
   "jpg"
- ],
- "ui/base/wreck_bg": [
-  "raw:cocos1/base_wreck_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/wreck_1": [
-  "raw:cocos1/base_wreck_1.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_2": [
-  "raw:cocos1/base_wreck_2.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_3": [
-  "raw:cocos1/base_wreck_3.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_4": [
-  "raw:cocos1/base_wreck_4.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_5": [
-  "raw:cocos1/base_wreck_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_crystal": [
   "raw:cocos1/bg_sea_crystal.png",
   750,
   "jpg"
  ],
- "ui/base/crystal_bg": [
-  "raw:cocos1/base_crystal_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/crystal_1": [
-  "raw:cocos1/base_crystal_1.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_2": [
-  "raw:cocos1/base_crystal_2.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_3": [
-  "raw:cocos1/base_crystal_3.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_4": [
-  "raw:cocos1/base_crystal_4.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_5": [
-  "raw:cocos1/base_crystal_5.png",
-  210,
-  "png"
- ],
  "ui/bg/sea_palace": [
   "raw:cocos1/bg_sea_palace.png",
   750,
   "jpg"
  ],
- "ui/base/palace_bg": [
-  "raw:cocos1/base_palace_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/palace_1": [
-  "raw:cocos1/base_palace_1.png",
-  210,
-  "png"
- ],
- "ui/base/palace_2": [
-  "raw:cocos1/base_palace_2.png",
-  210,
-  "png"
- ],
- "ui/base/palace_3": [
-  "raw:cocos1/base_palace_3.png",
-  210,
-  "png"
- ],
- "ui/base/palace_4": [
-  "raw:cocos1/base_palace_4.png",
-  210,
-  "png"
- ],
- "ui/base/palace_5": [
-  "raw:cocos1/base_palace_5.png",
-  210,
-  "png"
- ],
  "ui/icon/tab_shop": [
   "raw:cocos1/tab_shop.png",
-  92,
-  "png"
- ],
- "ui/icon/tab_base": [
-  "raw:cocos1/tab_base.png",
   92,
   "png"
  ],

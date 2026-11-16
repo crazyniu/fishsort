@@ -1,5 +1,5 @@
-// 包体压缩（docs/09 第 8 步）：界面图、鱼、家园物件的 PNG 量化成 256 色调色板（libimagequant，带透明，肉眼无差），
-// 家园物件先缩到最大显示尺寸的 2 倍。已经是调色板 PNG 的跳过（可以反复跑，不会越压越糊）。
+// 包体压缩（docs/09 第 8 步）：界面图、鱼的 PNG 量化成 256 色调色板（libimagequant，带透明，肉眼无差）。
+// 已经是调色板 PNG 的跳过（可以反复跑，不会越压越糊）。
 // 用法：node tools/art/compress.mjs [--dry | --check]（--check：有没压过的图就报错，./run.sh check 用）
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -8,9 +8,7 @@ import sharp from 'sharp';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const RES = join(ROOT, 'assets/resources');
-const DIRS = ['ui/kit', 'ui/icon', 'ui/base', 'fish'];
-/** 家园物件最大显示约 240 设计单位，2 倍够用 */
-const MAX_SIDE = { 'ui/base': 480 };
+const DIRS = ['ui/kit', 'ui/icon', 'fish'];
 const check = process.argv.includes('--check');
 const dry = check || process.argv.includes('--dry');
 
@@ -33,13 +31,7 @@ for (const d of DIRS) {
       after += buf.length;
       continue;
     }
-    let img = sharp(buf);
-    const max = MAX_SIDE[d];
-    if (max) {
-      const m = await img.metadata();
-      if (Math.max(m.width ?? 0, m.height ?? 0) > max) img = img.resize({ width: max, height: max, fit: 'inside' });
-    }
-    const out = await img.png({ palette: true, quality: 95, effort: 10, dither: 1.0, compressionLevel: 9 }).toBuffer();
+    const out = await sharp(buf).png({ palette: true, quality: 95, effort: 10, dither: 1.0, compressionLevel: 9 }).toBuffer();
     if (out.length < buf.length) {
       after += out.length;
       changed++;

@@ -99,7 +99,6 @@ export function signInPopup(changed: () => void): void {
       h: 100,
       icon: 'kit/ic_video',
       label: tr('UI_CLAIM_DOUBLE'),
-      fontSize: 30,
       onTap: async () => {
         if (await watchAd('rv_signin_double')) claim(true);
       },

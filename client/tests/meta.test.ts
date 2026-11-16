@@ -238,7 +238,6 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
       levelSelect: 5,
       album: 6,
       skill_blow: 7,
-      homeBase: 8,
       skill_net: 9,
       wheel: 10,
       tasks: 11,
@@ -252,7 +251,7 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     }
     const levels = Object.values(ECO.features);
     assert.equal(new Set(levels).size, levels.length, '同一关不开两样东西');
-    assert.deepEqual(Features.newlyUnlocked(ECO, 2, 8), ['signin', 'skill_shuffle', 'levelSelect', 'album', 'skill_blow', 'homeBase']);
+    assert.deepEqual(Features.newlyUnlocked(ECO, 2, 8), ['signin', 'skill_shuffle', 'levelSelect', 'album', 'skill_blow']);
   });
 });
 
@@ -270,29 +269,24 @@ describe('结算（docs/01 3.3）', () => {
     assert.ok(Lives.isUnlimited(save, NOW + 599) && !Lives.isUnlimited(save, NOW + 600), '首胜无限生命 10 分钟');
     assert.deepEqual(r.new_features, ['skill_shuffle']);
     assert.deepEqual(r.new_skills, ['shuffle']);
-    assert.equal(r.stars, 1);
     r = Settle.win(save, eco, { level: 4, challenge: true, day: 7, now: NOW, best_combo: 40 });
     assert.equal(r.coins_base, 200);
     assert.equal(r.coins_best, 40, '最高连击奖封顶 40');
-    assert.equal(r.stars, 2, '挑战关 2 颗星');
     assert.ok(!r.first_win);
     assert.equal(save.week.cleared, 2);
-    assert.equal(save.base.stars, 3);
   });
 
-  it('重玩每天前 5 次有奖，不给星星，不算本周过关数', () => {
+  it('重玩每天前 5 次有奖，不算本周过关数', () => {
     const [save, eco] = setup(30);
     for (let i = 0; i < 5; i++) {
       const r = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
       assert.ok(r.replay && r.rewarded && r.chest_ok);
       assert.equal(r.coins_base, 100);
-      assert.equal(r.stars, 0);
     }
     const r6 = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
     assert.ok(!r6.rewarded && !r6.chest_ok && r6.coins === 0);
     assert.equal(save.level, 30);
     assert.equal(save.week.cleared, 0, '重玩旧关不算本周过关数');
-    assert.equal(save.base.stars, 0);
     assert.ok(Settle.win(save, eco, { level: 10, challenge: false, day: 5, now: NOW }).rewarded, '第二天重新计');
   });
 

@@ -8,16 +8,39 @@ import * as Lives from '../core/meta/lives';
 import { App } from '../services/app';
 import { now } from '../services/clock';
 import { fadeIn, popIn } from './fx';
-import { COLOR, at, hex, blockInput, box, fit, flatKey, fmt, img, onTap, opacity, plate, setImg, slice, text, tint } from './kit';
+import { COLOR, Capsule, at, hex, blockInput, box, capsule, fit, fmt, img, keyButton, onTap, opacity, pageTitle, plate, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
 /** 根页面：回到这里返回历史就清空 */
 const HOME = 'home';
 /** 按关开放的页面对应的功能开放项；没开放时点进去是锁页（docs/01 5.3） */
-const PAGE_FEATURE: Record<string, string> = { base: 'homeBase', collect: 'album', tasks: 'tasks' };
+const PAGE_FEATURE: Record<string, string> = { collect: 'album', tasks: 'tasks' };
 /** 页面最底下留的空（再加上机型的安全区，Screen.bottom 已经算进去了） */
 export const PAGE_BOTTOM = 24;
+
+/** 子页面页头的中线离屏幕顶多远、返回键多大、标题牌多高 */
+export const HEAD_Y = 76;
+const HEAD_KEY = 88;
+const HEAD_TITLE = 76;
+/** 页头下面的内容从这里开始（离屏幕顶） */
+export const HEAD_BOTTOM = 136;
+
+/**
+ * 子页面的页头（各页同一个位置、同一个大小）：左上角返回键，标题牌居中；要花金币的页面右边再放一条金币数。
+ * 返回金币条（没要就是 null），页面刷新时自己改数字
+ */
+export function pageHead(parent: Node, title: string, o: { onBack?: () => void; coins?: boolean } = {}): Capsule | null {
+  const y = Screen.top - HEAD_Y;
+  const back = keyButton(parent, 'blue', 'kit/ic_back', HEAD_KEY, o.onBack ?? (() => ui.back()));
+  at(back, -Screen.W / 2 + 24 + HEAD_KEY / 2, y);
+  back.name = 'back';
+  at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  if (!o.coins) return null;
+  const c = capsule(parent, 196, 64, 'icon/coin', fmt(App.save.data.coins), 30);
+  at(c.node, Screen.W / 2 - 24 - 98, y);
+  return c;
+}
 
 export abstract class Page {
   node!: Node;
@@ -72,7 +95,7 @@ class TopBar {
     at(this.avatar, 0, 5);
     onTap(this.frame, actions.profile);
     // 设置
-    at(flatKey(this.node, 'blue', 'skin/f_g_gear', KEY, actions.settings), BW / 2 - KEY / 2, 0);
+    at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), BW / 2 - KEY / 2, 0);
     // 两条小条平分头像和设置键之间的宽：金币略宽（最多 7 位数 + 加号）
     const room = BW - AV - KEY - G * 3;
     const CW = Math.round(room * 0.54);
@@ -83,7 +106,7 @@ class TopBar {
     at(this.coinIcon, -CW / 2 + 38, 0);
     this.coins = text(coinTap, '0', 36, { align: 'left' });
     at(this.coins.node, -CW / 2 + 76, 1);
-    at(flatKey(coinTap, 'green', 'skin/f_g_plus', 50, null, 0.5), CW / 2 - 36, 0);
+    at(keyButton(coinTap, 'green', 'kit/ic_plus', 50, null, 0.5), CW / 2 - 36, 0);
     this.coinRoom = CW - 76 - 36 - 25 - 10;
     onTap(coinTap, actions.coins);
     // 生命：图标 + 数量，回满前后面跟一个小号倒计时

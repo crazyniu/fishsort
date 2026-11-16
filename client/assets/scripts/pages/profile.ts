@@ -23,7 +23,7 @@ export function profilePopup(): void {
   const eco = App.config.eco;
   const h = 640;
   const p = openPopup({ w: 620, h, title: tr('PROFILE_TITLE'), mascot: null, tapOutside: true });
-  const frame = slice(p.body, 'kit/tab_sel', 190, 190, 'avatar');
+  const frame = img(p.body, 'skin/f_avatar', 190, 190, 'avatar');
   at(frame, -150, h / 2 - 160);
   img(frame, avatarPath(), 160, 160, 'img');
   // 「点击更换」放在头像下面，蓝色小字，不压在头像上

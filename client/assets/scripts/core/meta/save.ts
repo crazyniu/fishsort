@@ -55,7 +55,6 @@ export interface SaveData {
   album: { claimed: number[]; final: boolean; frame: boolean };
   challenge: { wonDay: number; streak: number; tryDay: number; tries: number };
   dex: { seen: Record<string, number>; claimed: Record<string, number> };
-  base: { stars: number; built: number[] };
   signin: { count: number; lastDay: number; doubledDay: number };
   week: WeekSave;
   tasks: TasksSave;
