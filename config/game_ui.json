@@ -38,7 +38,7 @@
   "landSpeed": 380,
   "separate": 420,
   "stagger": 0.06,
-  "maxHeight": 0.9
+  "maxHeight": 0.97
  },
  "hint": {
     "tutorialLevels": 3,
