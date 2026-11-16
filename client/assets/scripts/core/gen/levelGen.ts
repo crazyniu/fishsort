@@ -267,12 +267,14 @@ function addIce(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
 
 /**
  * 迷雾泡：按比例挑气泡，计数取 [最少, 最多] 里的随机数，但不超过它落下之后参考解里还会破掉的别的气泡数
- * （不然永远数不到 0）。迷雾不改变规则，参考解不受影响
+ * （不然永远数不到 0）。锁链泡、冰封泡不蒙雾。迷雾不改变规则，参考解不受影响
  */
 function addFog(rng: Rng, lv: LevelData, tl: Timeline, share: number, count: readonly number[]): void {
   if (share <= 0.0) return;
   for (const b of lv.bubbles) {
     if (rng.randf() >= share || tl.land[b.id] === NEVER) continue;
+    // 一个气泡只带一样：已经锁着或冻着的不再蒙雾（又是冰又是雾，看不出该干什么）
+    if (b.chain > 0 || b.ice.length > 0) continue;
     let later = 0;
     for (const o of lv.bubbles) if (o.id !== b.id && tl.pop[o.id] !== NEVER && tl.pop[o.id] >= tl.land[b.id]) later += 1;
     if (later <= 0) continue;

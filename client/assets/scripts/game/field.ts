@@ -442,7 +442,7 @@ export class Field {
       v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = 170;
       for (const dep of d.ice) {
-        const link = img(this.node, 'kit/round_white', 10, 12, 'iceLink');
+        const link = img(this.node, 'kit/round_white', 10, 16, 'iceLink');
         (link.getComponent(Sprite) as Sprite).color = ICE_LINK;
         link.active = false;
         v.iceLinks.push({ node: link, dep });
@@ -529,7 +529,7 @@ export class Field {
         const dist = Math.hypot(dx, dy) || 1;
         const from = v.r * 0.82;
         const len = Math.max(8, dist - from - o.r * 0.82);
-        (l.node.getComponent(UITransform) as UITransform).setContentSize(len, 12);
+        (l.node.getComponent(UITransform) as UITransform).setContentSize(len, 16);
         const mid = from + len / 2;
         l.node.setPosition(ax + (dx / dist) * mid, ay + (dy / dist) * mid, 0);
         l.node.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
