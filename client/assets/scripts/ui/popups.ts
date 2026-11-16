@@ -12,7 +12,7 @@ import { applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import { language, setLanguage, tr } from './i18n';
-import { COLOR, DARK_INK, INK, LIGHT_INK, at, box, button, fmt, hex, img, onTap, opacity, setImg, setInk, slice, text, twoLines } from './kit';
+import { COLOR, DARK_INK, LIGHT_INK, at, box, button, fmt, hex, img, onTap, opacity, setImg, setInk, slice, text, twoLines } from './kit';
 import { openPopup, Popup } from './popup';
 import { Screen } from './screen';
 import { ui } from './shell';
@@ -81,10 +81,10 @@ export function cardItem(c: CardResult): PrizeItem {
 export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
   const n = box('prize', parent, s, s + 40);
   if (it.rarity) {
-    const f = img(n, `kit/card_${it.rarity}`, s * 0.8, s * 1.1, 'frame');
+    const f = img(n, `skin/j_card_${it.rarity}`, s * 0.82, s * 1.1, 'frame');
     at(f, 0, 14);
-    const icon = img(n, it.icon, s * 0.66, s * 0.66, 'icon');
-    at(icon, 0, 24);
+    const icon = img(n, it.icon, s * 0.64, s * 0.64, 'icon');
+    at(icon, 0, 26);
   } else {
     const icon = img(n, it.icon, s * 0.86, s * 0.86, 'icon');
     at(icon, 0, 16);
@@ -335,11 +335,11 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     at(ic, -556 / 2 + 24 + 24, 0);
     const l = text(row, tr(key), 32, { align: 'left' });
     at(l.node, -556 / 2 + 96, 0);
-    const tg = img(row, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 104, 60, 'toggle');
+    const tg = img(row, s.settings[field] ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55, 'toggle');
     at(tg, 196, 0);
     onTap(row, () => {
       (s.settings as unknown as Record<string, boolean>)[field] = !s.settings[field];
-      setImg(tg, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 104, 60);
+      setImg(tg, s.settings[field] ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55);
       App.save.write();
       applySettings();
     });
@@ -418,20 +418,21 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   const glow = fx.rays(p.body, 620);
   (glow.getComponent(Sprite) as Sprite).color = RARITY_GLOW[c.rarity] ?? COLOR.white;
   opacity(glow).opacity = 0;
-  const card = box('card', p.body, 360, 504);
+  const card = box('card', p.body, 380, 508);
   at(card, 0, 60);
-  const back = img(card, 'icon/card_back', 360, 504, 'back');
-  const front = box('front', card, 360, 504);
-  img(front, `kit/card_${c.rarity}`, 360, 504, 'frame');
-  const art = img(front, `fish/${c.id}`, 250, 250, 'art');
-  at(art, 0, 50);
+  const back = img(card, 'icon/card_back', 370, 508, 'back');
+  const front = box('front', card, 380, 508);
+  img(front, `skin/j_card_${c.rarity}`, 380, 508, 'frame');
+  const art = img(front, `fish/${c.id}`, 280, 280, 'art');
+  at(art, 0, 40);
+  fx.bob(art, 6, 2.2);
   const sp = App.config.speciesById.get(c.id);
-  // 名字在卡面白底里（深色字），稀有度在下沿彩色框条上（白字）
-  const name = text(front, sp ? speciesName(sp.id) : c.id, 44, { color: INK.ink, outline: null });
-  at(name.node, 0, -112);
+  // 名字在卡框下沿的彩色名牌上（白字深描边）
+  const name = text(front, sp ? speciesName(sp.id) : c.id, 42);
+  at(name.node, 0, -181);
   // 稀有度写在卡片下面（卡框下沿有宝石装饰，不压在上面），翻完才出来
   const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 36, { color: RARITY_GLOW[c.rarity] });
-  at(rar.node, 0, 60 - 252 - 36);
+  at(rar.node, 0, 60 - 254 - 36);
   rar.node.active = false;
   front.active = false;
   const line = text(p.body, c.is_new ? tr('CARD_RARITY_NEW') : tr('UI_CARD_OWNED', c.coins), 40);

@@ -140,7 +140,7 @@ export class CollectPage extends Page {
     const eco = App.config.eco;
     const open = Album.isOpen(eco, i, s.level);
     const row = slice(parent, 'kit/panel_glass', 690, ROW_H, `book${i}`);
-    const cover = img(row, `kit/book_${i + 1}`, 140, 150, 'cover');
+    const cover = img(row, `skin/j_book_${i + 1}`, 146, 148, 'cover');
     at(cover, -250, 0);
     const star = App.config.speciesById.get(cards[cards.length - 1]);
     const fish = img(cover, `fish/${star?.id ?? cards[0]}`, 100, 100, 'fish');
@@ -275,7 +275,7 @@ export class CollectPage extends Page {
     const eco = App.config.eco;
     const owned = s.cards[sp.id] ?? 0;
     const cell = box(sp.id, parent, CELL_W, CELL_H);
-    const bowl = img(cell, 'kit/bowl', 200, 200, 'bowl');
+    const bowl = img(cell, 'skin/j_bowl', 200, 185, 'bowl');
     at(bowl, 0, 50);
     const fish = img(cell, `fish/${sp.id}`, 140, 140, 'fish');
     at(fish, 0, 40);

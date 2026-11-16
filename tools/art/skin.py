@@ -111,6 +111,43 @@ def recolor(im: Image.Image, src: float, dst: float, k: float = 1.0, sat: float 
     return Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
 
 
+def recolor_band(im: Image.Image, src: float, width: float, dst: float, k: float = 1.0, sat: float = 1.0, val: float = 1.0) -> Image.Image:
+    """只把色相在 src±width 里的像素换色（收藏卡框：紫框换色，蓝色画框不动），边上平滑过渡。"""
+    a = np.asarray(im).astype(np.float32) / 255.0
+    h, s, v = rgb2hsv(a[..., :3])
+    dh = ((h * 360.0 - src + 180.0) % 360.0) - 180.0
+    w = np.clip(1.0 - (np.abs(dh) - width * 0.6) / (width * 0.4), 0, 1) * np.clip((s - 0.12) / 0.15, 0, 1)
+    h2 = ((dst + k * dh) % 360.0) / 360.0
+    rgb2 = hsv2rgb(h2, np.clip(s * sat, 0, 1), np.clip(v * val, 0, 1))
+    rgb = a[..., :3] * (1 - w[..., None]) + rgb2 * w[..., None]
+    out = np.concatenate([rgb, a[..., 3:4]], -1)
+    return Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
+
+
+def glass(path: Path, width: int) -> Image.Image:
+    """白底上的玻璃器皿：轮廓外是背景；轮廓里按「越白越透明」还原 alpha（白色成分去掉），高光保留一点白。"""
+    im = remove_background(Image.open(path))
+    (box,) = [b for b in [components(np.asarray(im)[:, :, 3])] for b in b][:1] or [None]
+    a = np.asarray(im).astype(np.float32) / 255.0
+    rgb, al = a[..., :3], a[..., 3]
+    inside = al > 0.5
+    m = rgb.min(-1)
+    alpha = np.clip((1.0 - m) / 0.42, 0.0, 1.0)
+    # 高光（接近纯白）留成半透明白
+    hi = np.clip((m - 0.93) / 0.07, 0, 1)
+    alpha = np.maximum(alpha, 0.10 + 0.55 * hi)
+    alpha = np.where(inside, alpha, al)
+    safe = np.clip(alpha, 0.05, 1.0)[..., None]
+    col = np.clip((rgb - (1 - safe)) / safe, 0, 1)
+    col = np.where(hi[..., None] > 0, rgb * hi[..., None] + col * (1 - hi[..., None]), col)
+    out = np.concatenate([col, alpha[..., None]], -1)
+    res = Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
+    if box:
+        t, l, b, r = box
+        res = res.crop((l, t, r, b))
+    return res.convert('RGBa').resize((width, round(res.height * width / res.width)), Image.LANCZOS).convert('RGBA')
+
+
 def main() -> None:
     raw = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / 'art/raw/ui_skin'
     OUT.mkdir(parents=True, exist_ok=True)
@@ -189,6 +226,42 @@ def main() -> None:
     if (raw / 'medals.png').exists():
         for nm, im in zip(['1', '2', '3'], cut(raw / 'medals.png')):
             save(f'j_medal_{nm}', im.convert('RGBa').resize((round(im.width * 300 / im.height), 300), Image.LANCZOS).convert('RGBA'))
+
+    # 金色卡片（签到的今天、当前头像）：蓝色卡片换成金色
+    (panel,) = cut(raw / 'panel.png')
+    gim, gb = nine(panel, 400, 78)
+    save('j_row_gold', recolor(gim, 212, 42, -0.3, 1.0, 1.12, 0.8), gb)
+
+    # 收藏卡框：一张紫色（史诗）母版，只把紫色那部分换成各稀有度的颜色，蓝色的画框里面不动
+    (card,) = cut(raw / 'card.png')
+    card = card.convert('RGBa').resize((600, round(card.height * 600 / card.width)), Image.LANCZOS).convert('RGBA')
+    for nm, (dst, k, sat, val) in {
+        'common': (208, 0.3, 0.45, 0.96),
+        'uncommon': (112, 0.6, 0.95, 0.95),
+        'rare': (214, 0.6, 1.0, 1.0),
+        'epic': (280, 1.0, 1.0, 1.0),
+        'legend': (42, -0.4, 1.0, 1.12),
+    }.items():
+        save(f'j_card_{nm}', recolor_band(card, 280, 45, dst, k, sat, val))
+
+    # 收藏册封面：六个海域
+    for i, im in enumerate(cut(raw / 'books.png')):
+        save(f'j_book_{i + 1}', im.convert('RGBa').resize((420, round(im.height * 420 / im.width)), Image.LANCZOS).convert('RGBA'))
+
+    # 开关、进度条
+    ton, toff, track, fy, fg = cut(raw / 'controls.png')
+    for nm, im in (('j_toggle_on', ton), ('j_toggle_off', toff)):
+        save(nm, im.convert('RGBa').resize((330, round(im.height * 330 / im.width)), Image.LANCZOS).convert('RGBA'))
+    save('j_bar_track', *three(track, 90, 0.5))
+    y3, yb = three(fy, 72, 0.5)
+    g3, gbb = three(fg, 72, 0.5)
+    save('j_bar_yellow', y3, yb)
+    save('j_bar_green', g3, gbb)
+    save('j_bar_blue', recolor(g3, 110, 205, 0.6, 1.0, 1.0), gbb)
+    save('j_bar_purple', recolor(g3, 110, 280, 0.6, 0.9, 1.0), gbb)
+
+    # 鱼缸：玻璃要透明（白底上的玻璃按「越白越透」还原）
+    save('j_bowl', glass(raw / 'bowl.png', 450))
 
     save('j_inset', *inset())
 

@@ -219,7 +219,7 @@ export function unlockSlot(g: GamePage): void {
   if (g.ended || g.s.status !== Status.PLAYING) return;
   const eco = App.config.eco;
   const p = openPopup({ w: 600, h: 620, title: tr('H_SLOT_TITLE'), mascot: null });
-  const bowl = img(p.body, 'kit/bowl', 220, 220, 'bowl');
+  const bowl = img(p.body, 'skin/j_bowl', 220, 203, 'bowl');
   at(bowl, 0, 130);
   const plus = img(bowl, 'kit/round_green', 80, 80, 'plus');
   img(plus, 'kit/ic_plus', 50, 50, 'glyph');

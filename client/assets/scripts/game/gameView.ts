@@ -18,7 +18,7 @@ import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Capsule, COLOR, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { Capsule, COLOR, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, plate, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -47,6 +47,13 @@ interface BowlView {
 const SKILLS = ['shuffle', 'blow', 'net', 'current'] as const;
 type SkillId = (typeof SKILLS)[number];
 
+/** 连击四档的颜色（docs/01 3.2：蓝、金、红、紫） */
+const COMBO_COLORS = [new Color(110, 215, 255), new Color(255, 214, 64), new Color(255, 110, 80), new Color(214, 130, 255)];
+/** 升档夸奖词的字色：压在蓝色飘带上要看得清，比档位色更亮 */
+const PRAISE_FILL = [new Color(150, 240, 255), new Color(255, 222, 70), new Color(255, 150, 120), new Color(235, 170, 255)];
+/** 连击计的位置（顶栏中间，进度条和关卡号之间） */
+const COMBO_X = -30;
+
 export class GamePage extends Page {
   readonly tab = null;
   // 一局的状态
@@ -70,10 +77,17 @@ export class GamePage extends Page {
   private progress!: Capsule;
   private levelCap!: Capsule;
   private comboRow!: Node;
+  private comboBadge!: Node;
+  private comboGlow!: Node;
   private comboLabel!: Label;
   private comboCoins!: Label;
   private comboBar!: Node;
-  private comboBarW = 180;
+  private comboBarW = 210;
+  /** 连击时屏幕左右两边的光 */
+  private edgeGlow: Node[] = [];
+  private comboTier = -1;
+  /** 断连动画播放中（倒计时到 0 后每帧都会进来，只播一次） */
+  private comboBreaking = false;
   private shelf!: Node;
   private bowls: (BowlView | null)[] = [];
   private bowlX: number[] = [];
@@ -135,6 +149,8 @@ export class GamePage extends Page {
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette);
     this.combo = new Combo();
+    this.comboTier = -1;
+    this.comboBreaking = false;
     this.clock = 0;
     this.moved = false;
     this.ended = false;
@@ -180,17 +196,33 @@ export class GamePage extends Page {
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 24 - 37, hudY);
-    // 连击：顶栏中间，大字「连击 ×N」（按档位换色）+ 本局连击金币 + 倒计时细条
-    this.comboRow = box('combo', this.stage, 230, 90);
-    at(this.comboRow, -28, hudY + 2);
-    this.comboLabel = text(this.comboRow, '', 40);
-    at(this.comboLabel.node, 0, 12);
-    this.comboCoins = text(this.comboRow, '', 26, { color: COLOR.yellow });
-    at(this.comboCoins.node, 0, -20);
-    const track = slice(this.comboRow, 'kit/bar_track', this.comboBarW, 12, 'track');
-    at(track, 0, -40);
-    this.comboBar = slice(track, 'kit/bar_yellow', this.comboBarW, 12, 'bar');
+    // 连击计（顶栏中间，docs/01 3.2）：深色凹槽里「连击 ×N」+ 本局连击金币，底边一条倒计时；背后一团按档位换色的光
+    this.comboRow = box('combo', this.stage, 250, 90);
+    at(this.comboRow, COMBO_X, hudY);
+    this.comboGlow = img(this.comboRow, 'kit/fx_glow', 330, 170, 'glow');
+    opacity(this.comboGlow).opacity = 150;
+    this.comboBadge = plate(this.comboRow, 'skin/j_inset', 248, 76, 'badge');
+    const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 24, { align: 'left' });
+    at(word.node, -112, 6);
+    this.comboLabel = text(this.comboBadge, '', 50, { align: 'left' });
+    at(this.comboLabel.node, -58, 6);
+    at(img(this.comboBadge, 'icon/coin', 30, 30, 'coin'), 62, 6);
+    this.comboCoins = text(this.comboBadge, '', 26, { align: 'left', color: COLOR.yellow });
+    at(this.comboCoins.node, 80, 5);
+    const track = tint(this.comboBadge, this.comboBarW, 7, new Color(0, 10, 50, 150), 'track');
+    at(track, 0, -26);
+    this.comboBar = tint(this.comboBadge, this.comboBarW, 7, COLOR.yellow, 'bar');
+    (this.comboBar.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
+    at(this.comboBar, -this.comboBarW / 2, -26);
     this.comboRow.active = false;
+    // 屏幕两边的连击光（6 连以上常亮、随档位换色，断连熄灭）
+    this.edgeGlow = [-1, 1].map((sx) => {
+      const g = img(this.stage, 'kit/fx_glow', 220, Screen.H * 1.15, 'edge');
+      at(g, (sx * Screen.W) / 2, 0);
+      opacity(g).opacity = 0;
+      g.setSiblingIndex(0);
+      return g;
+    });
 
     // 木架与鱼缸
     this.bowlY = top - 180;
@@ -200,7 +232,7 @@ export class GamePage extends Page {
     const bw = (shelfW - 30) / MAX_SLOTS;
     this.bowlX = Array.from({ length: MAX_SLOTS }, (_, i) => -shelfW / 2 + 15 + bw * (i + 0.5));
     for (let i = 0; i < MAX_SLOTS; i++) {
-      const plus = img(this.stage, 'kit/bowl', 150, 150, `plus${i}`);
+      const plus = img(this.stage, 'skin/j_bowl', 150, 139, `plus${i}`);
       at(plus, this.bowlX[i], this.bowlY);
       opacity(plus).opacity = 200;
       const p = img(plus, 'kit/round_green', 64, 64, 'btn');
@@ -392,7 +424,7 @@ export class GamePage extends Page {
     let t = intro ? cfg.intro.startDelay : 0;
     let flyIdx = 0;
     let lastPop = -1;
-    const hitAt: number[] = [];
+    const hitAt: [number, number][] = [];
     for (const e of events) {
       switch (e.t) {
         case 'fish_to_bowl':
@@ -404,7 +436,7 @@ export class GamePage extends Page {
           flyIdx++;
           if (view) view.incoming++;
           this.flyTo(src, this.bowlX[e.slot as number], this.bowlY + 6, delay, () => this.arrive(view, sp));
-          hitAt.push(delay);
+          hitAt.push([delay, this.bowlX[e.slot as number]]);
           break;
         }
         case 'fish_to_buffer': {
@@ -426,7 +458,7 @@ export class GamePage extends Page {
           if (view) view.incoming++;
           if (n) this.flyTo(n, this.bowlX[e.slot as number], this.bowlY + 6, delay, () => this.arrive(view, e.species as number), 1, 80);
           this.bufferNodes.forEach((m, i) => tween(m).delay(delay + 0.1).to(0.18, { position: new Vec3(this.slotX(i), this.bufferY, 0) }).start());
-          hitAt.push(delay);
+          hitAt.push([delay, this.bowlX[e.slot as number]]);
           break;
         }
         case 'bowl_done': {
@@ -480,7 +512,7 @@ export class GamePage extends Page {
       }
     }
     // 连击按入缸的先后计（暂存槽自动补进新缸也算命中）
-    for (const d of hitAt) fx.delay(this.fly, d + cfg.fly.seconds, () => this.hitCombo());
+    for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.seconds, () => this.hitCombo(x));
     this.field.sync(this.s);
     this.layoutReturn(t + 0.2);
     this.refreshHud();
@@ -547,7 +579,7 @@ export class GamePage extends Page {
   private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number): void {
     const big = cap > 3;
     const s = big ? 170 : 150;
-    const node = img(this.stage, 'kit/bowl', s, s, `bowl${slot}`);
+    const node = img(this.stage, 'skin/j_bowl', s, s * 0.925, `bowl${slot}`);
     at(node, this.bowlX[slot], this.bowlY);
     const fish = img(node, this.field.spriteFor(sp), s * 0.5, s * 0.5, 'target');
     at(fish, 0, -s * 0.08);
@@ -639,67 +671,180 @@ export class GamePage extends Page {
 
   // ---------------------------------------------------------------- 连击
 
-  private hitCombo(): void {
+  private hitCombo(bowlX = 0): void {
     if (this.ended) return;
     const eco = App.config.eco;
     const cardsOpen = Features.isUnlocked(eco, 'album', App.save.data.level);
     const r = this.combo.hit(this.clock, eco.combo, this.rng, cardsOpen);
+    sfx('hit', r.count);
     if (r.tier < 0) {
       this.comboRow.active = false;
-      sfx('hit', r.count);
+      // 还没到 6 连：鱼缸上方冒一个小数字，提示「在连」
+      if (r.count >= 3) this.hitPop(bowlX, `×${r.count}`, COMBO_COLORS[0], 34);
       return;
     }
-    const was = this.comboRow.active;
+    const col = COMBO_COLORS[r.tier] ?? COLOR.white;
+    const was = this.comboRow.active && !this.comboBreaking;
+    this.comboBreaking = false;
     this.comboRow.active = true;
-    this.comboLabel.string = `${tr('UI_COMBO_WORD')} ×${r.count}`;
-    this.comboCoins.string = tr('UI_COMBO_GOLD', this.combo.coins);
-    const colors = [new Color(120, 220, 255), new Color(255, 214, 64), new Color(255, 120, 90), new Color(214, 130, 255)];
-    const col = colors[r.tier] ?? COLOR.white;
+    this.comboLabel.string = `×${r.count}`;
     this.comboLabel.color = col;
-    // 每一击：字猛地放大再弹回，旁边迸几颗小星；第一次出现时整行从小弹出
+    this.comboCoins.string = `+${this.combo.coins}`;
+    (this.comboBar.getComponent(Sprite) as Sprite).color = col;
+    (this.comboGlow.getComponent(Sprite) as Sprite).color = col;
+    if (!was) {
+      Tween.stopAllByTarget(this.comboRow);
+      Tween.stopAllByTarget(opacity(this.comboRow));
+      at(this.comboRow, COMBO_X, Screen.top - 52);
+      opacity(this.comboRow).opacity = 255;
+      fx.popIn(this.comboRow, 0, 0.25);
+    }
+    // 数字砸下来：放大 2 倍、略歪，回弹到正（纯数字允许 ±4° 倾斜，docs/03）
     const ln = this.comboLabel.node;
     Tween.stopAllByTarget(ln);
-    ln.setScale(1.55, 1.55, 1);
-    tween(ln).to(0.24, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    if (!was) fx.popIn(this.comboRow, 0, 0.22);
-    const cp = this.comboRow.position;
-    fx.sparkle(this.fly, cp.x, cp.y + 12, 5 + Math.min(r.count, 8), 90, col, 26);
-    sfx('hit', r.count);
-    if (r.tier_up) this.praise(tr(eco.combo.tiers[r.tier].key), col);
+    ln.setScale(2, 2, 1);
+    ln.angle = (Math.random() - 0.5) * 8;
+    tween(ln).to(0.26, { scale: new Vec3(1, 1, 1), angle: 0 }, { easing: 'backOut' }).start();
+    // 整块顿一下、背后的光闪一下
+    const bd = this.comboBadge;
+    Tween.stopAllByTarget(bd);
+    bd.setScale(1.14, 1.14, 1);
+    tween(bd).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' }).start();
+    const gop = opacity(this.comboGlow);
+    Tween.stopAllByTarget(gop);
+    gop.opacity = 255;
+    tween(gop).to(0.4, { opacity: 140 }).start();
+    const cx = COMBO_X;
+    const cy = Screen.top - 52;
+    fx.ring(this.fly, cx, cy, 70, 200 + r.tier * 30, col);
+    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 110, col, 28);
+    // 鱼缸上方同步冒出「×N」
+    this.hitPop(bowlX, `×${r.count}`, col, 44);
+    this.setEdgeGlow(r.tier, col);
+    if (r.tier_up) this.praise(tr(eco.combo.tiers[r.tier].key), r.tier, col);
     if (r.card) Flow.comboCard(this);
   }
 
-  /** 连击升档：场地中央一个大词（带光芒），弹出 → 停一下 → 往上飘走；屏幕轻震 */
-  private praise(word: string, col: Color): void {
-    const y = (this.fieldTop + this.fieldBottom) / 2 + 80;
-    const holder = box('praise', this.fly, 600, 200);
+  /** 鱼缸上方冒一个数字，往上飘、淡出 */
+  private hitPop(x: number, s: string, col: Color, fontSize: number): void {
+    const l = text(null, s, fontSize, { color: col });
+    fx.floatUp(this.fly, l.node, x, this.bowlY + 66, 56, 0.55);
+  }
+
+  /** 屏幕两边的光：随档位换色，档位越高越亮、呼吸越快；tier < 0 熄灭 */
+  private setEdgeGlow(tier: number, col: Color): void {
+    if (tier === this.comboTier) return;
+    this.comboTier = tier;
+    for (const g of this.edgeGlow) {
+      (g.getComponent(Sprite) as Sprite).color = col;
+      const op = opacity(g);
+      Tween.stopAllByTarget(op);
+      if (tier < 0) {
+        tween(op).to(0.3, { opacity: 0 }).start();
+        continue;
+      }
+      const hi = 120 + tier * 30;
+      const period = 1.1 - tier * 0.18;
+      tween(op)
+        .to(0.25, { opacity: hi })
+        .call(() => {
+          tween(op)
+            .repeatForever(tween(op).to(period / 2, { opacity: Math.round(hi * 0.55) }).to(period / 2, { opacity: hi }))
+            .start();
+        })
+        .start();
+    }
+  }
+
+  /**
+   * 连击升档（docs/01 3.2）：场地上方一条飘带「展开」，夸奖词砸下来——光芒、光环、火花、彩纸、全屏闪、屏幕震；
+   * 停一下后整块缩小飞进顶上的连击计，连击计再弹一下
+   */
+  private praise(word: string, tier: number, col: Color): void {
+    const y = this.fieldTop - 150;
+    const holder = box('praise', this.fly, 600, 220);
     at(holder, 0, y);
-    const r = fx.rays(holder, 420);
+    const r = fx.rays(holder, 520);
     (r.getComponent(Sprite) as Sprite).color = col;
-    opacity(r).opacity = 200;
-    tween(r).by(1.4, { angle: 60 }).start();
-    const l = text(holder, word, 84, { color: col, outline: COLOR.navy, outlineWidth: 7 });
-    l.node.setScale(0, 0, 1);
+    opacity(r).opacity = 0;
+    tween(opacity(r)).to(0.2, { opacity: 220 }).start();
+    const rib = plate(holder, 'skin/j_ribbon', 560, 150, 'ribbon');
+    rib.setScale(0.05, 1, 1);
+    tween(rib).to(0.16, { scale: new Vec3(1.08, 1, 1) }, { easing: 'quadOut' }).to(0.1, { scale: new Vec3(1, 1, 1) }).start();
+    const l = text(holder, word, 76, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 7 });
+    at(l.node, 0, 10);
+    l.node.setScale(2.4, 2.4, 1);
+    const lop = opacity(l.node);
+    lop.opacity = 0;
+    tween(lop).delay(0.1).to(0.08, { opacity: 255 }).start();
     tween(l.node)
-      .to(0.18, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'quadOut' })
-      .to(0.12, { scale: new Vec3(1, 1, 1) }, { easing: 'quadIn' })
+      .delay(0.1)
+      .to(0.18, { scale: new Vec3(0.92, 0.92, 1) }, { easing: 'quadIn' })
+      .call(() => {
+        fx.shake(this.stage, 6 + tier * 3);
+        fx.ring(this.fly, 0, y, 100, 420, col);
+        fx.sparkle(this.fly, 0, y, 16 + tier * 4, 300, col, 40);
+        if (tier >= 1) fx.confetti(this.fly, 0, y, 16 + tier * 8, 360);
+      })
+      .to(0.12, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' })
       .start();
-    fx.sparkle(this.fly, 0, y, 18, 260, col, 40);
-    fx.ring(this.fly, 0, y, 80, 360, col);
-    fx.shake(this.stage, 8);
-    tween(holder)
-      .delay(0.75)
-      .to(0.35, { position: new Vec3(0, y + 140, 0) }, { easing: 'quadIn' })
-      .call(() => holder.destroy())
-      .start();
-    tween(opacity(holder)).delay(0.8).to(0.3, { opacity: 0 }).start();
+    fx.flash(this.fly, Screen.W, Screen.H, 50 + tier * 25, col);
+    // 停一下，缩小飞进连击计
+    const cx = COMBO_X;
+    const cy = Screen.top - 52;
+    fx.delay(this.fly, 0.95, () => {
+      if (!holder.isValid) return;
+      fx.flyArc(
+        holder,
+        cx,
+        cy,
+        0.32,
+        40,
+        'quadIn',
+        () => {
+          holder.destroy();
+          if (!this.comboRow.active) return;
+          const bd = this.comboBadge;
+          Tween.stopAllByTarget(bd);
+          bd.setScale(1.3, 1.3, 1);
+          tween(bd).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+          fx.sparkle(this.fly, cx, cy, 12, 140, col, 32);
+        },
+        0.15,
+      );
+      tween(opacity(holder)).delay(0.15).to(0.17, { opacity: 0 }).start();
+    });
     sfx('tier');
     App.platform.vibrate('light');
   }
 
   private missCombo(): void {
+    const had = this.comboRow.active && !this.comboBreaking;
     this.combo.miss();
-    this.comboRow.active = false;
+    this.setEdgeGlow(-1, COLOR.white);
+    if (!had) return;
+    // 断连：数字变灰，整块抖一下往下掉、淡出
+    this.comboBreaking = true;
+    this.comboLabel.color = COLOR.gray;
+    const row = this.comboRow;
+    Tween.stopAllByTarget(row);
+    const x = COMBO_X;
+    const y = Screen.top - 52;
+    tween(row)
+      .to(0.05, { position: new Vec3(x - 6, y, 0) })
+      .to(0.05, { position: new Vec3(x + 6, y, 0) })
+      .to(0.05, { position: new Vec3(x, y, 0) })
+      .to(0.25, { position: new Vec3(x, y - 24, 0) }, { easing: 'quadIn' })
+      .call(() => {
+        this.comboBreaking = false;
+        row.active = false;
+        at(row, x, y);
+        opacity(row).opacity = 255;
+      })
+      .start();
+    const op = opacity(row);
+    Tween.stopAllByTarget(op);
+    tween(op).delay(0.15).to(0.25, { opacity: 0 }).start();
   }
 
   // ---------------------------------------------------------------- 每帧
@@ -710,11 +855,9 @@ export class GamePage extends Page {
     if (this.paused || ui.currentName !== 'game' || popupCount() > 0) return;
     this.clock += dt;
     // 连击倒计时细条
-    if (this.comboRow.active) {
+    if (this.comboRow.active && !this.comboBreaking) {
       const left = Math.max(0, 1 - (this.clock - this.lastHit()) / App.config.eco.combo.windowSeconds);
-      size(this.comboBar, this.comboBarW * left, 14);
-      const skin = this.comboBar.getChildByName('skin');
-      if (skin) size(skin, this.comboBarW * left * 3, 42);
+      size(this.comboBar, this.comboBarW * left, 7);
       if (left <= 0) this.missCombo();
     }
     // 限时缸

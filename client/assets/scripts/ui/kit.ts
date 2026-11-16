@@ -105,6 +105,7 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_inset': ON_DARK,
   'skin/j_panel': ON_DARK,
   'skin/j_row': ON_DARK,
+  'skin/j_row_gold': ON_AMBER,
   'skin/j_popup': ON_DARK,
   'skin/j_key_blue': ON_BLUE,
   'skin/j_key_green': ON_GREEN,
@@ -230,6 +231,15 @@ const ALIAS: Record<string, [string, 'plate' | 'nine']> = {
   'kit/slot': ['skin/j_slot', 'nine'],
   'kit/slot_warn': ['skin/j_slot_warn', 'nine'],
   'kit/shelf': ['skin/j_shelf', 'plate'],
+  'kit/bar_track': ['skin/j_bar_track', 'plate'],
+  'kit/bar_track_light': ['skin/j_bar_track', 'plate'],
+  'kit/bar_yellow': ['skin/j_bar_yellow', 'plate'],
+  'kit/bar_green': ['skin/j_bar_green', 'plate'],
+  'kit/bar_blue': ['skin/j_bar_blue', 'plate'],
+  'kit/bar_purple': ['skin/j_bar_purple', 'plate'],
+  'kit/tag_red': ['skin/j_btn_red', 'plate'],
+  'kit/tag_amber': ['skin/j_btn_amber', 'plate'],
+  'kit/cell_gold': ['skin/j_row_gold', 'nine'],
 };
 const plates = new WeakSet<Node>();
 
