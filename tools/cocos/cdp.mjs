@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 调试用：连上 ./run.sh web-serve 开的 Chrome（--remote-debugging-port=9333），读控制台输出或在页面里求值。
+// 调试用：连上 ./run.sh（或 ./run.sh serve） 开的 Chrome（--remote-debugging-port=9333），读控制台输出或在页面里求值。
 // 用法：node tools/cocos/cdp.mjs logs [秒]        收集这么多秒的控制台输出和异常（会先刷新页面）
 //       node tools/cocos/cdp.mjs eval '<表达式>'   在页面里求值，打印 JSON
 //       node tools/cocos/cdp.mjs shot <输出.jpg> [x,y,w,h]  按 2 倍屏截图（可只截一块，比例 0~1）

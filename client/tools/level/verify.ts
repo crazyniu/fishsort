@@ -1,5 +1,5 @@
 // 校验关卡并输出难度报告（docs/02 第 5 节）。对应 Godot 版 tools/level/verify.gd。
-// 用法：./run.sh ts-level-verify [--runs=N] [文件...]   不给文件 = 全部，报告写到 tools/level/report.csv
+// 用法：./run.sh level-verify [--runs=N] [文件...]   不给文件 = 全部，报告写到 tools/level/report.csv
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';

@@ -1,6 +1,6 @@
 // 包体压缩（docs/09 第 8 步）：界面图、鱼、家园物件的 PNG 量化成 256 色调色板（libimagequant，带透明，肉眼无差），
 // 家园物件先缩到最大显示尺寸的 2 倍。已经是调色板 PNG 的跳过（可以反复跑，不会越压越糊）。
-// 用法：node tools/art/compress.mjs [--dry | --check]（--check：有没压过的图就报错，ts-check 用）
+// 用法：node tools/art/compress.mjs [--dry | --check]（--check：有没压过的图就报错，./run.sh check 用）
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -500,7 +500,10 @@ export function win(g: GamePage): void {
   } satisfies WinData);
 }
 
-/** 结算页关掉时：开放了新功能先回主页看解锁动画；否则按插屏频控弹插屏（docs/01 7.1） */
+/**
+ * 结算页关掉时：开放了新功能先回主页看解锁动画；否则按插屏频控弹插屏（docs/01 7.1）。
+ * 「下一关」接着刚打的那一关往后走（重玩旧关时不跳回最高进度，docs/01 5.7）。
+ */
 export async function afterResult(d: WinData, next: boolean): Promise<void> {
   const s = App.save.data;
   if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, mono())) {
@@ -508,7 +511,7 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
     App.save.write();
     await App.platform.showInterstitial('int_level_end');
   }
-  if (next && d.result.new_features.length === 0) startLevel(s.level);
+  if (next && d.result.new_features.length === 0) startLevel(Math.min(d.level + 1, s.level));
   else ui.go('home', { unlocked: d.result.new_features });
 }
 
