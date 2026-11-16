@@ -18,7 +18,7 @@ import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, Capsule, at, box, capsule, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text } from '../ui/kit';
+import { COLOR, Capsule, at, blockInput, box, capsule, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -86,6 +86,9 @@ export class GamePage extends Page {
   private returnY = 0;
   private skillNodes = new Map<SkillId, { node: Node; icon: Node; count: Label; lock: Node; plus: Node }>();
   private hintNode: Node | null = null;
+  /** 这一关要强制教的新技能（解锁关第一次能用上时压暗全屏只让点它，docs/01 第 8 节）；"" = 没有 */
+  tutor = '';
+  private tutorNode: Node | null = null;
   private idle = 0;
   private autoplayT = 0;
   private rng = new Rng(Date.now() >>> 0);
@@ -161,6 +164,7 @@ export class GamePage extends Page {
     this.plusNodes = [];
     this.skillNodes.clear();
     this.hintNode = null;
+    this.tutorNode = null;
     const eco = App.config.eco;
     const sea = eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore';
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
@@ -695,7 +699,8 @@ export class GamePage extends Page {
     this.idle += dt;
     const hint = App.config.ui.hint;
     const wait = this.arg.level <= hint.tutorialLevels ? hint.tutorialSeconds : hint.seconds;
-    if (!this.hintNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
+    if (!this.hintNode && !this.tutorNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
+    if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
     // 机器人代打（调试，?autoplay=1）
     if (App.flags.autoplay && this.s.status === Status.PLAYING) {
       this.autoplayT += dt;
@@ -721,6 +726,43 @@ export class GamePage extends Page {
         fx.breathe(this.hintNode, 0.12, 0.9);
       }
     } else this.hintNode = this.field.hint(t[0], t[1]);
+    // 教学关：再加一只手指点着它（docs/01 第 8 节：手指指向目标鱼）
+    if (this.hintNode && this.arg.level <= App.config.ui.hint.tutorialLevels) addFinger(this.hintNode);
+  }
+
+  /** 新技能教学：压暗全屏，只留这个技能键能点，上方一句「试试新技能」+ 手指 */
+  startTutorial(id: string, onUse: () => void): void {
+    const v = this.skillNodes.get(id as SkillId);
+    if (!v || this.tutorNode) return;
+    this.clearHint();
+    const layer = box('tutor', this.stage, Screen.W * 2, Screen.H * 2);
+    this.tutorNode = layer;
+    const shade = tint(layer, Screen.W * 2, Screen.H * 2, new Color(2, 16, 46, 160), 'shade');
+    blockInput(shade);
+    opacity(shade).opacity = 0;
+    tween(opacity(shade)).to(0.2, { opacity: 255 }).start();
+    const p = v.node.position;
+    const ring = img(layer, 'kit/fx_ring', 190, 190, 'ring');
+    (ring.getComponent(Sprite) as Sprite).color = new Color(255, 243, 107, 255);
+    at(ring, p.x, p.y + 10);
+    fx.breathe(ring, 0.15, 0.8);
+    const copy = img(layer, `icon/skill_${id}`, 130, 130, 'icon');
+    at(copy, p.x, p.y + 26);
+    onTap(copy, () => {
+      this.endTutorial();
+      onUse();
+    });
+    const tip = text(layer, tr('UI_SKILL_TRY', tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`)), 40, { color: COLOR.yellow });
+    at(tip.node, 0, p.y + 190);
+    fx.popIn(tip.node, 0.1, 0.25);
+    addFinger(copy);
+    sfx('unlock');
+  }
+
+  endTutorial(): void {
+    this.tutor = '';
+    this.tutorNode?.destroy();
+    this.tutorNode = null;
   }
 
   private clearHint(): void {
@@ -751,4 +793,21 @@ export class GamePage extends Page {
   fxLayer(): Node {
     return this.fly;
   }
+}
+
+/** 手指：指尖点在 target 中心偏下，上下点动 */
+function addFinger(target: Node): void {
+  const f = img(target, 'kit/finger', 100, 112, 'finger');
+  // 图里指尖在 (33/112, 4/126)：让指尖落在目标中心下方一点
+  const x = 50 - 33 * (100 / 112);
+  const y = -56 + 4 * (112 / 126) - 20;
+  at(f, x + 6, y);
+  f.angle = 18;
+  tween(f)
+    .repeatForever(
+      tween(f)
+        .to(0.35, { position: new Vec3(x + 6, y + 18, 0), scale: new Vec3(0.92, 0.92, 1) }, { easing: 'quadOut' })
+        .to(0.35, { position: new Vec3(x + 6, y, 0), scale: new Vec3(1, 1, 1) }, { easing: 'quadIn' }),
+    )
+    .start();
 }

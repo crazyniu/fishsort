@@ -548,6 +548,23 @@ book('book_4', ['#FFC07A', '#D9772A', '#8F4512']);
 book('book_5', ['#D6A8FF', '#8E4DE8', '#5A23A6']);
 book('book_6', ['#FFE680', '#E8B020', '#9A6C05']);
 
+// ---------------------------------------------------------------- 新手引导的手指（食指在左边缘竖起，指尖在上；另外三指蜷着）
+{
+  const [g, d] = lin([[0, '#FFFFFF'], [1, '#DCE8F6']]);
+  const shape = (fill, stroke, dy) => `<g transform="translate(0 ${dy})" fill="${fill}" stroke="${stroke}" stroke-width="5" stroke-linejoin="round">
+      <path d="M22 60 L22 16 Q22 4 33 4 Q44 4 44 16 L44 56 Q48 46 58 46 Q66 46 68 54 Q72 46 80 46 Q88 46 90 56 Q98 52 102 62 L102 90 Q102 118 76 118 L50 118 Q28 118 22 98 Z"/>
+      <path d="M22 70 Q10 66 8 78 Q8 88 24 96" />
+    </g>`;
+  part(
+    'finger',
+    112,
+    126,
+    `<defs>${d}</defs>${shape('#0A2B7A', '#0A2B7A', 5)}${shape(`url(#${g})`, C.navy, 0)}
+    <path d="M58 48 Q56 60 60 70 M80 48 Q78 60 82 70" fill="none" stroke="${C.navy}" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="33" cy="16" rx="6" ry="4" fill="#fff"/>`,
+  );
+}
+
 // ---------------------------------------------------------------- 特效、杂项
 {
   const [g, d] = rad([[0, '#fff', 0.95], [0.25, '#FFF6B0', 0.7], [1, '#FFD84A', 0]]);

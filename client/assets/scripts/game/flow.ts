@@ -21,7 +21,7 @@ import { mono, now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
 import { COLOR, at, button, img, text } from '../ui/kit';
-import { closeAllPopups, openPopup } from '../ui/popup';
+import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
 import { confirmLeave, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
 import type { GamePage } from './gameView';
@@ -62,8 +62,10 @@ export function onLevelStart(g: GamePage): void {
   if (mech) tips.push(mech);
   const extra = App.config.ui.tips[String(lvl)];
   if (extra) tips.push(extra);
+  // 解锁关的新技能：不弹窗，等第一次能用上时压暗全屏强制教（checkTutorial）
+  g.tutor = '';
   for (const id of Skills.ids(App.config.eco)) {
-    if (Skills.unlockLevel(App.config.eco, id) === lvl) tips.push(`skill_${id}`);
+    if (Skills.unlockLevel(App.config.eco, id) === lvl && !PlayerData.tipSeen(s, `skill_${id}`)) g.tutor = id;
   }
   const show = (i: number) => {
     const key = tips[i];
@@ -94,6 +96,22 @@ function tipPopup(key: string, done: () => void): void {
   at(l.node, 0, isSkill ? -40 : 40);
   const ok = button(p.body, { color: 'green', w: 340, h: 96, label: tr('GOT_IT'), onTap: () => p.close() });
   at(ok.node, 0, -170);
+}
+
+/** 新技能的强制教学：这一关第一次能用上它（有效果）时才开始；网兜要先有缸 */
+export function checkTutorial(g: GamePage): void {
+  const id = g.tutor;
+  if (!id || g.ended || g.paused || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay) return;
+  if ((g.used[id] ?? 0) > 0) {
+    g.tutor = '';
+    return;
+  }
+  if (id === 'blow' && g.s.buffer.length < App.config.ui.tutorial.blowMinBuffer) return;
+  if (hasEffect(g, id)) return;
+  const s = App.save.data;
+  PlayerData.markTip(s, `skill_${id}`);
+  App.save.write();
+  g.startTutorial(id, () => useSkill(g, id));
 }
 
 /** 第一步有效操作：每日挑战的免费次这时才记（docs/01 5.11） */
