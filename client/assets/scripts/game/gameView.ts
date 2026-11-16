@@ -94,6 +94,8 @@ export class GamePage extends Page {
   private comboBadge!: Node;
   private comboGlow!: Node;
   private comboNum!: Node;
+  private comboWord!: Node;
+  private comboWordW = 78;
   private comboBar!: Node;
   private comboX = 0;
   private comboW = 400;
@@ -234,15 +236,18 @@ export class GamePage extends Page {
     opacity(this.comboGlow).opacity = 120;
     this.comboBadge = plate(this.comboRow, 'skin/j_inset', COMBO_W, 82, 'badge');
     // 「连击」和数字都是 Codex 画的艺术字（中文用图，其它语言用字）
+    // 字和数字合成一组，在凹槽里居中（每次命中按数字宽度重新摆，见 hitCombo）
     if (language() === 'zh_CN') {
-      const word = img(this.comboBadge, 'skin/j_combo_word', 78, 64, 'word');
-      at(word, -COMBO_W / 2 + 62, 7);
+      this.comboWord = img(this.comboBadge, 'skin/j_combo_word', 78, 64, 'word');
+      (this.comboWord.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
+      this.comboWordW = 78;
     } else {
       const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 30, { align: 'left' });
-      at(word.node, -COMBO_W / 2 + 20, 7);
+      word.updateRenderData(true);
+      this.comboWord = word.node;
+      this.comboWordW = (word.node.getComponent(UITransform) as UITransform).width;
     }
     this.comboNum = box('num', this.comboBadge);
-    at(this.comboNum, -COMBO_W / 2 + 118, 7);
     const track = tint(this.comboBadge, this.comboBarW, 8, new Color(0, 10, 50, 150), 'track');
     at(track, 0, -30);
     this.comboBar = tint(this.comboBadge, this.comboBarW, 8, COLOR.yellow, 'bar');
@@ -735,7 +740,10 @@ export class GamePage extends Page {
     const was = this.comboRow.active && !this.comboBreaking;
     this.comboBreaking = false;
     this.showCombo(true);
-    artNumber(this.comboNum, `×${r.count}`, 62, 'left');
+    const dw = artNumber(this.comboNum, `×${r.count}`, 62, 'left');
+    const groupW = this.comboWordW + 14 + dw;
+    at(this.comboWord, -groupW / 2, 7);
+    at(this.comboNum, -groupW / 2 + this.comboWordW + 14, 7);
     // 连击金币：每次涨了从连击计右边飘一个「金币 +N」
     if (r.coins > 0) {
       const cl = text(null, `+${r.coins}`, 28, { color: COLOR.yellow });
