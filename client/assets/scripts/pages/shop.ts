@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, Capsule, INK, at, button, capsule, fmt, img, slice, text } from '../ui/kit';
+import { Btn, COLOR, Capsule, INK, at, hex, button, capsule, fmt, img, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -116,7 +116,8 @@ export class ShopPage extends Page {
     at(text(n, tr('H_LIVES_TITLE'), 32, { align: 'left' }).node, -w / 2 + 24, h / 2 - 44);
     this.heart = img(n, 'icon/heart', 72, 72, 'heart');
     at(this.heart, -w / 2 + 24 + 36, -28);
-    this.lifeCount = text(this.heart, '', 28, { color: COLOR.white });
+    this.lifeCount = text(this.heart, '', 28, { color: COLOR.white, outline: hex('#8A1F12') });
+    this.lifeCount.color = COLOR.white;
     at(this.lifeCount.node, 0, 2);
     this.lifeBtn = button(n, {
       color: 'green',

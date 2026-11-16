@@ -12,7 +12,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, at, box, button, img, lazyImg, onTap, opacity, redDot, slice, text } from '../ui/kit';
+import { Btn, at, box, button, img, lazyImg, onTap, opacity, redDot, resizeSlice, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -78,8 +78,8 @@ export class HomePage extends Page {
     this.levelPill = slice(root, 'kit/title_plate', 200, 56, 'levelPill');
     at(this.levelPill, 0, btnY + 64 + 24 + 28);
     this.levelLabel = text(this.levelPill, '', 30);
-    this.tag = slice(this.levelPill, 'kit/tag_red', 88, 44, 'tag');
-    at(this.tag, 100 + 16 + 44, 0);
+    // 挑战关：关卡号条加宽，左边放红色「挑战」小标（不歪斜、不出条外）
+    this.tag = slice(this.levelPill, 'kit/tag_red', 84, 40, 'tag');
     text(this.tag, tr('UI_CHALLENGE_TAG'), 24);
   }
 
@@ -186,6 +186,9 @@ export class HomePage extends Page {
     const hard = LevelCurve.isChallenge(App.config.curve, file);
     this.start.setColor('green');
     this.tag.active = hard;
+    resizeSlice(this.levelPill, hard ? 296 : 200, 56);
+    at(this.tag, -296 / 2 + 8 + 42, 0);
+    at(this.levelLabel.node, hard ? 46 : 0, 0);
     for (const e of this.entries.values()) {
       const open = Features.isUnlocked(eco, e.feature, lvl);
       e.lock.active = !open;

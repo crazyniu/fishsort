@@ -12,7 +12,7 @@ import { applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import { language, setLanguage, tr } from './i18n';
-import { COLOR, at, box, button, img, onTap, opacity, setImg, slice, text } from './kit';
+import { COLOR, LIGHT_INK, at, box, button, img, onTap, opacity, setImg, slice, text } from './kit';
 import { openPopup, Popup } from './popup';
 import { Screen } from './screen';
 import { ui } from './shell';
@@ -363,7 +363,13 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     at(zh.node, -64, 0);
     const en = text(seg, 'English', 26);
     at(en.node, 64, 0);
-    const place = () => at(on, language() === 'zh_CN' ? -64 : 64, 0);
+    const place = () => {
+      const zhOn = language() === 'zh_CN';
+      at(on, zhOn ? -64 : 64, 0);
+      // 选中的一段是蓝色果冻，字用白色
+      zh.color = zhOn ? COLOR.white : LIGHT_INK.text;
+      en.color = zhOn ? LIGHT_INK.text : COLOR.white;
+    };
     place();
     onTap(seg, () => {
       setLanguage(language() === 'zh_CN' ? 'en' : 'zh_CN');

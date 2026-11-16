@@ -508,8 +508,9 @@ export function capsule(parent: Node, w: number, h: number, iconPath: string | n
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
     icon.setPosition(-w / 2 + h * 0.5, 0, 0);
   }
-  const label = text(n, s, fontSize);
-  label.node.setPosition(iconPath ? h * 0.42 : 0, 0, 0);
+  // 有图标：数字左对齐紧跟图标；没图标：居中
+  const label = text(n, s, fontSize, iconPath ? { align: 'left' } : {});
+  label.node.setPosition(iconPath ? -w / 2 + h * 0.96 + 8 : 0, 0, 0);
   return { node: n, label, icon, set: (v: string) => (label.string = v) };
 }
 

@@ -158,7 +158,6 @@ class TopBar {
     onTap(this.plate, actions.profile);
     this.coins = capsule(this.node, 228, 64, 'icon/coin', '0', 30);
     at(this.coins.node, L + 92 + 24 + 114, 0);
-    this.coins.label.node.setPosition(-6, 0, 0);
     const plus = img(this.coins.node, 'kit/round_green', 48, 48, 'plus');
     img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
     at(plus, 228 / 2 - 30, 0);
