@@ -99,7 +99,7 @@ export class BasePage extends Page {
         const sp = o.getComponent(Sprite) as Sprite;
         sp.grayscale = true;
         sp.color = hex('#1C3F86');
-        opacity(o).opacity = 150;
+        opacity(o).opacity = 215;
       }
       this.objects.push(o);
     });
