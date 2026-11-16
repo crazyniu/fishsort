@@ -68,7 +68,8 @@ export class ShopPage extends Page {
     const M = 20;
     const G = 16;
     const cardW = (Screen.W - M * 2 - G) / 2;
-    const y1 = Screen.bottom + TABBAR_H + 22;
+    // 选中的页签方块会高出底栏一截，下面多留一点
+    const y1 = Screen.bottom + TABBAR_H + 36;
     const rowH = 172;
     const room = titleY - 42 - 22 - y1;
     const cardH = Math.min(410, (room - rowH - G * 2) / 2);

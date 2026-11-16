@@ -66,15 +66,15 @@ class TabBar {
     this.node = plate(parent, 'skin/j_bar_tab', w, TABBAR_H, 'tabbar');
     at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(6, Screen.safeBottom));
     blockInput(this.node);
-    const cw = (w - 16) / TABS.length;
+    const cw = (w - 28) / TABS.length;
     for (let i = 1; i < TABS.length; i++) {
       const line = tint(this.node, 3, 84, hex('#0A2A8A'), 'sep');
       opacity(line).opacity = 90;
-      at(line, -w / 2 + 8 + cw * i, 0);
+      at(line, -w / 2 + 14 + cw * i, 0);
     }
     this.sel = img(this.node, 'skin/j_tile', cw + 2, ((cw + 2) * 512) / 420, 'sel');
     TABS.forEach((t, i) => {
-      const x = -w / 2 + 8 + cw * (i + 0.5);
+      const x = -w / 2 + 14 + cw * (i + 0.5);
       const cell = box(t, this.node, cw, TABBAR_H);
       at(cell, x, 0);
       const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
