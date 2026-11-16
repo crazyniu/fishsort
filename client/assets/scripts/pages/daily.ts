@@ -60,8 +60,8 @@ export class DailyPage extends Page {
     const top = Screen.top;
     const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
     at(back, -Screen.W / 2 + 70, top - 80);
-    const title = slice(v, 'kit/title_page', 420, 104, 'title');
-    at(title, 20, top - 80);
+    const title = slice(v, 'kit/title_page', 420, 100, 'title');
+    at(title, 0, top - 80);
     at(text(title, tr('DAILY_TITLE'), 60).node, 0, 4);
 
     // 大宝箱

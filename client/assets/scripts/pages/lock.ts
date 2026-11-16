@@ -91,7 +91,8 @@ export function lockView(parent: Node, feature: string, bottom: number): void {
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
   const top = Screen.top;
   const title = slice(parent, 'kit/title_page', 360, 100, 'title');
-  at(title, 0, top - 110);
+  // 页头和别的子页面一致：标题牌在 top - 80，返回键 96、在左上同一高度
+  at(title, 0, top - 80);
   text(title, tr(NAME[feature] ?? feature), 56).node.setPosition(0, 4, 0);
   const span = top - 170 - (Screen.bottom + bottom);
   const artY = top - 170 - span * 0.32;
@@ -133,8 +134,8 @@ export class LockPage extends Page {
     const feature = (arg as { feature: string }).feature;
     const holder = box('holder', this.root);
     lockView(holder, feature, 0);
-    const back = iconButton(this.root, 'kit/round_blue', 'kit/ic_back', 84, () => ui.back());
-    at(back, -Screen.W / 2 + 60, Screen.top - 60);
+    const back = iconButton(this.root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
+    at(back, -Screen.W / 2 + 70, Screen.top - 80);
   }
 }
 
@@ -149,8 +150,8 @@ export class TodoPage extends Page {
   build(root: Node): void {
     lockView(root, this.feature, this.tab ? TABBAR_H : 0);
     if (!this.tab) {
-      const back = iconButton(root, 'kit/round_blue', 'kit/ic_back', 84, () => ui.back());
-      at(back, -Screen.W / 2 + 60, Screen.top - 60);
+      const back = iconButton(root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
+      at(back, -Screen.W / 2 + 70, Screen.top - 80);
     }
   }
 }

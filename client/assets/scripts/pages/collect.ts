@@ -214,10 +214,10 @@ export class CollectPage extends Page {
     const eco = App.config.eco;
     const b = Album.books(eco)[i];
     const top = Screen.top;
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 90, () => this.back());
+    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
     at(back, -Screen.W / 2 + 70, top - 80);
-    const title = slice(v, 'kit/title_page', 360, 96, 'title');
-    at(title, 30, top - 80);
+    const title = slice(v, 'kit/title_page', 360, 100, 'title');
+    at(title, 0, top - 80);
     at(text(title, tr(`ALBUM_BOOK_${i + 1}`), 50).node, 0, 4);
 
     // 大奖条：金币 + 每种技能 ×n + 进度
