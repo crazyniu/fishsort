@@ -13,7 +13,7 @@ import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
-import { tr } from '../ui/i18n';
+import { language, tr } from '../ui/i18n';
 import { at, box, hex, iconButton, img, lazyImg, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
@@ -209,11 +209,15 @@ export class LevelsPage extends Page {
       // 挑战关：插一面「挑战」旗
       const flag = box('flag', holder, 150, 90);
       at(flag, -size * 0.32, size * 0.55);
-      const f = img(flag, 'kit/flag', 72, 81, 'pole');
-      at(f, -30, 0);
-      const tag = slice(flag, 'kit/btn_red', 110, 50, 'tag');
-      at(tag, 30, 16);
-      at(text(tag, tr('UI_CHALLENGE'), 28).node, 0, 3);
+      const f = img(flag, 'skin/j_flag', 104, 112, 'pole');
+      at(f, -10, 10);
+      // 中文「挑战」两个字写在红旗上；其它语言字长，放一块红色小牌
+      if (language() === 'zh_CN') at(text(f, tr('UI_CHALLENGE'), 26).node, 12, 24);
+      else {
+        const tag = slice(flag, 'kit/btn_red', 130, 48, 'tag');
+        at(tag, 50, 16);
+        at(text(tag, tr('UI_CHALLENGE'), 24).node, 0, 3);
+      }
       fx.wiggle(flag, 4, 2.2);
     }
     if (done) {

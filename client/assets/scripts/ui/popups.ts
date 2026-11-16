@@ -12,7 +12,10 @@ import { applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import { language, setLanguage, tr } from './i18n';
-import { COLOR, DARK_INK, LIGHT_INK, at, box, button, fmt, hex, img, onTap, opacity, setImg, setInk, slice, text, twoLines } from './kit';
+import { COLOR, DARK_INK, at, box, button, fmt, hex, img, onTap, opacity, setImg, setInk, slice, text, twoLines } from './kit';
+
+/** 语言选择里没选中那一段的字色 */
+const SEG_DIM = hex('#A9C8F0');
 import { openPopup, Popup } from './popup';
 import { Screen } from './screen';
 import { ui } from './shell';
@@ -355,16 +358,16 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     const seg = slice(row, 'kit/seg_bg', 256, 64, 'seg');
     at(seg, 556 / 2 - 16 - 128, 0);
     const on = slice(seg, 'kit/seg_on', 128, 64, 'on');
-    const zh = text(seg, '中文', 26);
-    at(zh.node, -64, 0);
+    const zh = text(seg, '中文', 28);
+    at(zh.node, -64, 2);
     const en = text(seg, 'English', 26);
-    at(en.node, 64, 0);
+    at(en.node, 64, 2);
     const place = () => {
       const zhOn = language() === 'zh_CN';
       at(on, zhOn ? -64 : 64, 0);
-      // 选中的一段是蓝色果冻，字用白色
-      zh.color = zhOn ? COLOR.white : LIGHT_INK.text;
-      en.color = zhOn ? LIGHT_INK.text : COLOR.white;
+      // 深色凹槽里，选中的一段是蓝色果冻；没选中的字淡一点
+      zh.color = zhOn ? COLOR.white : SEG_DIM;
+      en.color = zhOn ? SEG_DIM : COLOR.white;
     };
     place();
     onTap(seg, () => {

@@ -1,0 +1,5 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE square image (1024x1024). Pure flat BLACK background (#000000) everywhere.
+In the center draw a single EMPTY round soap bubble, about 820 px across, perfectly circular, not touching the image border, matching the glossy bubbles in the attached reference image (reference is for material only; do NOT draw any fish).
+The bubble: crystal clear and fully transparent inside (the inside stays pure black like the background, as if lit on a black backdrop), a crisp thin rim with a soft iridescent rainbow sheen (cyan, lilac, pink, mint) that is a little stronger along the lower right edge, a bold curved white glossy highlight arc on the upper left, a small round white highlight dot on the lower right, and a faint light-cyan inner glow just inside the rim.
+No fish, no objects inside, no text, no cast shadow, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

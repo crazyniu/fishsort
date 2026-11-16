@@ -168,6 +168,7 @@ export function at(n: Node, x: number, y: number): Node {
 
 /** 普通图片。不给尺寸就按图的显示尺寸；只给宽就按比例 */
 export function img(parent: Node | null, path: string, w?: number, h?: number, name = path): Node {
+  path = IMG_ALIAS[path] ?? path;
   const n = box(name, parent);
   const sp = n.addComponent(Sprite);
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
@@ -195,7 +196,7 @@ export function setFrame(n: Node, f: SpriteFrame | null, w?: number, h?: number)
 }
 
 export function setImg(n: Node, path: string, w?: number, h?: number): void {
-  setFrame(n, frame(path), w, h);
+  setFrame(n, frame(IMG_ALIAS[path] ?? path), w, h);
 }
 
 /** 大图（背景、家园场景）：先建节点，读到再显示 */
@@ -240,6 +241,17 @@ const ALIAS: Record<string, [string, 'plate' | 'nine']> = {
   'kit/tag_red': ['skin/j_btn_red', 'plate'],
   'kit/tag_amber': ['skin/j_btn_amber', 'plate'],
   'kit/cell_gold': ['skin/j_row_gold', 'nine'],
+  'kit/seg_bg': ['skin/j_bar_track', 'plate'],
+  'kit/seg_on': ['skin/j_btn_blue', 'plate'],
+};
+/** img() 用的旧圆键 → 新的果冻方键 */
+const IMG_ALIAS: Record<string, string> = {
+  'kit/round_green': 'skin/j_key_green',
+  'kit/round_red': 'skin/j_key_red',
+  'kit/round_blue': 'skin/j_key_blue',
+  'kit/dot_red': 'skin/j_dot',
+  'kit/bubble': 'skin/j_bubble',
+  'kit/bubble_small': 'skin/j_bubble',
 };
 const plates = new WeakSet<Node>();
 

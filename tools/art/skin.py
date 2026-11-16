@@ -165,6 +165,19 @@ def scaled(im: Image.Image, k: float) -> Image.Image:
     return im.convert('RGBa').resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS).convert('RGBA')
 
 
+def light_on_black(path: Path, size: int) -> Image.Image:
+    """黑底上的发光 / 透明物体：alpha = 最亮通道，颜色 = rgb / alpha（反预乘）。裁到外接正方形再缩放。"""
+    a = np.asarray(Image.open(path).convert('RGB')).astype(np.float32) / 255.0
+    al = np.clip((a.max(-1) - 0.04) / 0.96, 0, 1)
+    col = np.clip(a / np.maximum(al, 1e-3)[..., None], 0, 1)
+    out = Image.fromarray(np.clip(np.dstack([col, al]) * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
+    ys, xs = np.nonzero(al > 0.08)
+    cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
+    r = max(xs.max() - xs.min(), ys.max() - ys.min()) / 2 + 4
+    out = out.crop((int(cx - r), int(cy - r), int(cx + r), int(cy + r)))
+    return out.convert('RGBa').resize((size, size), Image.LANCZOS).convert('RGBA')
+
+
 def main() -> None:
     raw = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / 'art/raw/ui_skin'
     OUT.mkdir(parents=True, exist_ok=True)
@@ -295,6 +308,17 @@ def main() -> None:
         b, f = cut_grid(raw / 'burst.png', 2, 1)
         save('j_burst', scaled(b, 600 / b.width))
         save('j_flame', scaled(f, 420 / f.width))
+
+    # 局内零件：教学手指、挑战旗、锁链、红点
+    if (raw / 'misc.png').exists():
+        finger, flag, chain, dot = cut_grid(raw / 'misc.png', 2, 2)
+        save('j_finger', scaled(finger, 330 / finger.height))
+        save('j_flag', scaled(flag, 270 / flag.height))
+        save('j_chain', scaled(chain, 450 / chain.width))
+        save('j_dot', scaled(dot, 96 / dot.width))
+    # 气泡：黑底上出图，按亮度还原透明度（光是「加」上去的，里面全透明，高光和彩虹边都留住）
+    if (raw / 'bubble.png').exists():
+        save('j_bubble', light_on_black(raw / 'bubble.png', 480))
 
     save('j_inset', *inset())
 

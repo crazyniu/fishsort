@@ -1026,10 +1026,10 @@ export class GamePage extends Page {
 
 /** 手指：指尖点在 target 中心偏下，上下点动 */
 function addFinger(target: Node): void {
-  const f = img(target, 'kit/finger', 100, 112, 'finger');
-  // 图里指尖在 (33/112, 4/126)：让指尖落在目标中心下方一点
-  const x = 50 - 33 * (100 / 112);
-  const y = -56 + 4 * (112 / 126) - 20;
+  const f = img(target, 'skin/j_finger', 84, 120, 'finger');
+  // 图里指尖在宽度 30%、最顶上：让指尖落在目标中心下方一点
+  const x = 42 - 0.3 * 84;
+  const y = -60 - 20;
   at(f, x + 6, y);
   f.angle = 18;
   tween(f)

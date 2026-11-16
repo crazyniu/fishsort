@@ -245,7 +245,7 @@ export class Field {
     };
     this.drawLinks(v, s.bubbles[i].pairs);
     if (d.chain > 0) {
-      v.chain = img(body, 'kit/chain', r * 1.9, r * 1.9, 'chain');
+      v.chain = img(body, 'skin/j_chain', r * 2.0, r * 1.7, 'chain');
       const badge = img(v.chain, 'kit/round_red', 64, 64, 'badge');
       at(badge, r * 0.62, -r * 0.62);
       v.chainLabel = text(badge, String(d.chain), 36);

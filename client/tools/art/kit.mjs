@@ -461,12 +461,14 @@ async function render(name) {
 const sheetAt = process.argv.indexOf('--sheet');
 const args = process.argv.slice(2).filter((a, i) => !a.startsWith('--') && i + 2 !== sheetAt + 1);
 mkdirSync(OUT, { recursive: true });
-for (const name of args.length ? args : [...parts.keys()]) {
+// 已换成 Codex 位图部件（ui/skin）、不再用的旧部件：不再输出（docs/03 第 5 节）
+const RETIRED = new Set(["bg_page", "book_1", "book_2", "book_3", "book_4", "book_5", "book_6", "bowl", "btn_blue_down", "btn_gray_down", "btn_green_down", "btn_orange", "btn_purple", "btn_red_down", "btn_yellow_down", "card_common", "card_epic", "card_legend", "card_rare", "card_slot", "card_uncommon", "close", "fog", "medal_1", "medal_2", "medal_3", "node_challenge", "node_challenge_done", "node_current", "node_done", "node_locked", "path_dot", "ribbon_blue", "ribbon_gray", "round_blue_down", "round_green_down", "round_red_down", "toggle_off", "toggle_on"]);
+for (const name of args.length ? args : [...parts.keys()].filter((n) => !RETIRED.has(n))) {
   if (!parts.has(name)) throw new Error(`没有这个部件：${name}`);
   await render(name);
 }
 writeFileSync(join(ROOT, 'tools/art/slices.json'), JSON.stringify(slices, null, 2) + '\n');
-console.log(`✓ 画了 ${args.length || parts.size} 个部件 → assets/resources/ui/kit（${RES} 倍）`);
+console.log(`✓ 画了 ${args.length || parts.size - RETIRED.size} 个部件 → assets/resources/ui/kit（${RES} 倍）`);
 
 if (process.argv.includes('--sheet')) {
   // 总览：深浅两种底各放一份，200% 放大看边缘（docs/09 第 7 节第 6 条）
