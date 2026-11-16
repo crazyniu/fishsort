@@ -5,7 +5,10 @@ import { DEBUG } from 'cc/env';
 import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
+import { AdTestPage } from './pages/adtest';
 import { BasePage } from './pages/base';
+import { PlatformDebug } from './platform/platformDebug';
+import { mockAdView } from './ui/mockAd';
 import { CollectPage } from './pages/collect';
 import { DailyPage } from './pages/daily';
 import { LevelsPage } from './pages/levels';
@@ -57,6 +60,8 @@ export class Boot extends Component {
       profile: () => profilePopup(),
     };
     ui.init(canvas, topActions);
+    // 调试平台：广告弹模拟广告页（docs/01 7.2）；机器人代打时直接算看完
+    if (App.platform instanceof PlatformDebug && !App.flags.autoplay) App.platform.view = mockAdView(() => ui.toasts);
     ui.register('home', () => new HomePage());
     ui.register('game', () => new GamePage());
     ui.register('result', () => new ResultPage());
@@ -68,7 +73,7 @@ export class Boot extends Component {
     ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new WheelPage());
-    ui.register('adtest', () => new TodoPage(null, 'wheel'));
+    ui.register('adtest', () => new AdTestPage());
     ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
     // 调试：?level=N 直接进关

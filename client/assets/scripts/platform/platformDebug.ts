@@ -5,24 +5,44 @@ import { AdResult, Capability, PlatformBase, Profile, RankEntry } from './platfo
 
 const PREFIX = 'fishsort.';
 
+/** 模拟广告页由界面层提供（平台层不碰界面）：Boot 启动时注入 */
+export interface MockAdView {
+  show(kind: 'rewarded' | 'interstitial', placement: string): Promise<AdResult>;
+  banner(placement: string | null): void;
+}
+
 export class PlatformDebug extends PlatformBase {
   readonly id = 'debug';
   /** 广告测试页可以把它关掉，检查「广告不可用」时的降级表现 */
   adsOn = true;
+  view: MockAdView | null = null;
+  /** 今天每个广告位展示了几次（广告测试页看） */
+  shown: Record<string, number> = {};
 
   override adsAvailable(): boolean {
     return this.adsOn;
   }
 
-  // 模拟广告页（倒计时、看完 / 中途关闭 / 加载失败三个按钮）在第 7 步做；之前直接算看完
+  // 模拟广告页（docs/01 7.2）：激励视频全屏、5 秒倒计时，「看完」「中途关闭」「加载失败」；插屏 1 秒后出关闭键
   override async showRewarded(placement: string): Promise<AdResult> {
     if (!this.adsOn) return 'unavailable';
-    console.log(`[ad] 模拟激励视频 ${placement}：直接算看完`);
-    return 'done';
+    this.shown[placement] = (this.shown[placement] ?? 0) + 1;
+    if (!this.view) return 'done';
+    return this.view.show('rewarded', placement);
   }
 
   override async showInterstitial(placement: string): Promise<void> {
-    if (this.adsOn) console.log(`[ad] 模拟插屏 ${placement}`);
+    if (!this.adsOn) return;
+    this.shown[placement] = (this.shown[placement] ?? 0) + 1;
+    if (this.view) await this.view.show('interstitial', placement);
+  }
+
+  override showBanner(placement: string): void {
+    if (this.adsOn) this.view?.banner(placement);
+  }
+
+  override hideBanner(): void {
+    this.view?.banner(null);
   }
 
   // 开发阶段分享即成功（微信对分享得奖励有限制，接平台时按当时规则改）
