@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """有音高的音效：用真实乐器采样（FluidR3_GM 音色库，MIT 许可）按谱子渲染出来，不用现成的音效素材。
-界面点击、开关、连击命中 / 升档 / 断连、满缸、星星、金币、开箱、过关、失败都在这里；
+界面点击、底栏切页、开关、连击命中 / 升档 / 断连、满缸、星星、金币、开箱、过关、失败都在这里；
 水花、破泡、翻卡这类「拟音」仍然由 kenney.py 从 Kenney 的 CC0 包里挑。
 全部在 C 大调 / C 五声音阶上，和背景音乐同调，叠在一起不打架。
 
@@ -111,6 +111,16 @@ def bloop(f0: float, f1: float, sec: float, decay: float = 5.0) -> np.ndarray:
     return (np.sin(ph) + 0.18 * np.sin(2 * ph)) * np.exp(-t * decay / sec) * np.minimum(1, t * 400)
 
 
+def toot(freq: float, sec: float) -> np.ndarray:
+    """「嘟」的一声：圆润的短音。基音为主，带一点二、三次泛音；8 毫秒起音，后半段平滑收掉；音高开头略微往上滑一点"""
+    t = np.arange(int(SR * sec)) / SR
+    f = freq * (1 - 0.06 * np.exp(-t * 90))
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    wave_ = np.sin(ph) + 0.22 * np.sin(2 * ph) + 0.07 * np.sin(3 * ph)
+    env = np.minimum(1, t / 0.008) * np.minimum(1, (sec - t) / (sec * 0.55)) ** 1.5
+    return wave_ * env
+
+
 def add(base: np.ndarray, sig: np.ndarray, at: float, gain: float) -> np.ndarray:
     i = int(at * SR)
     if i + len(sig) > len(base):
@@ -148,6 +158,12 @@ def main() -> None:
     # ---- 界面：短、软、圆。卡林巴 / 马林巴的一个音 + 一层水泡声
     x = r.render([(0, KALIMBA, C6 + 7, 78, 0.1)], 0.3)
     save("tap", add(x, bloop(620, 980, 0.05), 0, 0.012), 0.42, 0.16)
+    # 底栏切页：「嘟嘟」两声（用户 2026-11-16）——圆润的短音，第二声高一点。不用乐器采样，直接合成：基音加一点二、三次泛音，
+    # 起音软、收得快，像吹了两下小哨子
+    x = np.zeros(int(SR * 0.3))
+    x = add(x, toot(523.25, 0.075), 0, 1.0)
+    x = add(x, toot(659.25, 0.09), 0.095, 1.0)
+    save("tab", x, 0.42, 0.26, 0.02)
     # 开关：开 = 两个音往上，关 = 两个音往下
     x = r.render([(0, KALIMBA, C6 + 4, 76, 0.1), (0.07, KALIMBA, C6 + 9, 88, 0.14)], 0.5)
     save("toggle_on", add(x, bloop(500, 900, 0.06), 0.07, 0.01), 0.45, 0.3)

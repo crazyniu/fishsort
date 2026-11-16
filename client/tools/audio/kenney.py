@@ -18,7 +18,6 @@ OUT = Path(__file__).resolve().parents[2] / "assets" / "resources" / "audio"
 
 # 游戏里的音效名 → (包内文件名, 音量)
 PICK = {
-    "tab": ("drop_004.ogg", 0.5),  # 底栏切页：一声很短很轻的水滴（用户 2026-11-16：乐器音当切页音不合适）
     "error": ("error_004.ogg", 0.7),  # 点了没用 / 金币不够
     "whoosh": ("pluck_002.ogg", 0.85),  # 点鱼：鱼从气泡里弹出来
     "splash": ("drop_002.ogg", 0.9),  # 鱼落进鱼缸

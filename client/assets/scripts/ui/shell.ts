@@ -10,7 +10,7 @@ import * as Lives from '../core/meta/lives';
 import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
 import { now, today } from '../services/clock';
-import { breathe, fadeIn, popIn } from './fx';
+import { breathe, fadeIn, popIn, ring, sparkle } from './fx';
 import { tr } from './i18n';
 import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
@@ -56,6 +56,8 @@ export abstract class Page {
   }
 }
 
+const PAGE_TAG = 9104;
+
 class TabBar {
   node: Node;
   private sel: Node;
@@ -92,22 +94,54 @@ class TabBar {
     this.select('home', false);
   }
 
+  /**
+   * 切页签的动效（用户 2026-11-16）：选中块带着过冲滑过去、路上横向拉长一点；新图标先缩一下再弹起来、左右晃一下落定，
+   * 脚下冒一圈光和几颗星光；字弹一下变白；旧图标缩回去
+   */
   select(t: Tab, animate = true): void {
     const prev = this.cells.get(this.current);
-    if (prev) {
+    const same = this.current === t;
+    if (prev && !same) {
       Tween.stopAllByTarget(prev.icon);
-      prev.icon.setScale(1, 1, 1);
-      at(prev.icon, 0, 22);
+      prev.icon.angle = 0;
       prev.label.color = TAB_DIM;
+      if (animate) tween(prev.icon).to(0.14, { scale: new Vec3(1, 1, 1), position: new Vec3(0, 22, 0) }, { easing: 'quadOut' }).start();
+      else {
+        prev.icon.setScale(1, 1, 1);
+        at(prev.icon, 0, 22);
+      }
     }
     this.current = t;
     const c = this.cells.get(t) as { node: Node; icon: Node; label: Label };
     const x = c.node.position.x;
     c.label.color = COLOR.white;
     Tween.stopAllByTarget(this.sel);
-    if (animate) tween(this.sel).to(0.16, { position: new Vec3(x, 9, 0) }, { easing: 'quadOut' }).start();
-    else at(this.sel, x, 9);
-    tween(c.icon).to(0.16, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 30, 0) }, { easing: 'quadOut' }).start();
+    Tween.stopAllByTarget(c.icon);
+    Tween.stopAllByTarget(c.label.node);
+    c.label.node.setScale(1, 1, 1);
+    if (!animate || same) {
+      at(this.sel, x, 9);
+      this.sel.setScale(1, 1, 1);
+      c.icon.angle = 0;
+      c.icon.setScale(1.14, 1.14, 1);
+      at(c.icon, 0, 30);
+      return;
+    }
+    tween(this.sel)
+      .to(0.1, { scale: new Vec3(1.14, 0.94, 1) }, { easing: 'quadOut' })
+      .to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .start();
+    tween(this.sel).to(0.24, { position: new Vec3(x, 9, 0) }, { easing: 'backOut' }).start();
+    c.icon.setScale(0.86, 0.86, 1);
+    tween(c.icon)
+      .to(0.14, { scale: new Vec3(1.3, 1.3, 1), position: new Vec3(0, 46, 0), angle: -9 }, { easing: 'quadOut' })
+      .to(0.1, { scale: new Vec3(1.1, 1.18, 1), position: new Vec3(0, 28, 0), angle: 7 }, { easing: 'quadIn' })
+      .to(0.12, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 30, 0), angle: 0 }, { easing: 'backOut' })
+      .start();
+    c.label.node.setScale(1.22, 1.22, 1);
+    tween(c.label.node).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    ring(this.node, x, 24, 70, 190, hex('#BFF2FF'));
+    sparkle(this.node, x, 30, 6, 86, hex('#E6FBFF'), 24);
   }
 
   refresh(): void {
@@ -320,6 +354,13 @@ export class Shell {
     next.node.active = true;
     next.show(arg);
     fadeIn(next.node, 0.15);
+    // 页签之间切换：新页面从略大一点收回原大（和底栏的切换动效一起，有「切过来」的感觉；只放大不位移，边上不露底）
+    Tween.stopAllByTag(PAGE_TAG, next.node);
+    next.node.setScale(1, 1, 1);
+    if (prev && next.tab !== null && prev.page.tab !== null) {
+      next.node.setScale(1.035, 1.035, 1);
+      tween(next.node).tag(PAGE_TAG).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' }).start();
+    }
     this.tabbar.node.active = next.tab !== null;
     this.topbar.node.active = next.topBar;
     if (next.tab !== null) {
