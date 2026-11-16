@@ -1,7 +1,8 @@
 // 商店页签（定版图 04，docs/01 7.4、docs/09 第 4 节）：金币买技能（2×2 卡片）、金币买生命、看广告领金币。
-// 海底场景做背景，卡片是蓝色玻璃面板、白字。顶栏只在主页，这里标题右边放一个金币条显示余额。
-// 技能卡上写已有数量；没解锁的灰色带锁和「第 N 关」。金币不够：按钮照常可点，点了弹「金币不足」（spend）。
-import { Label, Node, Sprite, Tween, UITransform } from 'cc';
+// 海底场景做背景，卡片是蓝色玻璃面板、白字。上面是完整顶栏（金币、生命都要看得到，docs/01 5.3），下面居中的标题牌。
+// 六张卡片同一种排法：左上名字、右上小字状态、中间图标、下面按钮。没解锁的技能换灰色锁定条和「第 N 关」。
+// 金币不够：按钮照常可点，点了弹「金币不足」（spend）。
+import { Node, Sprite, Tween, UITransform } from 'cc';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
 import * as Skills from '../core/meta/skills';
@@ -39,8 +40,7 @@ const SOFT = hex('#D4ECFF');
 
 export class ShopPage extends Page {
   readonly tab = 'shop' as const;
-  private coins!: Label;
-  private coinIcon!: Node;
+  override readonly topBar = true;
   private cards: SkillCard[] = [];
   private lifeBtn!: Btn;
   private lifeCount!: ReturnType<typeof text>;
@@ -48,28 +48,23 @@ export class ShopPage extends Page {
   private adBtn!: Btn;
   private adLeft!: ReturnType<typeof text>;
   private rows: Node[] = [];
-  private deco!: Node;
+  private deco: Node[] = [];
 
   build(root: Node): void {
     const eco = App.config.eco;
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
-    const top = Screen.top;
-    // 标题牌居中，右边是金币余额条
-    const titleY = top - 76;
-    const title = plate(root, 'skin/j_plate', 248, 88, 'title');
+    // 顶栏下面：标题牌居中，两侧各一条小鱼（定版图 04）；小鱼上下浮动是全页唯一的常驻动效
+    const titleY = Screen.top - 122 - 14 - 40;
+    const title = plate(root, 'skin/j_plate', 236, 80, 'title');
     at(title, 0, titleY);
-    at(text(title, tr('UI_TAB_SHOP'), 58).node, 0, 3);
-    // 标题左边一条小鱼，和右边的金币条配平（定版图 04 标题两侧有鱼）；全页唯一的常驻动效
-    this.deco = img(root, 'fish/c17', 92, 92, 'deco');
-    at(this.deco, -194, titleY + 2);
-    const CHIP = 214;
-    const chip = plate(root, 'skin/j_bar_top', CHIP, 68, 'coins');
-    at(chip, Screen.W / 2 - 20 - CHIP / 2, titleY);
-    this.coinIcon = img(chip, 'icon/coin', 54, 54, 'icon');
-    at(this.coinIcon, -CHIP / 2 + 36, 2);
-    this.coins = text(chip, '0', 32, { align: 'left' });
-    at(this.coins.node, -CHIP / 2 + 68, 2);
+    at(text(title, tr('UI_TAB_SHOP'), 54).node, 0, 3);
+    for (const [id, x] of [['c17', -196], ['c02', 196]] as const) {
+      const f = img(root, `fish/${id}`, 96, 96, `deco_${id}`);
+      at(f, x, titleY + 2);
+      if (x > 0) f.setScale(-1, 1, 1);
+      this.deco.push(f);
+    }
 
     // 2 × 2 技能卡 + 一行两张小卡（生命、免费金币）；页边距 20，卡片间距 16
     const M = 20;
@@ -77,11 +72,11 @@ export class ShopPage extends Page {
     const cardW = (Screen.W - M * 2 - G) / 2;
     // 选中的页签方块会高出底栏一截，下面多留一点
     const y1 = Screen.bottom + TABBAR_H + 36;
-    const rowH = 172;
-    const room = titleY - 42 - 22 - y1;
+    const rowH = 168;
+    const room = titleY - 40 - 18 - y1;
     const cardH = Math.min(410, (room - rowH - G * 2) / 2);
     // 屏幕高、放不满时整块略往下放，不贴着标题
-    const y0 = titleY - 42 - 22 - (room - (cardH * 2 + rowH + G * 2)) / 3;
+    const y0 = titleY - 40 - 18 - (room - (cardH * 2 + rowH + G * 2)) / 3;
     const cx = cardW / 2 + G / 2;
     Skills.ids(eco).forEach((id, i) => {
       const x = (i % 2 === 0 ? -1 : 1) * cx;
@@ -98,21 +93,18 @@ export class ShopPage extends Page {
     const eco = App.config.eco;
     const n = slice(root, 'skin/j_panel', w, h, `skill_${id}`);
     at(n, x, y);
-    const name = text(n, tr(NAME[id]), 40);
-    at(name.node, 0, h / 2 - 48);
+    // 和下面两张小卡同一种排法：左上名字、右上小字状态（已有数量）
+    at(text(n, tr(NAME[id]), 38, { align: 'left' }).node, -w / 2 + 26, h / 2 - 44);
+    const owned = text(n, '', 26, { color: SOFT, align: 'right' });
+    at(owned.node, w / 2 - 24, h / 2 - 44);
     const btnH = 92;
     const btnW = w - 44;
     const btnY = -h / 2 + 24 + btnH / 2;
-    // 已有数量：按钮上方一条深色小凹槽
-    const ownedY = btnY + btnH / 2 + 14 + 21;
-    const well = plate(n, 'skin/j_inset', 156, 42, 'owned');
-    at(well, 0, ownedY);
-    const owned = text(well, '', 26, { color: SOFT });
-    at(owned.node, 0, 1);
-    // 插画占满名字和数量之间，后面垫一团柔光把它从面板上托起来
-    const room = h / 2 - 78 - (ownedY + 21) - 6;
-    const is = Math.max(110, Math.min(200, room)) * (ICON_K[id] ?? 1);
-    const cy = ownedY + 21 + 6 + room / 2;
+    // 插画占满名字和按钮之间，后面垫一团柔光把它从面板上托起来
+    const lo = btnY + btnH / 2 + 10;
+    const room = h / 2 - 76 - lo;
+    const is = Math.max(110, Math.min(210, room)) * (ICON_K[id] ?? 1);
+    const cy = lo + room / 2;
     const glow = img(n, 'kit/fx_glow', is * 1.5, is * 1.5, 'glow');
     at(glow, 0, cy);
     opacity(glow).opacity = 110;
@@ -147,7 +139,7 @@ export class ShopPage extends Page {
     at(n, x, y);
     at(text(n, tr('H_LIVES_TITLE'), 36, { align: 'left' }).node, -w / 2 + 26, h / 2 - 42);
     // 和右边的小卡同一种排法：左上标题、右上小字状态、左下图标、右下按钮
-    this.lifeCount = text(n, '', 24, { color: SOFT, align: 'right' });
+    this.lifeCount = text(n, '', 26, { color: SOFT, align: 'right' });
     at(this.lifeCount.node, w / 2 - 24, h / 2 - 42);
     this.heart = img(n, 'icon/heart', 88, 88, 'heart');
     at(this.heart, -w / 2 + 26 + 44, -30);
@@ -171,7 +163,7 @@ export class ShopPage extends Page {
     const n = slice(root, 'skin/j_panel', w, h, 'freeCoins');
     at(n, x, y);
     at(text(n, tr('SHOP_FREE_COINS'), 36, { align: 'left' }).node, -w / 2 + 26, h / 2 - 42);
-    this.adLeft = text(n, '', 24, { color: SOFT, align: 'right' });
+    this.adLeft = text(n, '', 26, { color: SOFT, align: 'right' });
     at(this.adLeft.node, w / 2 - 24, h / 2 - 42);
     const pile = box3(n);
     at(pile, -w / 2 + 26 + 44, -28);
@@ -192,23 +184,23 @@ export class ShopPage extends Page {
 
   override show(): void {
     this.refresh();
-    Tween.stopAllByTarget(this.deco);
-    at(this.deco, -194, Screen.top - 74);
-    fx.bob(this.deco, 5, 2.6);
+    const titleY = Screen.top - 122 - 14 - 40;
+    this.deco.forEach((f, i) => {
+      Tween.stopAllByTarget(f);
+      at(f, f.position.x, titleY + 2);
+      fx.bob(f, 5, 2.6, i * 0.5);
+    });
     enterStagger([...this.cards.map((c) => c.node), ...this.rows], 0.05);
   }
 
   override hide(): void {
-    Tween.stopAllByTarget(this.deco);
+    for (const f of this.deco) Tween.stopAllByTarget(f);
   }
 
   override refresh(): void {
     const s = App.save.data;
     const eco = App.config.eco;
     const t = now();
-    const cs = fmt(s.coins);
-    this.coins.fontSize = cs.length > 7 ? 26 : 32;
-    this.coins.string = cs;
     for (const c of this.cards) {
       const open = Skills.isUnlocked(eco, c.id, s.level);
       (c.icon.getComponent(Sprite) as Sprite).grayscale = !open;
@@ -271,8 +263,8 @@ export class ShopPage extends Page {
     App.save.write();
     const tf = ui.fx.getComponent(UITransform) as UITransform;
     const from = tf.convertToNodeSpaceAR(this.adBtn.node.worldPosition.clone());
-    const to = tf.convertToNodeSpaceAR(this.coinIcon.worldPosition.clone());
-    coinsFly([from.x, from.y], this.coins, [to.x, to.y]);
+    const to = tf.convertToNodeSpaceAR(ui.topbar.coinIcon.worldPosition.clone());
+    coinsFly([from.x, from.y], ui.topbar.coins, [to.x, to.y]);
     sfx('coins');
     ui.refresh();
   }

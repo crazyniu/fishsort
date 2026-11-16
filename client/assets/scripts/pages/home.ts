@@ -49,6 +49,7 @@ const FEATURE_LABEL: Record<string, string> = {
 
 export class HomePage extends Page {
   readonly tab = 'home' as const;
+  override readonly topBar = true;
   private entries = new Map<string, Entry>();
   private start!: Btn;
   private levelPill!: Node;

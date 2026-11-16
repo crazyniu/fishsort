@@ -88,7 +88,7 @@ export class Boot extends Component {
     else ui.go('home');
     // 顶栏的生命倒计时、无限生命每秒走一次
     tween(this.node)
-      .repeatForever(tween(this.node).delay(1).call(() => ui.currentName === 'home' && ui.topbar.refresh()))
+      .repeatForever(tween(this.node).delay(1).call(() => ui.topbar.node.active && ui.topbar.refresh()))
       .start();
   }
 

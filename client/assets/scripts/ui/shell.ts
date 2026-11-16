@@ -1,5 +1,5 @@
 // 界面外壳：分层、页面切换、底栏、顶栏、提示条。
-// 底栏固定 商店 · 家园 · 主页 · 收藏 · 排行（docs/01 5.3）；顶栏只在主页（docs/09 第 4 节）。
+// 底栏固定 商店 · 家园 · 主页 · 收藏 · 排行（docs/01 5.3）；顶栏按需显示：主页、商店（docs/01 5.3）。
 import { Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
 import * as Dex from '../core/meta/dex';
@@ -42,6 +42,8 @@ export abstract class Page {
   node!: Node;
   /** 页签页给出所属页签；子页面（选关、抽奖、每日挑战、局内）为 null，不显示底栏 */
   abstract readonly tab: Tab | null;
+  /** 这一页要不要顶栏（金币、生命、设置）：用得到才放，见 docs/01 5.3 */
+  readonly topBar: boolean = false;
   abstract build(root: Node): void;
   /** 每次切到这一页时调；arg 是 go() 传进来的参数 */
   show(_arg?: unknown): void {}
@@ -141,7 +143,9 @@ class TabBar {
  */
 class TopBar {
   node: Node;
-  private coins: Label;
+  /** 金币数字和图标（别的页面飞金币时当落点） */
+  readonly coins: Label;
+  readonly coinIcon: Node;
   private lives: Label;
   private timer: Label;
   private heart: Node;
@@ -169,7 +173,8 @@ class TopBar {
     const CW = 312;
     const coinTap = box('coins', this.node, CW, 92);
     at(coinTap, x1 + CW / 2, 0);
-    at(img(coinTap, 'icon/coin', 62, 62, 'icon'), -CW / 2 + 36, 2);
+    this.coinIcon = img(coinTap, 'icon/coin', 62, 62, 'icon');
+    at(this.coinIcon, -CW / 2 + 36, 2);
     this.coins = text(coinTap, '0', 38, { align: 'left' });
     at(this.coins.node, -CW / 2 + 72, 1);
     at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), CW / 2 - 32, 2);
@@ -316,7 +321,7 @@ export class Shell {
     next.show(arg);
     fadeIn(next.node, 0.15);
     this.tabbar.node.active = next.tab !== null;
-    this.topbar.node.active = name === 'home';
+    this.topbar.node.active = next.topBar;
     if (next.tab !== null) {
       this.tabbar.select(next.tab);
       this.lastTab = next.tab;
