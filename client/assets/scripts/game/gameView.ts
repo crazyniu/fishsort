@@ -504,7 +504,9 @@ export class GamePage extends Page {
           break;
         case 'win':
           this.ended = true;
-          fx.delay(this.fly, t + 0.9, () => Flow.win(this));
+          // 最后一缸消失后停半拍 → 闪白、两边彩纸炮、三发烟花 → 结算页（docs/01 3.3）
+          fx.delay(this.fly, t + 0.35, () => this.celebrate());
+          fx.delay(this.fly, t + 0.35 + Number(App.config.ui.win.celebrate ?? 1), () => Flow.win(this));
           break;
         case 'lose':
           fx.delay(this.fly, t + 0.6, () => Flow.lose(this));
@@ -816,6 +818,26 @@ export class GamePage extends Page {
     });
     sfx('tier');
     App.platform.vibrate('light');
+  }
+
+  /** 过关庆祝（局内）：闪白、两边彩纸炮、三发烟花；连击计和两边的光收掉 */
+  private celebrate(): void {
+    this.comboRow.active = false;
+    this.setEdgeGlow(-1, COLOR.white);
+    fx.flash(this.fly, Screen.W, Screen.H, 170);
+    const yb = this.fieldBottom + 40;
+    fx.confetti(this.fly, -Screen.W / 2 + 50, yb, 45, 520);
+    fx.confetti(this.fly, Screen.W / 2 - 50, yb, 45, 520);
+    const cols = [new Color(255, 214, 64), new Color(110, 215, 255), new Color(255, 120, 200)];
+    const mid = (this.fieldTop + this.fieldBottom) / 2;
+    [[-170, mid + 160], [190, mid + 60], [-20, mid - 80]].forEach(([x, y], i) => {
+      fx.delay(this.fly, 0.12 + i * 0.22, () => {
+        fx.ring(this.fly, x, y, 40, 300, cols[i]);
+        fx.sparkle(this.fly, x, y, 16, 190, cols[i], 38);
+        sfx('firework');
+      });
+    });
+    App.platform.vibrate('medium');
   }
 
   private missCombo(): void {

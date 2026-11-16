@@ -3,6 +3,7 @@
 // 用法：node tools/cocos/cdp.mjs logs [秒]        收集这么多秒的控制台输出和异常（会先刷新页面）
 //       node tools/cocos/cdp.mjs eval '<表达式>'   在页面里求值，打印 JSON
 //       node tools/cocos/cdp.mjs shot <输出.jpg> [x,y,w,h]  按 2 倍屏截图（可只截一块，比例 0~1）
+//       node tools/cocos/cdp.mjs burst <目录> <张数> <间隔毫秒> '<JS>'  执行 JS 后连拍（看动画）
 // 只用 Node 自带的 fetch / WebSocket，不装东西。
 const PORT = Number(process.env.CDP_PORT ?? 9333);
 const [cmd = 'logs', arg = '6'] = process.argv.slice(2);
@@ -54,6 +55,23 @@ if (cmd === 'shot') {
   writeFileSync(arg, Buffer.from(r.data, 'base64'));
   await send('Emulation.clearDeviceMetricsOverride');
   console.log(`SHOT_DONE ${arg}`);
+  process.exit(0);
+}
+if (cmd === 'burst') {
+  // 连拍看动画：先在页面里执行 JS，再每隔 ms 截一张（1 倍、JPEG），存成 <目录>/f00.jpg…
+  // 用法：node tools/cocos/cdp.mjs burst <目录> <张数> <间隔毫秒> '<JS>'
+  const { mkdirSync, writeFileSync } = await import('node:fs');
+  const [, dir, n = '10', ms = '120', js = ''] = process.argv.slice(2);
+  mkdirSync(dir, { recursive: true });
+  if (js) await send('Runtime.evaluate', { expression: js });
+  const t0 = Date.now();
+  for (let i = 0; i < Number(n); i++) {
+    const wait = t0 + i * Number(ms) - Date.now();
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    const r = await send('Page.captureScreenshot', { format: 'jpeg', quality: 70 });
+    writeFileSync(`${dir}/f${String(i).padStart(2, '0')}.jpg`, Buffer.from(r.data, 'base64'));
+  }
+  console.log(`BURST_DONE ${dir} ${Date.now() - t0}ms`);
   process.exit(0);
 }
 await send('Page.enable');
