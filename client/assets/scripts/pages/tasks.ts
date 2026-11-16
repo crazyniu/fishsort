@@ -25,15 +25,15 @@ const PANEL_GAP = 12;
 const CHEST = 84;
 /** 每项任务的图标、名字的文案键、「前往」去哪 */
 const TASK_ICON: Record<string, string> = {
-  win: 'icon/tab_home',
+  win: 'icon/task_win',
   rescue: 'fish/c01',
-  ad: 'kit/ic_video',
-  combo: 'icon/star',
+  ad: 'icon/task_ad',
+  combo: 'icon/task_combo',
   skill: 'icon/skill_shuffle',
   daily: 'icon/entry_daily',
   wheel: 'icon/entry_wheel',
   build: 'icon/tab_base',
-  share: 'kit/ic_share',
+  share: 'icon/task_share',
 };
 const TASK_PAGE: Record<string, string> = { ad: 'shop', daily: 'daily', wheel: 'wheel', build: 'base' };
 

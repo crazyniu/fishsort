@@ -229,9 +229,29 @@
   92,
   "png"
  ],
- "ui/icon/tab_rank": [
-  "raw:cocos1/tab_rank.png",
+ "ui/icon/tab_tasks": [
+  "raw:cocos1/tab_tasks.png",
   92,
+  "png"
+ ],
+ "ui/icon/task_win": [
+  "raw:cocos1/task_win.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_combo": [
+  "raw:cocos1/task_combo.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_ad": [
+  "raw:cocos1/task_ad.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_share": [
+  "raw:cocos1/task_share.png",
+  80,
   "png"
  ],
  "ui/icon/tab_home": [
