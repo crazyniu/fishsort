@@ -696,9 +696,9 @@ export class GamePage extends Page {
     artNumber(this.comboNum, `×${r.count}`, 56, 'left');
     // 连击金币：每次涨了从连击计右边飘一个「金币 +N」
     if (r.coins > 0) {
-      const cl = text(null, `+${r.coins}`, 30, { color: COLOR.yellow });
-      at(img(cl.node, 'icon/coin', 30, 30, 'coin'), -36, 0);
-      fx.floatUp(this.fly, cl.node, COMBO_X + 150, Screen.top - 70, 46, 0.7);
+      const cl = text(null, `+${r.coins}`, 28, { color: COLOR.yellow });
+      at(img(cl.node, 'icon/coin', 28, 28, 'coin'), -34, 0);
+      fx.floatUp(this.fly, cl.node, COMBO_X + 70, Screen.top - 100, 28, 0.6);
     }
     (this.comboBar.getComponent(Sprite) as Sprite).color = col;
     (this.comboGlow.getComponent(Sprite) as Sprite).color = col;
@@ -797,13 +797,12 @@ export class GamePage extends Page {
           : text(holder, word, 84, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 8 }).node,
     };
     at(l.node, 0, 6);
-    l.node.setScale(2.4, 2.4, 1);
+    l.node.setScale(1.7, 1.7, 1);
     const lop = opacity(l.node);
     lop.opacity = 0;
-    tween(lop).delay(0.1).to(0.08, { opacity: 255 }).start();
+    tween(lop).to(0.08, { opacity: 255 }).start();
     tween(l.node)
-      .delay(0.1)
-      .to(0.18, { scale: new Vec3(0.92, 0.92, 1) }, { easing: 'quadIn' })
+      .to(0.16, { scale: new Vec3(0.92, 0.92, 1) }, { easing: 'quadIn' })
       .call(() => {
         fx.shake(this.stage, 6 + tier * 3);
         fx.ring(this.fly, 0, y, 100, 420, col);
