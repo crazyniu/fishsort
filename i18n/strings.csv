@@ -19,7 +19,6 @@ UI_CLAIM_DOUBLE,看广告 双倍领取,Watch ad: claim double
 UI_CLAIMED,今天已领取,Claimed today
 UI_AD_TEST,广告测试,Ad test
 UI_TAB_SHOP,商店,Shop
-UI_TAB_MAIN,主页,Play
 UI_TAB_COLLECTION,收藏,Cards
 UI_OWNED,已有 %d,Owned %d
 UI_RARITY_COMMON,普通,Common

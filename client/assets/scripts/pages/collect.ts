@@ -17,7 +17,7 @@ import { COLOR, at, box, button, fit, hex, iconButton, img, lazyImg, onTap, opac
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
+import { PAGE_BOTTOM, Page, enterStagger, ui } from '../ui/shell';
 
 const ROW_H = 170;
 const ROW_GAP = 16;
@@ -34,7 +34,6 @@ const RARITY_PLATE: Record<string, string> = {
 };
 
 export class CollectPage extends Page {
-  readonly tab = 'collect' as const;
   /** 正在看哪一册；-1 = 册子列表。切走再回来还在这一册 */
   private static book = -1;
   private root!: Node;
@@ -90,9 +89,11 @@ export class CollectPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const top = Screen.top;
-    at(pageTitle(v, tr('UI_TAB_COLLECTION')), 0, top - 90);
+    // 页头和别的子页面一致：返回键在左上，标题牌居中；小鱼让到右边
+    at(iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back()), -Screen.W / 2 + 70, top - 80);
+    at(pageTitle(v, tr('UI_TAB_COLLECTION')), 0, top - 80);
     const fish = img(v, 'fish/c03', 110, 110, 'fish');
-    at(fish, -230, top - 90);
+    at(fish, 230, top - 80);
     fx.bob(fish, 8, 2.4);
 
     // 总进度 + 终极大奖宝箱
@@ -119,7 +120,7 @@ export class CollectPage extends Page {
 
     // 册子行
     const y0 = top - 310;
-    const y1 = Screen.bottom + TABBAR_H + 10;
+    const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);
     this.scroller = sc;
@@ -249,7 +250,7 @@ export class CollectPage extends Page {
 
     // 卡片网格
     const y0 = top - 310;
-    const y1 = Screen.bottom + TABBAR_H + 10;
+    const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);
     this.scroller = sc;

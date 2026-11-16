@@ -72,7 +72,7 @@
 | `Album.pool(eco, species, level)` | 现在能掉落的卡（只含已开放册子；一册都没开时按第一册算） |
 | `Album.have(save, eco, book)` / `is_complete` / `is_claimed(save, book)` | 这一册收了几张 / 集齐了吗 / 领过了吗 |
 | `Album.can_claim(save, eco, book)` / `can_claim_final(save, eco)` | 已开放、集齐、没领过 → true；终极大奖要 6 册都集齐且没领过 |
-| `Album.claimable(save, eco)` | 有几个奖可领（页签红点） |
+| `Album.claimable(save, eco)` | 有几个奖可领（主页入口红点） |
 | `Album.claim(save, eco, book, now)` | 领一册大奖，返回奖品列表；不能领返回 `[]` |
 | `Album.claim_final(save, eco, now)` | 领终极大奖：奖励 + 解锁头像框，奖品列表末尾多一项 `{kind: "frame", amount: 1}` |
 | `Album.has_frame(save)` | 专属头像框是否解锁（界面用来给头像外加金框） |
@@ -90,7 +90,7 @@
 | `Dex.can_claim(save, eco, id)` | 够到的档数比已领的多 → true |
 | `Dex.next_need(save, eco, id)` | 下一档要救多少只，领完返回 0 |
 | `Dex.claim(save, eco, id)` | 领下一档，金币入账并返回金币数；不能领返回 0 |
-| `Dex.claimable(save, eco)` | 有几种生物有奖可领（页签红点） |
+| `Dex.claimable(save, eco)` | 有几种生物有奖可领（主页入口红点） |
 
 ## DailyChallenge（每日挑战）
 
@@ -125,7 +125,7 @@
 | `Tasks.list(save, eco, day)` | 今天的任务（跨天自动换一批）。`Tasks.pick(eco, day, level)` 是不看存档的抽法 |
 | `Tasks.add(save, eco, day, id, n)` | 记进度，返回今天积分涨了多少。今天没有这项就不记。`combo` 传单局最高连击（取最大值），其余累加 |
 | `Tasks.progress` / `is_done` / `day_points` / `week_points` / `week_max` | 进度、是否做完、今日积分（封顶 100）、本周积分、本周满格 |
-| `Tasks.tiers(eco, scope)` / `can_claim` / `is_claimed` / `claimable(save, eco, day)` | `scope` = `"day"` / `"week"`；`claimable` 是页签红点 |
+| `Tasks.tiers(eco, scope)` / `can_claim` / `is_claimed` / `claimable(save, eco, day)` | `scope` = `"day"` / `"week"`；`claimable` 是主页入口红点 |
 | `Tasks.claim(save, eco, species, scope, tier, day, now, rng)` | 领一档宝箱，返回奖品列表；不能领返回空数组 |
 
 进度在哪里记：`win`（`Settle.win`、`DailyChallenge.win`）、`daily`（`DailyChallenge.win`）、`skill`（`Skills.try_use`）、`wheel`（`Wheel.spin` / `ten_pull`）在规则里；`rescue`、`combo`（一局结束时）、`ad`（看完激励视频）、`build`、`share` 由界面层调 `Tasks.add`。

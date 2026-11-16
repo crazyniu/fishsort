@@ -52,17 +52,6 @@ def three(im: Image.Image, h: int, cap_frac: float, mid: int = 4):
     return Image.fromarray(np.clip(out + 0.5, 0, 255).astype(np.uint8), 'RGBA'), [0, 0, cap, cap]
 
 
-def bake(im: Image.Image, w: int, h: int, top: float = 0.4, bottom: float = 0.3) -> Image.Image:
-    """把方块烤成 w×h：整体按宽度缩放，上 top、下 bottom 保持不变，中间一段纵向拉伸。"""
-    im = im.convert('RGBa').resize((w, round(im.height * w / im.width)), Image.LANCZOS)
-    a = np.asarray(im)
-    ih = a.shape[0]
-    t, b = round(ih * top), round(ih * bottom)
-    midsrc = Image.fromarray(a[t:ih - b], 'RGBa').resize((w, h - t - b), Image.LANCZOS)
-    out = np.concatenate([a[:t], np.asarray(midsrc), a[ih - b:]], axis=0)
-    return Image.fromarray(out, 'RGBa').convert('RGBA')
-
-
 def nine(im: Image.Image, size: int, cap: int, mid: int = 24):
     """九宫格：缩到宽 size，四角各留 cap 像素；中间横向取正中一列（左右必须均匀），纵向按原比例取 mid 行（保住上下渐变）。"""
     im = im.convert('RGBa').resize((size, round(im.height * size / im.width)), Image.LANCZOS)
@@ -208,15 +197,13 @@ def main() -> None:
     # 按钮不在这里出：2026-11-16 起是程序画的平面按钮，见 tools/art/flat_skin.py（这里保存时会连同已有的边距一起写回）
     slices.update({k: v for k, v in (json.loads(SLICES.read_text()) if SLICES.exists() else {}).items() if k.startswith('j_btn_')})
 
-    # 蓝色条：顶栏、底栏、标签条
-    top, tab, plate = cut(raw / 'bars.png')
+    # 蓝色条：顶栏、标签条（母版中间那条是旧的底栏，2026-11-16 去掉底栏后不出了）
+    top, _tab, plate = cut(raw / 'bars.png')
     save('j_bar_top', *three(top, 288, 0.5))
-    save('j_bar_tab', *three(tab, 492, 0.4))
     save('j_plate', *three(plate, 216, 0.55))
 
-    # 方块：选中页签的亮块、图标键、头像框
-    tile, key, avatar = cut(raw / 'keys.png')
-    save('j_tile', bake(tile, 420, 512))
+    # 方块：图标键、头像框（母版第一块是旧底栏的选中块，不出了）
+    _tile, key, avatar = cut(raw / 'keys.png')
     k = key.convert('RGBa').resize((288, round(key.height * 288 / key.width)), Image.LANCZOS).convert('RGBA')
     save('j_key_blue', k)
     save('j_key_green', recolor(k, 222, 112, 0.7, 0.9, 0.92))

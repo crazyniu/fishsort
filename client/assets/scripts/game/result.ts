@@ -20,7 +20,6 @@ import * as Flow from './flow';
 const BANNER_H = 120;
 
 export class ResultPage extends Page {
-  readonly tab = null;
   private d!: Flow.WinData;
   private content!: Node;
   private skipTo: (() => void) | null = null;

@@ -12,7 +12,6 @@ import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
 export class AdTestPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
 

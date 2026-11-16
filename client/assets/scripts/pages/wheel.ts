@@ -43,7 +43,6 @@ const SHOWCASE: [string, number, number, number, number][] = [
 const BEATS = [0, 0.19, 0.35, 0.49, 0.61, 0.71, 0.8, 0.88, 0.95];
 
 export class WheelPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
   private chest!: Node;

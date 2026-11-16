@@ -77,7 +77,6 @@ const BOWL_SINK = 5;
 const AMBIENT_TAG = 9201;
 
 export class GamePage extends Page {
-  readonly tab = null;
   // 一局的状态
   lv!: LevelData;
   s!: GameState;

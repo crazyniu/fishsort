@@ -28,7 +28,6 @@ const NODE = 150;
 const AHEAD = 12;
 
 export class LevelsPage extends Page {
-  readonly tab = null;
   private content!: Node;
   private bg!: Node;
   private sea = '';

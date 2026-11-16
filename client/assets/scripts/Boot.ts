@@ -17,7 +17,7 @@ import { RankPage } from './pages/rank';
 import { TasksPage } from './pages/tasks';
 import { WheelPage } from './pages/wheel';
 import { ShopPage } from './pages/shop';
-import { LockPage, TodoPage } from './pages/lock';
+import { LockPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx, startMusic } from './services/audio';
 import { loadStrings, onLanguage, tr } from './ui/i18n';
@@ -82,7 +82,6 @@ export class Boot extends Component {
     ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new WheelPage());
     ui.register('adtest', () => new AdTestPage());
-    ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
     if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups };

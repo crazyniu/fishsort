@@ -254,11 +254,6 @@
   80,
   "png"
  ],
- "ui/icon/tab_home": [
-  "art/source/ui/tab_main.png",
-  92,
-  "png"
- ],
  "ui/icon/entry_signin": [
   "raw:cocos1/entry_signin.png",
   130,

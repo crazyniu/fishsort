@@ -21,7 +21,6 @@ interface WonArg {
 }
 
 export class DailyPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
   private chest!: Node;

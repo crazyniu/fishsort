@@ -1,4 +1,4 @@
-// 家园「重建海湾」页签（定版图 05；docs/01 5.12；docs/ux/home_base.md）。
+// 家园「重建海湾」（主页入口进来的子页面；定版图 05；docs/01 5.12；docs/ux/home_base.md）。
 // 一页一个区域：区域名、星星 · 区域 N/6 · 金币信息条、带框的场景（每一步一个物件）、这一步的名字、
 // 5 颗星进度 + 区域宝箱、大「建造」按钮（按钮上写星星和金币花费，不够的变红）。
 // 建造：物件从小弹大 + 金光 + 星星飞溅，数字滚动；建完区域：宝箱晃动弹开 → 开奖 → 换下一区域。
@@ -10,15 +10,14 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, pageTitle, setImg, sizeOf, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, box, button, fmt, hex, iconButton, img, lazyImg, opacity, pageTitle, setImg, sizeOf, slice, text } from '../ui/kit';
 import { needCoins, prizeItems, rewardPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, ui } from '../ui/shell';
+import { Page, ui } from '../ui/shell';
 
 const RED = hex('#FF5A4E');
 
 export class BasePage extends Page {
-  readonly tab = 'base' as const;
   private root!: Node;
   private view: Node | null = null;
   private starsLabel!: Label;
@@ -61,11 +60,12 @@ export class BasePage extends Page {
     const built = done ? area.steps.length : HomeBase.built(s, areaIdx);
     const open = HomeBase.isOpen(eco, areaIdx, s.level);
     const top = Screen.top;
-    const bottom = Screen.bottom + TABBAR_H;
+    const bottom = Screen.bottom;
 
     // 区域名
     // 区域名：和别的页一样的标题牌（原来是一行 72 号的裸字，顶着下面的信息条）
     at(pageTitle(v, tr(`BASE_AREA_${area.id.toUpperCase()}`), 72), 0, top - 62);
+    at(iconButton(v, 'kit/round_blue', 'kit/ic_back', 84, () => ui.back()), -Screen.W / 2 + 64, top - 62);
     // 信息条：星星 | 区域 N/6 | 金币
     const bar = slice(v, 'kit/capsule', 690, 84, 'info');
     at(bar, 0, top - 160);

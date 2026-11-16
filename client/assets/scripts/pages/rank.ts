@@ -18,7 +18,6 @@ const ROW_GAP = 12;
 const FISH = ['c01', 'c20', 'u07', 'c17', 'c02', 'c16', 'c18', 'c21', 'c14'];
 
 export class RankPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
   private scroller: Scroller | null = null;
@@ -42,11 +41,6 @@ export class RankPage extends Page {
     this.render(false);
   }
 
-  override back(): boolean {
-    ui.go('tasks');
-    return false;
-  }
-
   private render(enter: boolean): void {
     const s = App.save.data;
     const day = today();
@@ -58,7 +52,7 @@ export class RankPage extends Page {
     this.scroller = null;
     const top = Screen.top;
 
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
+    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, top - 90);
     at(pageTitle(v, tr('RANK_TITLE')), 0, top - 90);
     const left = 7 - ((day + 3) % 7);

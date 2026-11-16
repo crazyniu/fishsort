@@ -1,5 +1,5 @@
 // 未开放功能的锁页（定版图 10、11）：功能名、大图、「第 N 关解锁」、解锁奖励预览（真实大奖内容，带数量）。
-// 所有锁页共用这个版式（docs/09 第 2、4 节）。页签页没开放时也画它。
+// 所有锁页共用这个版式（docs/09 第 2、4 节）：主页上没开放的入口点进来都是它。
 import { Node } from 'cc';
 import type { Reward } from '../core/config';
 import * as Features from '../core/meta/features';
@@ -10,8 +10,7 @@ import { tr } from '../ui/i18n';
 import { at, box, fmt, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, ui } from '../ui/shell';
-import type { Tab } from '../ui/shell';
+import { PAGE_BOTTOM, Page, ui } from '../ui/shell';
 import { tierPreview } from './tasks';
 
 const NAME: Record<string, string> = {
@@ -88,15 +87,15 @@ export function lockPrizes(feature: string): PrizeItem[] {
   }
 }
 
-/** 画一张锁页。bottom：底下要留多少（页签页留底栏） */
-export function lockView(parent: Node, feature: string, bottom: number): void {
+/** 画一张锁页 */
+function lockView(parent: Node, feature: string): void {
   const eco = App.config.eco;
   const bgH = Math.max(Screen.H, Screen.W * 1.5);
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
   const top = Screen.top;
   // 页头和别的子页面一致：标题牌在 top - 80，返回键 96、在左上同一高度
   at(pageTitle(parent, tr(NAME[feature] ?? feature)), 0, top - 80);
-  const span = top - 170 - (Screen.bottom + bottom);
+  const span = top - 170 - (Screen.bottom + PAGE_BOTTOM);
   const artY = top - 170 - span * 0.32;
   const rays = fx.rays(parent, 520);
   at(rays, 0, artY);
@@ -124,9 +123,8 @@ export function lockView(parent: Node, feature: string, bottom: number): void {
   }
 }
 
-/** 主页入口（抽奖、每日挑战、签到、选关）没开放时进的锁页：左上返回 */
+/** 主页入口没开放时进的锁页：左上返回 */
 export class LockPage extends Page {
-  readonly tab = null;
   private root!: Node;
   build(root: Node): void {
     this.root = root;
@@ -135,26 +133,8 @@ export class LockPage extends Page {
     this.root.destroyAllChildren();
     const feature = (arg as { feature: string }).feature;
     const holder = box('holder', this.root);
-    lockView(holder, feature, 0);
+    lockView(holder, feature);
     const back = iconButton(this.root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, Screen.top - 80);
   }
 }
-
-/** 还没做完的页面：先放一张锁页一样的占位，免得点进去空白 */
-export class TodoPage extends Page {
-  constructor(
-    readonly tab: Tab | null,
-    private readonly feature: string,
-  ) {
-    super();
-  }
-  build(root: Node): void {
-    lockView(root, this.feature, this.tab ? TABBAR_H : 0);
-    if (!this.tab) {
-      const back = iconButton(root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-      at(back, -Screen.W / 2 + 70, Screen.top - 80);
-    }
-  }
-}
-

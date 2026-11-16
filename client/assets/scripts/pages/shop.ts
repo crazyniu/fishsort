@@ -1,5 +1,5 @@
-// 商店页签（定版图 04，docs/01 7.4、docs/09 第 4 节）：金币买技能（2×2 卡片）、金币买生命、看广告领金币。
-// 海底场景做背景，卡片是蓝色玻璃面板、白字。上面是完整顶栏（金币、生命都要看得到，docs/01 5.3），下面居中的标题牌。
+// 商店（主页入口进来的子页面；定版图 04，docs/01 7.4、docs/09 第 4 节）：金币买技能（2×2 卡片）、金币买生命、看广告领金币。
+// 海底场景做背景，卡片是蓝色玻璃面板、白字。上面是完整顶栏（金币、生命都要看得到，docs/01 5.3），下面一行是返回键和居中的标题牌。
 // 六张卡片同一种排法：左上名字、右上小字状态、中间图标、下面按钮。没解锁的技能换灰色锁定条和「第 N 关」。
 // 金币不够：按钮照常可点，点了弹「金币不足」（spend）。
 import { Node, Sprite, Tween, UITransform } from 'cc';
@@ -11,10 +11,10 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, hex, button, fitPair, fmt, img, lazyImg, opacity, pageTitle, plate, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, hex, button, fitPair, fmt, iconButton, img, lazyImg, opacity, pageTitle, plate, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
+import { PAGE_BOTTOM, Page, enterStagger, ui } from '../ui/shell';
 
 interface SkillCard {
   id: string;
@@ -42,7 +42,6 @@ const ICON_K: Record<string, number> = { shuffle: 1.1, blow: 1.06, net: 1, curre
 const SOFT = hex('#D4ECFF');
 
 export class ShopPage extends Page {
-  readonly tab = 'shop' as const;
   override readonly topBar = true;
   private cards: SkillCard[] = [];
   private lifeBtn!: Btn;
@@ -64,6 +63,8 @@ export class ShopPage extends Page {
     const titleY = Screen.top - 122 - 14 - 40;
     // 夹在顶栏和卡片之间：牌比别的页小一号，上下各让出几个像素，不贴着顶栏
     at(pageTitle(root, tr('UI_TAB_SHOP'), 68), 0, titleY - 2);
+    // 返回键和标题同一行，比别的页小一号（这一行夹在顶栏和卡片之间，矮）
+    at(iconButton(root, 'kit/round_blue', 'kit/ic_back', 80, () => ui.back()), -Screen.W / 2 + 62, titleY - 2);
     for (const [id, x] of [['c01', -196], ['c02', 196]] as const) {
       const f = img(root, `fish/${id}`, 96, 96, `deco_${id}`);
       at(f, x, titleY + 2);
@@ -75,8 +76,7 @@ export class ShopPage extends Page {
     const M = 20;
     const G = 16;
     const cardW = (Screen.W - M * 2 - G) / 2;
-    // 选中的页签方块会高出底栏一截，下面多留一点
-    const y1 = Screen.bottom + TABBAR_H + 36;
+    const y1 = Screen.bottom + PAGE_BOTTOM;
     const rowH = 168;
     const room = titleY - 40 - 18 - y1;
     const cardH = Math.min(410, (room - rowH - G * 2) / 2);

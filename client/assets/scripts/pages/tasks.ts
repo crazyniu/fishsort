@@ -1,4 +1,4 @@
-// 任务中心页签（docs/01 5.9；docs/ux/tasks.md）。自上而下：
+// 任务中心（主页入口进来的子页面；docs/01 5.9；docs/ux/tasks.md）。自上而下：返回键 + 标题 →
 // 今日积分条（四档宝箱）→ 本周积分条（三档宝箱）→ 今天的任务列表（做完自动记积分，没做完的有「前往」）。
 // 积分只推进度条，不是货币。每日 0 点换任务，周一 0 点清本周积分，没领的宝箱作废。
 import { Node, Sprite } from 'cc';
@@ -11,11 +11,11 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, fit, fmt, img, lazyImg, onTap, pageTitle, progressBar, redDot, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, fit, fmt, iconButton, img, lazyImg, onTap, pageTitle, progressBar, redDot, slice, text } from '../ui/kit';
 import { PrizeItem, prizeItems, revealCards, rewardPopup } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
+import { PAGE_BOTTOM, Page, enterStagger, ui } from '../ui/shell';
 
 const ROW_H = 116;
 const ROW_GAP = 12;
@@ -38,7 +38,6 @@ const TASK_ICON: Record<string, string> = {
 const TASK_PAGE: Record<string, string> = { ad: 'shop', daily: 'daily', wheel: 'wheel', build: 'base' };
 
 export class TasksPage extends Page {
-  readonly tab = 'tasks' as const;
   private root!: Node;
   private view: Node | null = null;
   private scroller: Scroller | null = null;
@@ -73,7 +72,8 @@ export class TasksPage extends Page {
     this.view = v;
     const top = Screen.top;
 
-    at(pageTitle(v, tr('TASK_TITLE')), 0, top - 90);
+    at(iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back()), -Screen.W / 2 + 70, top - 86);
+    at(pageTitle(v, tr('TASK_TITLE')), 0, top - 86);
 
     // 今日积分、本周积分：两块一样高的面板
     const dayPts = Tasks.dayPoints(s, eco, day);
@@ -90,7 +90,7 @@ export class TasksPage extends Page {
 
     // 任务列表
     const y0 = top - 150 - PANEL_H * 2 - PANEL_GAP * 2;
-    const y1 = Screen.bottom + TABBAR_H + 10;
+    const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);
     this.scroller = sc;

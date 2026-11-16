@@ -6,8 +6,7 @@
 输出到 client/assets/resources/ui/skin/：
   j_btn_*      五色按钮（横向三宫格）
   f_plate_blue 标签牌 / 页标题牌（三宫格）
-  f_dock       白色圆角托盘：底栏、顶栏的资源小条（三宫格）
-  f_tile       底栏选中的页签垫的那一块亮蓝
+  f_dock       白色圆角托盘：顶栏的资源小条（三宫格）
   f_key_*      图标键（设置、加号、返回）
   f_avatar(_gold) 头像框
   f_card_glass 入口图标后面垫的半透明白色方块
@@ -40,7 +39,6 @@ BUTTONS = {
     'gray': ('#B4C0CF', '#8894A8'),
 }
 PLATE_BLUE = ('#2B7BEF', '#1A52BE')
-TILE = '#3F9CFF'
 KEYS = {'blue': ('#3F8DFF', '#1E55C4'), 'green': ('#3CC62B', '#268F1B'), 'red': ('#F2553E', '#BC3320')}
 AVATAR = {'': ('#8AD6FF', '#2F80F6'), '_gold': ('#FFD75E', '#D08A00')}
 DOT = ('#F2453A', '#FFFFFF')
@@ -126,7 +124,6 @@ def main() -> None:
     save('f_plate_blue', raised(w3, H, *PLATE_BLUE, 0.3, 0.12), True)
     # 底栏：一块浮着的白色圆角托盘（用户 2026-11-16：整条深蓝底不好看，不要那种背景色），选中的页签是托盘上一块平的亮蓝
     save('f_dock', flat(w3, H, (255, 255, 255, 238), 0.3), True)
-    save('f_tile', flat(384, 450, TILE, 0.17))
     for name, (face, edge) in KEYS.items():
         save(f'f_key_{name}', raised(256, 256, face, edge, 0.3))
     for name, (face, edge) in AVATAR.items():
