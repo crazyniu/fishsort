@@ -47,6 +47,8 @@ export interface Ink {
   glyph: Color | null;
   /** 文字描边色（docs/03：白字加深色描边，浅色面上深色字不描边）；null = 不描边 */
   outline: Color | null;
+  /** 不描边的字下面压的一道实色（平面按钮：白字 + 一道按钮下边的深色，不描边） */
+  depth?: Color;
 }
 
 export const INK = {
@@ -58,14 +60,21 @@ export const INK = {
 
 const ON_DARK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: COLOR.navy };
 const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
-const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
-const ON_GREEN = btnInk('#1A7412');
-const ON_BLUE = btnInk('#0F3F96');
+/** 平面按钮上的字：白字不描边，下面压一道和按钮下边同色的实色（用户 2026-11-16：按钮重新设计成平面的，字也不要粗描边） */
+const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: null, depth: hex(o) });
+const ON_GREEN = btnInk('#268F1B');
+const ON_BLUE = btnInk('#1E55C4');
+/** 还是亮面质感的部件（金色卡片、图标键）：白字加深色描边 */
+const lineInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
+const ON_GOLD = lineInk('#8A4F00');
+const ON_KEY_GREEN = lineInk('#1A7412');
+const ON_KEY_BLUE = lineInk('#0F3F96');
+const ON_KEY_RED = lineInk('#8A1F12');
 /** 白色果冻图标键 */
 const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
-const ON_AMBER = btnInk('#8A4F00');
-const ON_RED = btnInk('#8A1F12');
-const ON_GRAY = btnInk('#5A6880');
+const ON_AMBER = btnInk('#C47400');
+const ON_RED = btnInk('#BC3320');
+const ON_GRAY = btnInk('#7C889C');
 
 /** 部件 → 上面放的字用什么颜色 */
 const PART_INK: Record<string, Ink> = {
@@ -77,7 +86,7 @@ const PART_INK: Record<string, Ink> = {
   'kit/title_plate': ON_DARK,
   'kit/title_page': ON_DARK,
   'kit/capsule': ON_DARK,
-  'kit/cell_gold': ON_AMBER,
+  'kit/cell_gold': ON_GOLD,
   'kit/tag_red': ON_RED,
   'kit/tag_amber': ON_AMBER,
   'kit/btn_green': ON_GREEN,
@@ -85,8 +94,8 @@ const PART_INK: Record<string, Ink> = {
   'kit/btn_blue': ON_BLUE,
   'kit/btn_yellow': ON_AMBER,
   'kit/btn_gray': ON_GRAY,
-  'kit/round_green': ON_GREEN,
-  'kit/round_red': ON_RED,
+  'kit/round_green': ON_KEY_GREEN,
+  'kit/round_red': ON_KEY_RED,
   'kit/round_blue': ON_WHITE_KEY,
   // Codex 位图部件（ui/skin）
   'skin/j_btn_green': ON_GREEN,
@@ -101,11 +110,11 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_inset': ON_DARK,
   'skin/j_panel': ON_DARK,
   'skin/j_row': ON_DARK,
-  'skin/j_row_gold': ON_AMBER,
+  'skin/j_row_gold': ON_GOLD,
   'skin/j_popup': ON_DARK,
-  'skin/j_key_blue': ON_BLUE,
-  'skin/j_key_green': ON_GREEN,
-  'skin/j_key_red': ON_RED,
+  'skin/j_key_blue': ON_KEY_BLUE,
+  'skin/j_key_green': ON_KEY_GREEN,
+  'skin/j_key_red': ON_KEY_RED,
 };
 
 const inks = new WeakMap<Node, Ink>();
@@ -361,6 +370,8 @@ export interface TextOpts {
 /** 描边、厚度投影各是字号的几分之一 */
 const OUTLINE_DIV = 18;
 const SHADOW_DIV = 26;
+/** 平面按钮上的字，下面那道实色是字号的几分之一 */
+const FLAT_DEPTH_DIV = 16;
 
 export function text(parent: Node | null, s: string, fontSize: number, o: TextOpts = {}): Label {
   const k = o.sharp ?? 1;
@@ -392,6 +403,12 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
     l.shadowColor = depthColor(outline ?? COLOR.shadow);
     l.shadowOffset.set(0, -Math.max(1, Math.round(fontSize / SHADOW_DIV)));
     l.shadowBlur = 1;
+  } else if (!outline && ink.depth && o.shadow !== false) {
+    // 平面按钮上的字：不描边，只在下面压一道实色
+    l.enableShadow = true;
+    l.shadowColor = ink.depth;
+    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / FLAT_DEPTH_DIV)));
+    l.shadowBlur = 0;
   }
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
@@ -468,6 +485,8 @@ export function reink(n: Node): void {
       if (ink.outline) {
         l.outlineColor = ink.outline;
         if (l.enableShadow) l.shadowColor = depthColor(ink.outline);
+      } else if (ink.depth && l.enableShadow) {
+        l.shadowColor = ink.depth;
       }
     }
     const sp = m.getComponent(Sprite);
@@ -591,8 +610,8 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   let color = o.color;
   let pressed = false;
   const row = box('row', n);
-  // 面的中心比外框中心高一点（下沿有厚度）
-  const place = () => row.setPosition(0, o.h * 0.03 - (pressed ? 2 : 0), 0);
+  // 面的中心比外框中心高半道下边（下边占按钮高的 11%，见 tools/art/flat_buttons.py）
+  const place = () => row.setPosition(0, o.h * 0.055 - (pressed ? 2 : 0), 0);
   place();
   let icon: Node | null = null;
   if (o.icon) {

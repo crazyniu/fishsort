@@ -205,16 +205,8 @@ def main() -> None:
             slices[name] = border
         print(f'  {name}: {im.size} {border or ""}')
 
-    # 按钮：一张绿色母版转出整套语义色（docs/03 第 2 节：绿主行动、蓝次行动、琥珀广告与奖励、红危险、灰不可用）
-    (btn,) = cut(raw / 'btn.png')
-    g, border = three(btn, 300, 0.62)
-    # 2026-11-16 换成薄一版的母版（用户：原来的看着太厚重）：细描边、下沿只有一道薄厚度、没有硬高光。母版偏淡，提一点饱和度
-    g = recolor(g, 105, 105, 0.0, 1.22, 0.96)
-    save('j_btn_green', g, border)
-    save('j_btn_blue', recolor(g, 105, 216, 0.6, 1.0, 1.0), border)
-    save('j_btn_amber', recolor(g, 105, 40, -0.55, 1.0, 1.06, 0.85), border)
-    save('j_btn_red', recolor(g, 105, 4, -0.4, 0.92, 1.04, 0.9), border)
-    save('j_btn_gray', recolor(g, 105, 214, 0.2, 0.16, 0.9), border)
+    # 按钮不在这里出：2026-11-16 起是程序画的平面按钮，见 tools/art/flat_buttons.py（这里保存时会连同已有的边距一起写回）
+    slices.update({k: v for k, v in (json.loads(SLICES.read_text()) if SLICES.exists() else {}).items() if k.startswith('j_btn_')})
 
     # 蓝色条：顶栏、底栏、标签条
     top, tab, plate = cut(raw / 'bars.png')
