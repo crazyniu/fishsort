@@ -1,0 +1,9 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere. Straight-on front view, every piece left-right symmetric unless stated, separated by at least 80 px of white, not touching each other or the image border.
+Matching the glossy jelly material of the attached reference image (reference is for material and lighting only), draw:
+ROW 1 (top): two toggle switches, each about 400 x 200 px, rounded-rectangle track (corner radius about 45% of its height, NOT a full pill), thin dark outline:
+  a) ON: glossy bright green track with a soft top gloss, a big glossy white round knob on the RIGHT side;
+  b) OFF: matte gray-blue track, the same white round knob on the LEFT side.
+ROW 2: one empty progress bar track, about 1200 x 90 px: a recessed dark navy-blue groove with rounded ends, soft inner shadow at the top and a thin light rim along the bottom edge. Perfectly uniform from left to right in the middle.
+ROW 3: two progress bar fills, each about 560 x 70 px, rounded ends, glossy jelly with a bright highlight stripe along the top and a darker lip at the bottom: left one golden yellow, right one bright green. Perfectly uniform from left to right in the middle.
+No text, no icons, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -1,0 +1,20 @@
+{
+  "name": "fishsort",
+  "uuid": "f15a5047-0b1e-4c2b-9a6e-5f0c0c7a3e01",
+  "creator": {
+    "version": "3.8.8"
+  },
+  "private": true,
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.tools.json"
+  },
+  "devDependencies": {
+    "@breezystack/lamejs": "^1.2.7",
+    "@resvg/resvg-js": "2.6.2",
+    "@types/node": "24.19.2",
+    "sharp": "^0.34.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,6 +1,6 @@
 # 局外系统 API（meta v2）
 
-纯逻辑，位于 `src/core/meta/`。全部是对存档字典 `save` 的静态函数：时间用 `now`（unix 秒，界面层传 `Save.now()`），日期用 `day`（`Save.today()`），随机数用 `Rng`。数值在 `config/economy.json`。存档版本 `PlayerData.VERSION = 2`。
+纯逻辑，位于 `client/assets/scripts/core/meta/`（Cocos 版函数名改成 camelCase，如 `take_free_coin` → `takeFreeCoin`；本文沿用 Godot 版写法，对应关系一目了然）。全部是对存档对象 `save` 的函数：时间用 `now`（unix 秒，界面层传 `services/clock.ts` 的 `now()`），日期用 `day`（`today()`），随机数用 `Rng`。数值在 `client/assets/resources/config/economy.json`，**以 `docs/01` 和配置为准，本文出现的数字只是示例**。存档版本 `PlayerData.VERSION = 1`（Cocos 版重新从 1 开始）。
 `species` 是 `Config.species`；`eco` 是 `Config.eco`。
 
 ## 存档新增字段
@@ -10,6 +10,7 @@
 | `lives` | `{count, stamp, lastNow, unlimitedUntil}` |
 | `chest` | `{dry, lastLevel, adTaken}` |
 | `wheel` | `{extra, dry, total}`：存下来的次数、连续没出史诗以上的次数、总抽数 |
+| `avatar` | 可选：头像换成的收藏生物 id（`PlayerData.setAvatar` 只接受已拥有的卡，空串恢复平台头像；`avatarOf` 读取），docs/01 5.9 |
 | `skillsGranted` | `{技能id: true}` 已发过解锁礼 |
 | `tools` | 新增 `current`（洋流） |
 | `signin` | 新增 `doubledDay` |
@@ -108,7 +109,7 @@
 
 ## Skills / Features
 
-- `Skills.sync_unlocks(save, eco)` → 新发礼的技能 id（到关发 2 个，只发一次；`Settle.win` 和迁移已调用）。
+- `Skills.sync_unlocks(save, eco)` → 新发礼的技能 id（到关发 2 个，只发一次；`Settle.win` 已调用）。
 - `Skills.try_use(save, eco, id, used_this_level, day)` → `{ok, free, reason}`，reason: `locked` / `limit`（每关 2 次）/ `empty` / `""`。ok 时已扣库存或记了今天的免费次，随后调 `Rules.apply(s, {"a": id...})`。
 - `Skills.buy(save, eco, id)`、`Skills.count`、`Skills.add`、`Skills.price`、`Skills.free_available(save, id)`、`Skills.unlocked_ids(eco, level)`。
 - 技能 id：`shuffle` 洗牌（4）、`blow` 吹泡（7）、`net` 渔网（9）、`current` 洋流（12）。
@@ -123,13 +124,13 @@
 
 - `Cards.give(save, eco, card)` 入账一张卡（重复换金币 50/125/300/750/2500）。
 - `Daily.roll(save, day)` 跨天、跨周清零。
-- `Combo.best_bonus_for(best, cfg)`（静态）；连击金币档 5/10/15/25，封顶 400，最高连击奖 ×10 封顶 200。
-- 免费金币：`Meta.take_free_coin`（500，每天 10 次）；缸位 650 金币见 `eco["bowlSlotCoinPrice"]`。
-- `Save.now()`（`src/services/save_service.gd`）：当前 unix 秒。
+- `Combo.best_bonus_for(best, cfg)`；连击金币档与封顶见 `docs/01` 3.2 和 `economy.json` 的 `combo`。
+- 免费金币：`Meta.take_free_coin`（金额与次数见 `economy.json` 的 `freeCoin`）；缸位金币价见 `eco.bowlSlotCoinPrice`。
+- `now()`（`client/assets/scripts/services/clock.ts`）：当前 unix 秒。
 
-## 迁移 v1 → v2
+## 存档版本
 
-金币 ×`migration.coinsMultiplier`(5)，旧版的鱼票按 `migration.ticketToCoins`(50) 折成金币，旧字段 `tickets` / `stars` / `pity` / `scene` / `sceneStep` 读档时删除，补 `lives` / `wheel` / `chest` 等字段，已到关的技能补发解锁礼，每日计数换新结构。
+开发阶段不迁移旧存档（用户 2026-11-15 定）：读档时版本不对或损坏就开新档，版本对就只把缺的字段补成默认值。正式上线后结构再变时才写迁移函数。
 
 ## 局内写入的存档字段
 

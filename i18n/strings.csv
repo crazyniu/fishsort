@@ -1,39 +1,17 @@
 keys,zh_CN,en
 UI_LEVEL,第 %d 关,Level %d
 UI_CHALLENGE,挑战,Hard
-UI_NEXT_BOWL,下一缸,Next
-UI_TOOL_NET,渔网,Net
-UI_TOOL_BLOW,吹泡,Blow
-UI_TOOL_SHUFFLE,洗牌,Shuffle
 UI_NET_HINT,点一个鱼缸，用渔网把它补满,Tap a tank to fill it with the net
-UI_WIN,过关！,Cleared!
 UI_LOSE,失败了,Failed
 UI_LOSE_BUFFER,暂存槽满了,The tray is full
 UI_LOSE_TIMEOUT,限时缸超时了,Time ran out
 UI_LOSE_STUCK,没有可以点的鱼了,No fish left to tap
 UI_COINS_GAIN,金币 +%d,Coins +%d
-UI_CARD_NEW,新收藏卡：%s,New card: %s
-UI_CARD_DUPE,重复卡 %s，换成金币 +%d,Duplicate %s: coins +%d
-UI_DOUBLE_COINS,看广告 双倍金币,Watch ad: double coins
 UI_NEXT_LEVEL,下一关,Next level
-UI_REVIVE,看广告 复活,Watch ad: revive
-UI_RETRY,再试一次,Try again
-UI_RESTART,重开,Restart
 UI_NO_COINS,金币不够,Not enough coins
 UI_TOOL_LIMIT,这个道具本关已用完,No more uses this level
-UI_LEVEL_WORD,关卡,Level
 UI_SETTINGS,设置,Settings
-UI_MUSIC_ON,音乐：开,Music: on
-UI_MUSIC_OFF,音乐：关,Music: off
-UI_SOUND_ON,音效：开,Sound: on
-UI_SOUND_OFF,音效：关,Sound: off
-UI_HOME,回主页,Home
-UI_CLOSE,关闭,Close
 UI_AD_UNAVAILABLE,广告暂时不可用,Ads are unavailable right now
-UI_SLOT_COIN,花 %d 金币开启这个缸位？,Open this slot for %d coins?
-UI_CONFIRM,确定,OK
-UI_TITLE,泡泡海湾,Bubble Bay
-UI_START,开始 第 %d 关,Play level %d
 UI_SIGNIN,签到,Daily gift
 UI_SIGNIN_DAY,第 %d 天,Day %d
 UI_CLAIM,领取,Claim
@@ -44,39 +22,19 @@ UI_TAB_SHOP,商店,Shop
 UI_TAB_MAIN,主页,Play
 UI_TAB_RANK,排行,Rank
 UI_TAB_COLLECTION,收藏,Cards
-UI_FREE_COINS,免费金币 +%d,Free coins +%d
-UI_WATCH_AD_LEFT,看广告（今日剩 %d 次）,Watch ad (%d left today)
 UI_OWNED,已有 %d,Owned %d
-UI_RANK_TITLE,本周过关榜,Weekly ranking
-UI_RANK_RESET,%d 天后重置,Resets in %d days
-UI_RANK_LEVELS,%d 关,%d
 UI_RARITY_COMMON,普通,Common
 UI_RARITY_UNCOMMON,精良,Uncommon
 UI_RARITY_RARE,稀有,Rare
 UI_RARITY_EPIC,史诗,Epic
 UI_RARITY_LEGEND,传说,Legend
 UI_UNKNOWN,？？？,???
-UI_GO_PLAY,去闯关,Play a level
 UI_COMBO_WORD,连击,COMBO
 UI_COMBO_T1,不错！,Good!
 UI_COMBO_T2,漂亮！,Nice!
 UI_COMBO_T3,太强了！,Awesome!
 UI_COMBO_T4,无敌！,Unstoppable!
-UI_FINISH_TITLE,过关！,Cleared!
-UI_FINISH_POPUP,游戏结束,Level complete
-UI_COLLECTED,已收集 %d/%d,Collected %d/%d
-UI_RATES_TITLE,概率公示,Drop rates
-UI_RATES_LEVEL_1,过关卡,Level card
-UI_RATES_LEVEL_2,每次过关随机得 1 张普通收藏卡，每 3 关至少 1 张新的,Each clear gives 1 random common card; a new one at least every 3 clears
-UI_RATES_PITY,连续没出新卡时会保底一张新卡,A new card is guaranteed after a dry streak
-UI_CARD_GET,收藏获得 %s,New in album: %s
-UI_CARD_AGAIN,%s 已收集，换成 %d 金币,%s already collected: +%d coins
-UI_TAP_CONTINUE,点击任意位置继续,Tap anywhere to continue
-UI_NEW,新,NEW
-UI_COMBO_COINS,连击金币 +%d,Combo coins +%d
-UI_BEST_COMBO,最高连击 %d，奖励金币 +%d,Best combo %d: coins +%d
 UI_COMBO_CARD,连击送收藏卡！,Combo card!
-UI_LEVEL_COINS,过关金币 +%d,Clear coins +%d
 TIP_LAYER,被压住的气泡要先点开上面的,Pop the bubbles on top first
 TIP_CHAIN,锁链泡：每装满一缸，数字减 1,Chained: each full tank lowers the number
 TIP_TIMER,限时缸：倒计时归零前装满它,Timed tank: fill it before time runs out
@@ -87,33 +45,15 @@ TIP_PAIR,结伴鱼：点一条，两条一起走,Buddies: tap one and both go
 UI_PRAISE_1,不错！,Good!
 UI_PRAISE_2,真棒！,Great!
 UI_PRAISE_3,太强了！,Awesome!
-UI_COMBO_GOLD,金币 +%d,Coins +%d
-UI_TOOL_CURRENT,洋流,Current
 UI_SKILL_FREE,免费,Free
 UI_SKILL_TRY,试试新技能：%s,Try the new skill: %s
 UI_BLOW_EMPTY,暂存槽里没有鱼,Nothing to blow back
 UI_CURRENT_EMPTY,现在没有能直接进缸的鱼,No fish can go straight in
 UI_SHUFFLE_EMPTY,现在洗不了牌,Cannot shuffle now
-UI_LEAVE_TITLE,要离开吗？,Leave?
-UI_LEAVE_COST,现在离开会失去 1 条生命,Leaving now costs 1 life
-UI_KEEP_PLAYING,继续玩,Keep playing
-UI_LEAVE,离开,Leave
-UI_GIVEUP_COST,放弃会失去 1 条生命,Giving up costs 1 life
-UI_NO_LIVES,生命用完了,Out of lives
-UI_NO_LIVES_WAIT,%d 分钟后恢复 1 条,Next life in %d min
-UI_BUY_LIFE,%d 金币买 1 条,Buy 1 for %d coins
-UI_SHARE_SHOW,分享炫耀,Share
-UI_SKILL_GAIN,%s +1,%s +1
-UI_WIN_BASE,过关 %d,Clear %d
-UI_WIN_COMBO,连击 +%d,Combo +%d
-UI_WIN_BEST,最高连击 %d +%d,Best combo %d +%d
 UI_REPLAY_NO_REWARD,今天重玩的奖励已领完,No more replay rewards today
-UI_FIRST_WIN,今日首胜：抽奖 +1，无限生命 %d 分钟,First win today: +1 spin and %d min unlimited lives
-H_TAB_WHEEL,抽奖,Spin
 H_LIVES_TITLE,生命,Lives
 H_BUY_ONE,买1条,Buy 1
 H_REFILL,补满,Refill
-H_BUY_LIVES,买生命,Get lives
 H_WATCH_COINS,看广告领 %d 金币,Watch ad: +%d coins
 H_SHARE_LIFE,分享得 1 条生命,Share for 1 life
 H_INF_LEFT,无限生命 %s,Unlimited lives %s
@@ -124,10 +64,7 @@ H_LEAVE_LINE,现在离开会失去 1 条生命,Leaving now costs 1 life
 H_KEEP_PLAYING,继续玩,Keep playing
 H_LEAVE,离开,Leave
 H_SLOT_TITLE,解锁缸位,Unlock a tank
-H_SLOT_LINE,多一个鱼缸，这一关更好过,One more tank for this level
-H_SLOT_BUY,金币,Coins
 H_WATCH_AD,看广告,Watch ad
-H_REVIVE_TITLE,复活,Revive
 H_REVIVE_LINE,吹出一个新气泡，接着闯关,Blow a fresh bubble and go on
 H_REVIVE_AD,看广告复活,Watch ad to revive
 H_GIVE_UP,放弃,Give up
@@ -140,8 +77,6 @@ H_FEAT_LEVELS,选关,Levels
 H_FEAT_COLLECTION,收藏,Cards
 H_FEAT_WHEEL,抽奖,Spin
 H_FEAT_RANK,排行,Rank
-H_FEAT_SHOP,商店,Shop
-H_FEAT_SKILL,技能,Skills
 H_SKILL_SHUFFLE,洗牌,Shuffle
 H_SKILL_BLOW,吹泡,Blow
 H_SKILL_NET,渔网,Net
@@ -152,63 +87,27 @@ H_MUSIC,音乐,Music
 H_SOUND,音效,Sound
 H_VIBRATION,震动,Vibration
 H_LANGUAGE,语言,Language
-H_LANG_ZH,中文,中文
-H_LANG_EN,English,English
 H_TO_HOME,回主页,Home
 H_RETRY,重试,Retry
-H_AD_DOUBLE,看广告翻倍,Watch ad: x2
-H_PROFILE,个人资料,Profile
-H_CUR_LEVEL,当前关,Level
-H_BEST_COMBO,最高连击,Best combo
-H_COLLECTION,收藏进度,Cards
-H_ODDS,概率,Odds
-H_ODDS_NOTE_1,十连保底 1 张稀有以上,Ten pulls guarantee a Rare or better
-H_ODDS_NOTE_2,连续 30 次没出史诗以上，下一次必出,"After 30 pulls without Epic+, the next is guaranteed"
 H_CONGRATS,恭喜获得,You got
-H_TAKE,收下,Collect
-H_TEN_TITLE,十连结果,Ten pulls
-H_PRIZE_COIN,金币,Coins
-H_PRIZE_SKILL,技能,Skill
-H_PRIZE_INF,无限生命,Unlimited lives
-H_PRIZE_CARD,收藏卡·%s,Card · %s
-H_PRIZE_CHEST,宝箱,Chest
-H_PRIZE_BIG_CHEST,大宝箱,Big chest
-H_PRIZE_SPIN,抽奖次数,Spin
-H_MIN,%d 分钟,%d min
-H_ENTRY_LEVELS,选关,Levels
-H_TODAY_COUNT,今日 %d/%d,Today %d/%d
 H_SPINS_LEFT,剩余开箱 %d 次,Chests left: %d
 H_SPIN,开箱,Open
-H_SPIN_ONE,开一个,Open one
-H_SHARE_PLUS,分享 +1,Share +1
-H_AD_PLUS,看广告 +1,Ad +1
 H_TEN_PULL,十连开箱,Open ten
-H_BACK,返回,Back
-H_REPLAY_HINT,重玩奖励 今日 %d/%d,Replay rewards %d/%d
-H_YOU_ARE_HERE,当前,Now
-UI_STAT_CLEAR,过关,Clear
-UI_STAT_COMBO,连击,Combo
-UI_STAT_BEST,最高连击 ×%d,Best combo ×%d
-UI_STAT_AD,看广告,Ad bonus
-UI_STAT_FIRST,今日首胜,First win
 UI_MINUTES,%d 分钟,%d min
-UI_DOUBLE_SHORT,金币 ×2,Coins ×2
 UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途离开会失去 1 条生命,From here on leaving mid-level costs a life
 TIP_DROP,后面还有气泡会掉下来,More bubbles will drop in later
 UI_TAB_BASE,家园,Bay
 UI_TAB_DAILY,每日挑战,Daily
-H_COMING_SOON,即将开放,Coming soon
 H_GRAND_PRIZE,大奖,Grand prize
-ALBUM_BOOK_1,珊瑚浅滩,Coral Shallows
-ALBUM_BOOK_2,贝壳沙湾,Shell Cove
+ALBUM_BOOK_1,晨光沙滩,Sunrise Shore
+ALBUM_BOOK_2,珊瑚花园,Coral Garden
 ALBUM_BOOK_3,海草森林,Kelp Forest
-ALBUM_BOOK_4,暗礁峡谷,Reef Canyon
-ALBUM_BOOK_5,深海幽域,The Deep
-ALBUM_BOOK_6,传说之海,Sea of Legends
+ALBUM_BOOK_4,沉船湾,Shipwreck Bay
+ALBUM_BOOK_5,水晶洞窟,Crystal Cave
+ALBUM_BOOK_6,海底宫殿,Sea Palace
 ALBUM_CLAIMED,已领取,Claimed
 ALBUM_TAKE,领取,Claim
-H_FINAL_PRIZE,终极大奖,Ultimate prize
 DAILY_START,开始挑战,Start
 DAILY_DONE,今日已完成,Done today
 DAILY_TOMORROW,明天再来,Come back tomorrow
@@ -217,13 +116,8 @@ DAILY_STREAK,连续过关 %d/%d 天,Streak %d/%d days
 DAILY_CHEST,每日宝箱,Daily chest
 DAILY_BIG_CHEST,七日大宝箱,7-day chest
 DAILY_RETRY,再试一次,Try again
-UI_TAB_DEX,图鉴,Dex
-DEX_MET,已遇见 %d/%d 种,Met %d/%d
-RANK_PRIZE_TOP,每周一按上周名次发奖：第 1 名 %d 金币 + 每种技能 %d 个,Weekly prizes every Monday: No.1 gets %d coins + %d of each skill
-RANK_PRIZE_REST,第 2 / 3 名 %d / %d 金币 + 技能 · 4–10 名 %d · 其余上榜 %d,No.2 / 3: %d / %d coins + skills · 4–10: %d · others: %d
-RANK_WEEK_PRIZE,上周排名第 %d,Last week: No.%d
 H_PRIZE_FRAME,头像框,Avatar frame
-UI_CARD_OWNED,已拥有，换 %d 金币,Already owned: +%d coins
+UI_CARD_OWNED,重复卡，已自动换成,"Duplicate, converted to"
 BASE_AREA_SHORE,晨光沙滩,Sunrise Shore
 BASE_AREA_CORAL,珊瑚花园,Coral Garden
 BASE_AREA_WRECK,沉船湾,Shipwreck Cove
@@ -250,15 +144,131 @@ BASE_STEP_CRYSTAL_3,引来泡泡泉,Start the bubble spring
 BASE_STEP_CRYSTAL_4,种发光海草,Plant glowing kelp
 BASE_STEP_CRYSTAL_5,挂起星星灯,Hang star lanterns
 BASE_STEP_PALACE_1,重建宫门,Rebuild the gate
-BASE_STEP_PALACE_2,立起廊柱,Raise the pillars
-BASE_STEP_PALACE_3,修好喷泉,Fix the fountain
-BASE_STEP_PALACE_4,铺珊瑚地毯,Roll out a coral carpet
+BASE_STEP_PALACE_2,立起左廊柱,Raise the left pillar
+BASE_STEP_PALACE_3,立起右廊柱,Raise the right pillar
+BASE_STEP_PALACE_4,修好喷泉,Fix the fountain
 BASE_STEP_PALACE_5,升起穹顶,Raise the dome
 BASE_BUILD,建造,Build
 BASE_PROGRESS,区域 %d/%d,Area %d/%d
 BASE_STEP_OF,第 %d/%d 步：%s,Step %d/%d: %s
 BASE_NEED_STARS,星星不够：首次过关得星星,Need more stars: clear new levels
-BASE_NEXT_AREA,下一个区域,Next area
 BASE_ALL_DONE,海湾已全部重建,The bay is rebuilt!
 BASE_AREA_DONE,区域重建完成！,Area rebuilt!
-BASE_CHEST,区域宝箱,Area chest
+BASE_AREA_KELP,海草森林,Kelp Forest
+BASE_STEP_KELP_1,种下海草丛,Plant the kelp
+BASE_STEP_KELP_2,搭蘑菇小屋,Build the mushroom hut
+BASE_STEP_KELP_3,挂起吊床,Hang the hammock
+BASE_STEP_KELP_4,点亮海草灯,Light the lanterns
+BASE_STEP_KELP_5,编起海草拱门,Weave the kelp arch
+REVIVE_TITLE,再试一次,Try again
+REVIVE_BUFFER,吹走暂存槽里的鱼，接着闯关,Blow the waiting fish back and keep going
+REVIVE_TIMEOUT,限时缸再加 30 秒,+30 seconds for the timed bowl
+REVIVE_STUCK,解开锁链和冰封，接着闯关,Break the chains and ice and keep going
+LIFE_MINUS,生命 −1,Life −1
+PAUSE_TITLE,暂停,Paused
+WIN_TITLE,通关成功,Level clear!
+WIN_DOUBLE,奖励翻倍,Double it
+RETURN_HOME,返回主页,Home
+SKILL_BUY_TITLE,补充%s,More %s
+SKILL_AD,看广告得 1 个,Watch ad: +1
+SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
+TEN_REWARD,十连奖励,10× rewards
+CARD_RARITY_NEW,新收藏！,New card!
+TAP_CONTINUE,点击继续,Tap to continue
+UI_PLAY,开始,Play
+UI_CHALLENGE_TAG,挑战,Hard
+DAILY_TITLE,每日挑战,Daily challenge
+ADS_LEFT,今日剩余 %d 次,%d left today
+MECH_TITLE,新玩法,New!
+GOT_IT,知道了,Got it
+SLOT_LINE,多一个鱼缸，这一关更好过。,One more bowl makes this level easier.
+LOCK_PREVIEW,解锁奖励预览,What you'll get
+H_FEAT_DAILY,每日挑战,Daily
+PRIZE_HOURS,%d 小时,%dh
+LV_CURRENT,当前,Now
+LV_LOCKED,先通过前面的关卡,Clear the earlier levels first
+LV_REPLAY_LEFT,今日重玩奖励 %d/%d,Replay rewards today %d/%d
+SHOP_AD_LEFT,今日 %d/%d,Today %d/%d
+SHOP_AD_DONE,今天的免费金币领完了,No more free coins today
+UI_FULL,已满,Full
+SHOP_FREE_COINS,免费金币,Free coins
+ALBUM_FINAL_PREVIEW,集齐 6 册可领,Complete all 6 albums
+DEX_RESCUED,已救 %d 只,Rescued %d
+RANK_TITLE,本周排行,This week
+RANK_RESET_IN,%d 天后重置,Resets in %d days
+RANK_WEEK_CLEARED,本周过关 %d,Cleared this week: %d
+RANK_TIER,%d 关,%d levels
+RANK_TIER_TITLE,本周过 %d 关,Clear %d this week
+RANK_ME,我,Me
+RANK_LEVELS,%d 关,%d
+PRIZE_RANDOM_SKILL,随机技能 ×%d,Random skill ×%d
+PROFILE_TITLE,个人资料,Profile
+PROFILE_DEFAULT_NAME,小鱼玩家,Fish Friend
+PROFILE_LEVEL,当前关卡,Level
+PROFILE_BEST_COMBO,最佳连击,Best combo
+PROFILE_CARDS,收藏进度,Cards
+DAILY_RETRY_HINT,看广告或花金币再试一次,Watch an ad or pay coins to retry
+PRIZE_COINS,金币,Coins
+SPECIES_C01,小丑丑,Clowny
+SPECIES_C02,泡泡豚,Puffy
+SPECIES_C03,星星糖,Starry
+SPECIES_C04,鲨小宝,Sharkle
+SPECIES_C05,钳钳,Pinchy
+SPECIES_C06,八爪团,Octo
+SPECIES_C07,卷卷马,Curly
+SPECIES_C08,果冻伞,Jelly
+SPECIES_C09,慢慢龟,Slowpoke
+SPECIES_C10,飞毯,Flappy
+SPECIES_C11,珍珠贝,Pearlie
+SPECIES_C12,墨墨,Inky
+SPECIES_C13,红须须,Whiskers
+SPECIES_C14,小灯笼,Lantern
+SPECIES_C15,尖尖,Pointy
+SPECIES_C16,跳跳豚,Hoppy
+SPECIES_C17,薄荷卷,Minty
+SPECIES_C18,汽水泡,Fizzy
+SPECIES_C19,盐团团,Salty
+SPECIES_C20,蓝豆豆,Bluebean
+SPECIES_C21,海纹纹,Stripes
+SPECIES_C22,沙花饼,Sandy
+SPECIES_C23,墨绒绒,Fuzzy
+SPECIES_C24,夜飘带,Ribbon
+SPECIES_C25,葡萄软,Grapey
+SPECIES_C26,紫弯弯,Twirl
+SPECIES_C27,芋耳朵,Taro
+SPECIES_C28,桃管管,Peachy
+SPECIES_C29,糯花花,Mochi
+SPECIES_C30,樱贝贝,Blossom
+SPECIES_U01,叶卷龙,Leafy
+SPECIES_U02,霞扇扇,Fanny
+SPECIES_U03,饼壳壳,Crusty
+SPECIES_U04,蛋黄爪,Yolky
+SPECIES_U05,青方方,Boxy
+SPECIES_U06,苹耳耳,Bunny
+SPECIES_U07,翠尾卷,Jade
+SPECIES_U08,叶背背,Leafback
+SPECIES_U09,薄荷墩,Minty Moo
+SPECIES_U10,浪裙裙,Frilly
+SPECIES_U11,冰围围,Frosty
+SPECIES_U12,雪领领,Snowy
+SPECIES_U13,星帽帽,Star Cap
+SPECIES_U14,芋飘飘,Drifty
+SPECIES_U15,桃绒条,Peach Pickle
+SPECIES_R01,珠卷卷,Pearl Curl
+SPECIES_R02,琉璃伞,Glass Brolly
+SPECIES_R03,花鼓鼓,Drum
+SPECIES_R04,珠帽丸,Pearl Cap
+SPECIES_R05,金扇饼,Gold Fan
+SPECIES_R06,星灯灯,Star Lamp
+SPECIES_R07,珠星酥,Pearl Star
+SPECIES_R08,珊钳钳,Coral Claws
+SPECIES_E01,晶背宝,Crystal Back
+SPECIES_E02,星披披,Star Cape
+SPECIES_E03,珠角团,Pearl Horn
+SPECIES_E04,云冠鲨,Cloud Shark
+SPECIES_E05,珠旋旋,Pearl Swirl
+SPECIES_L01,曦尾锦,Dawn Koi
+SPECIES_L02,月眠鲸,Moon Whale
+PROFILE_CHANGE_AVATAR,点击更换,Tap to change
+PROFILE_PICK_AVATAR,选择头像,Choose avatar
+PROFILE_DEFAULT_AVATAR,默认,Default

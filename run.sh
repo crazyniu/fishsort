@@ -1,106 +1,214 @@
 #!/usr/bin/env bash
-# 项目统一入口。不带参数 = 直接启动游戏试玩。
+# 项目统一入口。不带参数 = 构建网页版并打开试玩。
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# 找 Godot：优先用 GODOT 环境变量，其次 PATH，最后是 macOS 的应用程序目录
-find_godot() {
-  if [ -n "${GODOT:-}" ]; then echo "$GODOT"; return; fi
-  if command -v godot >/dev/null 2>&1; then echo godot; return; fi
-  local app bin
-  for app in /Applications/Godot*.app "$HOME"/Applications/Godot*.app; do
-    for bin in "$app"/Contents/MacOS/*; do
-      if [ -x "$bin" ]; then echo "$bin"; return; fi
-    done
+# 找 Cocos Creator：优先用 COCOS_CREATOR 环境变量，其次 macOS 上 3.8.8 的默认安装位置
+COCOS_VERSION=3.8.8
+find_cocos() {
+  if [ -n "${COCOS_CREATOR:-}" ]; then echo "$COCOS_CREATOR"; return; fi
+  local bin
+  for bin in /Applications/Cocos/Creator/$COCOS_VERSION/CocosCreator.app/Contents/MacOS/CocosCreator \
+             "$HOME"/Applications/Cocos/Creator/$COCOS_VERSION/CocosCreator.app/Contents/MacOS/CocosCreator; do
+    if [ -x "$bin" ]; then echo "$bin"; return; fi
   done
-  echo godot
+  echo CocosCreator
 }
-GODOT="$(find_godot)"
+COCOS="$(find_cocos)"
+CLIENT="$PWD/client"
+WEB_PORT="${WEB_PORT:-8080}"
 
 usage() {
   cat <<'EOF'
 用法: ./run.sh [命令]
 
-  (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
-                        FISHSORT_LEVEL=65 ./run.sh 直接跳到第 65 关（仅试玩模式）
-                        FISHSORT_AUTOPLAY=1 ./run.sh 机器人代打（仅调试构建，验收用）
-  real                  启动游戏，按真实存档进度玩，不加资源
-  editor                打开 Godot 编辑器
-  test                  跑 src/core 单元测试
-  lint                  代码风格检查
-  check                 lint + test（与 CI 相同）
-  level-gen             生成关卡
-  level-verify          全量关卡校验（慢）
-  level-verify-changed  只校验改动过的关卡
+试玩（在装了 Cocos Creator 3.8.8 的 Mac 上）：
+  (无)                  构建网页版并在浏览器里打开。试玩模式：金币、技能已加满
+  level <N>             同上，直接进第 N 关
+  auto [N]              同上，局内由机器人代打（看连击、结算、宝箱等画面用）；给了 N 就打第 N 关，否则打当前关
+  page <名字>           同上，启动后直接打开某一页（levels、shop、wheel、daily、rank…）
+  real                  按真实存档进度玩，不加资源
+                        以上参数可以连着写：./run.sh real level 65 auto
+  serve [同上的参数]    不重新构建，直接打开上次的构建
+  build                 只构建网页版 → client/build/web-mobile
+  wechat-build          构建微信小游戏包 → client/build/wechatgame
+  editor                用 Cocos Creator 打开 client/
+  clean                 清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
+  cdp logs [秒] | eval '<表达式>' | shot <图> | burst <目录> <张数> <间隔毫秒> '<JS>'
+                        调试：读试玩浏览器的控制台、在页面里求值、截图、连拍
+
+开发（Linux 或 CI，只需要 Node 22 以上）：
+  check                 类型检查 + 单元测试 + .meta 与图片压缩检查（与 CI 相同）
+  test                  只跑单元测试
+  level-gen [起] [止]   按难度曲线生成关卡
+  level-verify [文件…]  校验关卡（不给文件就校验全部；--runs=N 改机器人局数）
+  meta                  给 client/assets 里缺 .meta 的资源补 .meta（结果要提交）
+  art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
   font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
+
+环境变量：WEB_PORT（本地服务端口，默认 8080）、COCOS_CREATOR（Cocos Creator 可执行文件的路径）
 EOF
 }
 
 die() { echo "✗ $*" >&2; exit 1; }
 
-need_godot() {
-  command -v "$GODOT" >/dev/null || die "找不到 Godot：请把 Godot.app 放进「应用程序」目录，或用 GODOT=/路径/godot ./run.sh 指定"
+need_cocos() {
+  [ -x "$COCOS" ] || command -v "$COCOS" >/dev/null || die "找不到 Cocos Creator ${COCOS_VERSION}：装到 /Applications/Cocos/Creator/$COCOS_VERSION/，或用 COCOS_CREATOR=/路径/CocosCreator ./run.sh 指定"
+}
+
+# 命令行构建；Cocos 成功时退出码是 36（32 = 参数错误，34 = 构建出错）
+cocos_build_once() {
+  local platform="$1" code=0
+  # Cocos 3.8.8 命令行构建在已有缓存上增量导入时，资源会全被标成 importer "*"、运行黑屏（Mac 上反复遇到）；
+  # 每次从空缓存导入最稳。COCOS_KEEP_CACHE=1 可以跳过
+  [ "${COCOS_KEEP_CACHE:-}" = "1" ] || rm -rf "$CLIENT/library" "$CLIENT/temp"
+  "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
+  return "$code"
+}
+
+# 导入坏了：.meta 被改成 importer "*"（编辑器启动时插件重载和资源库启动抢跑，偶发）
+import_broken() {
+  grep -rlq '"importer": "\*"' "$CLIENT/assets" --include='*.meta'
+}
+
+cocos_build() {
+  local platform="$1" code=0 try
+  need_cocos
+  for try in 1 2 3; do
+    code=0
+    cocos_build_once "$platform" || code=$?
+    if [ "$code" -eq 36 ] && ! import_broken; then break; fi
+    if import_broken; then
+      echo "! 第 $try 次构建资源导入坏了（importer \"*\"），还原 .meta 后清缓存重来"
+      git checkout -- "$CLIENT/assets"
+      code=1
+    fi
+  done
+  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 $code）"
+  echo "✓ 已构建 $platform → client/build/$platform"
+  # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
+  if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
+    echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
+    git status --short -- client | head -20
+  fi
+}
+
+# 试玩参数 → 地址栏参数（client/assets/scripts/services/launch.ts 读）：real、level <N>、auto [N]、page <名字>
+web_url() {
+  local q=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      real) q="${q}&real=1" ;;
+      level)
+        [[ "${2:-}" =~ ^[0-9]+$ ]] || die "用法: ./run.sh level <关卡号>"
+        q="${q}&level=$2&play=1"; shift ;;
+      auto)
+        q="${q}&autoplay=1"
+        if [[ "${2:-}" =~ ^[0-9]+$ ]]; then q="${q}&level=$2"; shift; fi ;;
+      page)
+        [ -n "${2:-}" ] || die "用法: ./run.sh page <页面名>"
+        q="${q}&page=$2"; shift ;;
+      *) die "不认识的试玩参数：$1（可用 real、level <N>、auto [N]、page <名字>）" ;;
+    esac
+    shift
+  done
+  echo "http://localhost:${WEB_PORT}/${q:+?${q#&}}"
+}
+
+web_serve() {
+  local dir="$CLIENT/build/web-mobile" url
+  url="$(web_url "$@")"
+  need_file "$dir/index.html" "先跑 ./run.sh build"
+  echo "→ ${url}（Ctrl+C 停止）"
+  # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏。
+  # 后三个参数：窗口被别的窗口挡住时也照常跑（不然远程截图、连拍时画面是停的）
+  local chrome=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
+  if [ -x "$chrome" ]; then
+    (sleep 1; "$chrome" --user-data-dir="${TMPDIR:-/tmp}/fishsort-chrome" --no-first-run --remote-debugging-port=9333 \
+      --no-default-browser-check --app="$url" --window-size=450,832 \
+      --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling >/dev/null 2>&1) &
+  elif command -v open >/dev/null; then
+    (sleep 1; open "$url") &
+  fi
+  exec python3 -m http.server "$WEB_PORT" --bind 127.0.0.1 --directory "$dir"
+}
+
+need_node_modules() {
+  command -v node >/dev/null || die "找不到 node（需要 Node 22 以上）"
+  [ -d client/node_modules ] || (cd client && npm ci)
 }
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
 
-# 刷新 Godot 的类名缓存与资源导入；新增脚本后 headless 工具依赖它
-import_project() {
-  # 全新检出时要导入两遍：第一遍字体还没导入完，引用它的资源会报错
-  [ -d .godot ] || "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
-  "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
-}
-
 cmd="${1:-play}"
-[ $# -gt 0 ] && shift
+case "$cmd" in
+  # 试玩参数直接跟在 ./run.sh 后面：整串都交给 play
+  real|level|auto|page) cmd=play ;;
+  *) if [ $# -gt 0 ]; then shift; fi ;;
+esac
 
 case "$cmd" in
   play)
-    need_godot; import_project
-    # 默认把金币、星星、鱼票、道具加满方便测试；想按真实进度玩用 ./run.sh real
-    # FISHSORT_LEVEL=N 可直接跳到第 N 关，由 save_service 读取
-    FISHSORT_BOOST=1 exec "$GODOT" --path . "$@"
+    # 先把参数检查一遍，写错了不用等构建完才知道
+    web_url "$@" >/dev/null
+    cocos_build web-mobile
+    web_serve "$@"
     ;;
-  real)
-    need_godot; import_project
-    exec "$GODOT" --path . "$@"
-    ;;
+  serve)        web_serve "$@" ;;
+  build)        cocos_build web-mobile ;;
+  wechat-build) cocos_build wechatgame ;;
   editor)
-    need_godot
-    exec "$GODOT" --path . --editor "$@"
+    need_cocos
+    exec "$COCOS" --project "$CLIENT" "$@"
     ;;
-  test)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tests/run_tests.gd "$@"
+  clean)
+    # 都是 Cocos 生成的缓存，不进仓库；导入状态坏了（资源被标成 importer "*"、黑屏）时清掉重来
+    rm -rf client/library client/temp client/build client/local
+    echo "✓ 已清掉 client/library、temp、build、local"
     ;;
-  lint)
-    command -v gdlint >/dev/null || die "找不到 gdlint，先执行: pip install gdtoolkit"
-    gdlint src tools tests
-    gdformat --check src tools tests
+  cdp)
+    node tools/cocos/cdp.mjs "$@"
     ;;
   check)
-    "$0" lint
-    "$0" test
+    need_node_modules
+    node tools/cocos/meta.mjs --check
+    (cd client && node tools/art/compress.mjs --check)
+    # Cocos 3.8 构建用的 Babel 不认「as 后面跟联合类型」，打包脚本会失败，Linux 上的 tsc 查不出来
+    if grep -rnE '^[^/]*[^/]\bas [^;,)=]*\|' client/assets/scripts --include='*.ts'; then
+      die "上面几处是 as X | Y 的写法，Cocos 构建会失败，换成函数收窄"
+    fi
+    # Cocos 的 Babel（松散模式）把 [...迭代器] 编成 [].concat(迭代器)：Map / Set 展开出来是错的，用 Array.from
+    if grep -rnE '\[\.\.\.(new (Set|Map)|[A-Za-z_.]*\.(values|keys|entries)\(\))' client/assets/scripts --include='*.ts'; then
+      die "上面几处展开了 Map / Set / 迭代器，Cocos 构建后结果不对，换成 Array.from(...)"
+    fi
+    (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json)
+    # 用到 cc 的脚本要 Cocos 的类型声明（client/.cc-types，从 Mac 的 Cocos 取，不进仓库）；没有就跳过
+    if [ -f client/.cc-types/cc.d.ts ]; then (cd client && npx tsc -p tsconfig.client.json); else echo "（没有 client/.cc-types，跳过界面层类型检查）"; fi
+    (cd client && npx tsx --test tests/*.test.ts)
+    ;;
+  test)
+    need_node_modules
+    (cd client && npx tsx --test tests/*.test.ts "$@")
     ;;
   level-gen)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tools/level/gen.gd -- "$@"
+    need_node_modules
+    (cd client && npx tsx tools/level/gen.ts "$@")
     ;;
   level-verify)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tools/level/verify.gd -- "$@"
+    need_node_modules
+    (cd client && npx tsx tools/level/verify.ts "$@")
     ;;
-  level-verify-changed)
-    need_godot; import_project
-    base="${BASE_REF:-origin/main}"
-    files="$(git diff --name-only --diff-filter=AM "$base" -- 'config/levels/*.json' 2>/dev/null || true)"
-    if [ -z "$files" ]; then echo "没有改动的关卡"; exit 0; fi
-    # 关卡文件名不含空格，按空白拆分即可（兼容 macOS 自带的 bash 3.2）
-    # shellcheck disable=SC2086
-    "$GODOT" --headless --path . -s tools/level/verify.gd -- $files
+  meta)
+    node tools/cocos/meta.mjs "$@"
+    ;;
+  art-compress)
+    # 包体：PNG 量化成调色板、家园物件缩到 2 倍、背景音乐转 mp3；之后补 .meta
+    need_node_modules
+    (cd client && node tools/art/compress.mjs && node tools/audio/bgm_mp3.mjs)
+    node tools/cocos/meta.mjs
     ;;
   font-subset)
-    python3 tools/font/subset.py "$@"
+    python3 client/tools/font_subset.py "$@"
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;

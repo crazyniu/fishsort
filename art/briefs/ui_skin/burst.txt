@@ -1,0 +1,6 @@
+Game effect art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly TWO separate effect graphics side by side, each about 640 px, not touching each other or the image border:
+1) LEFT: a celebratory comic starburst explosion: a bold 12-point star burst shape with sharp alternating long and short points, filled with a glossy radial gradient from bright white-yellow in the center to golden yellow at the tips, a thick dark navy outline, a second inner burst outline in light yellow, a few small sparkle stars and tiny round bubbles scattered just outside the points. Center is empty and plain (text will be placed on it).
+2) RIGHT: a round combo medallion badge: a glossy flame-like ring made of rounded orange-to-yellow fire tongues around a deep royal-blue glossy circle with a bright cyan rim; the blue circle is empty and plain (a number will be placed on it); thick dark navy outline.
+Cute chunky casual mobile game style, glossy candy highlights. No text, no letters, no numbers, no cast shadow, no other objects. Do not imitate any existing game.
+Reply with only the saved file path.

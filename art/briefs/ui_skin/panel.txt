@@ -1,0 +1,7 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE square image (1024x1024). Pure flat white background (#FFFFFF) everywhere.
+In the center draw a single BLANK square card panel, about 860 x 860 px, straight-on orthographic front view, left-right symmetric, not touching the image border.
+Shape: a rounded square with corner radius about 9% of its size.
+Material: glossy blue glass like the item cards in the attached reference image (reference is for material, color and lighting only): a saturated azure-to-royal-blue vertical gradient fill (brighter sky blue near the top, deeper blue near the bottom); a thin dark navy outline around the silhouette; just inside it a bright light-cyan glowing rim border about 1.5% of the size thick; a soft lighter inner glow hugging the inside of the rim; one short glossy white highlight streak near the top-left corner along the rim.
+The whole interior must be empty and smooth: no objects, no bubbles, no sparkles, no texture, no pattern, and perfectly uniform from left to right in the middle 70% so the art can be stretched.
+No text, no letters, no icons, no cast shadow, no outer glow, nothing else in the image. Do not imitate any existing game.
+Reply with only the saved file path.

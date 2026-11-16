@@ -1,15 +1,14 @@
-# Godot
-.godot/
-*.translation
+# 构建产物与签名
 /build/
 *.apk
 *.aab
 *.keystore
 *.jks
 
-# 美术原始产出与工具输出
+# 美术原始产出与工具的中间产物
 art/raw/
-tools/level/report.csv
+client/tools/audio/.synth/
+__pycache__/
 
 # 系统与编辑器
 .DS_Store

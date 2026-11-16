@@ -1,0 +1,637 @@
+{
+ "ui/bg/home": [
+  "raw:cocos1/bg_home.png",
+  750,
+  "jpg"
+ ],
+ "ui/bg/sea_shore": [
+  "raw:cocos1/bg_sea_shore.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/shore_bg": [
+  "raw:cocos1/base_shore_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/shore_1": [
+  "raw:cocos1/base_shore_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/shore_2": [
+  "raw:cocos1/base_shore_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/shore_3": [
+  "raw:cocos1/base_shore_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/shore_4": [
+  "raw:cocos1/base_shore_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/shore_5": [
+  "raw:cocos1/base_shore_5.png",
+  210,
+  "png"
+ ],
+ "ui/bg/sea_coral": [
+  "raw:cocos1/bg_sea_coral.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/coral_bg": [
+  "raw:cocos1/base_coral_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/coral_1": [
+  "raw:cocos1/base_coral_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/coral_2": [
+  "raw:cocos1/base_coral_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/coral_3": [
+  "raw:cocos1/base_coral_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/coral_4": [
+  "raw:cocos1/base_coral_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/coral_5": [
+  "raw:cocos1/base_coral_5.png",
+  210,
+  "png"
+ ],
+ "ui/bg/sea_kelp": [
+  "raw:cocos1/bg_sea_kelp.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/kelp_bg": [
+  "raw:cocos1/base_kelp_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/kelp_1": [
+  "raw:cocos1/base_kelp_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/kelp_2": [
+  "raw:cocos1/base_kelp_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/kelp_3": [
+  "raw:cocos1/base_kelp_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/kelp_4": [
+  "raw:cocos1/base_kelp_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/kelp_5": [
+  "raw:cocos1/base_kelp_5.png",
+  210,
+  "png"
+ ],
+ "ui/bg/sea_wreck": [
+  "raw:cocos1/bg_sea_wreck.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/wreck_bg": [
+  "raw:cocos1/base_wreck_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/wreck_1": [
+  "raw:cocos1/base_wreck_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/wreck_2": [
+  "raw:cocos1/base_wreck_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/wreck_3": [
+  "raw:cocos1/base_wreck_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/wreck_4": [
+  "raw:cocos1/base_wreck_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/wreck_5": [
+  "raw:cocos1/base_wreck_5.png",
+  210,
+  "png"
+ ],
+ "ui/bg/sea_crystal": [
+  "raw:cocos1/bg_sea_crystal.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/crystal_bg": [
+  "raw:cocos1/base_crystal_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/crystal_1": [
+  "raw:cocos1/base_crystal_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/crystal_2": [
+  "raw:cocos1/base_crystal_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/crystal_3": [
+  "raw:cocos1/base_crystal_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/crystal_4": [
+  "raw:cocos1/base_crystal_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/crystal_5": [
+  "raw:cocos1/base_crystal_5.png",
+  210,
+  "png"
+ ],
+ "ui/bg/sea_palace": [
+  "raw:cocos1/bg_sea_palace.png",
+  750,
+  "jpg"
+ ],
+ "ui/base/palace_bg": [
+  "raw:cocos1/base_palace_bg.png",
+  690,
+  "jpg"
+ ],
+ "ui/base/palace_1": [
+  "raw:cocos1/base_palace_1.png",
+  210,
+  "png"
+ ],
+ "ui/base/palace_2": [
+  "raw:cocos1/base_palace_2.png",
+  210,
+  "png"
+ ],
+ "ui/base/palace_3": [
+  "raw:cocos1/base_palace_3.png",
+  210,
+  "png"
+ ],
+ "ui/base/palace_4": [
+  "raw:cocos1/base_palace_4.png",
+  210,
+  "png"
+ ],
+ "ui/base/palace_5": [
+  "raw:cocos1/base_palace_5.png",
+  210,
+  "png"
+ ],
+ "ui/icon/tab_shop": [
+  "raw:cocos1/tab_shop.png",
+  92,
+  "png"
+ ],
+ "ui/icon/tab_base": [
+  "raw:cocos1/tab_base.png",
+  92,
+  "png"
+ ],
+ "ui/icon/tab_collect": [
+  "raw:cocos1/tab_collect.png",
+  92,
+  "png"
+ ],
+ "ui/icon/tab_rank": [
+  "raw:cocos1/tab_rank.png",
+  92,
+  "png"
+ ],
+ "ui/icon/tab_home": [
+  "art/source/ui/tab_main.png",
+  92,
+  "png"
+ ],
+ "ui/icon/entry_signin": [
+  "raw:cocos1/entry_signin.png",
+  130,
+  "png"
+ ],
+ "ui/icon/entry_wheel": [
+  "raw:cocos1/entry_wheel.png",
+  130,
+  "png"
+ ],
+ "ui/icon/entry_levels": [
+  "raw:cocos1/entry_levels.png",
+  130,
+  "png"
+ ],
+ "ui/icon/entry_daily": [
+  "raw:cocos1/entry_daily.png",
+  130,
+  "png"
+ ],
+ "ui/icon/skill_shuffle": [
+  "raw:cocos1/skill_shuffle.png",
+  130,
+  "png"
+ ],
+ "ui/icon/skill_blow": [
+  "raw:cocos1/skill_blow.png",
+  130,
+  "png"
+ ],
+ "ui/icon/skill_net": [
+  "art/source/ui/tool_net.png",
+  130,
+  "png"
+ ],
+ "ui/icon/skill_current": [
+  "art/source/ui/tool_current.png",
+  130,
+  "png"
+ ],
+ "ui/icon/chest_daily": [
+  "raw:cocos1/chest_daily.png",
+  220,
+  "png"
+ ],
+ "ui/icon/chest_daily_open": [
+  "raw:cocos1/chest_daily_open.png",
+  220,
+  "png"
+ ],
+ "ui/icon/card_back": [
+  "raw:cocos1/card_back.png",
+  200,
+  "png"
+ ],
+ "ui/icon/coin": [
+  "art/source/ui/coin.png",
+  64,
+  "png"
+ ],
+ "ui/icon/heart": [
+  "art/source/ui/heart.png",
+  64,
+  "png"
+ ],
+ "ui/icon/heart_inf": [
+  "art/source/ui/heart_inf.png",
+  64,
+  "png"
+ ],
+ "ui/icon/star": [
+  "art/source/ui/star.png",
+  80,
+  "png"
+ ],
+ "ui/icon/lock": [
+  "art/source/ui/lock.png",
+  80,
+  "png"
+ ],
+ "ui/icon/gift": [
+  "art/source/ui/gift.png",
+  120,
+  "png"
+ ],
+ "ui/icon/ice": [
+  "art/source/ui/ice.png",
+  160,
+  "png"
+ ],
+ "ui/icon/avatar": [
+  "art/source/ui/avatar.png",
+  96,
+  "png"
+ ],
+ "fish/c01": [
+  "art/source/fish/c01.png",
+  64,
+  "png"
+ ],
+ "fish/c02": [
+  "art/source/fish/c02.png",
+  64,
+  "png"
+ ],
+ "fish/c03": [
+  "art/source/fish/c03.png",
+  64,
+  "png"
+ ],
+ "fish/c04": [
+  "art/source/fish/c04.png",
+  64,
+  "png"
+ ],
+ "fish/c05": [
+  "art/source/fish/c05.png",
+  64,
+  "png"
+ ],
+ "fish/c06": [
+  "art/source/fish/c06.png",
+  64,
+  "png"
+ ],
+ "fish/c07": [
+  "art/source/fish/c07.png",
+  64,
+  "png"
+ ],
+ "fish/c08": [
+  "art/source/fish/c08.png",
+  64,
+  "png"
+ ],
+ "fish/c09": [
+  "art/source/fish/c09.png",
+  64,
+  "png"
+ ],
+ "fish/c10": [
+  "art/source/fish/c10.png",
+  64,
+  "png"
+ ],
+ "fish/c11": [
+  "art/source/fish/c11.png",
+  64,
+  "png"
+ ],
+ "fish/c12": [
+  "art/source/fish/c12.png",
+  64,
+  "png"
+ ],
+ "fish/c13": [
+  "art/source/fish/c13.png",
+  64,
+  "png"
+ ],
+ "fish/c14": [
+  "art/source/fish/c14.png",
+  64,
+  "png"
+ ],
+ "fish/c15": [
+  "art/source/fish/c15.png",
+  64,
+  "png"
+ ],
+ "fish/c16": [
+  "art/source/fish/c16.png",
+  64,
+  "png"
+ ],
+ "fish/c17": [
+  "art/source/fish/c17.png",
+  64,
+  "png"
+ ],
+ "fish/c18": [
+  "art/source/fish/c18.png",
+  64,
+  "png"
+ ],
+ "fish/c19": [
+  "art/source/fish/c19.png",
+  64,
+  "png"
+ ],
+ "fish/c20": [
+  "art/source/fish/c20.png",
+  64,
+  "png"
+ ],
+ "fish/c21": [
+  "art/source/fish/c21.png",
+  64,
+  "png"
+ ],
+ "fish/c22": [
+  "art/source/fish/c22.png",
+  64,
+  "png"
+ ],
+ "fish/c23": [
+  "art/source/fish/c23.png",
+  64,
+  "png"
+ ],
+ "fish/c24": [
+  "art/source/fish/c24.png",
+  64,
+  "png"
+ ],
+ "fish/c25": [
+  "art/source/fish/c25.png",
+  64,
+  "png"
+ ],
+ "fish/c26": [
+  "art/source/fish/c26.png",
+  64,
+  "png"
+ ],
+ "fish/c27": [
+  "art/source/fish/c27.png",
+  64,
+  "png"
+ ],
+ "fish/c28": [
+  "art/source/fish/c28.png",
+  64,
+  "png"
+ ],
+ "fish/c29": [
+  "art/source/fish/c29.png",
+  64,
+  "png"
+ ],
+ "fish/c30": [
+  "art/source/fish/c30.png",
+  64,
+  "png"
+ ],
+ "fish/e01": [
+  "art/source/fish/e01.png",
+  64,
+  "png"
+ ],
+ "fish/e02": [
+  "art/source/fish/e02.png",
+  64,
+  "png"
+ ],
+ "fish/e03": [
+  "art/source/fish/e03.png",
+  64,
+  "png"
+ ],
+ "fish/e04": [
+  "art/source/fish/e04.png",
+  64,
+  "png"
+ ],
+ "fish/e05": [
+  "art/source/fish/e05.png",
+  64,
+  "png"
+ ],
+ "fish/l01": [
+  "art/source/fish/l01.png",
+  64,
+  "png"
+ ],
+ "fish/l02": [
+  "art/source/fish/l02.png",
+  64,
+  "png"
+ ],
+ "fish/r01": [
+  "art/source/fish/r01.png",
+  64,
+  "png"
+ ],
+ "fish/r02": [
+  "art/source/fish/r02.png",
+  64,
+  "png"
+ ],
+ "fish/r03": [
+  "art/source/fish/r03.png",
+  64,
+  "png"
+ ],
+ "fish/r04": [
+  "art/source/fish/r04.png",
+  64,
+  "png"
+ ],
+ "fish/r05": [
+  "art/source/fish/r05.png",
+  64,
+  "png"
+ ],
+ "fish/r06": [
+  "art/source/fish/r06.png",
+  64,
+  "png"
+ ],
+ "fish/r07": [
+  "art/source/fish/r07.png",
+  64,
+  "png"
+ ],
+ "fish/r08": [
+  "art/source/fish/r08.png",
+  64,
+  "png"
+ ],
+ "fish/u01": [
+  "art/source/fish/u01.png",
+  64,
+  "png"
+ ],
+ "fish/u02": [
+  "art/source/fish/u02.png",
+  64,
+  "png"
+ ],
+ "fish/u03": [
+  "art/source/fish/u03.png",
+  64,
+  "png"
+ ],
+ "fish/u04": [
+  "art/source/fish/u04.png",
+  64,
+  "png"
+ ],
+ "fish/u05": [
+  "art/source/fish/u05.png",
+  64,
+  "png"
+ ],
+ "fish/u06": [
+  "art/source/fish/u06.png",
+  64,
+  "png"
+ ],
+ "fish/u07": [
+  "art/source/fish/u07.png",
+  64,
+  "png"
+ ],
+ "fish/u08": [
+  "art/source/fish/u08.png",
+  64,
+  "png"
+ ],
+ "fish/u09": [
+  "art/source/fish/u09.png",
+  64,
+  "png"
+ ],
+ "fish/u10": [
+  "art/source/fish/u10.png",
+  64,
+  "png"
+ ],
+ "fish/u11": [
+  "art/source/fish/u11.png",
+  64,
+  "png"
+ ],
+ "fish/u12": [
+  "art/source/fish/u12.png",
+  64,
+  "png"
+ ],
+ "fish/u13": [
+  "art/source/fish/u13.png",
+  64,
+  "png"
+ ],
+ "fish/u14": [
+  "art/source/fish/u14.png",
+  64,
+  "png"
+ ],
+ "fish/u15": [
+  "art/source/fish/u15.png",
+  64,
+  "png"
+ ]
+}

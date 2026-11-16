@@ -1,0 +1,7 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+In the center draw a single BLANK horizontal ribbon banner, straight-on front view, left-right symmetric, about 1400 px wide overall, not touching the image border.
+Shape: a perfectly STRAIGHT horizontal center band (not arched, not curved), about 260 px tall and about 1000 px long, with a folded ribbon tail at each end that sits slightly lower and behind the band, each tail ending in a V-shaped notch.
+Material matching the banner in the attached reference image (reference is for material, color and lighting only; ignore its text, stars and characters): glossy royal-blue jelly, thin dark navy outline, bright cyan highlight rim along the top edge of the band, a soft gloss on the upper part, slightly darker thickness lip along the bottom edge; the tails are a deeper blue with a dark fold shadow where they tuck behind the band.
+The middle 60% of the band must be perfectly uniform from left to right so it can be stretched.
+No text, no letters, no stars, no icons, no cast shadow, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -1,0 +1,6 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE square image (1024x1024). Pure flat white background (#FFFFFF) everywhere.
+In the center draw a single EMPTY round glass fish bowl, about 760 px wide, straight-on front view, left-right symmetric, not touching the image border, matching the glossy glass bowls in the attached reference image (reference is for material only; do NOT draw any fish, plus sign or shelf).
+The bowl: clear glass sphere with a wide flared rim at the top, filled about two thirds with clear light-aqua water (visible water line with a soft lighter surface ellipse), crisp white curved glass highlights on the upper left, a thin soft cyan edge outline, very subtle bluish tint in the glass, a few tiny bubbles in the water, a little bright caustic glow at the bottom.
+The water and glass must look transparent and light (not dark), so fish drawn on top stay clearly visible.
+No fish, no text, no icons, no sand, no plants, no stand, no cast shadow, no outer glow. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -1,0 +1,9 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly FOUR separate pieces of Chinese title lettering (word art), arranged in a 2 x 2 grid, each centered in its quarter, separated by plenty of white space, not touching each other or the image border. Each word must be written EXACTLY with these Chinese characters, horizontal, upright (not tilted, not italic), every stroke correct and legible:
+1) top-left: 不错!  — glossy cyan-to-sky-blue candy letters;
+2) top-right: 漂亮!  — glossy golden-yellow to orange candy letters;
+3) bottom-left: 太强了!  — glossy coral-red to hot-pink candy letters;
+4) bottom-right: 无敌!  — glossy violet-purple to magenta candy letters.
+Style for all four: chunky, rounded, bouncy cartoon game lettering like a celebration banner text in a cute casual mobile game; thick dark navy outline around every character, a second thin white outer rim, strong 3D extrusion depth on the bottom in a darker shade, glossy white highlight streaks on the top of each stroke, a few tiny sparkle stars around each word. Each word about 600 px wide.
+No background shapes, no ribbon, no banner, no bow, no frame behind the words, no other text, no cast shadow. Do not imitate any existing game.
+Reply with only the saved file path.
