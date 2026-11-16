@@ -83,7 +83,7 @@ export class HomePage extends Page {
     this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
     this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'), 1.18);
     this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
-    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 94, spacing: 10, onTap: () => Flow.startLevel(App.save.data.level) });
+    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 94, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
     this.levelPill = plate(root, 'skin/j_plate', 232, LABEL_H, 'levelPill');
     at(this.levelPill, 0, pillY);

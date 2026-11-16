@@ -288,8 +288,6 @@ export interface TextOpts {
   width?: number;
   lineHeight?: number;
   bold?: boolean;
-  /** 字间距（设计单位）；两三个字的大按钮略拉开更稳 */
-  spacing?: number;
 }
 
 /**
@@ -324,7 +322,6 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
     l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 18)));
     l.shadowBlur = 1;
   }
-  if (o.spacing) l.spacingX = o.spacing;
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
   l.verticalAlign = VerticalTextAlignment.CENTER;
@@ -462,8 +459,6 @@ export interface BtnOpts {
   h: number;
   label?: string;
   fontSize?: number;
-  /** 字间距 */
-  spacing?: number;
   /** 文字前的小图标（视频、金币…） */
   icon?: string;
   iconSize?: number;
@@ -496,7 +491,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const is = o.iconSize ?? Math.round(o.h * 0.5);
     icon = img(row, o.icon, is, is, 'icon');
   }
-  const label = o.label !== undefined ? text(row, o.label, fs, o.spacing ? { spacing: o.spacing } : {}) : null;
+  const label = o.label !== undefined ? text(row, o.label, fs) : null;
   const layout = () => {
     const gap = 10;
     const ic = icon && icon.active ? icon : null;

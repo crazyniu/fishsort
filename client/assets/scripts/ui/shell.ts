@@ -166,24 +166,25 @@ class TopBar {
     const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
     at(well, (x1 + x2) / 2, 1);
     // 金币：图标 + 数字（最多 7 位带千分位）+ 绿色加号
-    const coinTap = box('coins', this.node, 296, 92);
-    at(coinTap, x1 + 148, 0);
-    at(img(coinTap, 'icon/coin', 62, 62, 'icon'), -148 + 36, 2);
-    this.coins = text(coinTap, '0', 40, { align: 'left' });
-    at(this.coins.node, -148 + 72, 1);
-    at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), 148 - 34, 2);
+    const CW = 312;
+    const coinTap = box('coins', this.node, CW, 92);
+    at(coinTap, x1 + CW / 2, 0);
+    at(img(coinTap, 'icon/coin', 62, 62, 'icon'), -CW / 2 + 36, 2);
+    this.coins = text(coinTap, '0', 38, { align: 'left' });
+    at(this.coins.node, -CW / 2 + 72, 1);
+    at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), CW / 2 - 32, 2);
     onTap(coinTap, actions.coins);
     const sep = tint(this.node, 3, 40, hex('#7FC4FF'), 'sep');
     opacity(sep).opacity = 110;
-    at(sep, x1 + 300, 1);
+    at(sep, x1 + CW + 6, 1);
     // 生命：图标 + 数量，回满前后面跟一个小号倒计时
-    const lifeTap = box('lives', this.node, x2 - x1 - 304, 92);
-    const lw = x2 - x1 - 304;
-    at(lifeTap, x1 + 304 + lw / 2, 0);
+    const lw = x2 - x1 - CW - 10;
+    const lifeTap = box('lives', this.node, lw, 92);
+    at(lifeTap, x1 + CW + 10 + lw / 2, 0);
     this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
-    at(this.heart, -lw / 2 + 38, 2);
-    this.lives = text(lifeTap, '5/5', 40, { align: 'left' });
-    at(this.lives.node, -lw / 2 + 74, 1);
+    at(this.heart, -lw / 2 + 36, 2);
+    this.lives = text(lifeTap, '5/5', 38, { align: 'left' });
+    at(this.lives.node, -lw / 2 + 72, 1);
     this.timer = text(lifeTap, '', 26, { align: 'left', color: hex('#CFE7FF') });
     onTap(lifeTap, actions.lives);
     at(keyButton(this.node, 'blue', 'skin/g_gear', 72, actions.settings), BW / 2 - 12 - 36, 1);
@@ -200,7 +201,7 @@ class TopBar {
     const t = now();
     if (this.shownCoins !== s.coins) {
       const str = fmt(s.coins);
-      this.coins.fontSize = str.length > 7 ? 32 : 40;
+      this.coins.fontSize = str.length > 7 ? 32 : 38;
       this.coins.string = str;
       if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;
