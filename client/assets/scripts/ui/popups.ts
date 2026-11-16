@@ -411,6 +411,9 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   if (panel) panel.active = false;
   // 没有卡片底板：字直接压在压暗的背景上，用白字深描边
   setInk(p.body, DARK_INK);
+  // 亮卡是全屏时刻：背景压得更暗，下面的按钮、文字不抢眼
+  const dim = p.root.getChildByName('dim')?.getComponent(Sprite);
+  if (dim) dim.color = new Color(0, 14, 44, 225);
   const epic = Cards.rank(App.config.eco, c.rarity) >= 3;
   const glow = fx.rays(p.body, 620);
   (glow.getComponent(Sprite) as Sprite).color = RARITY_GLOW[c.rarity] ?? COLOR.white;
