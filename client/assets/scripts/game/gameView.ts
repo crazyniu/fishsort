@@ -73,7 +73,7 @@ export class GamePage extends Page {
   private comboLabel!: Label;
   private comboCoins!: Label;
   private comboBar!: Node;
-  private comboBarW = 220;
+  private comboBarW = 180;
   private shelf!: Node;
   private bowls: (BowlView | null)[] = [];
   private bowlX: number[] = [];
@@ -169,8 +169,6 @@ export class GamePage extends Page {
     const sea = eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore';
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
-    // 局内背景压暗一层，让鱼最醒目（docs/09 第 11 节）
-    tint(this.bg, Screen.W * 2, Screen.H * 2, new Color(10, 37, 96, 90), 'calm');
 
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
@@ -182,15 +180,16 @@ export class GamePage extends Page {
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 72, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 52, hudY);
-    this.comboRow = box('combo', this.stage, 240, 70);
-    at(this.comboRow, 6, hudY + 4);
-    this.comboLabel = text(this.comboRow, '', 34);
+    // 连击：顶栏中间，大字「连击 ×N」（按档位换色）+ 本局连击金币 + 倒计时细条
+    this.comboRow = box('combo', this.stage, 230, 90);
+    at(this.comboRow, -28, hudY + 2);
+    this.comboLabel = text(this.comboRow, '', 40);
     at(this.comboLabel.node, 0, 12);
-    this.comboCoins = text(this.comboRow, '', 24, { color: COLOR.yellow });
-    at(this.comboCoins.node, 0, -16);
-    const track = slice(this.comboRow, 'kit/bar_track', this.comboBarW, 14, 'track');
-    at(track, 0, -36);
-    this.comboBar = slice(track, 'kit/bar_yellow', this.comboBarW, 14, 'bar');
+    this.comboCoins = text(this.comboRow, '', 22, { color: COLOR.yellow });
+    at(this.comboCoins.node, 0, -20);
+    const track = slice(this.comboRow, 'kit/bar_track', this.comboBarW, 12, 'track');
+    at(track, 0, -40);
+    this.comboBar = slice(track, 'kit/bar_yellow', this.comboBarW, 12, 'bar');
     this.comboRow.active = false;
 
     // 木架与鱼缸
@@ -344,7 +343,7 @@ export class GamePage extends Page {
       this.blocked(b);
       return;
     }
-    this.act(() => Rules.tap(this.s, b, k));
+    if (this.act(() => Rules.tap(this.s, b, k)).length) this.field.wobble(b);
   }
 
   tapReturn(k: number): void {
@@ -651,21 +650,52 @@ export class GamePage extends Page {
       sfx('hit', r.count);
       return;
     }
+    const was = this.comboRow.active;
     this.comboRow.active = true;
-    this.comboLabel.string = `×${r.count} ${tr('UI_COMBO_WORD')}`;
+    this.comboLabel.string = `${tr('UI_COMBO_WORD')} ×${r.count}`;
     this.comboCoins.string = tr('UI_COMBO_GOLD', this.combo.coins);
-    const colors = [new Color(80, 190, 255), new Color(255, 205, 50), new Color(255, 90, 80), new Color(190, 100, 255)];
-    this.comboLabel.color = colors[r.tier] ?? COLOR.white;
-    fx.squash(this.comboLabel.node, 0.8);
+    const colors = [new Color(120, 220, 255), new Color(255, 214, 64), new Color(255, 120, 90), new Color(214, 130, 255)];
+    const col = colors[r.tier] ?? COLOR.white;
+    this.comboLabel.color = col;
+    // 每一击：字猛地放大再弹回，旁边迸几颗小星；第一次出现时整行从小弹出
+    const ln = this.comboLabel.node;
+    Tween.stopAllByTarget(ln);
+    ln.setScale(1.55, 1.55, 1);
+    tween(ln).to(0.24, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    if (!was) fx.popIn(this.comboRow, 0, 0.22);
+    const cp = this.comboRow.position;
+    fx.sparkle(this.fly, cp.x, cp.y + 12, 5 + Math.min(r.count, 8), 90, col, 26);
     sfx('hit', r.count);
-    if (r.tier_up) {
-      const praise = text(null, tr(eco.combo.tiers[r.tier].key), 64, { color: colors[r.tier] });
-      fx.floatUp(this.fly, praise.node, 0, this.fieldTop - 160, 120, 1.0);
-      fx.flash(this.fly, Screen.W, Screen.H, 90);
-      sfx('tier');
-      App.platform.vibrate('light');
-    }
+    if (r.tier_up) this.praise(tr(eco.combo.tiers[r.tier].key), col);
     if (r.card) Flow.comboCard(this);
+  }
+
+  /** 连击升档：场地中央一个大词（带光芒），弹出 → 停一下 → 往上飘走；屏幕轻震 */
+  private praise(word: string, col: Color): void {
+    const y = (this.fieldTop + this.fieldBottom) / 2 + 80;
+    const holder = box('praise', this.fly, 600, 200);
+    at(holder, 0, y);
+    const r = fx.rays(holder, 420);
+    (r.getComponent(Sprite) as Sprite).color = col;
+    opacity(r).opacity = 200;
+    tween(r).by(1.4, { angle: 60 }).start();
+    const l = text(holder, word, 84, { color: col, outline: COLOR.navy, outlineWidth: 7 });
+    l.node.setScale(0, 0, 1);
+    tween(l.node)
+      .to(0.18, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'quadOut' })
+      .to(0.12, { scale: new Vec3(1, 1, 1) }, { easing: 'quadIn' })
+      .start();
+    fx.sparkle(this.fly, 0, y, 18, 260, col, 40);
+    fx.ring(this.fly, 0, y, 80, 360, col);
+    fx.shake(this.stage, 8);
+    tween(holder)
+      .delay(0.75)
+      .to(0.35, { position: new Vec3(0, y + 140, 0) }, { easing: 'quadIn' })
+      .call(() => holder.destroy())
+      .start();
+    tween(opacity(holder)).delay(0.8).to(0.3, { opacity: 0 }).start();
+    sfx('tier');
+    App.platform.vibrate('light');
   }
 
   private missCombo(): void {

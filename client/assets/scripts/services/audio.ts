@@ -62,7 +62,7 @@ export function sfx(name: string, combo = 0): void {
   if (!fx || !App.save?.data.settings.sound) return;
   const file = name === 'hit' ? `hit_${Math.min(7, Math.max(0, combo - 1))}` : MAP[name] ?? name;
   const c = clips.get(file);
-  if (c) fx.playOneShot(c, name === 'fly' ? 0.35 : 1);
+  if (c) fx.playOneShot(c, 1);
 }
 
 export function playMusic(): void {

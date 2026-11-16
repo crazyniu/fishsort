@@ -43,24 +43,26 @@ export interface Ink {
   text: Color;
   /** 强调色（代码里写 COLOR.yellow 时用它；浅底上黄字看不清，换成深琥珀） */
   accent: Color;
-  /** kit/ic_* 图标的染色；null = 保持原色（白图形深描边） */
+  /** kit/ic_* 图标的染色；null = 保持原色（图标是 Codex 出的彩色图，目前都不染） */
   glyph: Color | null;
   /** 文字描边色（docs/03：白字加深色描边，浅色面上深色字不描边）；null = 不描边 */
   outline: Color | null;
 }
 
 export const INK = {
-  ink: hex('#13284F'),
-  sub: hex('#5B7090'),
+  ink: hex('#1F56B0'),
+  sub: hex('#5E86C0'),
   blue: hex('#1B6FD1'),
   amber: hex('#D98200'),
 };
 
 const ON_DARK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: COLOR.navy };
-const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: hex('#4C8EE8'), outline: null };
+const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
 const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
 const ON_GREEN = btnInk('#1E6B12');
 const ON_BLUE = btnInk('#0F3F96');
+/** 白色果冻图标键 */
+const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
 const ON_AMBER = btnInk('#8A4F00');
 const ON_RED = btnInk('#8A1F12');
 const ON_GRAY = btnInk('#6E7B8D');
@@ -89,7 +91,7 @@ const PART_INK: Record<string, Ink> = {
   'kit/btn_gray': ON_GRAY,
   'kit/round_green': ON_GREEN,
   'kit/round_red': ON_RED,
-  'kit/round_blue': ON_BLUE,
+  'kit/round_blue': ON_WHITE_KEY,
 };
 
 const inks = new WeakMap<Node, Ink>();

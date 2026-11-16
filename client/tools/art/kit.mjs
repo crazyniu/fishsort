@@ -112,7 +112,8 @@ for (const [k, col] of Object.entries(FACE)) {
   part(`btn_${k}_down`, 132, 120, faceBody(col, 132, 120, true), [28, 34, 28, 28]);
 }
 // 图标键：同一种厚果冻，正方形圆角 22
-for (const [name, col] of [['round_blue', FACE.blue], ['round_green', FACE.green], ['round_red', FACE.red]]) {
+// round_blue 是白色果冻键（彩色图标放在白底上才看得清）
+for (const [name, col] of [['round_blue', ['#FFFFFF', '#DDEEFF', '#7FAFE6', 0.6]], ['round_green', FACE.green], ['round_red', FACE.red]]) {
   part(name, 96, 96, faceBody(col, 96, 96, false));
   part(`${name}_down`, 96, 96, faceBody(col, 96, 96, true));
 }
@@ -157,16 +158,16 @@ function lightCard(name, w, h, r) {
 lightCard('panel_glass', 200, 200, 24);
 /** 深色半透明卡片（压在背景图上：主页入口、技能键、排行行）：上沿一道淡亮边，下沿深一点 */
 function darkCard(name, w, h, r, a = 0.55) {
-  const [g, d] = lin([[0, '#0D3A8E', a], [1, '#061C52', a + 0.1]]);
-  const [gs, ds] = lin([[0, '#fff', 0.45], [0.2, '#fff', 0.08], [1, '#fff', 0.04]]);
+  const [g, d] = lin([[0, '#3C9BFF', a], [1, '#1A62D6', a + 0.1]]);
+  const [gs, ds] = lin([[0, '#fff', 0.75], [0.25, '#fff', 0.3], [1, '#fff', 0.2]]);
   const body = `<defs>${d}${ds}</defs>
     ${rr(1, 1, w - 2, h - 2, r, `fill="url(#${g})" stroke="url(#${gs})" stroke-width="2"`)}`;
   part(name, w, h, body, [r + 6, r + 6, r + 6, r + 6]);
 }
-darkCard('panel_blue', 200, 200, 24);
-darkCard('row_blue', 120, 120, 16);
-darkCard('title_plate', 80, 64, 16, 0.62);
-darkCard('capsule', 80, 64, 16, 0.62);
+darkCard('panel_blue', 200, 200, 24, 0.62);
+darkCard('row_blue', 120, 120, 16, 0.7);
+darkCard('title_plate', 80, 64, 16, 0.8);
+darkCard('capsule', 80, 64, 16, 0.8);
 part('title_page', 64, 64, rr(0, 0, 64, 64, 12, 'fill="#fff" fill-opacity="0"'), [16, 16, 16, 16]);
 // 弹窗里的一行：白面 + 下沿浅蓝厚度
 {
@@ -180,7 +181,7 @@ part('tag_red', 80, 48, faceBody(FACE.red, 80, 48, false, 12), [0, 0, 16, 16]);
 part('tag_amber', 80, 48, faceBody(FACE.yellow, 80, 48, false, 12), [0, 0, 16, 16]);
 // 页面背景：深海蓝竖向渐变，拉伸到全屏
 {
-  const [g, d] = lin([[0, '#2A8BEA'], [0.5, '#1661C2'], [1, T.deep]]);
+  const [g, d] = lin([[0, '#5CCBFF'], [0.45, '#2E95F2'], [1, '#1E6CDB']]);
   part('bg_page', 8, 400, `<defs>${d}</defs><rect width="8" height="400" fill="url(#${g})"/>`);
 }
 
@@ -286,41 +287,13 @@ toggle('toggle_off', false);
   part('chain', 200, 200, `${link(40, 40, 45)}${link(76, 76, -45)}${link(112, 112, 45)}${link(148, 148, -45)}${link(160, 40, -45)}${link(124, 76, 45)}${link(88, 112, -45)}${link(52, 148, 45)}`);
 }
 
-// ---------------------------------------------------------------- 图标（白字深描边：白色图形 + 深藏青描边；放在浅色面上由代码染色）
-const NAVY = '#0B2A73';
-/** 线条图标：深色粗线打底，白色细线压上 */
-function icon(name, inner, s = 64) {
-  const o = `<g fill="none" stroke="${NAVY}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
-  const f = `<g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
-  part(name, s, s, o + f);
-}
-/** 实心图标：深色描边 + 白色填充 */
-function solid(name, shapes, s = 64) {
-  part(name, s, s, `<g fill="${NAVY}" stroke="${NAVY}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">${shapes}</g><g fill="#fff">${shapes}</g>`);
-}
-icon('ic_plus', '<path d="M32 15 V49 M15 32 H49"/>');
-icon('ic_check', '<path d="M15 33 L27 45 L50 20"/>');
-icon('ic_back', '<path d="M38 15 L21 32 L38 49"/>');
-icon('ic_arrow', '<path d="M26 15 L43 32 L26 49"/>');
-part('ic_music', 64, 64, `<g stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"><path d="M23 44 V16 L49 10 V39" fill="none" stroke-width="12"/><circle cx="17" cy="45" r="9" fill="${NAVY}"/><circle cx="43" cy="40" r="9" fill="${NAVY}"/></g><path d="M23 44 V16 L49 10 V39" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><circle cx="17" cy="45" r="8" fill="#fff"/><circle cx="43" cy="40" r="8" fill="#fff"/>`);
-part('ic_sound', 64, 64, `<path d="M9 25 H19 L32 14 V50 L19 39 H9 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><g fill="none" stroke-linecap="round"><path d="M40 24 Q46 32 40 40 M47 17 Q57 32 47 47" stroke="${NAVY}" stroke-width="12"/><path d="M40 24 Q46 32 40 40 M47 17 Q57 32 47 47" stroke="#fff" stroke-width="6"/></g>`);
-part('ic_vibrate', 64, 64, `<rect x="20" y="9" width="24" height="46" rx="7" fill="#fff" stroke="${NAVY}" stroke-width="5"/><rect x="26" y="15" width="12" height="28" rx="3" fill="${NAVY}" opacity="0.25"/><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22 L6 27 L10 32 L6 37 L10 42 M54 22 L58 27 L54 32 L58 37 L54 42" stroke="${NAVY}" stroke-width="10"/><path d="M10 22 L6 27 L10 32 L6 37 L10 42 M54 22 L58 27 L54 32 L58 37 L54 42" stroke="#fff" stroke-width="5"/></g>`);
-part('ic_globe', 64, 64, `<circle cx="32" cy="32" r="22" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M10 32 H54 M32 10 Q18 32 32 54 Q46 32 32 10" fill="none" stroke="${NAVY}" stroke-width="4"/>`);
-part('ic_timer', 64, 64, `<path d="M26 10 H38" stroke="${NAVY}" stroke-width="12" stroke-linecap="round"/><path d="M26 10 H38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="36" r="19" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M32 36 V26" stroke="${NAVY}" stroke-width="5" stroke-linecap="round"/>`);
-part('ic_share', 64, 64, `<path d="M20 32 L44 18 M20 32 L44 46" stroke="${NAVY}" stroke-width="12"/><path d="M20 32 L44 18 M20 32 L44 46" stroke="#fff" stroke-width="5"/><g fill="#fff" stroke="${NAVY}" stroke-width="5"><circle cx="17" cy="32" r="9"/><circle cx="46" cy="17" r="9"/><circle cx="46" cy="47" r="9"/></g>`);
-part('ic_info', 64, 64, `<circle cx="32" cy="32" r="23" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M32 30 V44" stroke="${NAVY}" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="21" r="4" fill="${NAVY}"/>`);
-icon('ic_retry', '<path d="M47 24 A18 18 0 1 0 50 37"/><path d="M49 12 V25 H36"/>');
-part('ic_home', 64, 64, `<path d="M10 31 L32 12 L54 31" fill="none" stroke="${NAVY}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 30 L32 18 L47 30 V50 a3 3 0 0 1 -3 3 H38 V40 H26 V53 H20 a3 3 0 0 1 -3 -3 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><path d="M10 31 L32 12 L54 31" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`);
-part('ic_gear', 64, 64, `<path fill="#fff" fill-rule="evenodd" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round" d="M28 6 h8 l2 8 a19 19 0 0 1 6 3 l7-4 6 6-4 7 a19 19 0 0 1 3 6 l8 2 v8 l-8 2 a19 19 0 0 1-3 6 l4 7-6 6-7-4 a19 19 0 0 1-6 3 l-2 8 h-8 l-2-8 a19 19 0 0 1-6-3 l-7 4-6-6 4-7 a19 19 0 0 1-3-6 l-8-2 v-8 l8-2 a19 19 0 0 1 3-6 l-4-7 6-6 7 4 a19 19 0 0 1 6-3 Z M32 24 a8 8 0 1 0 0.01 0 Z"/>`);
-// 视频（广告）：白色摄像机 + 紫色播放角（docs/03：金黄按钮带紫色视频角标）
-part('ic_video', 64, 64, `<path d="M12 16 H42 a6 6 0 0 1 6 6 V25 L58 18 V46 L48 39 V42 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 V22 a6 6 0 0 1 6 -6 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><path d="M21 24 V40 L35 32 Z" fill="#8E5BD9" stroke="#8E5BD9" stroke-width="3" stroke-linejoin="round"/>`);
+// ---------------------------------------------------------------- 图标
+// kit/ic_*（设置、音乐、音效、振动、语言、分享、视频、锁、返回、主页、重试、叉、加号、勾、说明、计时）
+// 是 Codex 出的位图（art/raw/ui_icons，tools/art/slice.py 切成 192×192），不在这里画。
 {
   // 红点
   const [g, d] = rad([[0, '#FF8A80'], [1, '#E2231A']], 0.4, 0.35, 0.65);
   part('dot_red', 32, 32, `<defs>${d}</defs><circle cx="16" cy="16" r="13.5" fill="url(#${g})" stroke="#fff" stroke-width="3"/>`);
-  // 锁：金色锁身 + 灰银锁梁，深色描边（锁定状态，放在哪都看得清）
-  const [gl, dl] = lin([[0, '#FFE27A'], [1, '#E09A10']]);
-  part('ic_lock', 64, 64, `<defs>${dl}</defs><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="${NAVY}" stroke-width="12"/><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="#DCE4EE" stroke-width="6"/>${rr(12, 28, 40, 30, 9, `fill="url(#${gl})" stroke="${NAVY}" stroke-width="4.5"`)}<circle cx="32" cy="41" r="4.5" fill="${NAVY}"/><rect x="30" y="42" width="4" height="9" rx="2" fill="${NAVY}"/>`);
 }
 {
   // 名次奖牌 1/2/3

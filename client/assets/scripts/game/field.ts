@@ -343,6 +343,16 @@ export class Field {
     return { node: n, fromField: false };
   }
 
+  /** 点中气泡里的鱼：气泡被「拔」一下，扁一下再弹回（不打断它别的位移动画） */
+  wobble(b: number): void {
+    const v = this.views[b];
+    if (!v || v.gone || !v.node.active) return;
+    tween(v.node)
+      .to(0.05, { scale: new Vec3(1.07, 0.93, 1) })
+      .to(0.18, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .start();
+  }
+
   pop(b: number): void {
     const v = this.views[b];
     v.gone = true;
