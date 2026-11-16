@@ -21,7 +21,11 @@ import { App } from './services/app';
 import { initAudio, sfx } from './services/audio';
 import { loadStrings, onLanguage, tr } from './ui/i18n';
 import { setTapSound } from './ui/kit';
+import * as Popups from './ui/popups';
 import { livesPopup, settingsPopup } from './ui/popups';
+import { closeAllPopups } from './ui/popup';
+import { signInPopup } from './pages/signin';
+import * as Flow from './game/flow';
 import { preload } from './ui/res';
 import { Screen } from './ui/screen';
 import { reportError, setErrorSink, ui } from './ui/shell';
@@ -76,6 +80,8 @@ export class Boot extends Component {
     ui.register('adtest', () => new AdTestPage());
     ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
+    // 调试构建：控制台里 fsDebug.ui.go('rank')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
+    if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups };
     // 调试：?level=N 直接进关
     if (App.flags.level > 0 && App.flags.play) ui.go('game', { level: App.flags.level });
     else if (App.flags.page) ui.go(App.flags.page);
