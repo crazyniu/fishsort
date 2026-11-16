@@ -1,0 +1,7 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat MAGENTA background (#FF00FF) everywhere.
+Draw exactly THREE separate objects in one row, left / center / right, each centered in its third, with plenty of magenta between them, not touching each other or the image border. Cute chunky glossy cartoon mobile game style with soft jelly highlights and thick dark navy outlines, matching the material of the attached reference image (reference is for material and lighting only). Do not use magenta or pink anywhere in the objects:
+1) left: a "mystery token": a plump perfectly round glossy jelly ball about 400 px, soft periwinkle lavender-blue, thick navy outline, a big bold rounded WHITE question mark "?" with a navy outline in the middle, a white shine arc on the upper left. It must not look like any animal.
+2) center: an "ice crystal bead": a chunky faceted ice gem shaped like a stretched hexagon lying horizontally (about 420 px wide, 220 px tall), pale icy cyan to white, crisp glossy facets, a white shine, thick navy outline.
+3) right: a "frost burst": a small round cluster of five or six short pointed ice crystal spikes radiating from a center, about 360 px, pale icy cyan to white with glossy facets and a thick navy outline, like the clamp where an ice chain grips something.
+No text other than the single question mark, no letters, no numbers, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

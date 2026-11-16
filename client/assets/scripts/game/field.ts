@@ -28,11 +28,12 @@ interface View {
   chain: Node | null;
   chainLabel: Label | null;
   ice: Node | null;
-  /** 冰晶连线：连到每个依赖的气泡，位置每帧跟着两头走 */
-  iceLinks: { node: Node; dep: number }[];
-  /** 迷雾：雾层、每条鱼上的问号、计数 */
+  /** 冰晶连线：连到每个依赖的气泡的一串小冰块，位置每帧跟着两头走 */
+  iceLinks: { beads: Node[]; dep: number }[];
+  /** 迷雾：雾团、每条鱼位上的问号球、计数角标 */
   fog: Node | null;
   fogMarks: (Node | null)[];
+  fogBadge: Node | null;
   fogLabel: Label | null;
   fogMax: number;
   links: Node[];
@@ -43,13 +44,15 @@ interface View {
 }
 
 const WHITE = new Color(255, 255, 255, 255);
+/** 问号球上「?」的描边 */
+const MARK_INK = new Color(40, 52, 120, 255);
 /** 下层（被压住、还不能点）的气泡和鱼 */
 const UNDER_BUBBLE = new Color(70, 105, 180, 255);
 const UNDER_FISH = new Color(120, 135, 170, 255);
 const FROST = new Color(225, 247, 255, 255);
-const FOG = new Color(214, 222, 240, 255);
-const FOG_MARK = new Color(112, 132, 178, 255);
-const ICE_LINK = new Color(170, 236, 255, 235);
+/** 冰晶连线上小冰块的大小和间距 */
+const ICE_BEAD = 34;
+const ICE_GAP = 30;
 
 export class Field {
   node: Node;
@@ -79,6 +82,8 @@ export class Field {
 
   /** 这关有叠层：上层气泡垫磨砂底 */
   private layered = false;
+  /** 冰晶连线画在所有气泡上面的一层 */
+  private linkLayer!: Node;
   /** 重力模拟 */
   private pile!: Pile;
   private simOn = false;
@@ -119,6 +124,7 @@ export class Field {
     const order = this.lv.bubbles.map((_, i) => i).sort((a, b) => this.lv.bubbles[a].layer - this.lv.bubbles[b].layer || a - b);
     this.views = new Array(this.lv.bubbles.length);
     for (const i of order) this.views[i] = this.make(i, centers[i], radii[i], s);
+    this.linkLayer = box('iceLinks', this.node, this.w, this.h);
     this.sync(s, false);
     this.pile = this.newPile();
     this.pile.onLand = (id, speed) => this.landed(id, speed);
@@ -425,6 +431,7 @@ export class Field {
       iceLinks: [],
       fog: null,
       fogMarks: [],
+      fogBadge: null,
       fogLabel: null,
       fogMax: Math.max(1, d.fog),
       links: [],
@@ -441,12 +448,7 @@ export class Field {
     if (d.ice.length > 0) {
       v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = 170;
-      for (const dep of d.ice) {
-        const link = img(this.node, 'kit/round_white', 10, 16, 'iceLink');
-        (link.getComponent(Sprite) as Sprite).color = ICE_LINK;
-        link.active = false;
-        v.iceLinks.push({ node: link, dep });
-      }
+      for (const dep of d.ice) v.iceLinks.push({ beads: [], dep });
     }
     if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
     // 气泡互相挨着，漂浮幅度小一点
@@ -455,28 +457,27 @@ export class Field {
     return v;
   }
 
-  /** 迷雾：鱼藏起来，每条鱼的位置放一个一模一样的问号，上面蒙一层雾，右下角是还差几次显形 */
+  /** 迷雾：鱼藏起来，气泡里蒙一团雾，每条鱼的位置放一个一模一样的问号球，右下角是还差几次显形（docs/ux/game.md） */
   private addFog(v: View, left: number): void {
     const fs = this.fishSize(v.fish.length, v.r);
+    v.fog = img(v.body, 'skin/j_fog', v.r * 2.12, v.r * 2.12, 'fog');
+    opacity(v.fog).opacity = this.fogOpacity(v, left);
     v.fogMarks = v.fish.map((f, k) => {
       if (!f) return null;
       opacity(f).opacity = 0;
-      const m = img(v.body, 'kit/circle_white', fs * 0.78, fs * 0.78, `fogMark${k}`);
-      (m.getComponent(Sprite) as Sprite).color = FOG_MARK;
+      const m = img(v.body, 'skin/j_mystery', fs * 0.86, fs * 0.86, `fogMark${k}`);
       at(m, v.offsets[k][0], v.offsets[k][1]);
-      text(m, '?', Math.round(fs * 0.56));
+      text(m, '?', Math.round(fs * 0.5), { color: WHITE, outline: MARK_INK, outlineWidth: 4 });
       return m;
     });
-    v.fog = img(v.body, 'kit/circle_white', v.r * 1.9, v.r * 1.9, 'fog');
-    (v.fog.getComponent(Sprite) as Sprite).color = FOG;
-    const badge = img(v.fog, 'kit/round_blue', 60, 60, 'badge');
-    at(badge, v.r * 0.62, -v.r * 0.62);
-    v.fogLabel = text(badge, String(left), 34);
-    opacity(v.fog).opacity = this.fogOpacity(v, left);
+    v.fogBadge = img(v.body, 'kit/round_blue', 60, 60, 'fogBadge');
+    at(v.fogBadge, v.r * 0.62, -v.r * 0.62);
+    v.fogLabel = text(v.fogBadge, String(left), 34);
   }
 
+  /** 雾随计数变淡：数字越小越透 */
   private fogOpacity(v: View, left: number): number {
-    return Math.round(70 + 90 * Math.min(1, left / v.fogMax));
+    return Math.round(255 * (0.42 + 0.58 * Math.min(1, left / v.fogMax)));
   }
 
   /** 迷雾每淡一层：数字跳一下、雾变薄；数到 0 显形：雾散开，问号一个个翻成真的鱼 */
@@ -485,17 +486,19 @@ export class Field {
     if (left > 0) {
       if (v.fogLabel && v.fogLabel.string !== String(left)) {
         v.fogLabel.string = String(left);
-        if (animate) {
-          const badge = v.fogLabel.node.parent as Node;
-          tween(badge).to(0.08, { scale: new Vec3(1.35, 1.35, 1) }).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+        if (animate && v.fogBadge) {
+          tween(v.fogBadge).to(0.08, { scale: new Vec3(1.35, 1.35, 1) }).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
         }
         tween(opacity(v.fog)).to(animate ? 0.25 : 0, { opacity: this.fogOpacity(v, left) }).start();
       }
       return;
     }
     const fog = v.fog;
+    const badge = v.fogBadge;
     v.fog = null;
+    v.fogBadge = null;
     v.fogLabel = null;
+    if (badge) tween(badge).to(0.15, { scale: new Vec3(0, 0, 1) }).call(() => badge.destroy()).start();
     tween(fog).to(0.3, { scale: new Vec3(1.25, 1.25, 1) }, { easing: 'quadOut' }).call(() => fog.destroy()).start();
     tween(opacity(fog)).to(0.3, { opacity: 0 }).start();
     v.fogMarks.forEach((m, k) => {
@@ -513,26 +516,40 @@ export class Field {
     if (v.node.active) sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(235, 240, 255, 255));
   }
 
-  /** 冰晶连线：从冰封泡的边连到依赖泡的边，两头的气泡动了就跟着动；解冻或任一头不在场就收起 */
+  /**
+   * 冰晶连线：一串小冰块，从冰封泡的边排到依赖泡的边，两头的气泡动了就跟着动；解冻或任一头不在场就收起。
+   * 小冰块用的就是罩在冰封泡上的那张冰块图，一眼看得出是同一样东西
+   */
   private placeIceLinks(): void {
     for (const v of this.views) {
       if (!v || v.iceLinks.length === 0) continue;
       for (const l of v.iceLinks) {
         const o = this.views[l.dep];
         const on = !v.gone && v.node.active && !!v.ice && !!o && !o.gone && o.node.active;
-        l.node.active = on;
-        if (!on) continue;
+        if (!on) {
+          for (const b of l.beads) b.active = false;
+          continue;
+        }
         const ax = v.node.position.x;
         const ay = v.node.position.y;
         const dx = o.node.position.x - ax;
         const dy = o.node.position.y - ay;
         const dist = Math.hypot(dx, dy) || 1;
-        const from = v.r * 0.82;
-        const len = Math.max(8, dist - from - o.r * 0.82);
-        (l.node.getComponent(UITransform) as UITransform).setContentSize(len, 16);
-        const mid = from + len / 2;
-        l.node.setPosition(ax + (dx / dist) * mid, ay + (dy / dist) * mid, 0);
-        l.node.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const from = v.r * 0.9;
+        const len = Math.max(ICE_GAP, dist - from - o.r * 0.9);
+        const n = Math.min(16, Math.max(2, Math.round(len / ICE_GAP) + 1));
+        while (l.beads.length < n) {
+          const k = l.beads.length;
+          const bead = img(this.linkLayer, 'icon/ice', ICE_BEAD, ICE_BEAD, 'iceBead');
+          bead.angle = k % 2 === 0 ? 14 : -14;
+          l.beads.push(bead);
+        }
+        l.beads.forEach((bead, k) => {
+          bead.active = k < n;
+          if (k >= n) return;
+          const t = from + (len * k) / (n - 1);
+          bead.setPosition(ax + (dx / dist) * t, ay + (dy / dist) * t, 0);
+        });
       }
     }
   }
@@ -619,7 +636,7 @@ export class Field {
     if (!ice) return;
     v.ice = null;
     tween(opacity(ice)).to(0.35, { opacity: 0 }).call(() => ice.destroy()).start();
-    for (const l of v.iceLinks) l.node.destroy();
+    for (const l of v.iceLinks) for (const bead of l.beads) bead.destroy();
     v.iceLinks = [];
     sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(180, 240, 255, 255));
   }
@@ -683,7 +700,7 @@ export class Field {
   pop(b: number): void {
     const v = this.views[b];
     v.gone = true;
-    for (const l of v.iceLinks) l.node.destroy();
+    for (const l of v.iceLinks) for (const bead of l.beads) bead.destroy();
     v.iceLinks = [];
     const n = v.node;
     // 从重力模拟里拿掉：压在它上面的气泡这就往下落；原来和它绑在一起的重新分组
@@ -716,6 +733,7 @@ export class Field {
     at(v.node, x, this.h / 2 + v.r * 0.3);
     opacity(v.node).opacity = 0;
     v.node.setSiblingIndex(this.node.children.length - 1);
+    this.linkLayer.setSiblingIndex(this.node.children.length - 1);
     tween(v.node)
       .delay(delay + App.config.ui.drop.delay)
       .call(() => this.release(b, x))
