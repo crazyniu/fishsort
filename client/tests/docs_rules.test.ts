@@ -32,20 +32,22 @@ describe('海域（docs/01 5.0）', () => {
   it('6 个海域：收藏册按同一顺序，开放关按表', () => {
     assert.deepEqual(Seas.list(ECO).map((s) => s.id), SEAS);
     assert.deepEqual(Album.books(ECO).map((b) => b.sea), SEAS);
-    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 20, 40, 60, 80, 100]);
+    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 21, 41, 61, 81, 101]);
     assert.equal(Album.books(ECO)[0].unlock, Features.unlockLevel(ECO, 'album'), '第一册随收藏开放');
   });
 
-  it('关卡背景：第 1–19 关沙滩 … 第 100–120 关宫殿', () => {
+  it('关卡背景：每 20 关一个海域，第 1–20 关沙滩 … 第 101–120 关宫殿（和选关页一页一个海域对上）', () => {
     const at = (id: number) => SEAS[Seas.forLevel(ECO, id)];
     assert.equal(at(1), 'shore');
-    assert.equal(at(19), 'shore');
-    assert.equal(at(20), 'coral');
-    assert.equal(at(59), 'kelp');
-    assert.equal(at(60), 'wreck');
-    assert.equal(at(99), 'crystal');
-    assert.equal(at(100), 'palace');
+    assert.equal(at(20), 'shore');
+    assert.equal(at(21), 'coral');
+    assert.equal(at(60), 'kelp');
+    assert.equal(at(61), 'wreck');
+    assert.equal(at(100), 'crystal');
+    assert.equal(at(101), 'palace');
     assert.equal(at(120), 'palace');
+    // 收藏册子在进到这片海域的第一关开放（第一册随收藏功能在第 6 关开放）
+    Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 6 : Seas.list(ECO)[i].levelFrom));
   });
 
   it('每册 10 张、普通 5 张；60 张各在一册；传说只在海底宫殿；局内 16 种按 ★ 分布', () => {

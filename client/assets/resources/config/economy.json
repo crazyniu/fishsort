@@ -112,23 +112,23 @@
     },
     {
       "id": "coral",
-      "levelFrom": 20
+      "levelFrom": 21
     },
     {
       "id": "kelp",
-      "levelFrom": 40
+      "levelFrom": 41
     },
     {
       "id": "wreck",
-      "levelFrom": 60
+      "levelFrom": 61
     },
     {
       "id": "crystal",
-      "levelFrom": 80
+      "levelFrom": 81
     },
     {
       "id": "palace",
-      "levelFrom": 100
+      "levelFrom": 101
     }
   ],
   "album": {
@@ -157,7 +157,7 @@
       {
         "id": 2,
         "sea": "coral",
-        "unlock": 20,
+        "unlock": 21,
         "cards": [
           "c01",
           "c02",
@@ -178,7 +178,7 @@
       {
         "id": 3,
         "sea": "kelp",
-        "unlock": 40,
+        "unlock": 41,
         "cards": [
           "c07",
           "c09",
@@ -199,7 +199,7 @@
       {
         "id": 4,
         "sea": "wreck",
-        "unlock": 60,
+        "unlock": 61,
         "cards": [
           "c06",
           "c12",
@@ -220,7 +220,7 @@
       {
         "id": 5,
         "sea": "crystal",
-        "unlock": 80,
+        "unlock": 81,
         "cards": [
           "c08",
           "c16",
@@ -241,7 +241,7 @@
       {
         "id": 6,
         "sea": "palace",
-        "unlock": 100,
+        "unlock": 101,
         "cards": [
           "c04",
           "c10",

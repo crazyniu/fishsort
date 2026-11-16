@@ -1,5 +1,5 @@
-// 选关（docs/01 5.7）。一页 20 关的格子（4 列 × 5 行），左右翻页，不用长距离滑动
-// （用户 2026-11-16：原来是一条从下往上的长路线，关卡多了不好翻）。
+// 选关（docs/01 5.7）。一页就是一个海域（20 关，4 列 × 5 行的格子）：标题是海域名，背景是这片海域的局内背景，
+// 左右翻页就是换海域（用户 2026-11-17；原来是一条从下往上的长路线，关卡多了不好翻）。
 // 已过关蓝色 + 绿勾；当前关绿色、会呼吸 +「当前」；挑战关紫色 + 小旗；没到的灰色带锁。打开时停在当前关那一页。
 import { EventTouch, Node, Tween, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
@@ -37,7 +37,6 @@ export class LevelsPage extends Page {
   build(root: Node): void {
     this.root = root;
     this.bg = box('bg', root);
-    pageHead(root, tr('H_FEAT_LEVELS'));
     // 今日重玩奖励还剩几次
     this.replay = capsule(root, 330, 52, null, '', 26);
     at(this.replay.node, 0, Screen.top - HEAD_BOTTOM - 34);
@@ -54,19 +53,15 @@ export class LevelsPage extends Page {
   }
 
   override show(): void {
-    const s = App.save.data;
-    // 背景跟当前关所在的海域
-    const eco = App.config.eco;
-    const sea = eco.seas?.[Seas.forLevel(eco, Meta.levelFile(s.level, App.config.levelCount))]?.id ?? 'shore';
-    if (sea !== this.sea) {
-      this.sea = sea;
-      this.bg.destroyAllChildren();
-      const bgH = Math.max(Screen.H, Screen.W * 1.5);
-      lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
-    }
-    this.pageNo = Math.floor((s.level - 1) / PER_PAGE);
+    this.pageNo = Math.floor((App.save.data.level - 1) / PER_PAGE);
     this.render(0);
     this.refresh();
+  }
+
+  /** 这一页是哪个海域（第 121 关起关卡文件在后半段循环，海域跟着关卡文件走） */
+  private seaOf(first: number): number {
+    const eco = App.config.eco;
+    return Seas.forLevel(eco, Meta.levelFile(first, App.config.levelCount));
   }
 
   override refresh(): void {
@@ -91,6 +86,16 @@ export class LevelsPage extends Page {
     this.view = v;
     const s = App.save.data;
     const first = this.pageNo * PER_PAGE + 1;
+    // 页头写海域名；背景换成这片海域的局内背景
+    const seaIdx = this.seaOf(first);
+    const sea = App.config.eco.seas?.[seaIdx]?.id ?? 'shore';
+    if (sea !== this.sea) {
+      this.sea = sea;
+      this.bg.destroyAllChildren();
+      const bgH = Math.max(Screen.H, Screen.W * 1.5);
+      lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
+    }
+    pageHead(v, tr(`ALBUM_BOOK_${seaIdx + 1}`));
     // 版面：重玩条下面到翻页键上面，是一块白色面板，格子在里面
     const navY = Screen.bottom + PAGE_BOTTOM + 50;
     const top = Screen.top - HEAD_BOTTOM - 76;

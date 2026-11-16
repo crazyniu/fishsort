@@ -72,9 +72,12 @@ const FEVER = [
 const HOP_TAG = 9102;
 /** 鱼游动时拖的光带、星光的颜色 */
 const TRAIL = new Color(190, 235, 255, 255);
-/** 普通鱼缸的高（宽 150）、木架的厚度、缸底压进木架上沿多少 */
-const BOWL_H = 139;
-const SHELF_H = 46;
+/** 普通鱼缸的宽、高（大鱼缸宽 BOWL_BIG），木架的厚度、缸底压进木架上沿多少。
+ * 上面这一段（鱼缸、木架、目标卡、暂存槽）收得紧一点，地方留给气泡场：鱼和气泡不能小（用户 2026-11-17） */
+const BOWL_W = 136;
+const BOWL_BIG = 154;
+const BOWL_H = 126;
+const SHELF_H = 38;
 const BOWL_SINK = 5;
 
 /** 背景冒泡循环的 tween 标签（换关时只停这个，不碰别的） */
@@ -87,9 +90,14 @@ const SKILL_S = 128;
 const BADGE_W = 48;
 const BADGE_H = 40;
 /** 鱼缸的目标卡（钉在木架下面）多大；顶上的图钉往上压进木架多少 */
-const GOAL_W = 150;
-const GOAL_H = 131;
-const GOAL_PIN = 16;
+const GOAL_W = 140;
+const GOAL_H = 122;
+const GOAL_PIN = 18;
+/** 暂存格的高；它和目标卡、和气泡场之间留多少 */
+const SLOT_H = 86;
+const SLOT_GAP = 8;
+/** 鱼缸的上沿离屏幕顶多远（上面是顶栏那一行） */
+const BOWL_TOP = 92;
 
 export class GamePage extends Page {
   // 一局的状态
@@ -261,7 +269,7 @@ export class GamePage extends Page {
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
     // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
     // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
-    this.comboY = top - 172 - BOWL_H / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H - 10 - 46;
+    this.comboY = top - BOWL_TOP - BOWL_H + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H - SLOT_GAP - SLOT_H / 2;
     this.comboRow = box('combo', this.fly, 420, 120);
     at(this.comboRow, this.comboX, this.comboY);
     this.comboBadge = box('badge', this.comboRow, 420, 120);
@@ -291,7 +299,7 @@ export class GamePage extends Page {
     // 木架与鱼缸
     // 鱼缸坐在木架上：缸底压进木架上沿几个像素（用户 2026-11-16：原来缸底悬在木架前面，没放在底座上）；
     // 数量牌贴在木架正面
-    this.bowlY = top - 172;
+    this.bowlY = top - BOWL_TOP - BOWL_H / 2;
     this.shelfTop = this.bowlY - BOWL_H / 2 + BOWL_SINK;
     const shelfW = Screen.W - 40;
     this.shelf = slice(this.stage, 'kit/shelf', shelfW, SHELF_H, 'shelf');
@@ -299,7 +307,7 @@ export class GamePage extends Page {
     const bw = (shelfW - 30) / MAX_SLOTS;
     this.bowlX = Array.from({ length: MAX_SLOTS }, (_, i) => -shelfW / 2 + 15 + bw * (i + 0.5));
     for (let i = 0; i < MAX_SLOTS; i++) {
-      const plus = img(this.stage, 'skin/j_bowl', 150, 139, `plus${i}`);
+      const plus = img(this.stage, 'skin/j_bowl', BOWL_W, BOWL_H, `plus${i}`);
       at(plus, this.bowlX[i], this.bowlY);
       opacity(plus).opacity = 200;
       const p = img(plus, 'kit/round_green', 64, 64, 'btn');
@@ -313,11 +321,11 @@ export class GamePage extends Page {
 
     // 暂存槽
     // 暂存槽在目标卡下面
-    this.bufferY = this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H - 10 - 46;
+    this.bufferY = this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H - SLOT_GAP - SLOT_H / 2;
     const cap = this.s.bufferCap;
     const sw = Math.min(124, (Screen.W - 60) / cap - 10);
     for (let i = 0; i < cap; i++) {
-      const sl = slice(this.stage, 'kit/slot', sw, 92, `slot${i}`);
+      const sl = slice(this.stage, 'kit/slot', sw, SLOT_H, `slot${i}`);
       at(sl, this.slotX(i), this.bufferY);
       this.bufferSlots.push(sl);
     }
@@ -327,7 +335,7 @@ export class GamePage extends Page {
     SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + 36), skillY));
 
     // 场地：暂存槽和技能栏之间全部高度（用户 2026-11-16：场地尽量大）
-    this.fieldTop = this.bufferY - 60;
+    this.fieldTop = this.bufferY - SLOT_H / 2 - SLOT_GAP;
     this.fieldBottom = skillY + SKILL_S / 2 + 18;
     this.returnY = this.fieldTop - 40;
     const fh = this.fieldTop - this.fieldBottom;
@@ -357,14 +365,14 @@ export class GamePage extends Page {
   }
 
   /**
-   * 技能键：半透明白格子（和主页入口、暂存格同一种）里放插画图标，下面一行小字是名字；右上角红色小标签是数量（免费时写 FREE），
+   * 技能键：四个一样大的半透明深蓝格子里放插画图标（四个图标是 Codex 一张图里画的一套，大小、风格一致；用户 2026-11-17），下面一行小字是名字；右上角红色小标签是数量（免费时写 FREE），
    * 没有了换绿色加号。用户 2026-11-16：原来是四块大蓝按钮，压在场地下面太重；角标也要和整体风格一致
    */
   private buildSkill(id: SkillId, x: number, y: number): void {
     const S = SKILL_S;
     const node = img(this.stage, 'skin/f_skill', S, S, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 92, 92, 'icon');
+    const icon = img(node, `icon/skill_${id}`, 96, 96, 'icon');
     at(icon, 0, 12);
     const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 24);
     at(name.node, 0, -46);
@@ -741,7 +749,7 @@ export class GamePage extends Page {
 
   private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number): void {
     const big = cap > 3;
-    const s = big ? 170 : 150;
+    const s = big ? BOWL_BIG : BOWL_W;
     const h = s * 0.925;
     const restY = this.shelfTop - BOWL_SINK + h / 2;
     const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
