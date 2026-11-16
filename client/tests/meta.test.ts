@@ -172,20 +172,20 @@ describe('连败、广告频控、免费金币', () => {
 });
 
 describe('连击（docs/01 3.2）', () => {
-  it('3 连起算，档位 1/2/3/5，封顶 60，最高连击奖 ×2 封顶 40', () => {
+  it('4 连起算（4 / 7 / 10 / 15 四档），每次 1/2/3/5 金币，封顶 60，最高连击奖 ×2 封顶 40', () => {
     const cfg = ECO.combo;
     const combo = new Combo();
     const rng = new Rng(1);
     let last = combo.hit(0, cfg, rng);
     for (let i = 1; i < 20; i++) {
       last = combo.hit(i * 0.5, cfg, rng);
-      if (i === 1) assert.equal(last.tier, -1, '2 连还不算连击');
-      if (i === 2) assert.ok(last.tier_up && last.coins === 1, '3 连进第一档');
-      if (i === 5) assert.ok(last.tier_up && last.coins === 2, '6 连进第二档');
+      if (i === 2) assert.equal(last.tier, -1, '3 连还不算连击');
+      if (i === 3) assert.ok(last.tier_up && last.coins === 1, '4 连进第一档');
+      if (i === 6) assert.ok(last.tier_up && last.coins === 2, '7 连进第二档');
     }
     assert.equal(last.tier, 3);
     assert.ok(combo.cardWon, '20 连必送收藏卡');
-    assert.equal(combo.coins, 3 * 1 + 4 * 2 + 5 * 3 + 6 * 5);
+    assert.equal(combo.coins, 3 * 1 + 3 * 2 + 5 * 3 + 6 * 5);
     assert.equal(combo.bestBonus(cfg), 40);
     assert.equal(combo.hit(100.0, cfg, rng).count, 1, '超时后重新计数');
     const many = new Combo();

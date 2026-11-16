@@ -34,16 +34,16 @@
   ],
   "combo": {
     "windowSeconds": 2.0,
-    "startAt": 3,
+    "startAt": 4,
     "maxCoinsPerLevel": 60,
     "tiers": [
       {
-        "at": 3,
+        "at": 4,
         "coins": 1,
         "key": "UI_COMBO_T1"
       },
       {
-        "at": 6,
+        "at": 7,
         "coins": 2,
         "key": "UI_COMBO_T2"
       },

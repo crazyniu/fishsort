@@ -83,8 +83,8 @@ export class Boot extends Component {
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('rank')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
     if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups };
-    // 调试：?level=N 直接进关
-    if (App.flags.level > 0 && App.flags.play) ui.go('game', { level: App.flags.level });
+    // 调试：直接进关（./run.sh level N、./run.sh auto）；没给关卡号就进当前关
+    if (App.flags.play) ui.go('game', { level: App.flags.level > 0 ? App.flags.level : App.save.data.level });
     else if (App.flags.page) ui.go(App.flags.page);
     else ui.go('home');
     // 顶栏的生命倒计时、无限生命每秒走一次

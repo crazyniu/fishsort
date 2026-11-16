@@ -1,4 +1,0 @@
-# 不裁边的文件（游戏按固定画布尺寸摆放它们）。每行一个 glob，路径相对仓库根。
-assets/fish/*.png
-assets/ui/*.png
-assets/kit/*.png

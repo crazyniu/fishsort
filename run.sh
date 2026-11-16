@@ -1,21 +1,7 @@
 #!/usr/bin/env bash
-# 项目统一入口。不带参数 = 直接启动游戏试玩。
+# 项目统一入口。不带参数 = 构建网页版并打开试玩。
 set -euo pipefail
 cd "$(dirname "$0")"
-
-# 找 Godot：优先用 GODOT 环境变量，其次 PATH，最后是 macOS 的应用程序目录
-find_godot() {
-  if [ -n "${GODOT:-}" ]; then echo "$GODOT"; return; fi
-  if command -v godot >/dev/null 2>&1; then echo godot; return; fi
-  local app bin
-  for app in /Applications/Godot*.app "$HOME"/Applications/Godot*.app; do
-    for bin in "$app"/Contents/MacOS/*; do
-      if [ -x "$bin" ]; then echo "$bin"; return; fi
-    done
-  done
-  echo godot
-}
-GODOT="$(find_godot)"
 
 # 找 Cocos Creator：优先用 COCOS_CREATOR 环境变量，其次 macOS 上 3.8.8 的默认安装位置
 COCOS_VERSION=3.8.8
@@ -36,45 +22,35 @@ usage() {
   cat <<'EOF'
 用法: ./run.sh [命令]
 
-  (无)                  启动游戏试玩（金币、星星、鱼票、道具已加满，方便测试）
-                        FISHSORT_LEVEL=65 ./run.sh 直接跳到第 65 关（仅试玩模式）
-                        FISHSORT_AUTOPLAY=1 ./run.sh 机器人代打（仅调试构建，验收用）
-  real                  启动游戏，按真实存档进度玩，不加资源
-  editor                打开 Godot 编辑器
-  test                  跑 src/core 单元测试
-  lint                  代码风格检查
-  check                 lint + test（与 CI 相同）
-  level-gen             生成关卡
-  level-verify          全量关卡校验（慢）
-  level-verify-changed  只校验改动过的关卡
-  font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
-  golden <目录>         导出黄金数据给 Cocos 版做对比（Godot 版核心逻辑在固定输入下的输出）
-
-Cocos 版（client/，迁移中，见 docs/09）：
-  web [real]            构建 web-mobile，起本地服务并在浏览器里打开（端口 WEB_PORT，默认 8080）
-                        默认试玩模式（金币、技能加满）；real = 按真实存档；
-                        FISHSORT_LEVEL=65 跳到第 65 关，FISHSORT_PLAY=1 直接进关，FISHSORT_AUTOPLAY=1 机器人代打，FISHSORT_PAGE=levels 直接打开某页
-  web-build             只构建 web-mobile → client/build/web-mobile
-  web-serve             不重新构建，直接起服务打开上次的构建
+试玩（在装了 Cocos Creator 3.8.8 的 Mac 上）：
+  (无)                  构建网页版并在浏览器里打开。试玩模式：金币、技能已加满
+  level <N>             同上，直接进第 N 关
+  auto [N]              同上，局内由机器人代打（看连击、结算、宝箱等画面用）；给了 N 就打第 N 关，否则打当前关
+  page <名字>           同上，启动后直接打开某一页（levels、shop、wheel、daily、rank…）
+  real                  按真实存档进度玩，不加资源
+                        以上参数可以连着写：./run.sh real level 65 auto
+  serve [同上的参数]    不重新构建，直接打开上次的构建
+  build                 只构建网页版 → client/build/web-mobile
   wechat-build          构建微信小游戏包 → client/build/wechatgame
-  cocos-editor          用 Cocos Creator 打开 client/
+  editor                用 Cocos Creator 打开 client/
+  clean                 清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
+  cdp logs [秒] | eval '<表达式>' | shot <图> | burst <目录> <张数> <间隔毫秒> '<JS>'
+                        调试：读试玩浏览器的控制台、在页面里求值、截图、连拍
+
+开发（Linux 或 CI，只需要 Node 22 以上）：
+  check                 类型检查 + 单元测试 + .meta 与图片压缩检查（与 CI 相同）
+  test                  只跑单元测试
+  level-gen [起] [止]   按难度曲线生成关卡
+  level-verify [文件…]  校验关卡（不给文件就校验全部；--runs=N 改机器人局数）
+  meta                  给 client/assets 里缺 .meta 的资源补 .meta（结果要提交）
   art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
-  cdp logs [秒] | cdp eval '<表达式>'
-                        调试：读 web-serve 开的浏览器的控制台、在页面里求值
-  cocos-clean           清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
-  meta                  给 client/assets 里缺 .meta 的资源补 .meta（Linux 上跑，结果要提交）
-  ts-test               client/ 的 TypeScript 单测（Node，Linux 上跑）
-  ts-check              类型检查 + 单测 + .meta 检查
-  ts-level-verify       用 TS 版核心校验 client/ 里的全部关卡（--runs=N，或给文件名只校验这些）
-  ts-level-gen          用 TS 版核心生成关卡 [起始关] [结束关]
+  font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
+
+环境变量：WEB_PORT（本地服务端口，默认 8080）、COCOS_CREATOR（Cocos Creator 可执行文件的路径）
 EOF
 }
 
 die() { echo "✗ $*" >&2; exit 1; }
-
-need_godot() {
-  command -v "$GODOT" >/dev/null || die "找不到 Godot：请把 Godot.app 放进「应用程序」目录，或用 GODOT=/路径/godot ./run.sh 指定"
-}
 
 need_cocos() {
   [ -x "$COCOS" ] || command -v "$COCOS" >/dev/null || die "找不到 Cocos Creator ${COCOS_VERSION}：装到 /Applications/Cocos/Creator/$COCOS_VERSION/，或用 COCOS_CREATOR=/路径/CocosCreator ./run.sh 指定"
@@ -117,20 +93,32 @@ cocos_build() {
   fi
 }
 
+# 试玩参数 → 地址栏参数（client/assets/scripts/services/launch.ts 读）：real、level <N>、auto [N]、page <名字>
 web_url() {
   local q=""
-  [ "${1:-}" = "real" ] && q="${q}&real=1"
-  [ -n "${FISHSORT_LEVEL:-}" ] && q="${q}&level=${FISHSORT_LEVEL}"
-  [ "${FISHSORT_AUTOPLAY:-}" = "1" ] && q="${q}&autoplay=1"
-  [ "${FISHSORT_PLAY:-}" = "1" ] && q="${q}&play=1"
-  [ -n "${FISHSORT_PAGE:-}" ] && q="${q}&page=${FISHSORT_PAGE}"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      real) q="${q}&real=1" ;;
+      level)
+        [[ "${2:-}" =~ ^[0-9]+$ ]] || die "用法: ./run.sh level <关卡号>"
+        q="${q}&level=$2&play=1"; shift ;;
+      auto)
+        q="${q}&autoplay=1"
+        if [[ "${2:-}" =~ ^[0-9]+$ ]]; then q="${q}&level=$2"; shift; fi ;;
+      page)
+        [ -n "${2:-}" ] || die "用法: ./run.sh page <页面名>"
+        q="${q}&page=$2"; shift ;;
+      *) die "不认识的试玩参数：$1（可用 real、level <N>、auto [N]、page <名字>）" ;;
+    esac
+    shift
+  done
   echo "http://localhost:${WEB_PORT}/${q:+?${q#&}}"
 }
 
 web_serve() {
   local dir="$CLIENT/build/web-mobile" url
-  url="$(web_url "${1:-}")"
-  need_file "$dir/index.html" "先跑 ./run.sh web-build"
+  url="$(web_url "$@")"
+  need_file "$dir/index.html" "先跑 ./run.sh build"
   echo "→ ${url}（Ctrl+C 停止）"
   # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏。
   # 后三个参数：窗口被别的窗口挡住时也照常跑（不然远程截图、连拍时画面是停的）
@@ -152,102 +140,36 @@ need_node_modules() {
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
 
-# 刷新 Godot 的类名缓存与资源导入；新增脚本后 headless 工具依赖它
-import_project() {
-  # 全新检出时要导入两遍：第一遍字体还没导入完，引用它的资源会报错
-  [ -d .godot ] || "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
-  "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
-}
-
 cmd="${1:-play}"
-[ $# -gt 0 ] && shift
+case "$cmd" in
+  # 试玩参数直接跟在 ./run.sh 后面：整串都交给 play
+  real|level|auto|page) cmd=play ;;
+  *) if [ $# -gt 0 ]; then shift; fi ;;
+esac
 
 case "$cmd" in
   play)
-    need_godot; import_project
-    # 默认把金币、星星、鱼票、道具加满方便测试；想按真实进度玩用 ./run.sh real
-    # FISHSORT_LEVEL=N 可直接跳到第 N 关，由 save_service 读取
-    FISHSORT_BOOST=1 exec "$GODOT" --path . "$@"
-    ;;
-  real)
-    need_godot; import_project
-    exec "$GODOT" --path . "$@"
-    ;;
-  editor)
-    need_godot
-    exec "$GODOT" --path . --editor "$@"
-    ;;
-  test)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tests/run_tests.gd "$@"
-    ;;
-  lint)
-    command -v gdlint >/dev/null || die "找不到 gdlint，先执行: pip install gdtoolkit"
-    gdlint src tools tests
-    gdformat --check src tools tests
-    ;;
-  check)
-    "$0" lint
-    "$0" test
-    ;;
-  level-gen)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tools/level/gen.gd -- "$@"
-    ;;
-  level-verify)
-    need_godot; import_project
-    "$GODOT" --headless --path . -s tools/level/verify.gd -- "$@"
-    ;;
-  level-verify-changed)
-    need_godot; import_project
-    base="${BASE_REF:-origin/main}"
-    files="$(git diff --name-only --diff-filter=AM "$base" -- 'config/levels/*.json' 2>/dev/null || true)"
-    if [ -z "$files" ]; then echo "没有改动的关卡"; exit 0; fi
-    # 关卡文件名不含空格，按空白拆分即可（兼容 macOS 自带的 bash 3.2）
-    # shellcheck disable=SC2086
-    "$GODOT" --headless --path . -s tools/level/verify.gd -- $files
-    ;;
-  font-subset)
-    python3 tools/font/subset.py "$@"
-    ;;
-  golden)
-    need_godot; import_project
-    [ $# -ge 1 ] || die "用法: ./run.sh golden <输出目录> [--runs=N]"
-    "$GODOT" --headless --path . -s tools/golden/export.gd -- "$@"
-    ;;
-  web)
+    # 先把参数检查一遍，写错了不用等构建完才知道
+    web_url "$@" >/dev/null
     cocos_build web-mobile
     web_serve "$@"
     ;;
-  web-build)    cocos_build web-mobile ;;
-  web-serve)    web_serve "$@" ;;
+  serve)        web_serve "$@" ;;
+  build)        cocos_build web-mobile ;;
   wechat-build) cocos_build wechatgame ;;
-  cocos-editor)
+  editor)
     need_cocos
     exec "$COCOS" --project "$CLIENT" "$@"
     ;;
-  meta)
-    node tools/cocos/meta.mjs "$@"
-    ;;
-  art-compress)
-    # 包体：PNG 量化成调色板、家园物件缩到 2 倍、背景音乐转 mp3；之后补 .meta
-    need_node_modules
-    (cd client && node tools/art/compress.mjs && node tools/audio/bgm_mp3.mjs)
-    node tools/cocos/meta.mjs
-    ;;
-  cdp)
-    node tools/cocos/cdp.mjs "$@"
-    ;;
-  cocos-clean)
+  clean)
     # 都是 Cocos 生成的缓存，不进仓库；导入状态坏了（资源被标成 importer "*"、黑屏）时清掉重来
     rm -rf client/library client/temp client/build client/local
     echo "✓ 已清掉 client/library、temp、build、local"
     ;;
-  ts-test)
-    need_node_modules
-    (cd client && npx tsx --test tests/*.test.ts "$@")
+  cdp)
+    node tools/cocos/cdp.mjs "$@"
     ;;
-  ts-check)
+  check)
     need_node_modules
     node tools/cocos/meta.mjs --check
     (cd client && node tools/art/compress.mjs --check)
@@ -264,13 +186,29 @@ case "$cmd" in
     if [ -f client/.cc-types/cc.d.ts ]; then (cd client && npx tsc -p tsconfig.client.json); else echo "（没有 client/.cc-types，跳过界面层类型检查）"; fi
     (cd client && npx tsx --test tests/*.test.ts)
     ;;
-  ts-level-verify)
+  test)
+    need_node_modules
+    (cd client && npx tsx --test tests/*.test.ts "$@")
+    ;;
+  level-gen)
+    need_node_modules
+    (cd client && npx tsx tools/level/gen.ts "$@")
+    ;;
+  level-verify)
     need_node_modules
     (cd client && npx tsx tools/level/verify.ts "$@")
     ;;
-  ts-level-gen)
+  meta)
+    node tools/cocos/meta.mjs "$@"
+    ;;
+  art-compress)
+    # 包体：PNG 量化成调色板、家园物件缩到 2 倍、背景音乐转 mp3；之后补 .meta
     need_node_modules
-    (cd client && npx tsx tools/level/gen.ts "$@")
+    (cd client && node tools/art/compress.mjs && node tools/audio/bgm_mp3.mjs)
+    node tools/cocos/meta.mjs
+    ;;
+  font-subset)
+    python3 client/tools/font_subset.py "$@"
     ;;
   -h|--help|help) usage ;;
   *) usage; exit 1 ;;

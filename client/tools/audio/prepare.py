@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""局内的基础音效：直接用 Godot 版一直在用的那一套（仓库根 assets/audio/*.wav，tools/audio/synth.py 合成）。
+"""局内的基础音效：直接用 Godot 版一直在用的那一套（同目录 synth.py 合成，中间产物在 .synth/）。
 用户 2026-11-16：点鱼、鱼进缸这些声音重构前没问题，换成素材包和乐器音之后反而不行，所以恢复原版。
 
 - 点鱼「啵」bo、进缸 bowl + splash、破泡 pop：各出 3 个音高略有差别的版本（_0 / _1 / _2），游戏里随机挑一个，连着响不单调
@@ -8,16 +8,21 @@
 - 界面点击 tap、底栏切页 tab、开关 toggle_on / toggle_off：都出自原版的 click（一声很短的上扬音），只是音高不同
 - 进暂存槽 buffer、落地 land：原样
 
-用法：python3 client/tools/audio/prepare.py（先跑过仓库根的 tools/audio/synth.py）
+背景音乐：加 --bgm 时另外写出 bgm.wav，再跑 ./run.sh art-compress 转成进包的 bgm.mp3（转完 wav 会删掉）。
+
+用法：python3 client/tools/audio/prepare.py [--bgm]
 依赖：numpy
 """
+import sys
 import wave
 from pathlib import Path
 
 import numpy as np
 
+import synth
+
 CLIENT = Path(__file__).resolve().parent.parent.parent
-SRC = CLIENT.parent / 'assets/audio'
+SRC = synth.OUT
 OUT = CLIENT / 'assets/resources/audio'
 RATE = 22050
 
@@ -59,6 +64,7 @@ def join(parts: list, gap: float) -> np.ndarray:
 
 
 def main() -> None:
+    synth.main()
     OUT.mkdir(parents=True, exist_ok=True)
     n = 0
     # 随机变调的三个版本（Godot 版的变调范围：bo 0.95–1.1，bowl 0.95–1.1，splash 0.9–1.15，pop 0.88–1.18）
@@ -79,6 +85,8 @@ def main() -> None:
     write('toggle_off', join([pitch(click, 1.2), pitch(click, 0.9)], 0.07))
     for name in ('buffer', 'land'):
         write(name, read(name))
+    if '--bgm' in sys.argv:
+        write('bgm', read('bgm'))
     print(f'✓ {n + 6} 个音效 → {OUT}')
 
 
