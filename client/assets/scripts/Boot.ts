@@ -11,6 +11,7 @@ import { DailyPage } from './pages/daily';
 import { LevelsPage } from './pages/levels';
 import { profilePopup } from './pages/profile';
 import { RankPage } from './pages/rank';
+import { WheelPage } from './pages/wheel';
 import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
 import { App } from './services/app';
@@ -66,7 +67,7 @@ export class Boot extends Component {
     ui.register('rank', () => new RankPage());
     ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new DailyPage());
-    ui.register('wheel', () => new TodoPage(null, 'wheel'));
+    ui.register('wheel', () => new WheelPage());
     ui.register('adtest', () => new TodoPage(null, 'wheel'));
     ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
