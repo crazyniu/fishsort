@@ -53,6 +53,8 @@ const FROST = new Color(225, 247, 255, 255);
 const SHEEN = new Color(255, 200, 240, 255);
 /** 冰晶连线上小冰块的大小和间距 */
 const ICE_BEAD = 34;
+/** 迷雾计数小泡泡的底色 */
+const PIP = new Color(150, 205, 255, 255);
 const ICE_GAP = 30;
 
 export class Field {
@@ -509,12 +511,15 @@ export class Field {
       return m;
     });
     // 还差几次显形：气泡下沿一排小泡泡，别处每破一个气泡，这里就破一个（用户 2026-11-16：数字角标看不懂）
-    const size = Math.min(36, v.r * 0.3);
-    const step = size * 1.12;
+    // 小泡泡要一眼看得见：实心浅蓝圆点上叠气泡的高光，骑在气泡下沿，画在问号球上面
+    const size = Math.min(34, Math.max(24, v.r * 0.26));
+    const step = size * 1.18;
     for (let i = 0; i < left; i++) {
-      const pip = img(v.body, 'skin/j_bubble', size, size, `fogPip${i}`);
-      at(pip, (i - (left - 1) / 2) * step, -v.r * 0.7);
-      bob(pip, 3, 1.4 + i * 0.2, i * 0.3);
+      const pip = img(v.body, 'kit/circle_white', size, size, `fogPip${i}`);
+      (pip.getComponent(Sprite) as Sprite).color = PIP;
+      img(pip, 'skin/j_bubble', size * 1.08, size * 1.08, 'shine');
+      at(pip, (i - (left - 1) / 2) * step, -v.r * 0.86);
+      bob(pip, 2, 1.4 + i * 0.2, i * 0.3);
       v.fogPips.push(pip);
     }
   }

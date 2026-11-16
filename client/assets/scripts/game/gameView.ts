@@ -33,9 +33,13 @@ export interface GameArg {
 
 interface BowlView {
   node: Node;
-  fish: Node;
-  count: Label;
-  badge: Node;
+  /** 缸里已经进来的鱼（空缸是空的） */
+  inside: Node;
+  /** 缸前面叠着的订单卡：还差几条就有几张，进一条揭掉最前面那张 */
+  cards: Node[];
+  /** 订单卡之间的横向间距 */
+  cardStep: number;
+  sp: number;
   timer: Node | null;
   timerLabel: Label | null;
   shown: number;
@@ -75,6 +79,10 @@ const BOWL_SINK = 5;
 
 /** 背景冒泡循环的 tween 标签（换关时只停这个，不碰别的） */
 const AMBIENT_TAG = 9201;
+/** 夸奖字出现时让连击计让开的 tween 标签 */
+const PRAISE_TAG = 9202;
+/** 技能数量角标的红 */
+const BADGE_RED = new Color(235, 64, 64, 255);
 
 export class GamePage extends Page {
   readonly tab = null;
@@ -238,9 +246,10 @@ export class GamePage extends Page {
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 24 - 37, hudY);
-    // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，浮在鱼缸那一排正中，下面一条倒计时细条。
-    // 放在最上面的特效层里（鱼缸和四边光框之上），不挡点击
-    this.comboY = top - 164;
+    // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
+    // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
+    // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
+    this.comboY = top - 330;
     this.comboRow = box('combo', this.fly, 420, 120);
     at(this.comboRow, this.comboX, this.comboY);
     this.comboBadge = box('badge', this.comboRow, 420, 120);
@@ -338,7 +347,7 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
-  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的琥珀小标签，没有了换绿色加号 */
+  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的扁平红色圆角标（只写数字，不带乘号；用户 2026-11-16），没有了换绿色加号 */
   private buildSkill(id: SkillId, x: number, y: number): void {
     const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
     at(node, x, y);
@@ -346,9 +355,14 @@ export class GamePage extends Page {
     at(icon, 0, 16);
     const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 30);
     at(name.node, 0, -54);
-    const badge = slice(node, 'kit/tag_amber', 64, 40, 'badge');
-    at(badge, 156 / 2 - 22, 168 / 2 - 10);
-    const count = text(badge, '', 26);
+    // 常见的扁平角标：白边红底白字，不要反光（用户 2026-11-16）
+    const badge = img(node, 'kit/circle_white', 52, 52, 'badge');
+    at(badge, 156 / 2 - 16, 168 / 2 - 14);
+    const dot = img(badge, 'kit/circle_white', 44, 44, 'dot');
+    (dot.getComponent(Sprite) as Sprite).color = BADGE_RED;
+    const count = text(badge, '', 26, { outline: null, shadow: false });
+    // 白底圆片会被当成浅色面、字换成深色：这里直接写死白字
+    count.color = new Color(255, 255, 255, 255);
     const plus = keyButton(node, 'green', 'kit/ic_plus', 50, null, 0.62);
     at(plus, 156 / 2 - 18, 168 / 2 - 14);
     const lock = box('lock', node, 156, 168);
@@ -375,7 +389,10 @@ export class GamePage extends Page {
       const free = Skills.freeAvailable(save, id);
       v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
-      v.count.string = free ? tr('UI_SKILL_FREE') : `×${Math.min(n, App.config.ui.badgeCap)}`;
+      v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
+      // 「免费」两个字比数字宽，字号小一点才放得进圆角标
+      v.count.fontSize = free ? 19 : 26;
+      v.count.lineHeight = Math.round(v.count.fontSize * 1.25);
     }
   }
 
@@ -697,20 +714,14 @@ export class GamePage extends Page {
     if (!view) return;
     view.incoming--;
     view.shown++;
-    view.count.string = `${Math.min(view.shown, view.cap)}/${view.cap}`;
+    this.peelCard(view);
+    this.settleInside(view);
     // 满缸正在飘走的不再压（它的缩放归飘走动画管）
     if (!view.leaving) fx.squash(view.node, 0.88);
     const x = view.node.position.x;
     const mouth = view.restY + view.h * 0.3;
     fx.fountain(this.fly, x, mouth, 7, 'kit/bubble_small', 240, 900, 10, 20, 0.45);
     fx.ripple(this.fly, x, mouth, 90, [1.3, 0.5], 0.25, 0, 180);
-    // 缸里的目标鱼跟着跳一下、数量牌弹一下
-    Tween.stopAllByTarget(view.fish);
-    view.fish.setScale(1.25, 1.25, 1);
-    tween(view.fish).to(0.2, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    Tween.stopAllByTarget(view.badge);
-    view.badge.setScale(1.18, 1.18, 1);
-    tween(view.badge).to(0.18, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
     sfx('bowl');
     sfx('splash');
     if (view.done && view.incoming <= 0) this.bowlLeave(view);
@@ -723,11 +734,21 @@ export class GamePage extends Page {
     const restY = this.shelfTop - BOWL_SINK + h / 2;
     const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
     at(node, this.bowlX[slot], restY);
-    const fish = img(node, this.field.spriteFor(sp), s * 0.5, s * 0.5, 'target');
-    at(fish, 0, -s * 0.08);
-    const badge = slice(node, 'kit/capsule', 104, 42, 'badge');
-    at(badge, 0, this.shelfTop - SHELF_H / 2 - restY);
-    const count = text(badge, `0/${cap}`, 28);
+    // 空缸里什么都不放（用户 2026-11-16：缸里画着目标鱼，会让人以为已经有一条了）。
+    // 要什么、还差几条，看缸前面叠着的订单卡：一张卡一条鱼，进一条揭掉一张
+    const inside = box('inside', node, s, h);
+    const cards: Node[] = [];
+    const cw = big ? 56 : 68;
+    const ch = cw * 1.22;
+    const step = cap > 1 ? Math.min(cw * 0.42, (s * 0.86 - cw) / (cap - 1)) : 0;
+    for (let i = 0; i < cap; i++) {
+      const k = i - (cap - 1) / 2;
+      const card = img(node, 'skin/j_tile', cw, ch, `card${i}`);
+      at(card, k * step, -h / 2 + ch * 0.16 + Math.abs(k) * 2.5);
+      card.angle = -k * 7;
+      img(card, this.field.spriteFor(sp), cw * 0.9, cw * 0.9, 'fish');
+      cards.push(card);
+    }
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {
@@ -735,12 +756,8 @@ export class GamePage extends Page {
       at(timerNode, s / 2 - 16, s / 2 - 22);
       timerLabel = text(timerNode, String(Math.ceil(timer)), 28);
     }
-    if (big) {
-      const tag = text(node, '×6', 26, { color: COLOR.yellow });
-      at(tag.node, -s / 2 + 22, s / 2 - 22);
-    }
     this.bowlBubbles(node, s, h);
-    const view: BowlView = { node, fish, count, badge, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
+    const view: BowlView = { node, inside, cards, cardStep: step, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
     onTap(node, () => this.tapBowl(slot), { press: 0 });
     // 新缸从上方落下
@@ -754,6 +771,53 @@ export class GamePage extends Page {
       .start();
     const plus = this.plusNodes[slot];
     if (plus) plus.active = false;
+  }
+
+  /** 揭掉最前面那张订单卡：往上一弹、转着淡掉，剩下的卡往中间收一点 */
+  private peelCard(view: BowlView): void {
+    const card = view.cards.pop();
+    if (!card) return;
+    Tween.stopAllByTarget(card);
+    const p = card.position;
+    tween(card)
+      .to(0.12, { position: new Vec3(p.x, p.y + 26, 0), scale: new Vec3(1.18, 1.18, 1) }, { easing: 'quadOut' })
+      .to(0.2, { position: new Vec3(p.x + (p.x >= 0 ? 30 : -30), p.y + 40, 0), scale: new Vec3(0.4, 0.4, 1), angle: card.angle + (p.x >= 0 ? -40 : 40) }, { easing: 'quadIn' })
+      .call(() => card.destroy())
+      .start();
+    tween(opacity(card)).delay(0.12).to(0.2, { opacity: 0 }).start();
+    const n = view.cards.length;
+    if (n === 0) return;
+    const ch = (view.cards[0].getComponent(UITransform) as UITransform).height;
+    const step = view.cardStep;
+    view.cards.forEach((c, i) => {
+      const k = i - (n - 1) / 2;
+      Tween.stopAllByTarget(c);
+      tween(c)
+        .to(0.18, { position: new Vec3(k * step, -view.h / 2 + ch * 0.16 + Math.abs(k) * 2.5, 0), angle: -k * 7 }, { easing: 'quadOut' })
+        .start();
+    });
+  }
+
+  /** 缸里进来的鱼：按进来的先后摆在水里（3 条摆成三角、6 条摆两排），各自轻轻游 */
+  private settleInside(view: BowlView): void {
+    const n = view.shown;
+    const s = (view.node.getComponent(UITransform) as UITransform).width;
+    const size = s * (view.cap > 3 ? 0.26 : 0.32);
+    const spots: [number, number][] =
+      view.cap > 3
+        ? [[-0.22, 0.02], [0, 0.02], [0.22, 0.02], [-0.11, 0.2], [0.11, 0.2], [0, -0.14]]
+        : [[-0.17, 0.0], [0.17, 0.0], [0, 0.17]];
+    const k = n - 1;
+    if (k >= spots.length) return;
+    const f = img(view.inside, this.field.spriteFor(view.sp), size, size, `in${k}`);
+    at(f, spots[k][0] * s, spots[k][1] * view.h);
+    f.setScale(k % 2 === 0 ? 0.3 : -0.3, 0.3, 1);
+    const sx = k % 2 === 0 ? 1 : -1;
+    tween(f)
+      .to(0.22, { scale: new Vec3(sx * 1.15, 1.15, 1) }, { easing: 'quadOut' })
+      .to(0.16, { scale: new Vec3(sx, 1, 1) }, { easing: 'backOut' })
+      .call(() => fx.bob(f, 4, 1.6 + k * 0.2, k * 0.15))
+      .start();
   }
 
   /** 满缸：晃一下、发光、爆光、往上飘走（docs/01 3.1） */
@@ -1045,6 +1109,10 @@ export class GamePage extends Page {
     // 小一点、放在暂存槽那一排：不盖住下面的气泡（用户 2026-11-16）
     const y = this.bufferY - 16;
     if (this.praiseNode?.isValid) this.praiseNode.destroy();
+    // 夸奖字和连击计在同一排：夸奖字在的时候连击计淡出，播完再回来
+    const meter = opacity(this.comboBadge);
+    Tween.stopAllByTag(PRAISE_TAG, meter);
+    tween(meter).tag(PRAISE_TAG).to(0.08, { opacity: 0 }).delay(1.05).to(0.2, { opacity: 255 }).start();
     const holder = box('praise', this.fly, 420, 200);
     this.praiseNode = holder;
     at(holder, 0, y);
