@@ -96,7 +96,6 @@ export class Field {
     const onField = Math.min(this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length, radii.length);
     if (!covered) {
       this.fit(centers, radii, onField);
-      this.shrinkToFit(radii, onField);
     } else {
       // 有遮挡的关卡：整体等比放大、居中，用满场地（相对位置和遮挡关系不变；用户 2026-11-16：场地尽量大）
       this.fillBox(centers, radii, centers.length);
@@ -104,6 +103,8 @@ export class Field {
       const boost = App.config.ui.field.layerBoost ?? 1;
       for (let i = 0; i < radii.length; i++) radii[i] *= boost;
     }
+    // 气泡受重力会沉到底：先在内存里试算，把气泡整体放大或缩小到「堆起来刚好占满场地」（用户 2026-11-16：上面不要空着）
+    this.fillHeight(centers, radii, onField, covered);
     // 下层先画
     const order = this.lv.bubbles.map((_, i) => i).sort((a, b) => this.lv.bubbles[a].layer - this.lv.bubbles[b].layer || a - b);
     this.views = new Array(this.lv.bubbles.length);
@@ -208,34 +209,67 @@ export class Field {
     }
   }
 
-  /**
-   * 没遮挡的关卡：先在内存里把同时在场的气泡（取最大的那几个）扔下去试一遍，堆得比场地高就把所有气泡等比缩小再试，
-   * 保证真玩的时候堆不出场地
-   */
-  private shrinkToFit(radii: number[], n: number): void {
-    const cfg = App.config.ui.pile;
-    const limit = -this.h / 2 + this.h * cfg.maxHeight;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const big = [...radii].sort((a, b) => b - a).slice(0, n);
-      const p = this.newPile();
-      let top = -Infinity;
-      // 一个接一个放（每 4 帧一个），放完再多等一会让它停稳
-      for (let f = 0; f < n * 4 + 240 && (f < n * 4 || p.awake); f++) {
-        if (f % 4 === 0 && f / 4 < n) {
-          const i = f / 4;
-          const m = big[i] + App.config.ui.field.gap;
-          // 横向位置错开：用黄金角序列，不随机（同一关每次结果一样）
-          const x = (((i * 0.618034) % 1) - 0.5) * (this.w - 2 * m);
-          p.add(i, x, this.h / 2 + big[i] * 0.3, big[i]);
+  /** 试算：气泡按 f 倍大小放进场地、让重力压实，返回堆的最高点（本节点坐标） */
+  private settledTop(centers: [number, number][], radii: number[], n: number, covered: boolean, f: number): number {
+    const p = this.newPile();
+    const gap = App.config.ui.field.gap;
+    let count = n;
+    let r: number[];
+    if (covered) {
+      // 有遮挡：全部按设计位置（以场地中心为原点等比缩放）放好，互相压着的绑成组，松手
+      r = radii.map((x) => x * f);
+      count = r.length;
+      centers.forEach((c, i) => p.add(i, c[0] * f, c[1] * f, r[i]));
+      const links: [number, number][] = [];
+      this.lv.bubbles.forEach((d, i) => d.under.forEach((u) => links.push([i, u])));
+      p.regroup(links);
+      for (let k = 0; k < 360 && p.awake; k++) p.step(1 / 60);
+    } else {
+      // 没遮挡：同时在场的取最大的那几个，一个接一个从上沿放下来（每 4 帧一个），放完等它停稳。
+      // 横向位置用黄金分割序列错开，不用随机数：同一关每次结果一样
+      r = [...radii]
+        .sort((a, b) => b - a)
+        .slice(0, n)
+        .map((x) => x * f);
+      for (let k = 0; k < n * 4 + 300 && (k < n * 4 || p.awake); k++) {
+        if (k % 4 === 0 && k / 4 < n) {
+          const i = k / 4;
+          const m = r[i] + gap;
+          p.add(i, (((i * 0.618034) % 1) - 0.5) * Math.max(0, this.w - 2 * m), this.h / 2 + r[i] * 0.3, r[i]);
         }
         p.step(1 / 60);
       }
-      for (let i = 0; i < n; i++) {
-        const q = p.pos(i);
-        if (q) top = Math.max(top, q[1] + big[i]);
+    }
+    let top = -Infinity;
+    for (let i = 0; i < count; i++) {
+      const q = p.pos(i);
+      if (q) top = Math.max(top, q[1] + r[i]);
+    }
+    return top;
+  }
+
+  /**
+   * 把气泡整体放大或缩小，让压实后的堆高刚好到场地高度的 pile.maxHeight：二分找倍数。
+   * 上限是气泡半径不超过 field.maxRadius（气泡少的关卡不会无限放大），以及最大的气泡不超过半个场地宽
+   */
+  private fillHeight(centers: [number, number][], radii: number[], n: number, covered: boolean): void {
+    const cfg = App.config.ui;
+    const limit = -this.h / 2 + this.h * cfg.pile.maxHeight;
+    const biggest = radii.reduce((m, x) => Math.max(m, x), 1);
+    const cap = Math.min(cfg.field.maxRadius, this.w * 0.24) / biggest;
+    let lo = 0.5;
+    let hi = Math.max(lo, cap);
+    if (this.settledTop(centers, radii, n, covered, hi) > limit) {
+      for (let k = 0; k < 7; k++) {
+        const mid = (lo + hi) / 2;
+        if (this.settledTop(centers, radii, n, covered, mid) > limit) hi = mid;
+        else lo = mid;
       }
-      if (top <= limit) return;
-      for (let i = 0; i < radii.length; i++) radii[i] *= 0.95;
+      hi = lo;
+    }
+    for (let i = 0; i < radii.length; i++) {
+      radii[i] *= hi;
+      if (covered) centers[i] = [centers[i][0] * hi, centers[i][1] * hi];
     }
   }
 

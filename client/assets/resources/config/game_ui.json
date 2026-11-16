@@ -37,7 +37,7 @@
   "landSpeed": 380,
   "separate": 420,
   "stagger": 0.06,
-  "maxHeight": 0.94
+  "maxHeight": 0.9
  },
  "hint": {
   "tutorialLevels": 3,
@@ -94,6 +94,7 @@
   "relaxSteps": 80,
   "fishMin": 80,
   "fishMax": 160,
+  "maxRadius": 150,
   "layerBoost": 1.15
  },
  "badgeCap": 99,
