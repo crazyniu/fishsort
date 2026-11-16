@@ -32,7 +32,7 @@ UI_CLOSE,关闭,Close
 UI_AD_UNAVAILABLE,广告暂时不可用,Ads are unavailable right now
 UI_SLOT_COIN,花 %d 金币开启这个缸位？,Open this slot for %d coins?
 UI_CONFIRM,确定,OK
-UI_TITLE,泡泡海湾,Bubble Bay
+UI_TITLE,啵啵救援队,Pop Pop Rescue
 UI_START,开始 第 %d 关,Play level %d
 UI_SIGNIN,签到,Daily gift
 UI_SIGNIN_DAY,第 %d 天,Day %d
