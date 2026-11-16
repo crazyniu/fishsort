@@ -13,7 +13,7 @@ import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, INK, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
@@ -161,7 +161,7 @@ export class CollectPage extends Page {
     const bar = progressBar(row, 220, 22, 'green');
     at(bar.node, -160 + 110, -30);
     bar.set(have / cards.length);
-    const cnt = text(row, `${have}/${cards.length}`, 26, { align: 'left', color: INK.sub });
+    const cnt = text(row, `${have}/${cards.length}`, 28, { align: 'left', color: hex('#D4ECFF') });
     at(cnt.node, -160 + 220 + 16, -30);
     if (Album.canClaim(s, eco, i)) {
       const b = button(row, { color: 'green', w: 170, h: 84, label: tr('ALBUM_TAKE'), fontSize: 40, onTap: () => this.claimBook(i) });

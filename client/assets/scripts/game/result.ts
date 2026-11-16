@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, Btn, at, box, button, hex, img, lazyImg, onTap, opacity, setImg, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, box, button, hex, img, lazyImg, onTap, opacity, plate, setImg, slice, text } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
@@ -60,7 +60,7 @@ export class ResultPage extends Page {
     const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
 
     // 横幅与星星
-    const ribbon = img(c, 'kit/ribbon_blue', 700, 219, 'ribbon');
+    const ribbon = plate(c, 'skin/j_ribbon', 700, 200, 'ribbon');
     at(ribbon, 0, ribbonY);
     const title = text(ribbon, tr('WIN_TITLE'), 88, { color: COLOR.yellow, outline: hex('#B4500A'), outlineWidth: 8 });
     at(title.node, 0, 14);

@@ -157,6 +157,33 @@ def main() -> None:
         pa = np.asarray(pim).astype(np.float32)
         pa[..., 3] *= 0.93
         save('j_panel', Image.fromarray(pa.astype(np.uint8), 'RGBA'), pb)
+        # 小圆角版（列表行、小卡片）：同一张母版缩小切，角约 26 设计单位
+        rim, rb = nine(panel, 400, 78)
+        ra = np.asarray(rim).astype(np.float32)
+        ra[..., 3] *= 0.93
+        save('j_row', Image.fromarray(ra.astype(np.uint8), 'RGBA'), rb)
+
+    # 弹窗框：宝蓝厚框 + 浅天蓝内容区（九宫格）
+    (popup,) = cut(raw / 'popup.png')
+    save('j_popup', *nine(popup, 840, 140))
+
+    # 横幅（通关等）：两头带折角飘带，中间横向拉伸；两头留到飘带和圆角都在里面
+    (rib,) = cut(raw / 'ribbon.png')
+    rh = 300
+    rw = rib.width * rh / rib.height
+    save('j_ribbon', *three(rib, rh, 0.3 * rw / rh))
+
+    # 选关节点：已过（蓝）、当前（绿 + 金圈）、未开（灰）、挑战（紫 + 金圈）
+    for nm, im in zip(['blue', 'green', 'gray', 'purple'], cut(raw / 'nodes.png')):
+        save(f'j_node_{nm}', im.convert('RGBa').resize((300, round(im.height * 300 / im.width)), Image.LANCZOS).convert('RGBA'))
+
+    # 局内：木架（横向三宫格）、暂存格
+    shelf, slot = cut(raw / 'shelf.png')
+    save('j_shelf', *three(shelf, 120, 1.2))
+    j, jb = nine(slot, 300, 96)
+    save('j_slot', j, jb)
+    # 暂存格快满时的警告色
+    save('j_slot_warn', recolor(j, 205, 2, 0.4, 1.0, 1.25, 0.85), jb)
 
     save('j_inset', *inset())
 

@@ -175,7 +175,7 @@ export function needCoins(short: number, after?: () => void): void {
     });
     at(b.node, 0, -160);
   } else {
-    const t = text(p.body, tr('UI_NO_COINS'), 30, { color: COLOR.ink, outline: null });
+    const t = text(p.body, tr('UI_NO_COINS'), 32);
     at(t.node, 0, -160);
   }
 }
@@ -219,7 +219,7 @@ export function livesPopup(onChange?: () => void): void {
     at(h, (i - (eco.lives.max - 1) / 2) * 104, 240);
     hearts.push(h);
   }
-  const lbl = text(p.body, '', 32, { color: COLOR.ink, outline: null });
+  const lbl = text(p.body, '', 34);
   at(lbl.node, 0, 150);
   const timerPill = slice(p.body, 'kit/capsule', 300, 76, 'timer');
   at(timerPill, 0, 80);
@@ -407,7 +407,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   }
   const [c, ...rest] = cards;
   const p = openPopup({ w: Screen.W, h: Screen.H, noClose: true, mascot: null, onClose: () => revealCards(rest, done) });
-  const panel = p.body.getChildByName('skin');
+  const panel = p.body.getChildByName('frame');
   if (panel) panel.active = false;
   // 没有卡片底板：字直接压在压暗的背景上，用白字深描边
   setInk(p.body, DARK_INK);

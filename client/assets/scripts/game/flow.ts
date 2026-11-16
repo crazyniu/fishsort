@@ -92,7 +92,7 @@ function tipPopup(key: string, done: () => void): void {
     fx.breathe(icon, 0.06, 1.2);
   }
   const msg = isSkill ? tr('UI_SKILL_TRY', tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`)) : tr(key);
-  const l = text(p.body, msg, 36, { width: 500, color: COLOR.ink, outline: null });
+  const l = text(p.body, msg, 36, { width: 500 });
   at(l.node, 0, isSkill ? -40 : 40);
   const ok = button(p.body, { color: 'green', w: 340, h: 96, label: tr('GOT_IT'), onTap: () => p.close() });
   at(ok.node, 0, -170);
@@ -223,7 +223,7 @@ export function unlockSlot(g: GamePage): void {
   at(bowl, 0, 130);
   const plus = img(bowl, 'kit/round_green', 80, 80, 'plus');
   img(plus, 'kit/ic_plus', 50, 50, 'glyph');
-  const l = text(p.body, tr('SLOT_LINE'), 32, { color: COLOR.ink, outline: null });
+  const l = text(p.body, tr('SLOT_LINE'), 34);
   at(l.node, 0, -10);
   const done = () => {
     p.close();

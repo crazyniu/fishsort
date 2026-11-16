@@ -6,7 +6,7 @@ import * as PlayerData from '../core/meta/playerData';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { tr } from '../ui/i18n';
-import { COLOR, INK, at, img, onTap, slice, text } from '../ui/kit';
+import { COLOR, at, hex, img, onTap, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
@@ -27,7 +27,7 @@ export function profilePopup(): void {
   at(frame, -150, h / 2 - 160);
   img(frame, avatarPath(), 160, 160, 'img');
   // 「点击更换」放在头像下面，蓝色小字，不压在头像上
-  const edit = text(p.body, tr('PROFILE_CHANGE_AVATAR'), 24, { color: INK.blue });
+  const edit = text(p.body, tr('PROFILE_CHANGE_AVATAR'), 26, { color: hex('#FFE36A') });
   at(edit.node, -150, h / 2 - 160 - 95 - 22);
   onTap(frame, () => {
     p.close();

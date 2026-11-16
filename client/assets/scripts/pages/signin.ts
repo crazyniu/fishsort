@@ -8,7 +8,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, button, fmt, img, slice, text } from '../ui/kit';
+import { at, button, fmt, img, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { PrizeItem, cardItem, rewardPopup, watchAd } from '../ui/popups';
 
@@ -105,7 +105,7 @@ export function signInPopup(changed: () => void): void {
     });
     at(d.node, 160, -236);
   } else {
-    const t = text(p.body, tr('UI_CLAIMED'), 36, { color: COLOR.ink, outline: null });
+    const t = text(p.body, tr('UI_CLAIMED'), 36);
     at(t.node, 0, -236);
   }
 }

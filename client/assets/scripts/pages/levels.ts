@@ -201,7 +201,7 @@ export class LevelsPage extends Page {
       const rays = fx.rays(holder, size * 2);
       rays.setSiblingIndex(0);
     }
-    const skin = cur ? 'kit/node_current' : done ? (hard ? 'kit/node_challenge_done' : 'kit/node_done') : hard ? 'kit/node_challenge' : 'kit/node_locked';
+    const skin = cur ? 'skin/j_node_green' : done ? (hard ? 'skin/j_node_purple' : 'skin/j_node_blue') : hard ? 'skin/j_node_purple' : 'skin/j_node_gray';
     const ball = img(holder, skin, size, size, 'ball');
     const num = text(ball, String(n), cur ? 64 : 52, { outline: done || cur || hard ? undefined : hex('#5E6B7D') });
     at(num.node, 0, done ? 12 : 6);

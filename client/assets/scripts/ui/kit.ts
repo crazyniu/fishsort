@@ -104,6 +104,8 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_tile': ON_DARK,
   'skin/j_inset': ON_DARK,
   'skin/j_panel': ON_DARK,
+  'skin/j_row': ON_DARK,
+  'skin/j_popup': ON_DARK,
   'skin/j_key_blue': ON_BLUE,
   'skin/j_key_green': ON_GREEN,
   'skin/j_key_red': ON_RED,
@@ -209,8 +211,37 @@ export function lazyImg(parent: Node, path: string, w: number, h?: number): Node
   return n;
 }
 
+/**
+ * 旧的代码绘制部件 → 新的位图部件（docs/03 第 5 节）。页面代码还写着旧名字的，按这张表换皮：
+ * plate = 横向三宫格（按高度缩放），nine = 九宫格（小于 150 的用小圆角的 j_row）
+ */
+const ALIAS: Record<string, [string, 'plate' | 'nine']> = {
+  'kit/capsule': ['skin/j_bar_top', 'plate'],
+  'kit/title_plate': ['skin/j_plate', 'plate'],
+  'kit/btn_green': ['skin/j_btn_green', 'plate'],
+  'kit/btn_blue': ['skin/j_btn_blue', 'plate'],
+  'kit/btn_yellow': ['skin/j_btn_amber', 'plate'],
+  'kit/btn_red': ['skin/j_btn_red', 'plate'],
+  'kit/btn_gray': ['skin/j_btn_gray', 'plate'],
+  'kit/panel_blue': ['skin/j_panel', 'nine'],
+  'kit/panel_glass': ['skin/j_panel', 'nine'],
+  'kit/row': ['skin/j_panel', 'nine'],
+  'kit/row_blue': ['skin/j_panel', 'nine'],
+  'kit/slot': ['skin/j_slot', 'nine'],
+  'kit/slot_warn': ['skin/j_slot_warn', 'nine'],
+  'kit/shelf': ['skin/j_shelf', 'plate'],
+};
+const plates = new WeakSet<Node>();
+
+function nineFor(path: string, w: number, h: number): string {
+  return path === 'skin/j_panel' && Math.min(w, h) < 150 ? 'skin/j_row' : path;
+}
+
 /** 九宫格：外层节点 w×h 管布局和子节点，皮在缩小 1/RES 的子节点上 */
 export function slice(parent: Node | null, path: string, w: number, h: number, name = path): Node {
+  const alias = ALIAS[path];
+  if (alias?.[1] === 'plate') return plate(parent, alias[0], w, h, name);
+  if (alias) path = nineFor(alias[0], w, h);
   const n = box(name, parent, w, h);
   const skin = box('skin', n, w * RES, h * RES);
   skin.setScale(1 / RES, 1 / RES, 1);
@@ -225,12 +256,19 @@ export function slice(parent: Node | null, path: string, w: number, h: number, n
 }
 
 export function resizeSlice(n: Node, w: number, h: number): void {
+  if (plates.has(n)) return resizePlate(n, w, h);
   size(n, w, h);
   const skin = n.getChildByName('skin');
   if (skin) size(skin, w * RES, h * RES);
 }
 
 export function setSlice(n: Node, path: string): void {
+  const alias = ALIAS[path];
+  if (plates.has(n)) return setPlate(n, alias ? alias[0] : path);
+  if (alias) {
+    const t = n.getComponent(UITransform) as UITransform;
+    path = nineFor(alias[0], t.width, t.height);
+  }
   const skin = n.getChildByName('skin');
   const sp = skin?.getComponent(Sprite);
   if (sp) sp.spriteFrame = frame(path);
@@ -247,6 +285,7 @@ export function plate(parent: Node | null, path: string, w: number, h: number, n
   sp.type = Sprite.Type.SLICED;
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
   sp.spriteFrame = frame(path);
+  plates.add(n);
   resizePlate(n, w, h);
   const k = PART_INK[path];
   if (k) inks.set(n, k);
@@ -440,9 +479,6 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
  */
 export type BtnColor = 'green' | 'blue' | 'yellow' | 'red' | 'gray';
 
-/** 台阶高度与按下的下沉量（和 tools/art/kit.mjs 的 LEDGE、SINK 一致；老的方形图标键还在用） */
-const LEDGE = 8;
-const SINK = 5;
 
 const BTN_SKIN: Record<BtnColor, string> = {
   green: 'skin/j_btn_green',
@@ -589,22 +625,10 @@ export function keyButton(parent: Node, color: 'blue' | 'green' | 'red', glyph: 
   return n;
 }
 
-/** 方形图标按钮（设置、返回）：软方块 + 单色图标，按下下沉 */
-export function iconButton(parent: Node, skin: string, glyph: string | null, s: number, fn: () => void): Node {
-  const n = img(parent, skin, s, s, 'iconButton');
-  let g: Node | null = null;
-  if (glyph) g = img(n, glyph, s * 0.5, s * 0.5, 'glyph');
-  const k = s / 96;
-  const place = (down: boolean) => g?.setPosition(0, (LEDGE / 2 - (down ? SINK : 0)) * k, 0);
-  place(false);
-  onTap(n, () => fn(), {
-    press: 0,
-    onPress: (down) => {
-      setImg(n, down ? `${skin}_down` : skin, s, s);
-      place(down);
-    },
-  });
-  return n;
+/** 图标键（设置、返回）：蓝色果冻方块 + 白色图标。skin 参数是旧接口，留着不用 */
+const WHITE_GLYPH: Record<string, string> = { 'kit/ic_gear': 'skin/g_gear' };
+export function iconButton(parent: Node, _skin: string, glyph: string | null, s: number, fn: () => void): Node {
+  return keyButton(parent, 'blue', WHITE_GLYPH[glyph ?? ''] ?? glyph ?? 'skin/g_gear', s, fn, glyph === 'kit/ic_back' ? 0.62 : 0.6);
 }
 
 /** 信息条（金币、生命、关卡号）：深色半透明圆角 12，左边图标 + 白色数字 */
@@ -615,8 +639,8 @@ export interface Capsule {
   set(s: string): void;
 }
 
-export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.5)): Capsule {
-  const n = slice(parent, 'kit/capsule', w, h, 'capsule');
+export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56)): Capsule {
+  const n = plate(parent, 'skin/j_bar_top', w, h, 'capsule');
   let icon: Node | null = null;
   if (iconPath) {
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
