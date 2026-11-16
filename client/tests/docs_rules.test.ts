@@ -11,8 +11,10 @@ import type { SaveData } from '../assets/scripts/core/meta/save';
 import * as Seas from '../assets/scripts/core/meta/seas';
 import * as Settle from '../assets/scripts/core/meta/settle';
 import * as WeeklyGoal from '../assets/scripts/core/meta/weeklyGoal';
+import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
+import { colorDistance, pickSpecies } from '../assets/scripts/core/model/speciesPick';
 import { Rng } from '../assets/scripts/core/rng/rng';
-import { eco as loadEco, species as loadSpecies } from './helpers';
+import { curve as loadCurve, eco as loadEco, levelFile, species as loadSpecies } from './helpers';
 
 const ECO = loadEco();
 const SPECIES = loadSpecies();
@@ -267,5 +269,26 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
       { clears: 25, reward: { coins: 600, skills: 1 } },
       { clears: 50, reward: { coins: 1200, tools: 1 } },
     ]);
+  });
+});
+
+describe('局内生物分得清（docs/03 4.1）', () => {
+  const inLevel = SPECIES.filter((sp) => sp.inLevel === true);
+  const CLASSES = ['round', 'long', 'tall', 'star', 'claws', 'umbrella', 'diamond', 'legs', 'shell', 'snout'];
+
+  it('16 种登记在 10 类轮廓里，10 类都有', () => {
+    assert.equal(inLevel.length, 16);
+    assert.deepEqual(Array.from(new Set(inLevel.map((sp) => String(sp.shape)))).sort(), CLASSES.slice().sort());
+  });
+
+  it('前 10 关：同场的几种色差都不小于下限，轮廓类也不重复', () => {
+    const curve = loadCurve();
+    for (let id = 1; id <= 10; id++) {
+      const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
+      const gap = LevelCurve.colorGap(curve, id);
+      const picked = pickSpecies(SPECIES, lv.levelSeed, lv.palette, gap).map((sid) => inLevel.find((sp) => sp.id === sid)!);
+      assert.equal(new Set(picked.map((sp) => sp.shape)).size, picked.length, `第 ${id} 关轮廓重复`);
+      for (let i = 0; i < picked.length; i++) for (let j = 0; j < i; j++) assert.ok(colorDistance(picked[i], picked[j]) >= gap, `第 ${id} 关 ${picked[i].id} 和 ${picked[j].id} 颜色太近`);
+    }
   });
 });

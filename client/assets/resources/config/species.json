@@ -17,7 +17,7 @@
    "group": "yellow-ball",
    "hue": "yellow",
    "pattern": "spot",
-   "shape": "ball",
+   "shape": "round",
    "inLevel": true, "rgb": [254, 221, 84]
   },
   {
@@ -37,7 +37,7 @@
    "group": "navy-shark",
    "hue": "navy",
    "pattern": "solid",
-   "shape": "shark",
+   "shape": "long",
    "inLevel": true, "rgb": [57, 85, 146]
   },
   {
@@ -107,7 +107,7 @@
    "group": "amber-clam",
    "hue": "amber",
    "pattern": "solid",
-   "shape": "clam",
+   "shape": "shell",
    "inLevel": true, "rgb": [254, 189, 72]
   },
   {
@@ -117,7 +117,7 @@
    "group": "blue-squid",
    "hue": "blue",
    "pattern": "stripe",
-   "shape": "squid",
+   "shape": "legs",
    "inLevel": true, "rgb": [78, 163, 250]
   },
   {
@@ -127,7 +127,7 @@
    "group": "crimson-lobster",
    "hue": "crimson",
    "pattern": "solid",
-   "shape": "lobster",
+   "shape": "claws",
    "inLevel": true, "rgb": [238, 64, 56]
   },
   {
@@ -137,7 +137,7 @@
    "group": "azure-lantern",
    "hue": "azure",
    "pattern": "spot",
-   "shape": "lantern",
+   "shape": "round",
    "inLevel": true, "rgb": [53, 118, 189]
   },
   {
@@ -157,7 +157,7 @@
    "group": "sky-dolphin",
    "hue": "sky",
    "pattern": "solid",
-   "shape": "dolphin",
+   "shape": "long",
    "inLevel": true, "rgb": [26, 202, 224]
   },
   {
@@ -176,7 +176,7 @@
    "group": "cyan-solid",
    "hue": "cyan",
    "pattern": "solid",
-   "shape": "ball"
+   "shape": "round"
   },
   {
    "id": "c19",
@@ -194,7 +194,7 @@
    "group": "blue-solid",
    "hue": "blue",
    "pattern": "solid",
-   "shape": "ball"
+   "shape": "round"
   },
   {
    "id": "c21",
@@ -284,7 +284,7 @@
    "group": "pink-spot",
    "hue": "rose",
    "pattern": "spot",
-   "shape": "clam"
+   "shape": "shell"
   },
   {
    "id": "u01",
@@ -401,7 +401,7 @@
    "group": "indigo-spot",
    "hue": "indigo",
    "pattern": "spot",
-   "shape": "squid"
+   "shape": "legs"
   },
   {
    "id": "u14",
@@ -442,7 +442,7 @@
    "name": "花鼓鼓",
    "rarity": "rare",
    "group": "special-r03",
-   "shape": "ball",
+   "shape": "round",
    "hue": "peach"
   },
   {
@@ -466,7 +466,7 @@
    "name": "星灯灯",
    "rarity": "rare",
    "group": "special-r06",
-   "shape": "lantern",
+   "shape": "round",
    "hue": "azure"
   },
   {
@@ -514,7 +514,7 @@
    "name": "云冠鲨",
    "rarity": "epic",
    "group": "special-e04",
-   "shape": "shark",
+   "shape": "long",
    "hue": "sky"
   },
   {
