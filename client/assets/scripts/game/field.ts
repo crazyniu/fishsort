@@ -31,6 +31,9 @@ interface View {
 
 const SILHOUETTE = new Color(30, 50, 90, 255);
 const WHITE = new Color(255, 255, 255, 255);
+/** 下层（被压住、还不能点）的气泡和鱼 */
+const UNDER_BUBBLE = new Color(105, 140, 205, 255);
+const UNDER_FISH = new Color(150, 165, 195, 255);
 
 export class Field {
   node: Node;
@@ -282,14 +285,23 @@ export class Field {
       if (v.gone) continue;
       const b = s.bubbles[i];
       const isOpen = open.has(i);
+      // 被压住的（下层）：气泡染成深一点的蓝、鱼压暗、整颗缩小一点，和能点的上层一眼分开（用户 2026-11-16）
       const dimmed = !isOpen && b.onField;
       const op = opacity(v.body);
-      const target = dimmed ? 165 : 255;
-      if (animate) tween(op).to(0.2, { opacity: target }).start();
-      else op.opacity = target;
+      const target = dimmed ? 225 : 255;
+      const sc = dimmed ? 0.93 : 1;
+      Tween.stopAllByTarget(op);
+      if (animate) {
+        tween(op).to(0.2, { opacity: target }).start();
+        tween(v.body).to(0.2, { scale: new Vec3(sc, sc, 1) }, { easing: 'quadOut' }).start();
+      } else {
+        op.opacity = target;
+        v.body.setScale(sc, sc, 1);
+      }
+      (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
       for (const f of v.fish) {
         if (!f) continue;
-        (f.getComponent(Sprite) as Sprite).color = b.fog && !isOpen ? SILHOUETTE : WHITE;
+        (f.getComponent(Sprite) as Sprite).color = b.fog && !isOpen ? SILHOUETTE : dimmed ? UNDER_FISH : WHITE;
       }
       if (v.chain) {
         if (b.chain > 0) {
