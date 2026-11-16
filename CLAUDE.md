@@ -54,7 +54,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 # Mac 上（需要 Cocos Creator）
 ./run.sh                       # 构建 web-mobile、起本地服务，用独立 Chrome 窗口打开（试玩模式：金币、生命、技能加满）
 ./run.sh level 65              # 同上，直接进第 65 关
-./run.sh auto                  # 局内由机器人代打（看结算、宝箱等画面）；auto 12 = 代打第 12 关
+./run.sh auto                  # 机器人代打，过关自动下一关、输了重打，一直打到最后一关；auto 12 = 从第 12 关打起，auto 12 30 = 打到第 30 关
 ./run.sh page shop             # 启动后直接打开某一页
 ./run.sh real                  # 按真实存档进度（可与上面几个连用，如 ./run.sh real level 3）
 ./run.sh serve                 # 不重新构建，直接打开上次的构建（后面同样可跟 level / auto / page / real）

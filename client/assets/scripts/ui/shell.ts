@@ -283,6 +283,11 @@ export class Shell {
   private registry = new Map<string, () => Page>();
   private built = new Map<string, Page>();
   private current: { name: string; page: Page } | null = null;
+
+  /** 当前页面的名字（没有页面时是空串） */
+  get pageName(): string {
+    return this.current?.name ?? '';
+  }
   private history: string[] = [];
   private lastTab: Tab = 'home';
   /** 没开放的页签显示的锁页（pages/lock.ts 提供，避免 ui 层引用页面层） */

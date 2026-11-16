@@ -25,7 +25,8 @@ usage() {
 试玩（在装了 Cocos Creator 3.8.8 的 Mac 上）：
   (无)                  构建网页版并在浏览器里打开。试玩模式：金币、技能已加满
   level <N>             同上，直接进第 N 关
-  auto [N]              同上，局内由机器人代打（看连击、结算、宝箱等画面用）；给了 N 就打第 N 关，否则打当前关
+  auto [起] [止]        同上，由机器人代打：过关自动进下一关、输了重打，一直打到最后一关（看连击、结算、宝箱等画面用）；
+                        给了起就从第几关开始，否则从当前关；再给止就打到第几关为止
   page <名字>           同上，启动后直接打开某一页（levels、shop、wheel、daily、rank…）
   real                  按真实存档进度玩，不加资源
                         以上参数可以连着写：./run.sh real level 65 auto
@@ -93,7 +94,7 @@ cocos_build() {
   fi
 }
 
-# 试玩参数 → 地址栏参数（client/assets/scripts/services/launch.ts 读）：real、level <N>、auto [N]、page <名字>
+# 试玩参数 → 地址栏参数（client/assets/scripts/services/launch.ts 读）：real、level <N>、auto [起] [止]、page <名字>
 web_url() {
   local q=""
   while [ $# -gt 0 ]; do
@@ -104,11 +105,12 @@ web_url() {
         q="${q}&level=$2&play=1"; shift ;;
       auto)
         q="${q}&autoplay=1"
-        if [[ "${2:-}" =~ ^[0-9]+$ ]]; then q="${q}&level=$2"; shift; fi ;;
+        if [[ "${2:-}" =~ ^[0-9]+$ ]]; then q="${q}&level=$2"; shift; fi
+        if [[ "${2:-}" =~ ^[0-9]+$ ]]; then q="${q}&autoTo=$2"; shift; fi ;;
       page)
         [ -n "${2:-}" ] || die "用法: ./run.sh page <页面名>"
         q="${q}&page=$2"; shift ;;
-      *) die "不认识的试玩参数：$1（可用 real、level <N>、auto [N]、page <名字>）" ;;
+      *) die "不认识的试玩参数：$1（可用 real、level <N>、auto [起] [止]、page <名字>）" ;;
     esac
     shift
   done

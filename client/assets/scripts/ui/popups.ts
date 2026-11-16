@@ -442,14 +442,15 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   // 名字在卡框下沿的彩色名牌上（白字深描边）
   const name = text(front, sp ? speciesName(sp.id) : c.id, 42);
   at(name.node, 0, -181);
-  // 稀有度写在卡片下面（卡框下沿有宝石装饰，不压在上面），翻完才出来
-  const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 36, { color: RARITY_GLOW[c.rarity] });
-  at(rar.node, 0, 60 - 254 - 36);
+  // 稀有度写在卡片上面（用户 2026-11-16：放下面挤着「已自动换成」那一行），翻完才出来
+  const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 44, { color: RARITY_GLOW[c.rarity] });
+  at(rar.node, 0, 60 + 254 + 50);
   rar.node.active = false;
   front.active = false;
   // 新卡写「新收藏！」；重复卡是自动换成金币的（docs/01 5.4），写清楚「已自动换成」+ 金币图标和数量，不让人以为要自己去换
+  const lineY = 60 - 254 - 56;
   const line = text(p.body, c.is_new ? tr('CARD_RARITY_NEW') : tr('UI_CARD_OWNED'), c.is_new ? 40 : 34);
-  at(line.node, 0, 60 - 252 - 100);
+  at(line.node, 0, lineY);
   if (!c.is_new) {
     line.updateRenderData(true);
     const tw = (line.node.getComponent(UITransform) as UITransform).width;
@@ -458,13 +459,13 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
     const aw = (amount.node.getComponent(UITransform) as UITransform).width;
     // 一行：文字 · 金币图标 · +N，整体居中
     const total = tw + 14 + 48 + 8 + aw;
-    at(line.node, -total / 2 + tw / 2, 60 - 252 - 100);
+    at(line.node, -total / 2 + tw / 2, lineY);
     at(img(line.node, 'icon/coin', 48, 48, 'coin'), tw / 2 + 14 + 24, 0);
     at(amount.node, tw / 2 + 14 + 48 + 8, 0);
   }
   line.node.active = false;
   const cont = text(p.body, tr('TAP_CONTINUE'), 30);
-  at(cont.node, 0, 60 - 252 - 190);
+  at(cont.node, 0, lineY - 96);
   cont.node.active = false;
   let ready = false;
   fx.popIn(card, 0.05, 0.35);
@@ -491,9 +492,12 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
       cont.node.active = true;
       fx.breathe(cont.node, 0.06, 1.2);
       ready = true;
+      // 机器人代打：没人点，看一眼就自己翻下一张
+      if (App.flags.autoplay) fx.delay(p.body, 1.2, () => p.close());
     })
     .start();
-  onTap(p.root, () => ready && p.close(), { press: 0, sound: null });
+  // 全屏的 body 会拦下所有触摸（blockInput），点击要挂在它上面，挂在 root 上收不到
+  onTap(p.body, () => ready && p.close(), { press: 0, sound: null });
 }
 
 /** 金币从 from 飞向 to（默认顶栏金币，ui.fx 坐标） */

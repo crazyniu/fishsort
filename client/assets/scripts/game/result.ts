@@ -25,6 +25,12 @@ export class ResultPage extends Page {
   private content!: Node;
   private skipTo: (() => void) | null = null;
 
+  /** 演出播完：连击送的卡、宝箱开出的卡依次翻面；机器人代打时翻完自己进下一关 */
+  private reveal(): void {
+    const d = this.d;
+    Flow.revealPending(d.cards.splice(0), () => Flow.autoNext(d));
+  }
+
   build(root: Node): void {
     lazyImg(root, 'bg/home', Screen.W * 1.02, Math.max(Screen.H, Screen.W * 1.5));
     this.content = box('content', root, Screen.W, Screen.H);
@@ -227,7 +233,7 @@ export class ResultPage extends Page {
       fx.bob(left, 10, 1.8);
       fx.bob(right, 10, 2.1, 0.4);
       fx.breathe(next.node, 0.04, 1.2);
-      if (d.cards.length) Flow.revealPending(d.cards.splice(0), () => {});
+      this.reveal();
     };
     this.skipTo = finalState;
     const live = () => this.skipTo !== null;
@@ -420,7 +426,7 @@ export class ResultPage extends Page {
     fx.delay(c, at0('buttonsAt') + 0.45, () => {
       if (!live()) return;
       this.skipTo = null;
-      if (d.cards.length) Flow.revealPending(d.cards.splice(0), () => {});
+      this.reveal();
     });
   }
 }

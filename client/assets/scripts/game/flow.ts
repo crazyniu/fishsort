@@ -350,6 +350,10 @@ const REVIVE_KEY: Record<number, string> = {
 export function lose(g: GamePage): void {
   if (g.s.status !== Status.LOST) return;
   sfx('lose');
+  if (App.flags.autoplay && !g.arg.daily) {
+    autoRetry(g);
+    return;
+  }
   if (!g.s.revived && App.platform.adsAvailable()) revivePopup(g);
   else failPopup(g);
 }
@@ -519,6 +523,47 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
 
 export function revealPending(cards: CardResult[], done: () => void): void {
   revealCards(cards, done);
+}
+
+// ---------------------------------------------------------------- 机器人代打（调试，./run.sh auto）
+
+/** 代打打到第几关为止 */
+function autoLast(): number {
+  const to = App.flags.autoTo;
+  return to > 0 ? Math.min(to, App.config.levelCount) : App.config.levelCount;
+}
+
+/** 代打进第 level 关：跳过生命检查（输了重打不扣命），换关的间隙不弹东西 */
+function autoStart(level: number): void {
+  pendingCards.length = 0;
+  closeAllPopups();
+  ui.go('game', { level });
+}
+
+/** 代打：结算页的卡翻完后停一会儿，自己点「下一关」；打完最后一关回主页 */
+export function autoNext(d: WinData): void {
+  if (!App.flags.autoplay) return;
+  fx.delay(ui.fx, 1.6, () => {
+    // 等的时候有人点了「下一关」或回主页，就不再替他点
+    if (ui.pageName !== 'result') return;
+    if (d.level >= autoLast()) {
+      App.flags.autoplay = false;
+      ui.go('home', { unlocked: d.result.new_features });
+      return;
+    }
+    autoStart(d.level + 1);
+  });
+}
+
+/** 代打输了：不弹复活和失败窗，记一次失败（连输两次会换成更易的变体，和真人一样）后重打这一关 */
+function autoRetry(g: GamePage): void {
+  g.ended = true;
+  g.paused = true;
+  endRun(g);
+  Meta.failLevel(App.save.data, App.config.eco, g.arg.level);
+  App.save.write();
+  const level = g.arg.level;
+  fx.delay(g.node, 1.2, () => autoStart(level));
 }
 
 export function nudge(n: Node): void {
