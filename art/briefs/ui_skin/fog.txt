@@ -1,0 +1,5 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE square image (1024x1024). Pure flat BLACK background (#000000) everywhere.
+In the center draw a single round puff of soft magical sea MIST, about 820 px across, roughly circular, not touching the image border: a fluffy ball of white and very pale lavender-blue fog made of gentle rounded cotton-like swirls, brightest and densest in the middle, fading softly to nothing at the edge (no hard outline, no rim), with two or three tiny pale sparkles floating in it. It will be laid over a soap bubble to hide what is inside, so it must read as a calm, cute cloud of fog, evenly filling the circle.
+Cute glossy cartoon mobile game style matching the attached reference image (reference is for mood and lighting only).
+No fish, no objects, no text, no letters, no question marks, no outline ring, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.
