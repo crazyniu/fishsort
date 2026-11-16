@@ -43,7 +43,7 @@ export function golden<T>(name: string): T {
 export const hasGolden = (): boolean => existsSync(join(GOLDEN, 'meta.json.gz'));
 
 type OrderIn = number | { s: number; cap?: number; timer?: number };
-type BubbleIn = { fish: number[]; under?: number[]; chain?: number; ice?: number[]; pairs?: number[][]; layer?: number };
+type BubbleIn = { fish: number[]; under?: number[]; chain?: number; ice?: number[]; fog?: number; pairs?: number[][]; layer?: number };
 
 /** 手工搭一个小关卡（对应 Godot 版 tests/test_case.gd 的 level） */
 export function level(orders: OrderIn[], bubbles: BubbleIn[], buffer = 5): LevelData {

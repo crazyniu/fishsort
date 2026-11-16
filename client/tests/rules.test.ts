@@ -1,4 +1,4 @@
-// 局内规则，见 docs/01-玩法设计.md 第 2–4 节。对应 Godot 版 tests/test_rules.gd、test_drop.gd 和洋流部分。
+// 局内规则，见 docs/01-玩法设计.md 第 2–4 节。
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { construct } from '../assets/scripts/core/gen/constructor';
@@ -6,6 +6,7 @@ import { generate } from '../assets/scripts/core/gen/levelGen';
 import { Bowl, GameState, LoseReason, RETURN_BUBBLE, Status } from '../assets/scripts/core/model/gameState';
 import { Rng } from '../assets/scripts/core/rng/rng';
 import * as Rules from '../assets/scripts/core/rules/rules';
+import * as Bots from '../assets/scripts/core/solver/bots';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
 import { level, play } from './helpers';
 
@@ -216,5 +217,102 @@ describe('掉落关（docs/01 第 2.5 节）', () => {
     assert.equal(a.fieldCap, 8);
     assert.deepEqual(LevelCheck.errors(a), []);
     assert.equal(a.toJson(), b.toJson());
+  });
+});
+
+describe('迷雾、冰封、结伴鱼（docs/01 第 4 节，2026-11-16 复查后的规则）', () => {
+  const popAll = (s: GameState, b: number) => {
+    let ev: Rules.GameEvent[] = [];
+    for (let k = 0; k < s.bubbles[b].fish.length; k++) ev = ev.concat(Rules.tap(s, b, k));
+    return ev;
+  };
+
+  it('迷雾：每破一个别的气泡计数减 1，到 0 显形；没显形也能点', () => {
+    const s = play(level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2], fog: 2 }]));
+    assert.ok(Rules.isOpen(s, 2), '没显形也能点');
+    const first = popAll(s, 0);
+    assert.deepEqual(first.filter((e) => e.t === 'fog_tick'), [{ t: 'fog_tick', b: 2, left: 1 }]);
+    assert.equal(s.bubbles[2].fog, 1);
+    const second = popAll(s, 1);
+    assert.ok(types(second).includes('fog_clear'));
+    assert.equal(s.bubbles[2].fog, 0);
+  });
+
+  it('迷雾：落到场上之后才开始数，把它带下来的那一次不算；自己破掉不算', () => {
+    const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2], fog: 1 }]);
+    lv.fieldCap = 2;
+    const s = play(lv);
+    const ev = popAll(s, 0);
+    assert.ok(types(ev).includes('bubble_drop'));
+    assert.equal(s.bubbles[2].fog, 1, '刚落下，还没数');
+    popAll(s, 1);
+    assert.equal(s.bubbles[2].fog, 0);
+  });
+
+  it('冰封：依赖两个气泡，任何一个破了就解冻', () => {
+    const s = play(level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2], ice: [0, 1] }]));
+    assert.ok(!Rules.isOpen(s, 2));
+    const ev = popAll(s, 1);
+    assert.ok(types(ev).includes('ice_melt'));
+    assert.ok(Rules.isOpen(s, 2));
+  });
+
+  it('冰封：落下之前依赖泡已经破了，落下来就不冻；校验器不放行这样的关卡', () => {
+    const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2], ice: [0] }]);
+    lv.fieldCap = 2;
+    lv.palette = 3;
+    lv.bubbles.forEach((b) => (b.layer = 1));
+    lv.ref = [0, 1, 2].flatMap((b) => [0, 1, 2].map((k) => [b, k] as [number, number]));
+    const s = play(lv);
+    popAll(s, 0);
+    assert.ok(s.bubbles[2].onField && !s.bubbles[2].frozen);
+    assert.ok(LevelCheck.errors(lv).some((e) => e.includes('等于没冻')), LevelCheck.errors(lv).join('；'));
+  });
+
+  it('结伴鱼：两条各按普通的鱼结算，暂存槽放不下才失败', () => {
+    const mk = (buffer: number) => play(level([0, 1], [{ fish: [2, 3, 0, 1], pairs: [[0, 1]] }], buffer));
+    const roomy = mk(3);
+    Rules.tap(roomy, 0, 0);
+    assert.equal(roomy.status, Status.PLAYING);
+    assert.deepEqual(roomy.buffer, [2, 3]);
+    const tight = mk(2);
+    Rules.tap(tight, 0, 0);
+    assert.equal(tight.loseReason, LoseReason.BUFFER_FULL);
+  });
+
+  it('洗牌不拆结伴鱼：两条还在同一个气泡里系着（docs/01 5.2）', () => {
+    const s = play(level([0, 1, 2], [{ fish: [0, 1, 2], pairs: [[0, 1]] }, { fish: [0, 1, 2] }, { fish: [0, 1, 2] }]));
+    const before = counts(s);
+    assert.ok(Rules.useShuffle(s, 7).length > 0, '洗牌成功');
+    assert.deepEqual(s.bubbles[0].pairs, [[0, 1]]);
+    assert.deepEqual(counts(s), before);
+    for (const b of s.bubbles) assert.ok(b.fish.every((f) => f >= 0));
+    assert.ok(construct(s.clone(), new Rng(1), 0).ok, '洗牌后仍可解');
+  });
+});
+
+describe('机器人按真人的限制玩（docs/02 第 2.1 节）', () => {
+  it('计时：每点一次 1.5 秒，限时缸会超时', () => {
+    const mk = (timer: number) => level([{ s: 0, timer }], [{ fish: [0, 0, 0] }]);
+    assert.ok(!Bots.play(mk(3), 'greedy', new Rng(1), 2), '3 秒不够点 3 次');
+    assert.ok(Bots.play(mk(10), 'greedy', new Rng(1), 2));
+    assert.ok(Bots.play(mk(3), 'greedy', new Rng(1), 2, { tapSec: 0.5, bowlSec: 0 }), '点得快就来得及');
+  });
+
+  it('先顾限时缸：两个缸要的鱼都能点时，点限时缸要的', () => {
+    const s = play(level([0, { s: 1, timer: 60 }], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));
+    for (let seed = 0; seed < 20; seed++) assert.equal((Bots.nextTap(s, new Rng(seed)) as [number, number])[0], 1);
+  });
+
+  it('看不见迷雾：有别的鱼可点时不点没显形的迷雾泡', () => {
+    const s = play(level([0, 1], [{ fish: [0, 0, 0], fog: 3 }, { fish: [2, 2, 2] }]));
+    for (let seed = 0; seed < 20; seed++) assert.equal((Bots.nextTap(s, new Rng(seed)) as [number, number])[0], 1);
+    s.bubbles[0].fog = 0;
+    assert.equal((Bots.nextTap(s, new Rng(1)) as [number, number])[0], 0, '显形后照常挑目标鱼');
+  });
+
+  it('只剩迷雾泡时盲点', () => {
+    const s = play(level([0], [{ fish: [0, 0, 0], fog: 3 }]));
+    assert.equal((Bots.nextTap(s, new Rng(1)) as [number, number])[0], 0);
   });
 });

@@ -1,5 +1,5 @@
 // 把 level_curve.json 的难度曲线换算成某一关的生成参数与目标胜率，见 docs/02-关卡设计.md 第 2 节。
-// 对应 Godot 版 src/core/gen/level_curve.gd。参数随关卡号连续插值，不按段跳变。
+// 参数随关卡号连续插值，不按段跳变。障碍搭配、挑战关降幅、第 3 缸区间是 2026-11-16 关卡设计复查后的规则。
 import type { CurveConfig } from '../config';
 import { clampf, idiv, lerpf, roundi } from '../util';
 
@@ -17,12 +17,18 @@ export interface GenParams {
   per_max?: number;
   chain?: number;
   timer?: number;
+  /** 迷雾泡占气泡总数的比例 */
   fog?: number;
+  /** 迷雾计数范围 [最少, 最多] */
+  fogCount?: readonly number[];
   ice?: number;
   big?: number;
   pairs?: number;
   challenge?: boolean;
   scramble?: number;
+  /** 限时缸秒数的算法（level_curve.json 的 timer）与机器人的计时（bot） */
+  timerRule?: { loose: number; min: number; max: number; step: number; maxSteps: number };
+  clock?: { tapSec: number; bowlSec: number };
 }
 
 export function isChallenge(curve: CurveConfig, id: number): boolean {
@@ -71,21 +77,65 @@ function base(curve: CurveConfig, id: number): GenParams {
   };
 }
 
+/** 第一个掉落关（它是「掉落」这个机制的解锁关） */
+export function firstDrop(curve: CurveConfig): number {
+  for (const s of curve.segments) if (s.cap[0] > 0) return s.from;
+  return 0;
+}
+
+/** 第一个分层关 */
+export function firstLayered(curve: CurveConfig): number {
+  for (const s of curve.segments) if (s.layers > 1) return s.from;
+  return 0;
+}
+
 /**
- * 障碍按解锁关逐个加入：解锁那一关只用它一个；之后最新的一个必带，
- * 其余在更早解锁的里轮换，单关最多 maxMechanics 种
+ * 这一关首发的机制：chain / timer / fog / ice / big / pairs，或 'drop'（掉落）、'layer'（分层）；没有返回 ''。
+ * 机制说明弹窗、校验器的「新机制首发」检查都用它
  */
-function mechanics(curve: CurveConfig, id: number, p: GenParams): void {
+export function unlockedAt(curve: CurveConfig, id: number): string {
+  for (const m of MECHANICS) if (curve.unlock[m] === id) return m;
+  if (id === firstDrop(curve)) return 'drop';
+  if (id === firstLayered(curve)) return 'layer';
+  return '';
+}
+
+/** 解锁后第 k 关（k 从 1 起）带不带这个新机制：levels 关里挑 share 关，先密后疏（9 关挑 5 关 = 第 1、2、4、6、8 关） */
+function freshOn(curve: CurveConfig, k: number): boolean {
+  const f = curve.fresh;
+  return Math.ceil((k * f.share) / f.levels) > Math.ceil(((k - 1) * f.share) / f.levels);
+}
+
+/**
+ * 这一关带哪几种障碍（docs/02 第 2.4 节）：
+ * - 解锁关只带新机制一个；掉落的解锁关什么障碍都不带
+ * - 每个周期按 rhythm 排种数（挑战关后一关是第 1 关），不超过 maxMechanics 和已解锁的种数
+ * - 新机制解锁后的 fresh.levels 关里，挑出的 fresh.share 关必带它，其余几关不带；过了这段和别的平等轮换
+ * - 其余名额在已解锁的机制里按关卡号轮换
+ */
+export function mechanicsFor(curve: CurveConfig, id: number): Mechanic[] {
   const unlock = curve.unlock;
   const open: Mechanic[] = MECHANICS.filter((m) => id >= unlock[m]);
-  if (open.length === 0) return;
-  const chosen: Mechanic[] = [open[open.length - 1]];
-  if (id !== unlock[chosen[0]]) {
-    const older = open.slice(0, open.length - 1);
-    const room = curve.maxMechanics - 1;
-    for (let i = 0; i < Math.min(room, older.length); i++) chosen.push(older[(id + i) % older.length]);
+  if (open.length === 0 || id === firstDrop(curve)) return [];
+  const newest = open[open.length - 1];
+  if (id === unlock[newest]) return [newest];
+  const want = Math.min(curve.rhythm[(id - 1) % curve.cycle], curve.maxMechanics);
+  const chosen: Mechanic[] = [];
+  let pool = open;
+  const k = id - unlock[newest];
+  if (k <= curve.fresh.levels) {
+    pool = open.slice(0, open.length - 1);
+    if (freshOn(curve, k)) chosen.push(newest);
   }
-  for (const m of chosen) p[m] = m === 'fog' ? Number(curve.counts[m]) : Math.trunc(curve.counts[m]);
+  for (let i = 0; chosen.length < want && i < pool.length; i++) chosen.push(pool[(id + i) % pool.length]);
+  return MECHANICS.filter((m) => chosen.indexOf(m) >= 0);
+}
+
+function mechanics(curve: CurveConfig, id: number, p: GenParams): void {
+  for (const m of mechanicsFor(curve, id)) p[m] = m === 'fog' ? Number(curve.counts[m]) : Math.trunc(curve.counts[m]);
+  p.fogCount = curve.fogCount;
+  p.timerRule = curve.timer;
+  p.clock = curve.bot;
 }
 
 function challenge(curve: CurveConfig, id: number, p: GenParams): void {
@@ -115,13 +165,35 @@ export function seedFor(id: number, ease: number): number {
   return id * 1000 + ease * 100 + 7;
 }
 
+/** 挑战关比同位置的普通关低几个点：从第一个挑战关的 challengeDrop[0] 线性加到 challengeDropUntil 关的 challengeDrop[1] */
+export function challengeDrop(curve: CurveConfig, id: number): number {
+  const t = curve.targets;
+  const span = t.challengeDropUntil - curve.cycle;
+  const k = span <= 0 ? 1.0 : clampf((id - curve.cycle) / span, 0.0, 1.0);
+  return lerpf(t.challengeDrop[0], t.challengeDrop[1], k);
+}
+
 /** 贪心机器人（2 缸）胜率的目标值（百分比，浮点） */
 export function targetRate(curve: CurveConfig, id: number, isChal: boolean): number {
   const t = curve.targets;
   if (id <= t.tutorialUntil) return 100.0;
-  const normal = t.start - ((id - t.first) * (t.start - t.end)) / (t.last - t.first);
-  if (isChal) return Math.max(normal - t.challengeDrop, t.challengeFloor);
+  const drop = firstDrop(curve);
+  const offset = drop > 0 && id >= drop ? t.segmentOffset.drop : t.segmentOffset.layered;
+  const normal = t.start - ((id - t.first) * (t.start - t.end)) / (t.last - t.first) + offset;
+  if (isChal) return Math.max(normal - challengeDrop(curve, id), t.challengeFloor);
   return normal;
+}
+
+/**
+ * 第 3 缸胜率该落在哪（docs/02 第 2.1 节）：要明显有用（≥ 2 缸 + plus），但不保证过关（capFrom 关起 ≤ 2 缸 + capPlus 且 ≤ cap）。
+ * 2 缸胜率已经高到「加 plus 就超过上限」时（或 ≥ easyFrom），第 3 缸只要不低于 2 缸；2 缸已经到 cap 以上时不设上限
+ */
+export function bowl3Span(curve: CurveConfig, id: number, g2: number): [number, number] {
+  const b = curve.targets.bowl3;
+  if (id <= curve.targets.tutorialUntil) return [g2, 100];
+  const hi = id >= b.capFrom && g2 < b.cap ? Math.min(g2 + b.capPlus, b.cap) : 100;
+  const lo = g2 >= b.easyFrom || g2 + b.plus > hi ? g2 : g2 + b.plus;
+  return [lo, Math.max(lo, hi)];
 }
 
 /** 目标区间 [下限, 上限]，容差 ±tol，上限不超过 100 */

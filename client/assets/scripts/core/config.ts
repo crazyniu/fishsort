@@ -93,6 +93,7 @@ export interface EconomyConfig {
   freeCoin: { amount: number; daily: number };
   easeAfterFails: number[];
   combo: ComboConfig;
+  /** 机制说明的文案键：layer / drop / chain / timer / fog / ice / big / pairs → 文案键；哪一关弹跟着 level_curve.json 走 */
   mechanicIntro: Record<string, string>;
   rarities: Rarity[];
   lives: {
@@ -177,7 +178,13 @@ export interface CurveConfig {
   colorGap?: [number, number][];
   unlock: Record<'chain' | 'timer' | 'fog' | 'ice' | 'big' | 'pairs', number>;
   counts: Record<'chain' | 'timer' | 'fog' | 'ice' | 'big' | 'pairs', number>;
+  /** 迷雾泡的计数范围 [最少, 最多]：在场后再破几个别的气泡才显形 */
+  fogCount: [number, number];
   maxMechanics: number;
+  /** 每个周期（挑战关后一关算第 1 关）各关的障碍种数，docs/02 第 2.4 节 */
+  rhythm: number[];
+  /** 新机制解锁后的 levels 关里有 share 关带它，之后和别的平等轮换 */
+  fresh: { levels: number; share: number };
   challenge: {
     speciesPlus: [number, number];
     speciesPlusFrom: number;
@@ -197,9 +204,19 @@ export interface CurveConfig {
     tol: number;
     easyFrom: number;
     tutorialUntil: number;
-    challengeDrop: number;
+    /** 挑战关比普通关低多少：[第一个挑战关, challengeDropUntil 那一关起] 之间线性变化 */
+    challengeDrop: [number, number];
+    challengeDropUntil: number;
     challengeFloor: number;
+    /** 第 3 缸胜率的区间：下限 2 缸 + plus（2 缸 ≥ easyFrom 时只要不低于 2 缸）；capFrom 关起上限 min(2 缸 + capPlus, cap) */
+    bowl3: { plus: number; easyFrom: number; capFrom: number; capPlus: number; cap: number };
+    /** 真人校准用的按段平移（分层关 / 掉落关），默认 0 */
+    segmentOffset: { layered: number; drop: number };
   };
+  /** 机器人计时：每点一次、每满一缸各算几秒（限时缸会超时） */
+  bot: { tapSec: number; bowlSec: number };
+  /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
+  timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;
 }
 

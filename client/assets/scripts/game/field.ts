@@ -1,4 +1,5 @@
 // 局内场地：气泡、气泡里的鱼、障碍（锁链、冰封、迷雾、结伴）、掉落。
+// 迷雾泡：鱼全显示成问号、蒙一层雾、角上的数字是「再破几个别的气泡显形」；冰封泡：向它依赖的气泡画冰晶连线（docs/01 第 4 节）。
 // 气泡受重力（用户 2026-11-16）：位置每帧由 game/pile.ts 的模拟给出。没有遮挡的关卡，气泡开局一个接一个从上面落下堆起来，
 // 破一个上面的就压下来，新气泡落在堆上；有遮挡的关卡按关卡数据摆好再松手，互相压着的气泡绑成一组一起动（遮挡关系不变）。
 // 鱼的显示尺寸按气泡大小算，不小于 field.fishMin（用户 2026-11-16：鱼不能小，要好点）。
@@ -27,6 +28,13 @@ interface View {
   chain: Node | null;
   chainLabel: Label | null;
   ice: Node | null;
+  /** 冰晶连线：连到每个依赖的气泡，位置每帧跟着两头走 */
+  iceLinks: { node: Node; dep: number }[];
+  /** 迷雾：雾层、每条鱼上的问号、计数 */
+  fog: Node | null;
+  fogMarks: (Node | null)[];
+  fogLabel: Label | null;
+  fogMax: number;
   links: Node[];
   /** 已破 */
   gone: boolean;
@@ -34,12 +42,14 @@ interface View {
   queued: boolean;
 }
 
-const SILHOUETTE = new Color(30, 50, 90, 255);
 const WHITE = new Color(255, 255, 255, 255);
 /** 下层（被压住、还不能点）的气泡和鱼 */
 const UNDER_BUBBLE = new Color(70, 105, 180, 255);
 const UNDER_FISH = new Color(120, 135, 170, 255);
 const FROST = new Color(225, 247, 255, 255);
+const FOG = new Color(214, 222, 240, 255);
+const FOG_MARK = new Color(112, 132, 178, 255);
+const ICE_LINK = new Color(170, 236, 255, 235);
 
 export class Field {
   node: Node;
@@ -183,6 +193,7 @@ export class Field {
               const q = this.pile.pos(i);
               if (q) v.node.setPosition(q[0], q[1], 0);
             }
+            this.placeIceLinks();
             if (!this.pile.awake) {
               this.simOn = false;
               tw.stop();
@@ -411,6 +422,11 @@ export class Field {
       chain: null,
       chainLabel: null,
       ice: null,
+      iceLinks: [],
+      fog: null,
+      fogMarks: [],
+      fogLabel: null,
+      fogMax: Math.max(1, d.fog),
       links: [],
       gone: false,
       queued: !s.bubbles[i].onField,
@@ -425,11 +441,100 @@ export class Field {
     if (d.ice.length > 0) {
       v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = 170;
+      for (const dep of d.ice) {
+        const link = img(this.node, 'kit/round_white', 10, 12, 'iceLink');
+        (link.getComponent(Sprite) as Sprite).color = ICE_LINK;
+        link.active = false;
+        v.iceLinks.push({ node: link, dep });
+      }
     }
+    if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
     // 气泡互相挨着，漂浮幅度小一点
     bob(body, 2.5, 2.6 + (i % 5) * 0.3, (i % 7) * 0.2);
     node.active = !v.queued;
     return v;
+  }
+
+  /** 迷雾：鱼藏起来，每条鱼的位置放一个一模一样的问号，上面蒙一层雾，右下角是还差几次显形 */
+  private addFog(v: View, left: number): void {
+    const fs = this.fishSize(v.fish.length, v.r);
+    v.fogMarks = v.fish.map((f, k) => {
+      if (!f) return null;
+      opacity(f).opacity = 0;
+      const m = img(v.body, 'kit/circle_white', fs * 0.78, fs * 0.78, `fogMark${k}`);
+      (m.getComponent(Sprite) as Sprite).color = FOG_MARK;
+      at(m, v.offsets[k][0], v.offsets[k][1]);
+      text(m, '?', Math.round(fs * 0.56));
+      return m;
+    });
+    v.fog = img(v.body, 'kit/circle_white', v.r * 1.9, v.r * 1.9, 'fog');
+    (v.fog.getComponent(Sprite) as Sprite).color = FOG;
+    const badge = img(v.fog, 'kit/round_blue', 60, 60, 'badge');
+    at(badge, v.r * 0.62, -v.r * 0.62);
+    v.fogLabel = text(badge, String(left), 34);
+    opacity(v.fog).opacity = this.fogOpacity(v, left);
+  }
+
+  private fogOpacity(v: View, left: number): number {
+    return Math.round(70 + 90 * Math.min(1, left / v.fogMax));
+  }
+
+  /** 迷雾每淡一层：数字跳一下、雾变薄；数到 0 显形：雾散开，问号一个个翻成真的鱼 */
+  private syncFog(v: View, left: number, animate: boolean): void {
+    if (!v.fog) return;
+    if (left > 0) {
+      if (v.fogLabel && v.fogLabel.string !== String(left)) {
+        v.fogLabel.string = String(left);
+        if (animate) {
+          const badge = v.fogLabel.node.parent as Node;
+          tween(badge).to(0.08, { scale: new Vec3(1.35, 1.35, 1) }).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+        }
+        tween(opacity(v.fog)).to(animate ? 0.25 : 0, { opacity: this.fogOpacity(v, left) }).start();
+      }
+      return;
+    }
+    const fog = v.fog;
+    v.fog = null;
+    v.fogLabel = null;
+    tween(fog).to(0.3, { scale: new Vec3(1.25, 1.25, 1) }, { easing: 'quadOut' }).call(() => fog.destroy()).start();
+    tween(opacity(fog)).to(0.3, { opacity: 0 }).start();
+    v.fogMarks.forEach((m, k) => {
+      const f = v.fish[k];
+      if (m) {
+        tween(m).delay(k * 0.05).to(0.14, { scale: new Vec3(0, 1, 1) }).call(() => m.destroy()).start();
+      }
+      if (f) {
+        const sx = f.scale.x;
+        tween(opacity(f)).delay(0.12 + k * 0.05).to(0.12, { opacity: 255 }).start();
+        tween(f).delay(0.12 + k * 0.05).to(0.1, { scale: new Vec3(sx * 1.25, 1.25, 1) }).to(0.16, { scale: new Vec3(sx, 1, 1) }, { easing: 'backOut' }).start();
+      }
+    });
+    v.fogMarks = [];
+    if (v.node.active) sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(235, 240, 255, 255));
+  }
+
+  /** 冰晶连线：从冰封泡的边连到依赖泡的边，两头的气泡动了就跟着动；解冻或任一头不在场就收起 */
+  private placeIceLinks(): void {
+    for (const v of this.views) {
+      if (!v || v.iceLinks.length === 0) continue;
+      for (const l of v.iceLinks) {
+        const o = this.views[l.dep];
+        const on = !v.gone && v.node.active && !!v.ice && !!o && !o.gone && o.node.active;
+        l.node.active = on;
+        if (!on) continue;
+        const ax = v.node.position.x;
+        const ay = v.node.position.y;
+        const dx = o.node.position.x - ax;
+        const dy = o.node.position.y - ay;
+        const dist = Math.hypot(dx, dy) || 1;
+        const from = v.r * 0.82;
+        const len = Math.max(8, dist - from - o.r * 0.82);
+        (l.node.getComponent(UITransform) as UITransform).setContentSize(len, 12);
+        const mid = from + len / 2;
+        l.node.setPosition(ax + (dx / dist) * mid, ay + (dy / dist) * mid, 0);
+        l.node.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      }
+    }
   }
 
   private drawLinks(v: View, pairs: number[][]): void {
@@ -461,7 +566,7 @@ export class Field {
       .start();
   }
 
-  /** 状态变了以后同步：能不能点（被压住的压暗）、锁链数字、冰封、迷雾剪影 */
+  /** 状态变了以后同步：能不能点（被压住的压暗）、锁链数字、冰封与连线、迷雾计数 */
   sync(s: GameState, animate = true): void {
     const open = new Set(Rules.openBubbles(s));
     for (let i = 0; i < this.views.length; i++) {
@@ -486,7 +591,7 @@ export class Field {
       opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
       for (const f of v.fish) {
         if (!f) continue;
-        (f.getComponent(Sprite) as Sprite).color = b.fog && !isOpen ? SILHOUETTE : dimmed ? UNDER_FISH : WHITE;
+        (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : WHITE;
       }
       if (v.chain) {
         if (b.chain > 0) {
@@ -494,7 +599,9 @@ export class Field {
         } else this.breakChain(v);
       }
       if (v.ice && !b.frozen) this.melt(v);
+      this.syncFog(v, b.fog, animate);
     }
+    this.placeIceLinks();
   }
 
   private breakChain(v: View): void {
@@ -512,6 +619,8 @@ export class Field {
     if (!ice) return;
     v.ice = null;
     tween(opacity(ice)).to(0.35, { opacity: 0 }).call(() => ice.destroy()).start();
+    for (const l of v.iceLinks) l.node.destroy();
+    v.iceLinks = [];
     sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(180, 240, 255, 255));
   }
 
@@ -530,6 +639,13 @@ export class Field {
     v.fish[k] = null;
     for (const l of v.links) l.destroy();
     v.links = [];
+    // 迷雾里的鱼：点了才知道是什么，问号撤掉、鱼现出来
+    const mark = v.fogMarks[k];
+    if (mark) {
+      mark.destroy();
+      v.fogMarks[k] = null;
+    }
+    if (f) opacity(f).opacity = 255;
     if (f && v.node.active) {
       Tween.stopAllByTarget(f);
       return { node: f, fromField: true };
@@ -567,6 +683,8 @@ export class Field {
   pop(b: number): void {
     const v = this.views[b];
     v.gone = true;
+    for (const l of v.iceLinks) l.node.destroy();
+    v.iceLinks = [];
     const n = v.node;
     // 从重力模拟里拿掉：压在它上面的气泡这就往下落；原来和它绑在一起的重新分组
     if (this.pile.has(b)) {
@@ -589,7 +707,9 @@ export class Field {
     const v = this.views[b];
     v.queued = false;
     const m = v.r + App.config.ui.field.gap;
-    const fx0 = freed >= 0 ? this.views[freed].node.position.x : 0;
+    // 冰封泡落在它依赖的气泡上方，挨着好画连线；别的落在刚破的那个气泡上方附近
+    const dep = this.lv.bubbles[b].ice.map((d) => this.views[d]).filter((o) => o && !o.gone && o.node.active)[0];
+    const fx0 = dep ? dep.node.position.x : freed >= 0 ? this.views[freed].node.position.x : 0;
     const x = Math.min(Math.max(fx0 + (Math.random() - 0.5) * 60, -this.w / 2 + m), this.w / 2 - m);
     v.home = [x, this.h / 2 + v.r * 0.3];
     v.node.active = true;

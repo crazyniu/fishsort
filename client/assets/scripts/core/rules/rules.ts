@@ -1,4 +1,4 @@
-// 规则状态机，见 docs/01-玩法设计.md 第 2–4 节。对应 Godot 版 src/core/rules/rules.gd。
+// 规则状态机，见 docs/01-玩法设计.md 第 2–4 节。
 // 所有函数就地修改 state，并返回供表现层播放的事件序列。
 import { reshuffle } from '../gen/constructor';
 import { Bowl, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVED, Status } from '../model/gameState';
@@ -15,6 +15,8 @@ export type EventType =
   | 'chain_tick'
   | 'chain_open'
   | 'ice_melt'
+  | 'fog_tick'
+  | 'fog_clear'
   | 'bubble_pop'
   | 'bubble_drop'
   | 'slot_open'
@@ -35,6 +37,8 @@ export interface GameEvent {
   cap?: number;
   timer?: number;
   order?: number;
+  /** fog_tick：迷雾还差几次显形 */
+  left?: number;
   reason?: LoseReason;
 }
 
@@ -127,7 +131,7 @@ export function tap(s: GameState, b: number, k: number): GameEvent[] {
     if (k < 0 || k >= bub.fish.length || bub.fish[k] < 0) return ev;
     const partner = bub.partnerOf(k);
     take(s, b, k, ev);
-    // 结伴鱼：第二条紧跟着结算，没地方去就失败
+    // 结伴鱼：第二条紧跟着结算，和普通的鱼一样（有缸进缸，否则进暂存槽；暂存槽放不下才失败）
     if (partner >= 0 && bub.fish[partner] >= 0 && s.status === Status.PLAYING) take(s, b, partner, ev);
     if (bub.count() === 0) pop(s, b, ev);
   }
@@ -386,7 +390,15 @@ function pop(s: GameState, b: number, ev: GameEvent[]): void {
       ev.push({ t: 'ice_melt', b: i });
     }
   }
-  if (onField) drop(s, ev);
+  if (!onField) return;
+  // 迷雾：在场的迷雾泡每见一个别的气泡破掉就淡一层，数到 0 显形（先数再补落，刚落下的不算这一次）
+  for (let i = 0; i < s.bubbles.length; i++) {
+    const bub = s.bubbles[i];
+    if (i === b || bub.fog <= 0 || !bub.onField || bub.count() === 0) continue;
+    bub.fog -= 1;
+    ev.push(bub.fog === 0 ? { t: 'fog_clear', b: i } : { t: 'fog_tick', b: i, left: bub.fog });
+  }
+  drop(s, ev);
 }
 
 /** 掉落关：场上空出一个位置，候场队列的队头落下 */
@@ -397,10 +409,10 @@ function drop(s: GameState, ev: GameEvent[]): void {
     const bub = s.bubbles[i];
     if (bub.count() === 0) continue;
     bub.onField = true;
-    // 依赖的邻居可能在它落下之前就破了
-    bub.frozen = false;
+    // 依赖的气泡任何一个破了就解冻：落下之前已经破了一个的，落下来就不冻
+    bub.frozen = bub.ice.length > 0;
     for (const dep of bub.ice) {
-      if (s.bubbles[dep].count() > 0) bub.frozen = true;
+      if (s.bubbles[dep].count() === 0) bub.frozen = false;
     }
     ev.push({ t: 'bubble_drop', b: i });
     return;
