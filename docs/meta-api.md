@@ -1,6 +1,6 @@
 # 局外系统 API（meta v2）
 
-纯逻辑，位于 `src/core/meta/`。全部是对存档字典 `save` 的静态函数：时间用 `now`（unix 秒，界面层传 `Save.now()`），日期用 `day`（`Save.today()`），随机数用 `Rng`。数值在 `config/economy.json`。存档版本 `PlayerData.VERSION = 2`。
+纯逻辑，位于 `client/assets/scripts/core/meta/`（Cocos 版函数名改成 camelCase，如 `take_free_coin` → `takeFreeCoin`；本文沿用 Godot 版写法，对应关系一目了然）。全部是对存档对象 `save` 的函数：时间用 `now`（unix 秒，界面层传 `services/clock.ts` 的 `now()`），日期用 `day`（`today()`），随机数用 `Rng`。数值在 `client/assets/resources/config/economy.json`，**以 `docs/01` 和配置为准，本文出现的数字只是示例**。存档版本 `PlayerData.VERSION = 1`（Cocos 版重新从 1 开始）。
 `species` 是 `Config.species`；`eco` 是 `Config.eco`。
 
 ## 存档新增字段
@@ -123,9 +123,9 @@
 
 - `Cards.give(save, eco, card)` 入账一张卡（重复换金币 50/125/300/750/2500）。
 - `Daily.roll(save, day)` 跨天、跨周清零。
-- `Combo.best_bonus_for(best, cfg)`（静态）；连击金币档 5/10/15/25，封顶 400，最高连击奖 ×10 封顶 200。
-- 免费金币：`Meta.take_free_coin`（500，每天 10 次）；缸位 650 金币见 `eco["bowlSlotCoinPrice"]`。
-- `Save.now()`（`src/services/save_service.gd`）：当前 unix 秒。
+- `Combo.best_bonus_for(best, cfg)`；连击金币档与封顶见 `docs/01` 3.2 和 `economy.json` 的 `combo`。
+- 免费金币：`Meta.take_free_coin`（金额与次数见 `economy.json` 的 `freeCoin`）；缸位金币价见 `eco.bowlSlotCoinPrice`。
+- `now()`（`client/assets/scripts/services/clock.ts`）：当前 unix 秒。
 
 ## 存档版本
 
