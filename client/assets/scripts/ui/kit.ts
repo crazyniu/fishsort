@@ -65,7 +65,7 @@ const ON_BLUE = btnInk('#0F3F96');
 const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
 const ON_AMBER = btnInk('#8A4F00');
 const ON_RED = btnInk('#8A1F12');
-const ON_GRAY = btnInk('#6E7B8D');
+const ON_GRAY = btnInk('#5A6880');
 
 /** 部件 → 上面放的字用什么颜色 */
 const PART_INK: Record<string, Ink> = {

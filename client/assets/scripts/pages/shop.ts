@@ -1,7 +1,7 @@
 // 商店页签（定版图 04，docs/01 7.4、docs/09 第 4 节）：金币买技能（2×2 卡片）、金币买生命、看广告领金币。
 // 海底场景做背景，卡片是蓝色玻璃面板、白字。顶栏只在主页，这里标题右边放一个金币条显示余额。
 // 技能卡上写已有数量；没解锁的灰色带锁和「第 N 关」。金币不够：按钮照常可点，点了弹「金币不足」（spend）。
-import { Label, Node, Sprite, UITransform } from 'cc';
+import { Label, Node, Sprite, Tween, UITransform } from 'cc';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
 import * as Skills from '../core/meta/skills';
@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, hex, button, fmt, img, lazyImg, plate, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, hex, button, fmt, img, lazyImg, opacity, plate, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -31,6 +31,9 @@ const NAME: Record<string, string> = {
   current: 'H_SKILL_FLOW',
 };
 
+/** 插画的视觉大小不一样（洗牌的箭头偏小），按图微调到看起来一样大 */
+const ICON_K: Record<string, number> = { shuffle: 1.1, blow: 1.06, net: 1, current: 0.96 };
+
 /** 蓝色面板上的次要文字（已有数量、今日次数）：比白色淡一档 */
 const SOFT = hex('#D4ECFF');
 
@@ -45,6 +48,7 @@ export class ShopPage extends Page {
   private adBtn!: Btn;
   private adLeft!: ReturnType<typeof text>;
   private rows: Node[] = [];
+  private deco!: Node;
 
   build(root: Node): void {
     const eco = App.config.eco;
@@ -53,9 +57,12 @@ export class ShopPage extends Page {
     const top = Screen.top;
     // 标题牌居中，右边是金币余额条
     const titleY = top - 76;
-    const title = plate(root, 'skin/j_plate', 232, 84, 'title');
+    const title = plate(root, 'skin/j_plate', 248, 88, 'title');
     at(title, 0, titleY);
-    at(text(title, tr('UI_TAB_SHOP'), 56).node, 0, 3);
+    at(text(title, tr('UI_TAB_SHOP'), 58).node, 0, 3);
+    // 标题左边一条小鱼，和右边的金币条配平（定版图 04 标题两侧有鱼）；全页唯一的常驻动效
+    this.deco = img(root, 'fish/c17', 92, 92, 'deco');
+    at(this.deco, -194, titleY + 2);
     const CHIP = 214;
     const chip = plate(root, 'skin/j_bar_top', CHIP, 68, 'coins');
     at(chip, Screen.W / 2 - 20 - CHIP / 2, titleY);
@@ -96,15 +103,22 @@ export class ShopPage extends Page {
     const btnH = 92;
     const btnW = w - 44;
     const btnY = -h / 2 + 24 + btnH / 2;
-    const ownedY = btnY + btnH / 2 + 24;
-    // 插画占满名字和数量之间
-    const room = h / 2 - 80 - (ownedY + 20);
-    const is = Math.max(110, Math.min(200, room));
+    // 已有数量：按钮上方一条深色小凹槽
+    const ownedY = btnY + btnH / 2 + 14 + 21;
+    const well = plate(n, 'skin/j_inset', 156, 42, 'owned');
+    at(well, 0, ownedY);
+    const owned = text(well, '', 26, { color: SOFT });
+    at(owned.node, 0, 1);
+    // 插画占满名字和数量之间，后面垫一团柔光把它从面板上托起来
+    const room = h / 2 - 78 - (ownedY + 21) - 6;
+    const is = Math.max(110, Math.min(200, room)) * (ICON_K[id] ?? 1);
+    const cy = ownedY + 21 + 6 + room / 2;
+    const glow = img(n, 'kit/fx_glow', is * 1.5, is * 1.5, 'glow');
+    at(glow, 0, cy);
+    opacity(glow).opacity = 110;
     const icon = img(n, `icon/skill_${id}`, is, is, 'icon');
-    at(icon, 0, ownedY + 20 + room / 2);
+    at(icon, 0, cy);
 
-    const owned = text(n, '', 28, { color: SOFT });
-    at(owned.node, 0, ownedY);
     const buy = button(n, {
       color: 'green',
       w: btnW,
@@ -132,11 +146,11 @@ export class ShopPage extends Page {
     const n = slice(root, 'skin/j_panel', w, h, 'lives');
     at(n, x, y);
     at(text(n, tr('H_LIVES_TITLE'), 36, { align: 'left' }).node, -w / 2 + 26, h / 2 - 42);
-    this.heart = img(n, 'icon/heart', 84, 84, 'heart');
-    at(this.heart, -w / 2 + 26 + 42, -30);
-    this.lifeCount = text(this.heart, '', 32, { color: COLOR.white, outline: hex('#8A1F12') });
-    this.lifeCount.color = COLOR.white;
-    at(this.lifeCount.node, 0, 3);
+    // 和右边的小卡同一种排法：左上标题、右上小字状态、左下图标、右下按钮
+    this.lifeCount = text(n, '', 24, { color: SOFT, align: 'right' });
+    at(this.lifeCount.node, w / 2 - 24, h / 2 - 42);
+    this.heart = img(n, 'icon/heart', 88, 88, 'heart');
+    at(this.heart, -w / 2 + 26 + 44, -30);
     this.lifeBtn = button(n, {
       color: 'green',
       w: 176,
@@ -178,7 +192,14 @@ export class ShopPage extends Page {
 
   override show(): void {
     this.refresh();
+    Tween.stopAllByTarget(this.deco);
+    at(this.deco, -194, Screen.top - 74);
+    fx.bob(this.deco, 5, 2.6);
     enterStagger([...this.cards.map((c) => c.node), ...this.rows], 0.05);
+  }
+
+  override hide(): void {
+    Tween.stopAllByTarget(this.deco);
   }
 
   override refresh(): void {
@@ -198,7 +219,7 @@ export class ShopPage extends Page {
     Lives.refresh(s, eco, t);
     const unlimited = Lives.isUnlimited(s, t);
     const full = unlimited || Lives.count(s, eco, t) >= eco.lives.max;
-    this.lifeCount.string = unlimited ? '∞' : String(Lives.count(s, eco, t));
+    this.lifeCount.string = unlimited ? '∞' : `${Lives.count(s, eco, t)}/${eco.lives.max}`;
     this.lifeBtn.setEnabled(!full);
     if (this.lifeBtn.icon) this.lifeBtn.icon.active = !full;
     this.lifeBtn.setLabel(full ? tr('UI_FULL') : fmt(eco.lives.buyOneCoins));
