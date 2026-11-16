@@ -147,6 +147,7 @@ const IMPORTERS = {
   '.json': () => ({ ver: '2.0.1', importer: 'json', files: ['.json'] }),
   '.ttf': (name) => ({ ver: '1.0.1', importer: 'ttf-font', files: ['.json', name] }),
   '.wav': () => ({ ver: '1.0.0', importer: 'audio-clip', files: ['.json', '.wav'], userData: { downloadMode: 0 } }),
+  '.mp3': () => ({ ver: '1.0.0', importer: 'audio-clip', files: ['.json', '.mp3'], userData: { downloadMode: 0 } }),
 };
 
 // assets/resources 是 Cocos 的内置资源包，编辑器会给它写上这几项；先写好，免得 Mac 上构建后出现改动

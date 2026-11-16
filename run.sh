@@ -58,6 +58,7 @@ Cocos 版（client/，迁移中，见 docs/09）：
   web-serve             不重新构建，直接起服务打开上次的构建
   wechat-build          构建微信小游戏包 → client/build/wechatgame
   cocos-editor          用 Cocos Creator 打开 client/
+  art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
   cdp logs [秒] | cdp eval '<表达式>'
                         调试：读 web-serve 开的浏览器的控制台、在页面里求值
   cocos-clean           清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
@@ -226,6 +227,12 @@ case "$cmd" in
   meta)
     node tools/cocos/meta.mjs "$@"
     ;;
+  art-compress)
+    # 包体：PNG 量化成调色板、家园物件缩到 2 倍、背景音乐转 mp3；之后补 .meta
+    need_node_modules
+    (cd client && node tools/art/compress.mjs && node tools/audio/bgm_mp3.mjs)
+    node tools/cocos/meta.mjs
+    ;;
   cdp)
     node tools/cocos/cdp.mjs "$@"
     ;;
@@ -241,6 +248,7 @@ case "$cmd" in
   ts-check)
     need_node_modules
     node tools/cocos/meta.mjs --check
+    (cd client && node tools/art/compress.mjs --check)
     # Cocos 3.8 构建用的 Babel 不认「as 后面跟联合类型」，打包脚本会失败，Linux 上的 tsc 查不出来
     if grep -rnE '^[^/]*[^/]\bas [^;,)=]*\|' client/assets/scripts --include='*.ts'; then
       die "上面几处是 as X | Y 的写法，Cocos 构建会失败，换成函数收窄"

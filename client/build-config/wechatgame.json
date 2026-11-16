@@ -1,6 +1,6 @@
 {
   "name": "fishsort",
-  "debug": true,
+  "debug": false,
   "md5Cache": false,
   "buildPath": "project://build",
   "startScene": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83",
