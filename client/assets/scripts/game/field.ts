@@ -117,11 +117,11 @@ export class Field {
       this.regroup();
       this.run();
     } else {
-      // 没遮挡：开局在场的气泡先藏在场地上沿外面，从低到高一个接一个放下来
+      // 没遮挡：开局在场的气泡先藏在场地上沿（只露出一点，不盖住上面的鱼缸），从低到高一个接一个放下来
       const first = this.views.map((_, i) => i).filter((i) => !this.views[i].queued).sort((a, b) => this.views[a].home[1] - this.views[b].home[1]);
       first.forEach((i, k) => {
         const v = this.views[i];
-        at(v.node, v.home[0], this.h / 2 + v.r + 10);
+        at(v.node, v.home[0], this.h / 2 + v.r * 0.3);
         opacity(v.node).opacity = 0;
         tween(v.node)
           .delay(0.1 + k * App.config.ui.pile.stagger)
@@ -143,12 +143,12 @@ export class Field {
     const m = v.r + App.config.ui.field.gap;
     const px = Math.min(Math.max(x, -this.w / 2 + m), this.w / 2 - m);
     v.node.active = true;
-    at(v.node, px, this.h / 2 + v.r + 10);
+    at(v.node, px, this.h / 2 + v.r * 0.3);
     const op = opacity(v.node);
     Tween.stopAllByTarget(op);
     op.opacity = 0;
     tween(op).to(0.12, { opacity: 255 }).start();
-    this.pile.add(i, px, this.h / 2 + v.r + 10, v.r);
+    this.pile.add(i, px, this.h / 2 + v.r * 0.3, v.r);
     this.run();
   }
 
@@ -226,7 +226,7 @@ export class Field {
           const m = big[i] + App.config.ui.field.gap;
           // 横向位置错开：用黄金角序列，不随机（同一关每次结果一样）
           const x = (((i * 0.618034) % 1) - 0.5) * (this.w - 2 * m);
-          p.add(i, x, this.h / 2 + big[i] + 10, big[i]);
+          p.add(i, x, this.h / 2 + big[i] * 0.3, big[i]);
         }
         p.step(1 / 60);
       }
@@ -557,9 +557,9 @@ export class Field {
     const m = v.r + App.config.ui.field.gap;
     const fx0 = freed >= 0 ? this.views[freed].node.position.x : 0;
     const x = Math.min(Math.max(fx0 + (Math.random() - 0.5) * 60, -this.w / 2 + m), this.w / 2 - m);
-    v.home = [x, this.h / 2 + v.r + 10];
+    v.home = [x, this.h / 2 + v.r * 0.3];
     v.node.active = true;
-    at(v.node, x, this.h / 2 + v.r + 10);
+    at(v.node, x, this.h / 2 + v.r * 0.3);
     opacity(v.node).opacity = 0;
     v.node.setSiblingIndex(this.node.children.length - 1);
     tween(v.node)
