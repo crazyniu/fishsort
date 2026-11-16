@@ -202,7 +202,13 @@ export interface GameUiConfig {
   bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number };
   praise: { keys: string[]; streakSeconds: number };
   intro: { startDelay: number; batchSize: number; batchGap: number };
-  drop: { delay: number; fallSeconds: number; nudge: number; relaxSeconds: number };
+  /** 掉落关：气泡破了之后隔多久放下一个 */
+  drop: { delay: number };
+  /**
+   * 气泡堆的重力（game/pile.ts）：重力加速度、速度阻尼、每帧小步数与迭代次数、多慢算停稳、停稳多久后不再算、
+   * 多快算一次落地、原本叠着的气泡分开的速度、开局气泡一个接一个放下的间隔、堆的高度最多占场地高度的多少（放不下就把气泡缩小）
+   */
+  pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
   buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };
   current: { lead: number; stagger: number };

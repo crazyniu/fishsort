@@ -331,8 +331,8 @@ export class GamePage extends Page {
       (b) => this.blocked(b),
     );
     this.field.build(this.s);
-    // 进场：气泡依次弹出
-    this.field.views.forEach((v, i) => v.node.active && fx.popIn(v.node, 0.15 + Math.floor(i / 4) * 0.12, 0.3));
+    // 进场：没遮挡的关卡气泡从上面一个接一个落下来（Field.build 里）；有遮挡的关卡先依次弹出，再由重力压实
+    if (this.field.isLayered) this.field.views.forEach((v, i) => v.node.active && fx.popIn(v.node, 0.15 + Math.floor(i / 4) * 0.12, 0.3));
     this.refreshHud();
     this.refreshSkills();
   }

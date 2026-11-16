@@ -1,14 +1,17 @@
 // 局内场地：气泡、气泡里的鱼、障碍（锁链、冰封、迷雾、结伴）、掉落。
-// 布局沿用 Godot 版：没有遮挡的关卡把气泡放大到铺满场地再推开重叠；有遮挡的关卡按关卡数据摆。
+// 气泡受重力（用户 2026-11-16）：位置每帧由 game/pile.ts 的模拟给出。没有遮挡的关卡，气泡开局一个接一个从上面落下堆起来，
+// 破一个上面的就压下来，新气泡落在堆上；有遮挡的关卡按关卡数据摆好再松手，互相压着的气泡绑成一组一起动（遮挡关系不变）。
 // 鱼的显示尺寸按气泡大小算，不小于 field.fishMin（用户 2026-11-16：鱼不能小，要好点）。
-import { Color, EventTouch, Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
+import { Color, EventTouch, Label, Node, Sprite, Tween, UITransform, Vec3, game, tween } from 'cc';
 import { FIELD_H } from '../core/gen/levelGen';
 import { GameState, REMOVED } from '../core/model/gameState';
 import { LevelData } from '../core/model/levelData';
 import * as Rules from '../core/rules/rules';
 import { App } from '../services/app';
+import { sfx } from '../services/audio';
 import { bob, ring, sparkle } from '../ui/fx';
 import { at, box, img, opacity, setImg, text } from '../ui/kit';
+import { Pile } from './pile';
 
 interface View {
   node: Node;
@@ -44,7 +47,6 @@ export class Field {
   /** 场地的可用区域（本节点坐标，原点在中心） */
   private w: number;
   private h: number;
-  private freeLayout = false;
   private fishMin: number;
   private fishMax: number;
 
@@ -67,6 +69,14 @@ export class Field {
 
   /** 这关有叠层：上层气泡垫磨砂底 */
   private layered = false;
+  /** 重力模拟 */
+  private pile!: Pile;
+  private simOn = false;
+  private lastLand = 0;
+
+  get isLayered(): boolean {
+    return this.layered;
+  }
 
   spriteFor(sp: number): string {
     return `fish/${this.species[sp] ?? this.species[0]}`;
@@ -82,11 +92,11 @@ export class Field {
       centers.push([(d.x - 0.5) * fw, (FIELD_H / 2 - d.y) * fw]);
       covered = covered || d.under.length > 0;
     }
-    this.freeLayout = !covered;
     this.layered = covered;
+    const onField = Math.min(this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length, radii.length);
     if (!covered) {
-      const onField = this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length;
-      this.fit(centers, radii, Math.min(onField, radii.length));
+      this.fit(centers, radii, onField);
+      this.shrinkToFit(radii, onField);
     } else {
       // 有遮挡的关卡：整体等比放大、居中，用满场地（相对位置和遮挡关系不变；用户 2026-11-16：场地尽量大）
       this.fillBox(centers, radii, centers.length);
@@ -99,6 +109,134 @@ export class Field {
     this.views = new Array(this.lv.bubbles.length);
     for (const i of order) this.views[i] = this.make(i, centers[i], radii[i], s);
     this.sync(s, false);
+    this.pile = this.newPile();
+    this.pile.onLand = (id, speed) => this.landed(id, speed);
+    if (covered) {
+      // 有遮挡：按设计位置摆好，松手让重力接管（互相压着的绑成一组）
+      this.views.forEach((v, i) => this.pile.add(i, v.home[0], v.home[1], v.r));
+      this.regroup();
+      this.run();
+    } else {
+      // 没遮挡：开局在场的气泡先藏在场地上沿外面，从低到高一个接一个放下来
+      const first = this.views.map((_, i) => i).filter((i) => !this.views[i].queued).sort((a, b) => this.views[a].home[1] - this.views[b].home[1]);
+      first.forEach((i, k) => {
+        const v = this.views[i];
+        at(v.node, v.home[0], this.h / 2 + v.r + 10);
+        opacity(v.node).opacity = 0;
+        tween(v.node)
+          .delay(0.1 + k * App.config.ui.pile.stagger)
+          .call(() => this.release(i, v.home[0]))
+          .start();
+      });
+    }
+  }
+
+  private newPile(): Pile {
+    const p = App.config.ui.pile;
+    return new Pile(this.w, this.h, { gravity: p.gravity, damping: p.damping, substeps: p.substeps, iterations: p.iterations, gap: App.config.ui.field.gap / 2, sleepSpeed: p.sleepSpeed, sleepTime: p.sleepTime, landSpeed: p.landSpeed, separate: p.separate });
+  }
+
+  /** 把气泡 i 从场地上沿放下来（x 是横向位置），交给重力 */
+  private release(i: number, x: number): void {
+    const v = this.views[i];
+    if (v.gone) return;
+    const m = v.r + App.config.ui.field.gap;
+    const px = Math.min(Math.max(x, -this.w / 2 + m), this.w / 2 - m);
+    v.node.active = true;
+    at(v.node, px, this.h / 2 + v.r + 10);
+    const op = opacity(v.node);
+    Tween.stopAllByTarget(op);
+    op.opacity = 0;
+    tween(op).to(0.12, { opacity: 255 }).start();
+    this.pile.add(i, px, this.h / 2 + v.r + 10, v.r);
+    this.run();
+  }
+
+  /** 互相压着的气泡（关卡数据里的 under）绑成一组；破掉的不算 */
+  private regroup(): void {
+    const links: [number, number][] = [];
+    this.lv.bubbles.forEach((d, i) => {
+      for (const u of d.under) if (!this.views[i].gone && !this.views[u].gone) links.push([i, u]);
+    });
+    this.pile.regroup(links);
+  }
+
+  /** 模拟醒着的时候每帧推进一步，把气泡节点摆到算出来的位置；停稳了就停 */
+  private run(): void {
+    this.pile.wake();
+    if (this.simOn) return;
+    this.simOn = true;
+    const p = { v: 0 };
+    const tw = tween(p)
+      .repeatForever(
+        tween(p).to(1, { v: 1 }, {
+          onUpdate: () => {
+            if (!this.node.isValid) {
+              tw.stop();
+              return;
+            }
+            this.pile.step(Math.min(0.05, game.deltaTime));
+            for (let i = 0; i < this.views.length; i++) {
+              const v = this.views[i];
+              if (v.gone) continue;
+              const q = this.pile.pos(i);
+              if (q) v.node.setPosition(q[0], q[1], 0);
+            }
+            if (!this.pile.awake) {
+              this.simOn = false;
+              tw.stop();
+            }
+          },
+        }),
+      )
+      .start();
+  }
+
+  /** 气泡落地（落在地上或别的气泡上）：壳压扁一下再弹回，轻轻「咚」一声（隔太近的不重复响） */
+  private landed(id: number, speed: number): void {
+    const v = this.views[id];
+    if (!v || v.gone) return;
+    const k = Math.min(0.12, speed / 12000);
+    Tween.stopAllByTarget(v.skin);
+    v.skin.angle = 0;
+    v.skin.setScale(1 + k, 1 - k, 1);
+    tween(v.skin).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    const now = Date.now();
+    if (now - this.lastLand > 90) {
+      this.lastLand = now;
+      sfx('land', 0, Math.min(0.7, 0.25 + speed / 3000));
+    }
+  }
+
+  /**
+   * 没遮挡的关卡：先在内存里把同时在场的气泡（取最大的那几个）扔下去试一遍，堆得比场地高就把所有气泡等比缩小再试，
+   * 保证真玩的时候堆不出场地
+   */
+  private shrinkToFit(radii: number[], n: number): void {
+    const cfg = App.config.ui.pile;
+    const limit = -this.h / 2 + this.h * cfg.maxHeight;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const big = [...radii].sort((a, b) => b - a).slice(0, n);
+      const p = this.newPile();
+      let top = -Infinity;
+      // 一个接一个放（每 4 帧一个），放完再多等一会让它停稳
+      for (let f = 0; f < n * 4 + 240 && (f < n * 4 || p.awake); f++) {
+        if (f % 4 === 0 && f / 4 < n) {
+          const i = f / 4;
+          const m = big[i] + App.config.ui.field.gap;
+          // 横向位置错开：用黄金角序列，不随机（同一关每次结果一样）
+          const x = (((i * 0.618034) % 1) - 0.5) * (this.w - 2 * m);
+          p.add(i, x, this.h / 2 + big[i] + 10, big[i]);
+        }
+        p.step(1 / 60);
+      }
+      for (let i = 0; i < n; i++) {
+        const q = p.pos(i);
+        if (q) top = Math.max(top, q[1] + big[i]);
+      }
+      if (top <= limit) return;
+      for (let i = 0; i < radii.length; i++) radii[i] *= 0.95;
+    }
   }
 
   /** 前 n 个气泡的外接框等比放大到场地大小（不超过 maxScale 倍）并居中 */
@@ -254,7 +392,8 @@ export class Field {
       v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = 170;
     }
-    bob(body, 4, 2.6 + (i % 5) * 0.3, (i % 7) * 0.2);
+    // 气泡互相挨着，漂浮幅度小一点
+    bob(body, 2.5, 2.6 + (i % 5) * 0.3, (i % 7) * 0.2);
     node.active = !v.queued;
     return v;
   }
@@ -395,6 +534,12 @@ export class Field {
     const v = this.views[b];
     v.gone = true;
     const n = v.node;
+    // 从重力模拟里拿掉：压在它上面的气泡这就往下落；原来和它绑在一起的重新分组
+    if (this.pile.has(b)) {
+      this.pile.remove(b);
+      this.regroup();
+      this.run();
+    }
     if (!n.active) {
       n.destroy();
       return;
@@ -405,43 +550,22 @@ export class Field {
     tween(opacity(n)).delay(0.12).to(0.1, { opacity: 0 }).start();
   }
 
-  /** 掉落关：候场队头落到空出来的位置（freed 是刚破的气泡） */
+  /** 掉落关：候场队头从场地上沿落下来（落点在刚破的那个气泡上方附近），掉在堆上，沿着别的气泡滚到位 */
   dropIn(b: number, freed: number, delay: number): void {
     const v = this.views[b];
     v.queued = false;
-    if (freed >= 0) v.home = [...this.views[freed].home];
-    if (this.freeLayout) this.replace(b);
-    const cfg = App.config.ui.drop;
+    const m = v.r + App.config.ui.field.gap;
+    const fx0 = freed >= 0 ? this.views[freed].node.position.x : 0;
+    const x = Math.min(Math.max(fx0 + (Math.random() - 0.5) * 60, -this.w / 2 + m), this.w / 2 - m);
+    v.home = [x, this.h / 2 + v.r + 10];
     v.node.active = true;
-    at(v.node, v.home[0], this.h / 2 + v.r + 60);
+    at(v.node, x, this.h / 2 + v.r + 10);
+    opacity(v.node).opacity = 0;
     v.node.setSiblingIndex(this.node.children.length - 1);
     tween(v.node)
-      .delay(delay + cfg.delay)
-      .to(cfg.fallSeconds, { position: new Vec3(v.home[0], v.home[1], 0) }, { easing: 'quadIn' })
-      .to(0.1, { scale: new Vec3(1.08, 0.92, 1) })
-      .to(0.14, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .delay(delay + App.config.ui.drop.delay)
+      .call(() => this.release(b, x))
       .start();
-  }
-
-  /** 以 b 的位置为起点，对场上气泡重新推开；动的气泡缓动过去 */
-  private replace(b: number): void {
-    const ids: number[] = [];
-    const c: [number, number][] = [];
-    const r: number[] = [];
-    for (let i = 0; i < this.views.length; i++) {
-      const v = this.views[i];
-      if (i !== b && (v.gone || v.queued)) continue;
-      ids.push(i);
-      c.push([...v.home]);
-      r.push(v.r);
-    }
-    this.relax(c, r, ids.length, []);
-    ids.forEach((i, n) => {
-      const v = this.views[i];
-      v.home = c[n];
-      if (i === b) return;
-      tween(v.node).to(App.config.ui.drop.relaxSeconds, { position: new Vec3(c[n][0], c[n][1], 0) }, { easing: 'sineOut' }).start();
-    });
   }
 
   /** 洗牌：所有气泡转一圈，鱼换成新分布 */

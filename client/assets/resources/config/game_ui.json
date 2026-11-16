@@ -25,10 +25,19 @@
   "batchGap": 0.14
  },
  "drop": {
-  "delay": 0.25,
-  "fallSeconds": 0.32,
-  "nudge": 12,
-  "relaxSeconds": 0.3
+  "delay": 0.25
+ },
+ "pile": {
+  "gravity": 3200,
+  "damping": 1.2,
+  "substeps": 2,
+  "iterations": 8,
+  "sleepSpeed": 14,
+  "sleepTime": 0.35,
+  "landSpeed": 380,
+  "separate": 420,
+  "stagger": 0.06,
+  "maxHeight": 0.94
  },
  "hint": {
   "tutorialLevels": 3,
