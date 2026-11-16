@@ -122,6 +122,65 @@ roundBtn('round_red', BTN.red);
     ${rr(26, 30, w - 52, h - 63, 34, `fill="none" stroke="#1756C4" stroke-width="3"`)}`;
   part('panel', w, h, body, [80, 80, 80, 80]);
 }
+// 列表行（17 排行）：宝蓝底 + 亮青描边，上亮下暗
+{
+  const w = 200;
+  const h = 120;
+  const [gf, df] = lin([[0, '#3A8CF5'], [0.5, '#1F64DC'], [1, '#174FC0']]);
+  const [gs, ds] = lin([[0, '#fff', 0.5], [1, '#fff', 0]]);
+  const body = `<defs>${df}${ds}</defs>
+    ${rr(3, 8, w - 6, h - 10, 36, `fill="#0A2B7A"`)}
+    ${rr(3, 3, w - 6, h - 10, 36, `fill="url(#${gf})" stroke="#8FD8FF" stroke-width="4"`)}
+    ${rr(22, 9, w - 44, 16, 8, `fill="url(#${gs})"`)}`;
+  part('row_blue', w, h, body, [44, 44, 44, 44]);
+}
+// 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
+{
+  const w = 240;
+  const h = 110;
+  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2B7CEB']]);
+  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
+  const shape = (o) =>
+    `M0 ${h} Q22 ${h} 24 ${h - 22} V${50 + o} Q24 ${6 + o} 66 ${6 + o} H${w - 66} Q${w - 24} ${6 + o} ${w - 24} ${50 + o} V${h - 22} Q${w - 22} ${h} ${w} ${h} Z`;
+  const body = `<defs>${df}${ds}</defs>
+    <path d="${shape(4)}" fill="#0A2B7A"/>
+    <path d="${shape(0)}" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M31 ${h - 20} V52 Q31 13 68 13 H${w - 68} Q${w - 31} 13 ${w - 31} 52 V${h - 20}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
+    ${rr(54, 14, w - 108, 16, 8, `fill="url(#${gs})"`)}
+    <rect x="0" y="${h - 3}" width="${w}" height="3" fill="#2B7CEB"/>`;
+  part('popup_head', w, h, body, [0, 0, 76, 76]);
+}
+// 页面里的玻璃卡片（04 商店、06 收藏、13 结算奖励条）：半透明浅蓝 + 亮青描边
+{
+  const w = 200;
+  const h = 200;
+  const [gf, df] = lin([[0, '#9BE2FF', 0.62], [0.5, '#4FA8F2', 0.5], [1, '#2C7FE0', 0.55]]);
+  const [gs, ds] = lin([[0, '#fff', 0.6], [1, '#fff', 0]]);
+  const body = `<defs>${df}${ds}</defs>
+    ${rr(3, 7, w - 6, h - 9, 40, `fill="#0B3A8F" fill-opacity="0.35"`)}
+    ${rr(3, 3, w - 6, h - 9, 40, `fill="url(#${gf})" stroke="#CFF6FF" stroke-width="5"`)}
+    ${rr(10, 10, w - 20, h - 23, 33, `fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"`)}
+    ${rr(24, 12, w - 48, 22, 11, `fill="url(#${gs})"`)}`;
+  part('panel_glass', w, h, body, [56, 56, 56, 56]);
+}
+// 整块宝蓝底（15、19）：亮蓝厚边（上亮下暗）+ 深宝蓝内底
+{
+  const w = 300;
+  const h = 300;
+  const [gf, df] = lin([[0, '#8AD4FF'], [0.2, '#3FA2FF'], [0.75, '#2378EC'], [1, '#1A5CD0']]);
+  const [gi, di] = lin([[0, '#2F7CF0'], [0.5, '#1C5ED8'], [1, '#1548BC']]);
+  const [gs, ds] = lin([[0, '#fff', 0.85], [1, '#fff', 0]]);
+  const [gw, dw] = lin([[0, '#fff', 0.25], [0.3, '#fff', 0]]);
+  const body = `<defs>${df}${di}${ds}${dw}</defs>
+    ${rr(3, 10, w - 6, h - 12, 54, `fill="#0A2B7A"`)}
+    ${rr(3, 3, w - 6, h - 12, 54, `fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"`)}
+    ${rr(9, 8, w - 18, h - 24, 48, `fill="none" stroke="#C4ECFF" stroke-width="3" opacity="0.8"`)}
+    ${rr(30, 12, w - 60, 14, 7, `fill="url(#${gs})"`)}
+    ${rr(24, 26, w - 48, h - 58, 36, `fill="#0D3A9A"`)}
+    ${rr(24, 29, w - 48, h - 60, 36, `fill="url(#${gi})"`)}
+    ${rr(24, 29, w - 48, h - 60, 36, `fill="url(#${gw})"`)}`;
+  part('panel_blue', w, h, body, [80, 80, 80, 80]);
+}
 // 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
 {
   const w = 240;

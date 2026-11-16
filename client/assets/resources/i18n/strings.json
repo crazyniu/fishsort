@@ -317,7 +317,8 @@
   "PROFILE_LEVEL": "当前关卡",
   "PROFILE_BEST_COMBO": "最佳连击",
   "PROFILE_CARDS": "收藏进度",
-  "DAILY_RETRY_HINT": "看广告或花金币再试一次"
+  "DAILY_RETRY_HINT": "看广告或花金币再试一次",
+  "PRIZE_COINS": "金币"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -637,6 +638,7 @@
   "PROFILE_LEVEL": "Level",
   "PROFILE_BEST_COMBO": "Best combo",
   "PROFILE_CARDS": "Cards",
-  "DAILY_RETRY_HINT": "Watch an ad or pay coins to retry"
+  "DAILY_RETRY_HINT": "Watch an ad or pay coins to retry",
+  "PRIZE_COINS": "Coins"
  }
 }

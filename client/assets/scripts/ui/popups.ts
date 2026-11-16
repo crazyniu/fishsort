@@ -42,8 +42,14 @@ export async function watchAd(placement: string): Promise<boolean> {
 export interface PrizeItem {
   icon: string;
   amount: string;
+  /** 单个开奖时写在数量前面（金币 ×100） */
+  name?: string;
   /** 收藏卡：稀有度框 */
   rarity?: string;
+}
+
+export function skillName(id: string): string {
+  return tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`);
 }
 
 export function skillIcon(id: string): string {
@@ -53,8 +59,8 @@ export function skillIcon(id: string): string {
 export function prizeItems(prizes: Prize[]): PrizeItem[] {
   const out: PrizeItem[] = [];
   for (const p of prizes) {
-    if (p.kind === 'coin') out.push({ icon: 'icon/coin', amount: String(p.amount) });
-    else if (p.kind === 'skill') out.push({ icon: skillIcon(p.skill ?? 'shuffle'), amount: `×${p.amount ?? 1}` });
+    if (p.kind === 'coin') out.push({ icon: 'icon/coin', amount: String(p.amount), name: tr('PRIZE_COINS') });
+    else if (p.kind === 'skill') out.push({ icon: skillIcon(p.skill ?? 'shuffle'), amount: `×${p.amount ?? 1}`, name: skillName(p.skill ?? 'shuffle') });
     else if (p.kind === 'inf_life') out.push({ icon: 'icon/heart_inf', amount: tr('UI_MINUTES', p.amount ?? 0) });
     else if (p.kind === 'frame') out.push({ icon: 'kit/fx_ring', amount: tr('H_PRIZE_FRAME') });
     else if (p.kind === 'card' && p.card_id) out.push({ icon: `fish/${p.card_id}`, amount: tr(`UI_RARITY_${(p.rarity ?? 'common').toUpperCase()}`), rarity: p.rarity });
@@ -93,8 +99,8 @@ export function rewardPopup(
   const rows = Math.ceil(items.length / cols);
   const h = many ? 300 + rows * 170 + (o.double ? 110 : 0) : 560 + (o.double ? 110 : 0);
   const p = openPopup({ w: 640, h, blue: true, noClose: true, mascot: null, onClose: o.onClose });
-  const title = text(p.body, o.title ?? tr('H_CONGRATS'), 56);
-  at(title.node, 0, h / 2 - 70);
+  const title = text(p.body, o.title ?? tr('H_CONGRATS'), 64, { outlineWidth: 6 });
+  at(title.node, 0, h / 2 - 76);
   if (!many && items[0]) {
     const glow = fx.rays(p.body, 360);
     at(glow, 0, 40);
@@ -104,7 +110,7 @@ export function rewardPopup(
     fx.popIn(icon, 0.15, 0.35);
     fx.sparkle(p.body, 0, 50, 10, 160, COLOR.yellow);
     if (!it.rarity) {
-      const l = text(p.body, it.amount, 46);
+      const l = text(p.body, it.name ? `${it.name} ${it.amount.startsWith('×') ? it.amount : `×${it.amount}`}` : it.amount, 52);
       at(l.node, 0, -110);
     }
   } else {
@@ -119,7 +125,7 @@ export function rewardPopup(
     });
   }
   let y = -h / 2 + 90;
-  const take = button(p.body, { color: 'green', w: 400, h: 100, label: tr('UI_CLAIM'), onTap: () => p.close() });
+  const take = button(p.body, { color: 'green', w: 420, h: 110, label: tr('UI_CLAIM'), fontSize: 54, onTap: () => p.close() });
   at(take.node, 0, y);
   if (o.double) {
     y += 115;

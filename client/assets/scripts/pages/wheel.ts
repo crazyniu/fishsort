@@ -14,15 +14,15 @@ import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, capsule, iconButton, img, lazyImg, setImg, slice, text } from '../ui/kit';
-import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, watchAd } from '../ui/popups';
+import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, skillName, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
 /** 一次抽奖结果 → 奖品格 */
 export function spinItem(r: Wheel.SpinResult): PrizeItem {
   if (r.card) return cardItem(r.card);
-  if (r.kind === 'coins') return { icon: 'icon/coin', amount: String(r.coins) };
-  if (r.kind === 'skill') return { icon: skillIcon(r.skill || 'shuffle'), amount: '×1' };
+  if (r.kind === 'coins') return { icon: 'icon/coin', amount: String(r.coins), name: tr('PRIZE_COINS') };
+  if (r.kind === 'skill') return { icon: skillIcon(r.skill || 'shuffle'), amount: '×1', name: skillName(r.skill || 'shuffle') };
   if (r.kind === 'unlimited') return { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) };
   return { icon: 'icon/gift', amount: '' };
 }
