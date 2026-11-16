@@ -1,6 +1,6 @@
 {
  "ui/bg/home": [
-  "raw:cocos1/bg_home.png",
+  "raw:redesign/bg_home.png",
   750,
   "jpg"
  ],

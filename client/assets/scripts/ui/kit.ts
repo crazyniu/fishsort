@@ -72,6 +72,10 @@ const ON_KEY_BLUE = lineInk('#0F3F96');
 const ON_KEY_RED = lineInk('#8A1F12');
 /** 白色果冻图标键 */
 const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
+/** 平面的深色底（顶栏小条、底栏）和蓝色标签牌：白字不描边，强调色还是黄 */
+const flatInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: null, depth: hex(o) });
+const ON_FLAT_NAVY = flatInk('#081C52');
+const ON_FLAT_BLUE = flatInk('#1A52BE');
 const ON_AMBER = btnInk('#C47400');
 const ON_RED = btnInk('#BC3320');
 const ON_GRAY = btnInk('#7C889C');
@@ -112,6 +116,10 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_row': ON_DARK,
   'skin/j_row_gold': ON_GOLD,
   'skin/j_popup': ON_DARK,
+  'skin/f_plate_blue': ON_FLAT_BLUE,
+  'skin/f_pill_navy': ON_FLAT_NAVY,
+  'skin/f_tabbar': ON_FLAT_NAVY,
+  'skin/f_tile': ON_FLAT_BLUE,
   'skin/j_key_blue': ON_KEY_BLUE,
   'skin/j_key_green': ON_KEY_GREEN,
   'skin/j_key_red': ON_KEY_RED,
@@ -253,7 +261,7 @@ const IMG_ALIAS: Record<string, string> = {
   'kit/round_green': 'skin/j_key_green',
   'kit/round_red': 'skin/j_key_red',
   'kit/round_blue': 'skin/j_key_blue',
-  'kit/dot_red': 'skin/j_dot',
+  'kit/dot_red': 'skin/f_dot',
   'kit/bubble': 'skin/j_bubble',
   'kit/bubble_small': 'skin/j_bubble',
 };
@@ -610,7 +618,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   let color = o.color;
   let pressed = false;
   const row = box('row', n);
-  // 面的中心比外框中心高半道下边（下边占按钮高的 11%，见 tools/art/flat_buttons.py）
+  // 面的中心比外框中心高半道下边（下边占按钮高的 11%，见 tools/art/flat_skin.py）
   const place = () => row.setPosition(0, o.h * 0.055 - (pressed ? 2 : 0), 0);
   place();
   let icon: Node | null = null;
@@ -716,6 +724,17 @@ export function keyButton(parent: Node, color: 'blue' | 'green' | 'red', glyph: 
   const n = img(parent, `skin/j_key_${color}`, s, s, 'key');
   const g = img(n, glyph, s * glyphScale, s * glyphScale, 'glyph');
   g.setPosition(0, s * 0.02, 0);
+  const sp = n.getComponent(Sprite) as Sprite;
+  if (fn) onTap(n, () => fn(), { press: 0.92, onPress: (down) => (sp.color = down ? PRESSED : COLOR.white) });
+  return n;
+}
+
+/** 平面图标键（新设计，用户 2026-11-16）：纯色圆角方块 + 底下一道粗边 + 白色图标。fn 为 null 时只是个摆设（外面整块可点） */
+export function flatKey(parent: Node, color: 'blue' | 'green' | 'red', glyph: string, s: number, fn: (() => void) | null, glyphScale = 0.56): Node {
+  const n = img(parent, `skin/f_key_${color}`, s, s, 'key');
+  const g = img(n, glyph, s * glyphScale, s * glyphScale, 'glyph');
+  // 面的中心比外框高半道下边
+  g.setPosition(0, s * 0.055, 0);
   const sp = n.getComponent(Sprite) as Sprite;
   if (fn) onTap(n, () => fn(), { press: 0.92, onPress: (down) => (sp.color = down ? PRESSED : COLOR.white) });
   return n;

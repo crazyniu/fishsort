@@ -205,7 +205,7 @@ def main() -> None:
             slices[name] = border
         print(f'  {name}: {im.size} {border or ""}')
 
-    # 按钮不在这里出：2026-11-16 起是程序画的平面按钮，见 tools/art/flat_buttons.py（这里保存时会连同已有的边距一起写回）
+    # 按钮不在这里出：2026-11-16 起是程序画的平面按钮，见 tools/art/flat_skin.py（这里保存时会连同已有的边距一起写回）
     slices.update({k: v for k, v in (json.loads(SLICES.read_text()) if SLICES.exists() else {}).items() if k.startswith('j_btn_')})
 
     # 蓝色条：顶栏、底栏、标签条

@@ -12,7 +12,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import { fadeIn, popIn, ring, sparkle } from './fx';
 import { tr } from './i18n';
-import { COLOR, at, hex, blockInput, box, fit, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
+import { COLOR, at, hex, blockInput, box, fit, flatKey, fmt, img, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
@@ -65,26 +65,25 @@ class TabBar {
   private current: Tab = 'home';
 
   constructor(parent: Node, private readonly onSelect: (t: Tab) => void) {
-    // 宝蓝亮面底栏；选中的页签垫一块亮青色方块（略高出底栏），图标放大（docs/03 第 2 节、定版图 01）
-    const w = Screen.W - 12;
-    this.node = plate(parent, 'skin/j_bar_tab', w, TABBAR_H, 'tabbar');
-    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(6, Screen.safeBottom));
+    // 平面底栏（新设计，用户 2026-11-16）：一整条深蓝，贴着屏幕两边和底边，只有上面两个角是圆的；
+    // 选中的页签垫一块亮一档的蓝色方块（略高出底栏），图标放大
+    const w = Screen.W;
+    this.node = plate(parent, 'skin/f_tabbar', w, TABBAR_H, 'tabbar');
+    const lift = Math.max(6, Screen.safeBottom);
+    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + lift);
+    // 底栏下面到屏幕底边（手势条那一截）补成同一个颜色
+    at(tint(this.node, w, lift + 4, hex('#123A8E'), 'under'), 0, -TABBAR_H / 2 - lift / 2);
     blockInput(this.node);
     const cw = (w - 28) / TABS.length;
-    for (let i = 1; i < TABS.length; i++) {
-      const line = tint(this.node, 3, 84, hex('#0A2A8A'), 'sep');
-      opacity(line).opacity = 90;
-      at(line, -w / 2 + 14 + cw * i, 0);
-    }
-    this.sel = img(this.node, 'skin/j_tile', cw + 2, ((cw + 2) * 512) / 420, 'sel');
+    this.sel = img(this.node, 'skin/f_tile', cw - 6, ((cw - 6) * 512) / 420, 'sel');
     TABS.forEach((t, i) => {
       const x = -w / 2 + 14 + cw * (i + 0.5);
       const cell = box(t, this.node, cw, TABBAR_H);
       at(cell, x, 0);
       const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
       at(icon, 0, 22);
-      const label = text(cell, tr(TAB_LABEL[t]), 34, { color: TAB_DIM });
-      at(label.node, 0, -50);
+      const label = text(cell, tr(TAB_LABEL[t]), 30, { color: TAB_DIM });
+      at(label.node, 0, -52);
       const dot = redDot(cell, 42, 60, 28);
       const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
       at(lock, 32, -2);
@@ -179,6 +178,7 @@ class TopBar {
   private lives: Label;
   private timer: Label;
   private lifeRoom = 0;
+  private coinRoom = 0;
   private heart: Node;
   private avatar: Node;
   private frame: Node;
@@ -188,49 +188,45 @@ class TopBar {
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     this.node = box('topbar', parent, Screen.W, 120);
     at(this.node, 0, Screen.top - 76);
-    const fade = img(this.node, 'kit/fade_down', Screen.W, 220, 'fade');
-    fade.angle = 180;
-    opacity(fade).opacity = 90;
-    at(fade, 0, 40);
+    // 平面顶栏（新设计，用户 2026-11-16）：不再有一整条底板，四块东西各自浮在场景上——
+    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。小条是深蓝纯色圆角方块，字白色不描边
     const BW = Screen.W - 40;
-    plate(this.node, 'skin/j_bar_top', BW, 92, 'bar');
     const L = -BW / 2;
-    // 凹槽：从头像框右边到设置键左边
-    const x1 = L + 118;
-    const x2 = BW / 2 - 96;
-    const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
-    at(well, (x1 + x2) / 2, 1);
-    // 金币：图标 + 数字（最多 7 位，不加逗号）+ 绿色加号
-    // 去掉逗号后金币这一格可以窄一点，让给生命后面的倒计时（不然倒计时顶到设置键）
-    const CW = 284;
-    const coinTap = box('coins', this.node, CW, 92);
-    at(coinTap, x1 + CW / 2, 0);
-    this.coinIcon = img(coinTap, 'icon/coin', 62, 62, 'icon');
-    at(this.coinIcon, -CW / 2 + 36, 2);
-    this.coins = text(coinTap, '0', 38, { align: 'left' });
-    at(this.coins.node, -CW / 2 + 72, 1);
-    at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), CW / 2 - 32, 2);
-    onTap(coinTap, actions.coins);
-    const sep = tint(this.node, 3, 40, hex('#7FC4FF'), 'sep');
-    opacity(sep).opacity = 110;
-    at(sep, x1 + CW + 6, 1);
-    // 生命：图标 + 数量，回满前后面跟一个小号倒计时
-    const lw = x2 - x1 - CW - 10;
-    const lifeTap = box('lives', this.node, lw, 92);
-    this.lifeRoom = lw;
-    at(lifeTap, x1 + CW + 10 + lw / 2, 0);
-    this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
-    at(this.heart, -lw / 2 + 36, 2);
-    this.lives = text(lifeTap, '5/5', 38, { align: 'left' });
-    at(this.lives.node, -lw / 2 + 72, 1);
-    this.timer = text(lifeTap, '', 26, { align: 'left', color: hex('#CFE7FF') });
-    onTap(lifeTap, actions.lives);
-    at(keyButton(this.node, 'blue', 'skin/g_gear', 72, actions.settings), BW / 2 - 12 - 36, 1);
-    // 头像框最后放，压在条的左端上
-    this.frame = img(this.node, 'skin/j_avatar', 118, 115, 'avatarFrame');
-    at(this.frame, L + 52, 0);
-    this.avatar = img(this.frame, 'icon/avatar', 82, 82, 'avatar');
+    const G = 14;
+    const AV = 92;
+    const KEY = 84;
+    const PH = 72;
+    // 头像
+    this.frame = img(this.node, 'skin/f_avatar', AV, AV, 'avatarFrame');
+    at(this.frame, L + AV / 2, 0);
+    this.avatar = img(this.frame, 'icon/avatar', 70, 70, 'avatar');
+    at(this.avatar, 0, 5);
     onTap(this.frame, actions.profile);
+    // 设置
+    at(flatKey(this.node, 'blue', 'skin/f_g_gear', KEY, actions.settings), BW / 2 - KEY / 2, 0);
+    // 两条小条平分头像和设置键之间的宽：金币略宽（最多 7 位数 + 加号）
+    const room = BW - AV - KEY - G * 3;
+    const CW = Math.round(room * 0.54);
+    const lw = room - CW;
+    const coinTap = plate(this.node, 'skin/f_pill_navy', CW, PH, 'coins');
+    at(coinTap, L + AV + G + CW / 2, 0);
+    this.coinIcon = img(coinTap, 'icon/coin', 58, 58, 'icon');
+    at(this.coinIcon, -CW / 2 + 38, 0);
+    this.coins = text(coinTap, '0', 36, { align: 'left' });
+    at(this.coins.node, -CW / 2 + 76, 1);
+    at(flatKey(coinTap, 'green', 'skin/f_g_plus', 50, null, 0.5), CW / 2 - 36, 0);
+    this.coinRoom = CW - 76 - 36 - 25 - 10;
+    onTap(coinTap, actions.coins);
+    // 生命：图标 + 数量，回满前后面跟一个小号倒计时
+    const lifeTap = plate(this.node, 'skin/f_pill_navy', lw, PH, 'lives');
+    this.lifeRoom = lw;
+    at(lifeTap, L + AV + G + CW + G + lw / 2, 0);
+    this.heart = img(lifeTap, 'icon/heart', 58, 58, 'icon');
+    at(this.heart, -lw / 2 + 38, 0);
+    this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
+    at(this.lives.node, -lw / 2 + 76, 1);
+    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#BFDCFF') });
+    onTap(lifeTap, actions.lives);
   }
 
   refresh(): void {
@@ -238,28 +234,27 @@ class TopBar {
     const eco = App.config.eco;
     const t = now();
     if (this.shownCoins !== s.coins) {
-      const str = fmt(s.coins);
-      this.coins.fontSize = str.length > 7 ? 32 : 38;
-      this.coins.string = str;
+      this.coins.string = fmt(s.coins);
+      fit(this.coins, this.coinRoom, 36, 22);
       if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;
     }
     // 集齐收藏的头像框：换成金色
-    setImg(this.frame, Album.hasFrame(s) ? 'skin/j_avatar_gold' : 'skin/j_avatar', 118, 115);
+    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', 92, 92);
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 82, 82);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 70, 70);
     }
     const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
     let tail = '';
     if (Lives.isUnlimited(s, t)) {
-      setImg(this.heart, 'icon/heart_inf', 62, 62);
+      setImg(this.heart, 'icon/heart_inf', 58, 58);
       this.lives.string = '∞';
       tail = mmss(Lives.unlimitedLeft(s, t));
     } else {
-      setImg(this.heart, 'icon/heart', 62, 62);
+      setImg(this.heart, 'icon/heart', 58, 58);
       const n = Lives.count(s, eco, t);
       const full = n >= eco.lives.max;
       this.lives.string = full ? `${n}/${eco.lives.max}` : String(n);
@@ -269,9 +264,9 @@ class TopBar {
     this.lives.updateRenderData(true);
     const lw = (this.lives.node.getComponent(UITransform) as UITransform).width;
     const tx = this.lives.node.position.x + lw + 8;
-    at(this.timer.node, tx, -3);
-    // 倒计时最多写到生命这一格的右边留 14 的地方（再往右是设置键）
-    fit(this.timer, this.lifeRoom / 2 - 14 - tx, 26, 18);
+    at(this.timer.node, tx, -2);
+    // 倒计时最多写到这一条的右边留 18 的地方
+    fit(this.timer, this.lifeRoom / 2 - 18 - tx, 24, 18);
   }
 }
 
