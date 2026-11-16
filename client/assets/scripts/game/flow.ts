@@ -1,6 +1,6 @@
 // 局内流程：开局提示、第一步、技能、开缸位、暂停 / 离开、复活 / 失败、过关结算（docs/01 第 2–5 节）。
 // 界面只调这里，这里调 core；存档在关键节点立即写（docs/04 第 6 节）。
-import { Node, Vec3, tween } from 'cc';
+import { Node, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
 import * as Cards from '../core/meta/cards';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
@@ -320,9 +320,16 @@ export function comboCard(g: GamePage): void {
   const card = Cards.give(s, eco, Cards.pick(s, Album.pool(eco, App.config.species, s.level), rarity, rng));
   pendingCards.push(card);
   App.save.write();
-  const tip = text(null, tr('UI_COMBO_CARD'), 44, { color: COLOR.yellow });
-  fx.floatUp(g.fxLayer(), tip.node, 0, 120, 120, 1.2);
-  sfx('card');
+  // 提示放在屏幕中间偏下、晚半拍出来：不和上面的升档夸奖词叠在一起
+  fx.delay(g.fxLayer(), 0.45, () => {
+    const tip = text(null, tr('UI_COMBO_CARD'), 44, { color: COLOR.yellow });
+    tip.updateRenderData(true);
+    const card = img(tip.node, 'icon/card_back', 54, 72, 'card');
+    at(card, -(tip.node.getComponent(UITransform)?.width ?? 300) / 2 - 44, 0);
+    card.angle = 10;
+    fx.floatUp(g.fxLayer(), tip.node, 22, -60, 90, 1.3);
+    sfx('card');
+  });
 }
 
 // ---------------------------------------------------------------- 失败、复活

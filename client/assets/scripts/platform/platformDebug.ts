@@ -1,7 +1,7 @@
 // 开发用实现：头像昵称与排行榜写死，存档在 localStorage，广告是模拟的。
 // 浏览器试玩、截图都用它；真实平台接入前三端都先跑它（docs/04 第 5 节）。
 import { sys } from 'cc';
-import { AdResult, Capability, PlatformBase, Profile, RankEntry } from './platformBase';
+import { AdResult, Capability, PlatformBase, Profile, RankEntry, VibrateKind } from './platformBase';
 
 const PREFIX = 'fishsort.';
 
@@ -71,12 +71,18 @@ export class PlatformDebug extends PlatformBase {
     sys.localStorage.setItem(PREFIX + key, value);
   }
 
+  // 浏览器：安卓 Chrome 支持 navigator.vibrate，桌面和 iOS 没有（不报错，直接不震）
+  override vibrate(kind: VibrateKind): void {
+    const nav = globalThis.navigator as (Navigator & { vibrate?: (ms: number) => boolean }) | undefined;
+    nav?.vibrate?.(kind === 'light' ? 12 : kind === 'medium' ? 25 : 45);
+  }
+
   override track(event: string, params: Record<string, unknown> = {}): void {
     console.log('[track]', event, params);
   }
 
   override hasCapability(cap: Capability): boolean {
-    return cap === 'friend_rank' || cap === 'share' || cap === 'ad_test';
+    return cap === 'friend_rank' || cap === 'share' || cap === 'ad_test' || cap === 'vibrate';
   }
 
   override launchQuery(): Record<string, string> {

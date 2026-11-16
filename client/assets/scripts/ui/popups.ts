@@ -8,7 +8,7 @@ import * as Meta from '../core/meta/meta';
 import * as Share from '../core/meta/share';
 import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
-import { applySettings, sfx } from '../services/audio';
+import { buzz, applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import { language, setLanguage, tr } from './i18n';
@@ -457,7 +457,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
       if (epic) {
         fx.flash(p.root, Screen.W, Screen.H, 200, RARITY_GLOW[c.rarity]);
         fx.confetti(p.root, 0, 200, 60, 420);
-        App.platform.vibrate('medium');
+        buzz('medium');
       }
       fx.sparkle(p.body, 0, 60, epic ? 20 : 10, 280, RARITY_GLOW[c.rarity], epic ? 48 : 34);
       sfx(epic ? 'firework' : 'star');

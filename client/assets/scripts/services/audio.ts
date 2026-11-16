@@ -1,4 +1,4 @@
-// 音效与背景音乐。音效短，启动时一起读；背景音乐用到时再读。开关在存档 settings 里（docs/01 5.10）。
+// 音效、背景音乐与震动。音效短，启动时一起读；背景音乐用到时再读。开关在存档 settings 里（docs/01 5.10）。
 import { AudioClip, AudioSource, Node, resources } from 'cc';
 import { App } from './app';
 
@@ -21,6 +21,8 @@ const MAP: Record<string, string> = {
   net: 'net',
   current: 'current',
   tier: 'tier',
+  comboBreak: 'combo_break',
+  charge: 'wheel_charge',
   win: 'win',
   lose: 'lose',
   star: 'star',
@@ -36,6 +38,9 @@ const MAP: Record<string, string> = {
   swell: 'swell',
 };
 
+/** 连击命中音的个数：hit_0 … hit_10 逐级升调，hit_11 / hit_12 是升到顶之后交替用的和音（client/tools/audio/kenney.py） */
+const HITS = 13;
+
 export async function initAudio(root: Node): Promise<void> {
   fx = root.addComponent(AudioSource);
   const musicNode = new Node('music');
@@ -43,7 +48,7 @@ export async function initAudio(root: Node): Promise<void> {
   music = musicNode.addComponent(AudioSource);
   music.loop = true;
   music.volume = 0.45;
-  const names = Array.from(new Set(Object.values(MAP))).concat(Array.from({ length: 8 }, (_, i) => `hit_${i}`));
+  const names = Array.from(new Set(Object.values(MAP))).concat(Array.from({ length: HITS }, (_, i) => `hit_${i}`), Array.from({ length: 4 }, (_, i) => `tier_${i + 1}`));
   await Promise.all(
     names.map(
       (n) =>
@@ -57,12 +62,24 @@ export async function initAudio(root: Node): Promise<void> {
   );
 }
 
-/** 播一个音效。hit 带连击数：音高沿五声音阶上行 */
-export function sfx(name: string, combo = 0): void {
+/**
+ * 播一个音效。
+ * - hit 带连击数：音高沿五声音阶逐级上行，升到顶后两个和音交替
+ * - tier 带档位（1–4）：档位越高越长、越亮
+ */
+export function sfx(name: string, n = 0, volume = 1): void {
   if (!fx || !App.save?.data.settings.sound) return;
-  const file = name === 'hit' ? `hit_${Math.min(7, Math.max(0, combo - 1))}` : MAP[name] ?? name;
+  let file = MAP[name] ?? name;
+  if (name === 'hit') file = `hit_${n <= HITS - 2 ? Math.max(0, n - 1) : HITS - 2 + (n % 2)}`;
+  else if (name === 'tier' && n > 0) file = `tier_${Math.min(4, n)}`;
   const c = clips.get(file);
-  if (c) fx.playOneShot(c, 1);
+  if (c) fx.playOneShot(c, volume);
+}
+
+/** 震动（设置里能关）。轻：点一下、连击命中；中：升档、满缸；重：高档升档、过关、开箱 */
+export function buzz(kind: 'light' | 'medium' | 'heavy'): void {
+  if (!App.save?.data.settings.vibrate) return;
+  App.platform.vibrate(kind);
 }
 
 export function playMusic(): void {

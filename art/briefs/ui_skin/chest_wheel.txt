@@ -1,0 +1,6 @@
+Game icon art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly TWO treasure chests side by side, each about 640 px wide, same size, same 3/4 front viewing angle, not touching each other or the image border. They are the SAME chest in two states, matching the chest in the attached reference image (glossy royal-purple body, thick polished gold trim and corner caps, a big pink diamond gem set in a gold clasp on the front, small pink gems on the trim):
+1) LEFT: lid fully CLOSED. Calm, no light leaking out, no sparkles.
+2) RIGHT: lid swung wide OPEN backwards. Inside is overflowing with shiny gold coins (plain round coins, no symbols), a few colorful gems and pearls, with a strong warm golden glow rising from inside and several four-point sparkle stars above the treasure.
+Cute chunky casual mobile game style, glossy 3D candy rendering with crisp white highlights, thin dark navy outline, exactly like the reference. No text, no letters, no numbers, no ground, no cast shadow, no other objects. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -377,6 +377,20 @@ export class Field {
       .start();
   }
 
+  /** 一圈波纹：从 (cx, cy) 往外，气泡壳依次鼓一下（连击升档时全场跟着动；只动壳，不碰位置和鱼） */
+  ripple(cx: number, cy: number, amp = 0.12, speed = 1500): void {
+    for (const v of this.views) {
+      if (v.gone || !v.node.active) continue;
+      const d = Math.hypot(v.node.position.x - cx, v.node.position.y - cy);
+      const k = 1 + amp;
+      tween(v.skin)
+        .delay(d / speed)
+        .to(0.09, { scale: new Vec3(k, k, 1) }, { easing: 'quadOut' })
+        .to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+        .start();
+    }
+  }
+
   pop(b: number): void {
     const v = this.views[b];
     v.gone = true;
@@ -467,6 +481,7 @@ export class Field {
     const v = this.views[b];
     if (!v) return;
     Tween.stopAllByTarget(v.skin);
+    v.skin.setScale(1, 1, 1);
     tween(v.skin).to(0.05, { angle: 6 }).to(0.08, { angle: -6 }).to(0.06, { angle: 3 }).to(0.05, { angle: 0 }).start();
   }
 

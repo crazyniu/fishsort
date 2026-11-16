@@ -289,16 +289,6 @@
   220,
   "png"
  ],
- "ui/icon/chest": [
-  "assets/ui/chest_closed.png",
-  220,
-  "png"
- ],
- "ui/icon/chest_open": [
-  "assets/ui/chest_open.png",
-  220,
-  "png"
- ],
  "ui/icon/card_back": [
   "raw:cocos1/card_back.png",
   200,

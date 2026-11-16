@@ -6,7 +6,7 @@ import * as Settle from '../core/meta/settle';
 import * as Share from '../core/meta/share';
 import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
-import { sfx } from '../services/audio';
+import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
@@ -58,6 +58,8 @@ export class ResultPage extends Page {
     const ribbonY = top - 270;
     const chestY = (ribbonY - 100 + rowY + 85) / 2;
     const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
+    // 宝箱图是箱底对齐的（开盖后盖子往上长），节点往上挪一点，箱体才在正中
+    const chestC = chestY + chestS * 0.09;
 
     // 横幅与星星
     const ribbon = plate(c, 'skin/j_ribbon', 700, 200, 'ribbon');
@@ -82,7 +84,7 @@ export class ResultPage extends Page {
     opacity(rays).opacity = 0;
     const chestIcon = d.chest ? 'icon/chest' : 'icon/chest_open';
     const chest = img(c, chestIcon, chestS, chestS, 'chest');
-    at(chest, 0, chestY);
+    at(chest, 0, chestC);
 
     // 奖励一排：金币总数、技能、收藏卡、家园星星、首胜（docs/01 3.3：图标 + 数字，不写明细）
     const pill = slice(c, 'kit/panel_glass', 660, 170, 'rewards');
@@ -197,7 +199,7 @@ export class ResultPage extends Page {
         at(st, starPos[i][0], starPos[i][1]);
         opacity(st).opacity = 255;
       });
-      at(chest, 0, chestY);
+      at(chest, 0, chestC);
       chest.setScale(1, 1, 1);
       chest.angle = 0;
       if (d.chest) setImg(chest, 'icon/chest_open', chestS, chestS);
@@ -238,17 +240,22 @@ export class ResultPage extends Page {
       .to(0.24, { scale: new Vec3(0.94, 0.94, 1) }, { easing: 'quadIn' })
       .call(() => {
         if (!live()) return;
-        fx.shake(c, 10);
-        fx.ring(c, 0, ribbonY, 120, 620, COLOR.yellow);
+        // 落地这一下：屏幕震、金色放射光炸开、冲击波，两个下角往上喷彩纸铺满全屏
+        fx.trauma(c, 0.5, 16);
+        buzz('medium');
+        fx.rayBurst(c, 0, ribbonY, Math.hypot(Screen.W, Screen.H) * 1.1, COLOR.yellow, 0.7, 150);
+        fx.ring(c, 0, ribbonY, 120, 900, COLOR.yellow, 0.5);
         fx.confetti(c, -Screen.W / 2 + 40, ribbonY - 40, 30, 420);
         fx.confetti(c, Screen.W / 2 - 40, ribbonY - 40, 30, 420);
+        fx.cannon(c, -Screen.W / 2 - 10, Screen.bottom + 200, 72, 40, 1350);
+        fx.cannon(c, Screen.W / 2 + 10, Screen.bottom + 200, 108, 40, 1350);
       })
       .to(0.14, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
       .start();
     sfx('win');
 
     // 2. 宝箱弹出来：压扁、拉长、回弹
-    at(chest, 0, chestY);
+    at(chest, 0, chestC);
     chest.setScale(0.2, 0.2, 1);
     opacity(chest).opacity = 0;
     tween(opacity(chest)).delay(0.15).to(0.1, { opacity: 255 }).start();
@@ -281,7 +288,12 @@ export class ResultPage extends Page {
             if (!live()) return;
             fx.ring(c, sx, sy, 60, 260, COLOR.yellow);
             fx.sparkle(c, sx, sy, 10, 120, COLOR.yellow, 36);
+            fx.glowPop(c, sx, sy, 300, COLOR.yellow, 0.3, 200);
+            fx.trauma(c, 0.2, 12);
+            // 三颗星三个音：do、mi、sol，一颗比一颗高
             sfx('star');
+            sfx('hit', [6, 8, 9][i] ?? 9, 0.8);
+            buzz('light');
           })
           .to(0.14, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
           .start();
@@ -303,8 +315,12 @@ export class ResultPage extends Page {
           if (!live()) return;
           setImg(chest, 'icon/chest_open', chestS, chestS);
           fx.flash(c, Screen.W, Screen.H, 150);
+          fx.rayBurst(c, 0, chestY, Math.hypot(Screen.W, Screen.H), COLOR.yellow, 0.6, 170);
           fx.sparkle(c, 0, chestY, 18, 240, COLOR.yellow, 44);
           fx.ring(c, 0, chestY, 100, 480, COLOR.yellow);
+          fx.ring(c, 0, chestY, 140, 1100, COLOR.white, 0.5);
+          fx.trauma(c, 0.45, 16);
+          buzz('heavy');
           sfx('chest');
           extras.forEach((e, i) => {
             e.active = true;
@@ -357,7 +373,10 @@ export class ResultPage extends Page {
           at(cn, starPos[1][0] + (Math.random() - 0.5) * 160, starPos[1][1] - 40 + (Math.random() - 0.5) * 60);
           fx.flyArc(cn, lp.x, lp.y, 0.45 + i * 0.03, 60, 'quadIn', () => {
             cn.destroy();
-            if (i % 3 === 0) sfx('coin');
+            if (i % 3 === 0) {
+              sfx('coin');
+              buzz('light');
+            }
             if (!coinIcon.isValid) return;
             Tween.stopAllByTarget(coinIcon);
             coinIcon.setScale(1.25, 1.25, 1);
@@ -389,6 +408,14 @@ export class ResultPage extends Page {
       });
       fx.delay(c, 0.5, () => live() && fx.breathe(next.node, 0.04, 1.2));
     });
+    // 常驻：星星周围隔一会闪一颗星光（演出播完、跳过之后都在）
+    const twinkle = () => {
+      if (!c.activeInHierarchy) return;
+      const [sx, sy] = starPos[Math.floor(Math.random() * 3)];
+      fx.sparkle(c, sx + (Math.random() - 0.5) * 110, sy + (Math.random() - 0.5) * 90, 3, 44, COLOR.yellow, 28);
+      fx.delay(c, 0.5 + Math.random() * 0.5, twinkle);
+    };
+    fx.delay(c, 1.8, twinkle);
     // 收尾：连击送的卡、宝箱开出的卡翻面；之后点击不再跳
     fx.delay(c, at0('buttonsAt') + 0.45, () => {
       if (!live()) return;

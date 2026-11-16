@@ -322,6 +322,24 @@ def main() -> None:
 
     save('j_inset', *inset())
 
+    # 宝箱（关 / 开各一对）：抽奖页的紫色宝箱、过关和等级宝箱的蓝贝壳宝箱。放进 ui/icon；
+    # 一对里两张用同一个缩放、箱底对齐、箱体左右居中，换图时箱子不跳
+    for src, names in (('chest_wheel', ('chest_wheel', 'chest_wheel_open')), ('chest_level', ('chest', 'chest_open'))):
+        if not (raw / f'{src}.png').exists():
+            continue
+        pair = cut_grid(raw / f'{src}.png', 2, 1)
+        k = min(640 / max(im.width for im in pair), 652 / max(im.height for im in pair))
+        for name, im in zip(names, pair):
+            im = scaled(im, k)
+            a = np.asarray(im)[:, :, 3]
+            # 箱体中线：最下面三成里不透明像素的左右中点
+            xs = np.nonzero(a[int(im.height * 0.7) :].max(0) > 40)[0]
+            cx = (xs.min() + xs.max()) / 2
+            canvas = Image.new('RGBA', (660, 660), (0, 0, 0, 0))
+            canvas.alpha_composite(im, (max(0, min(660 - im.width, round(330 - cx))), 660 - 4 - im.height))
+            canvas.save(OUT.parent / 'icon' / f'{name}.png')
+            print(f'  icon/{name}: {im.size}')
+
     SLICES.write_text(json.dumps(slices, indent=2) + '\n')
 
 

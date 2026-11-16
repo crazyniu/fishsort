@@ -8,6 +8,7 @@ import * as Meta from '../core/meta/meta';
 import * as SignIn from '../core/meta/signIn';
 import * as Wheel from '../core/meta/wheel';
 import { App } from '../services/app';
+import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
@@ -78,6 +79,8 @@ export class HomePage extends Page {
       const f = img(root, `fish/${id}`, s * ks, s * ks, `fish_${id}`);
       at(f, x, midY + y * k);
       if (x > 0) f.setScale(-1, 1, 1);
+      // 点一下鱼：往上窜一下、吐几个泡泡
+      onTap(f, () => this.poke(f), { press: 0, sound: null });
       this.school.push(f);
     }
     this.entry(root, 'signin', 'icon/entry_signin', -x0, top, () => signInPopup(() => ui.refresh()));
@@ -130,6 +133,12 @@ export class HomePage extends Page {
     });
     this.animateSchool();
     this.startBubbles();
+    // 有红点的入口隔一会晃一下图标，提醒「这里有东西可领」
+    for (const e of this.entries.values()) {
+      Tween.stopAllByTarget(e.icon);
+      e.icon.angle = 0;
+      if (e.dot.active) fx.wiggle(e.icon, 7, 2.6);
+    }
     const unlocked = argUnlocked(arg);
     const visible = unlocked.filter((f) => FEATURE_LABEL[f]);
     if (visible.length) fx.delay(this.node, App.config.ui.unlockGuide.delay, () => this.unlockGuide(visible));
@@ -169,6 +178,27 @@ export class HomePage extends Page {
       fx.delay(this.node, 2.2 + Math.random() * 1.5, wander);
     };
     fx.delay(this.node, 1.2, wander);
+  }
+
+  private poke(f: Node): void {
+    sfx('pop');
+    buzz('light');
+    tween(f)
+      .by(0.12, { position: new Vec3(0, 30, 0) }, { easing: 'quadOut' })
+      .by(0.2, { position: new Vec3(0, -30, 0) }, { easing: 'quadIn' })
+      .start();
+    const p = f.position;
+    fx.ring(this.bubbles, p.x, p.y, 60, 190);
+    for (let i = 0; i < 4; i++) {
+      const s = 16 + Math.random() * 18;
+      const b = img(this.bubbles, 'kit/bubble_small', s, s, 'b');
+      at(b, p.x + (Math.random() - 0.5) * 60, p.y + 20);
+      tween(b)
+        .to(0.9 + Math.random() * 0.5, { position: new Vec3(p.x + (Math.random() - 0.5) * 140, p.y + 150 + Math.random() * 120, 0) }, { easing: 'quadOut' })
+        .call(() => b.destroy())
+        .start();
+      tween(opacity(b)).delay(0.6).to(0.5, { opacity: 0 }).start();
+    }
   }
 
   /** 气泡从下往上冒 */
