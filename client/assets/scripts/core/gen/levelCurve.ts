@@ -104,6 +104,13 @@ function lerpI(span: readonly number[], t: number): number {
   return roundi(lerpf(span[0], span[1], t));
 }
 
+/** 第 id 关里两种生物的颜色至少要差多少（Lab 色差）；没配就不限制 */
+export function colorGap(curve: CurveConfig, id: number): number {
+  let gap = 0;
+  for (const [from, g] of curve.colorGap ?? []) if (id >= from) gap = g;
+  return gap;
+}
+
 export function seedFor(id: number, ease: number): number {
   return id * 1000 + ease * 100 + 7;
 }

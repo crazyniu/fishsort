@@ -3,6 +3,7 @@
 import { Color, Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import { Combo } from '../core/meta/combo';
 import * as Features from '../core/meta/features';
+import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
 import * as Seas from '../core/meta/seas';
 import * as Skills from '../core/meta/skills';
@@ -184,7 +185,8 @@ export class GamePage extends Page {
     }
     this.s = GameState.fromLevel(this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
-    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette);
+    // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
+    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file));
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;

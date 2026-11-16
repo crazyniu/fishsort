@@ -9,6 +9,8 @@ export interface Species {
   rarity: Rarity;
   /** 局内出场的 16 种 */
   inLevel?: boolean;
+  /** 身体的主色（从图上量的，去掉描边和高光后的中位色）。选一关的生物时按它算两种之间看着差多少 */
+  rgb?: [number, number, number];
   [k: string]: unknown;
 }
 
@@ -168,6 +170,11 @@ export interface CurveConfig {
   cycle: number;
   fixed?: Record<string, { species: number; fish: number; layers: number; slack: number; per_min?: number; per_max?: number }>;
   segments: CurveSegment[];
+  /**
+   * 同一关里两种生物的颜色至少差多少（Lab 色差），按关卡号分段：[[起始关, 色差], …]。
+   * 前面要求差得很开、一眼分清；越往后允许越接近，靠颜色相近增加难度
+   */
+  colorGap?: [number, number][];
   unlock: Record<'chain' | 'timer' | 'fog' | 'ice' | 'big' | 'pairs', number>;
   counts: Record<'chain' | 'timer' | 'fog' | 'ice' | 'big' | 'pairs', number>;
   maxMechanics: number;

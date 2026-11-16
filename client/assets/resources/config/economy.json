@@ -34,27 +34,27 @@
   ],
   "combo": {
     "windowSeconds": 2.0,
-    "startAt": 6,
+    "startAt": 3,
     "maxCoinsPerLevel": 60,
     "tiers": [
       {
+        "at": 3,
+        "coins": 1,
+        "key": "UI_COMBO_T1"
+      },
+      {
         "at": 6,
         "coins": 2,
-        "key": "UI_COMBO_T1"
+        "key": "UI_COMBO_T2"
       },
       {
         "at": 10,
         "coins": 3,
-        "key": "UI_COMBO_T2"
-      },
-      {
-        "at": 15,
-        "coins": 4,
         "key": "UI_COMBO_T3"
       },
       {
-        "at": 20,
-        "coins": 6,
+        "at": 15,
+        "coins": 5,
         "key": "UI_COMBO_T4"
       }
     ],

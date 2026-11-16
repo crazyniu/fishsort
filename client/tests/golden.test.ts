@@ -8,7 +8,6 @@ import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
 import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { GameState } from '../assets/scripts/core/model/gameState';
-import { LevelData } from '../assets/scripts/core/model/levelData';
 import * as Album from '../assets/scripts/core/meta/album';
 import { Combo } from '../assets/scripts/core/meta/combo';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
@@ -29,7 +28,7 @@ import { Rng } from '../assets/scripts/core/rng/rng';
 import { Action, apply, start } from '../assets/scripts/core/rules/rules';
 import * as Bots from '../assets/scripts/core/solver/bots';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
-import { diff, golden, hasGolden, levelFile } from './helpers';
+import { diff, golden, goldenLevel, hasGolden } from './helpers';
 
 /** 文档改过行为的字段：week（每周过关目标）；version（Cocos 版存档从 1 开始，不迁移旧档） */
 const SAVE_SKIP = ['week', 'version'];
@@ -96,7 +95,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
     const rows = golden<Row[]>('levels');
     assert.ok(rows.length >= 360, `关卡数 ${rows.length}`);
     for (const g of rows) {
-      const lv = levelFile(g.name);
+      const lv = goldenLevel(g.name);
       assert.deepEqual(LevelCheck.errors(lv), g.errors, `${g.name} errors`);
       const rep = LevelCheck.replay(lv);
       same({ won: g.won, peak: g.peak, steps: g.steps }, { won: rep.won, peak: rep.peak, steps: Object.fromEntries(rep.steps) }, `${g.name} replay`);
@@ -109,7 +108,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
   it('局内：随机操作序列的事件流与终局', () => {
     type Play = { name: string; start: unknown[]; steps: { act: Action; ev: unknown[] }[]; final: unknown };
     for (const g of golden<Play[]>('play')) {
-      const s = GameState.fromLevel(levelFile(g.name) as LevelData);
+      const s = GameState.fromLevel(goldenLevel(g.name));
       same(g.start, start(s), `${g.name} 开局`);
       g.steps.forEach((step, i) => same(step.ev, apply(s, step.act), `${g.name} 第 ${i + 1} 步 ${JSON.stringify(step.act)}`));
       same(g.final, s.snapshot(), `${g.name} 终局`);

@@ -231,7 +231,7 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
   it('收入与支出', () => {
     assert.equal(ECO.levelCoins, 100);
     assert.equal(ECO.challengeCoins, 200);
-    assert.deepEqual(ECO.combo.tiers.map((t) => t.coins), [2, 3, 4, 6]);
+    assert.deepEqual(ECO.combo.tiers.map((t) => t.coins), [1, 2, 3, 5]);
     assert.equal(ECO.combo.maxCoinsPerLevel, 60);
     assert.deepEqual(ECO.freeCoin, { amount: 300, daily: 5 });
     assert.equal(ECO.lives.buyOneCoins, 400);

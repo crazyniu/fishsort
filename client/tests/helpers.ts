@@ -24,6 +24,17 @@ export function levelFile(name: string): LevelData {
   return LevelData.fromJson(readFileSync(join(CONFIG, 'levels', `${name}.json`), 'utf8')) as LevelData;
 }
 
+let goldenLevels: Record<string, unknown> | null = null;
+
+/**
+ * 导出黄金数据时的那一版关卡文件（golden/level_files.json.gz 里的快照）。
+ * 黄金测试只证明「TS 版和 Godot 版逻辑一样」，要拿当时的关卡来比；现在包里的关卡按新的难度曲线重新生成过，内容已经不同
+ */
+export function goldenLevel(name: string): LevelData {
+  if (!goldenLevels) goldenLevels = golden<Record<string, unknown>>('level_files');
+  return LevelData.fromJson(JSON.stringify(goldenLevels[name])) as LevelData;
+}
+
 /** 黄金数据：Godot 版 ./run.sh golden 的产物，gzip 后进仓库 */
 export function golden<T>(name: string): T {
   return JSON.parse(gunzipSync(readFileSync(join(GOLDEN, `${name}.json.gz`))).toString('utf8')) as T;
