@@ -208,7 +208,7 @@ export class HomePage extends Page {
 
   /**
    * 动态光照（用户 2026-11-16）：阳光从水面照下来——
-   * 顶上一团呼吸的日光；五束光柱从顶上斜着照下来，各自慢慢摆、忽明忽暗；海底几块水纹光斑左右漂、明暗交替；水里零星的亮点一闪一闪
+   * 顶上一团呼吸的日光；五束光柱从顶上斜着照下来，各自慢慢摆、忽明忽暗，另有一束宽光慢慢左右扫；海底几块水纹光斑左右漂、明暗交替；水里零星的亮点一闪一闪
    */
   private startLight(): void {
     const L = this.light;
@@ -218,15 +218,15 @@ export class HomePage extends Page {
     (sun.getComponent(Sprite) as Sprite).color = warm;
     at(sun, 0, Screen.top - 60);
     const sop = opacity(sun);
-    sop.opacity = 110;
-    tween(sop).repeatForever(tween(sop).to(2.6, { opacity: 165 }, { easing: 'sineInOut' }).to(2.6, { opacity: 100 }, { easing: 'sineInOut' })).start();
+    sop.opacity = 120;
+    tween(sop).repeatForever(tween(sop).to(2.4, { opacity: 215 }, { easing: 'sineInOut' }).to(2.4, { opacity: 110 }, { easing: 'sineInOut' })).start();
     // 光柱：[横向位置, 宽, 基础亮度, 摆动周期, 明暗周期]。顶端固定，往两边散开
     const beams: [number, number, number, number, number][] = [
-      [-290, 200, 105, 7.5, 4.2],
-      [-140, 150, 130, 6.2, 3.4],
-      [20, 240, 120, 8.4, 5.0],
-      [170, 160, 135, 6.8, 3.8],
-      [310, 210, 100, 7.9, 4.6],
+      [-290, 250, 170, 7.5, 4.2],
+      [-140, 190, 205, 6.2, 3.4],
+      [20, 300, 185, 8.4, 5.0],
+      [170, 200, 210, 6.8, 3.8],
+      [310, 260, 165, 7.9, 4.6],
     ];
     beams.forEach(([x, w, hi, sway, pulse], i) => {
       const b = img(L, 'kit/fx_beam', w, Screen.H * 0.86, 'beam');
@@ -234,22 +234,30 @@ export class HomePage extends Page {
       (b.getComponent(Sprite) as Sprite).color = warm;
       at(b, x * 0.55, Screen.top + 30);
       const base = x * 0.045;
-      b.angle = base - 2.5;
+      b.angle = base - 4.5;
       tween(b)
         .delay(i * 0.4)
-        .repeatForever(tween(b).to(sway / 2, { angle: base + 2.5 }, { easing: 'sineInOut' }).to(sway / 2, { angle: base - 2.5 }, { easing: 'sineInOut' }))
+        .repeatForever(tween(b).to(sway / 2, { angle: base + 4.5 }, { easing: 'sineInOut' }).to(sway / 2, { angle: base - 4.5 }, { easing: 'sineInOut' }))
         .start();
       const op = opacity(b);
       op.opacity = Math.round(hi * 0.5);
       tween(op)
         .delay(i * 0.7)
-        .repeatForever(tween(op).to(pulse / 2, { opacity: hi }, { easing: 'sineInOut' }).to(pulse / 2, { opacity: Math.round(hi * 0.35) }, { easing: 'sineInOut' }))
+        .repeatForever(tween(op).to(pulse / 2, { opacity: hi }, { easing: 'sineInOut' }).to(pulse / 2, { opacity: Math.round(hi * 0.25) }, { easing: 'sineInOut' }))
         .start();
     });
+    // 一束更宽的光慢慢从左扫到右再扫回来（一眼能看出光在动）
+    const sweep = img(L, 'kit/fx_beam', 460, Screen.H * 0.95, 'sweep');
+    (sweep.getComponent(UITransform) as UITransform).setAnchorPoint(0.5, 1);
+    (sweep.getComponent(Sprite) as Sprite).color = warm;
+    at(sweep, 0, Screen.top + 30);
+    opacity(sweep).opacity = 120;
+    sweep.angle = -20;
+    tween(sweep).repeatForever(tween(sweep).to(5.5, { angle: 20 }, { easing: 'sineInOut' }).to(5.5, { angle: -20 }, { easing: 'sineInOut' })).start();
     // 海底的水纹光斑：扁的柔光，左右漂、明暗交替
     const floorTop = Screen.bottom + TABBAR_H + 420;
     for (let i = 0; i < 7; i++) {
-      const w = 200 + Math.random() * 180;
+      const w = 240 + Math.random() * 220;
       const c = img(L, 'kit/fx_glow', w, w * 0.28, 'caustic');
       (c.getComponent(Sprite) as Sprite).color = warm;
       const x = (Math.random() - 0.5) * (Screen.W - 80);
@@ -265,7 +273,7 @@ export class HomePage extends Page {
       const pd = 1.6 + Math.random() * 1.6;
       tween(op)
         .delay(Math.random() * 2)
-        .repeatForever(tween(op).to(pd, { opacity: 120 }, { easing: 'sineInOut' }).to(pd, { opacity: 10 }, { easing: 'sineInOut' }))
+        .repeatForever(tween(op).to(pd, { opacity: 185 }, { easing: 'sineInOut' }).to(pd, { opacity: 10 }, { easing: 'sineInOut' }))
         .start();
     }
     // 水里的亮点：随机位置闪一下
