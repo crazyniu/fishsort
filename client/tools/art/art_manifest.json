@@ -5,32 +5,32 @@
   "jpg"
  ],
  "ui/bg/sea_shore": [
-  "raw:cocos1/bg_sea_shore.png",
+  "raw:redesign/sea_shore.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_coral": [
-  "raw:cocos1/bg_sea_coral.png",
+  "raw:redesign/sea_coral.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_kelp": [
-  "raw:cocos1/bg_sea_kelp.png",
+  "raw:redesign/sea_kelp.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_wreck": [
-  "raw:cocos1/bg_sea_wreck.png",
+  "raw:redesign/sea_wreck.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_crystal": [
-  "raw:cocos1/bg_sea_crystal.png",
+  "raw:redesign/sea_crystal.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_palace": [
-  "raw:cocos1/bg_sea_palace.png",
+  "raw:redesign/sea_palace.png",
   750,
   "jpg"
  ],
