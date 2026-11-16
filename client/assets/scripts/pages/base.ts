@@ -107,12 +107,17 @@ export class BasePage extends Page {
     if (!done && open && built < steps.length) {
       const o = this.objects[built];
       // 下一步的位置：一圈呼吸的金光垫在物件下面
-      const rs = sizeOf(o).w * 1.5;
-      const r = img(this.scene, 'kit/fx_glow', rs, rs, 'ring');
+      const rs = sizeOf(o).w * 1.3;
+      const r = box('ring', this.scene, rs, rs);
       at(r, o.position.x, o.position.y);
-      fx.breathe(r, 0.12, 1.2);
+      const glow = img(r, 'kit/fx_glow', rs * 1.2, rs * 1.2, 'glow');
+      (glow.getComponent(Sprite) as Sprite).color = COLOR.yellow;
       r.setSiblingIndex(o.getSiblingIndex());
-      this.ring = r;
+      const ringTop = img(this.scene, 'kit/hint_ring', rs, rs, 'hint');
+      at(ringTop, o.position.x, o.position.y);
+      fx.breathe(r, 0.12, 1.2);
+      fx.breathe(ringTop, 0.1, 1.2);
+      this.ring = ringTop;
     }
     if (!open) {
       const dim = slice(this.scene, 'kit/round_white', size, size, 'dim');
@@ -212,6 +217,7 @@ export class BasePage extends Page {
     // 物件亮起：从小弹大 + 金光 + 星星飞溅
     const o = this.objects[res.step];
     if (this.ring) this.ring.destroy();
+    this.scene.getChildByName('ring')?.destroy();
     if (o) {
       const sp = o.getComponent(Sprite) as Sprite;
       sp.grayscale = false;
