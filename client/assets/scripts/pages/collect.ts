@@ -329,6 +329,13 @@ export class CollectPage extends Page {
         const t = text(bar.node, need > 0 ? `${n}/${need}` : tr('DEX_RESCUED', n), 24);
         at(t.node, 0, 1);
       }
+    } else {
+      // 不在关卡里出场的卡（只能开宝箱得）：没有救援进度，同一个位置放稀有度小牌，每格下面都齐
+      const tag = slice(cell, 'kit/capsule', 190, 40, 'rarity');
+      (tag.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
+      setInk(tag, WHITE_INK);
+      at(text(tag, tr(`UI_RARITY_${sp.rarity.toUpperCase()}`), 24).node, 0, 1);
+      at(tag, 0, -116);
     }
     return cell;
   }

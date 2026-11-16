@@ -80,13 +80,16 @@ export class WheelPage extends Page {
     // 标题行：左返回 · 中标题 · 右金币（同一行）
     pageHead(v, tr('H_FEAT_WHEEL'), { coins: true });
 
-    // 自下而上：次按钮一排 → 主按钮 → 剩余次数 → 宝箱（在剩下的空间里居中）
+    // 自下而上：次按钮一排 → 主按钮；上面剩下的空间里，宝箱（连同一圈奖品气泡）和紧贴在箱子下面的「剩几次」作为一组居中
+    // （原来「剩几次」贴着主按钮，和宝箱之间空一大段，像浮着的一根条）
     const y2 = Screen.bottom + 40 + 54;
     const btnY = y2 + 54 + 24 + 64;
-    const cntY = btnY + 64 + 32 + 36;
-    const room = top - 140 - (cntY + 36 + 16);
-    const cs = Math.min(420, room);
-    const mid = cntY + 36 + 16 + room / 2;
+    const lo = btnY + 64 + 24;
+    const hi = top - 140;
+    // 一组的高：气泡最高处在箱子中心上方 0.64cs + 68，箱底在中心下方约 0.45cs，再往下是 20 的空和 72 高的牌子
+    const cs = Math.min(420, (hi - lo - 160) / 1.09);
+    const mid = hi - 0.64 * cs - 68 - (hi - lo - (1.09 * cs + 160)) / 2;
+    const cntY = mid - 0.45 * cs - 56;
     this.chestS = cs;
     this.mid = mid;
     // 宝箱背后：暖色放射光慢慢转 + 一团呼吸的柔光
@@ -157,7 +160,7 @@ export class WheelPage extends Page {
         ui.refresh();
       },
     });
-    twoLines(ad, '+1', `${adLeft}/${eco.wheel.adPerDay}`, null, 'kit/ic_video');
+    twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
     at(ad.node, 0, y2);
     ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
     if (App.platform.hasCapability('share')) {
@@ -175,7 +178,7 @@ export class WheelPage extends Page {
           ui.refresh();
         },
       });
-      twoLines(sh, '+1', String(shareLeft), null, 'kit/ic_share');
+      twoLines(sh, '+1', tr('ADS_LEFT', shareLeft), null, 'kit/ic_share');
       at(sh.node, BW + 16, y2);
       sh.setEnabled(shareLeft > 0);
     }

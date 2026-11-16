@@ -1,7 +1,7 @@
 // 选关（docs/01 5.7）。一页就是一个海域（20 关，4 列 × 5 行的格子）：标题是海域名，背景是这片海域的局内背景，
 // 左右翻页就是换海域（用户 2026-11-17；原来是一条从下往上的长路线，关卡多了不好翻）。
 // 已过关蓝色 + 绿勾；当前关绿色、会呼吸 +「当前」；挑战关紫色 + 小旗；没到的灰色带锁。打开时停在当前关那一页。
-import { EventTouch, Node, Tween, Vec3, tween } from 'cc';
+import { EventTouch, Label, Node, Tween, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
@@ -12,7 +12,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Capsule, at, box, capsule, fit, img, keyButton, lazyImg, onTap, opacity, slice, text } from '../ui/kit';
+import { at, box, capsule, fit, img, keyButton, lazyImg, onTap, opacity, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { HEAD_BOTTOM, PAGE_BOTTOM, Page, pageHead, ui } from '../ui/shell';
 
@@ -22,6 +22,8 @@ const PER_PAGE = COLS * ROWS;
 /** 一格多大、关卡圆牌多大 */
 const CELL = 158;
 const NODE = 122;
+/** 面板顶上写重玩次数的那一行多高 */
+const HEAD_ROW = 48;
 /** 手指横着划过这么远就翻页 */
 const SWIPE = 70;
 
@@ -30,16 +32,13 @@ export class LevelsPage extends Page {
   private sea = '';
   private root!: Node;
   private view: Node | null = null;
-  private replay!: Capsule;
+  private replay: Label | null = null;
   private pageNo = 0;
   private downX = 0;
 
   build(root: Node): void {
     this.root = root;
     this.bg = box('bg', root);
-    // 今日重玩奖励还剩几次
-    this.replay = capsule(root, 330, 52, null, '', 26);
-    at(this.replay.node, 0, Screen.top - HEAD_BOTTOM - 34);
     root.on(Node.EventType.TOUCH_START, (e: EventTouch) => (this.downX = e.getUILocation().x));
     root.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
       const dx = e.getUILocation().x - this.downX;
@@ -55,7 +54,6 @@ export class LevelsPage extends Page {
   override show(): void {
     this.pageNo = Math.floor((App.save.data.level - 1) / PER_PAGE);
     this.render(0);
-    this.refresh();
   }
 
   /** 这一页是哪个海域（第 121 关起关卡文件在后半段循环，海域跟着关卡文件走） */
@@ -68,7 +66,7 @@ export class LevelsPage extends Page {
     const s = App.save.data;
     Daily.roll(s, today());
     const left = Math.max(0, App.config.eco.replay.rewardedPerDay - s.daily.replay);
-    this.replay.set(tr('LV_REPLAY_LEFT', left, App.config.eco.replay.rewardedPerDay));
+    if (this.replay?.isValid) this.replay.string = tr('LV_REPLAY_LEFT', left, App.config.eco.replay.rewardedPerDay);
   }
 
   private turn(d: number): void {
@@ -96,18 +94,22 @@ export class LevelsPage extends Page {
       lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
     }
     pageHead(v, tr(`ALBUM_BOOK_${seaIdx + 1}`));
-    // 版面：重玩条下面到翻页键上面，是一块白色面板，格子在里面
+    // 版面：页头下面到翻页键上面，是一块白色面板；面板顶上一行写今日重玩奖励还剩几次（原来是浮在面板上面的一根细条），
+    // 下面是格子
     const navY = Screen.bottom + PAGE_BOTTOM + 50;
-    const top = Screen.top - HEAD_BOTTOM - 76;
+    const top = Screen.top - HEAD_BOTTOM - 16;
     const bottom = navY + 70;
-    const panelH = Math.min(ROWS * CELL + 44, top - bottom);
-    const rowH = (panelH - 44) / ROWS;
+    const panelH = Math.min(ROWS * CELL + 44 + HEAD_ROW, top - bottom);
+    const rowH = (panelH - 44 - HEAD_ROW) / ROWS;
     const panelW = COLS * CELL + 44;
     const panel = slice(v, 'kit/panel_glass', panelW, panelH, 'grid');
     at(panel, 0, (top + bottom) / 2);
+    this.replay = text(panel, '', 28);
+    at(this.replay.node, 0, panelH / 2 - 22 - HEAD_ROW / 2 + 6);
+    this.refresh();
     for (let i = 0; i < PER_PAGE; i++) {
       const cell = this.cell(panel, first + i);
-      at(cell, (i % COLS - (COLS - 1) / 2) * CELL, panelH / 2 - 22 - rowH * (Math.floor(i / COLS) + 0.5));
+      at(cell, (i % COLS - (COLS - 1) / 2) * CELL, panelH / 2 - 22 - HEAD_ROW - rowH * (Math.floor(i / COLS) + 0.5));
       if (first + i === s.level) fx.breathe(cell, 0.05, 1.2);
     }
     // 翻页：左右两个键，中间写这一页是第几关到第几关

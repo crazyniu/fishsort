@@ -10,7 +10,7 @@ import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, Btn, button, COLOR, fit, img, lazyImg, onTap, opacity, plate, setImg, slice, text } from '../ui/kit';
+import { at, box, Btn, button, COLOR, fit, img, lazyImg, onTap, opacity, plate, setImg, slice, text, textWidth } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
@@ -97,12 +97,16 @@ export class ResultPage extends Page {
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
     const items: Node[] = [];
-    // 金币一格：图标 + 左对齐的数字（数字跳动变长也不压到右边的格子）
+    // 金币一格：图标 + 左对齐的数字。格宽按最后会跳到的数（翻倍后）量出来，数字跳动变长也不压到右边的格子，
+    // 也不在右边空一大块（用户 2026-11-17：奖励一排一边挤一边空）
     const coinCell = box('coins', pill, 270, 150);
+    const coinLabel = text(coinCell, `+${r.coins * 2}`, 50, { align: 'left' });
+    const coinW = 96 + 14 + Math.max(60, textWidth(coinLabel)) + 16;
+    coinLabel.string = '+0';
+    (coinCell.getComponent(UITransform) as UITransform).setContentSize(coinW, 150);
     const coinIcon = img(coinCell, 'icon/coin', 96, 96, 'icon');
-    at(coinIcon, -80, 0);
-    const coinLabel = text(coinCell, '+0', 50, { align: 'left' });
-    at(coinLabel.node, -24, 0);
+    at(coinIcon, -coinW / 2 + 48, 0);
+    at(coinLabel.node, -coinW / 2 + 96 + 14, 0);
     items.push(coinCell);
     const extras: Node[] = [];
     const chestPrize = d.chest;
@@ -115,7 +119,7 @@ export class ResultPage extends Page {
     for (const card of d.cards) extras.push(prizeCell(pill, cardItem(card), 96));
     if (r.first_win) extras.push(prizeCell(pill, { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) }, 96));
     const all = [coinCell, ...extras];
-    const widths = all.map((_n, i) => (i === 0 ? 270 : 128));
+    const widths = all.map((_n, i) => (i === 0 ? coinW + 20 : 128));
     const total = widths.reduce((a, b) => a + b, 0);
     let x = -total / 2;
     all.forEach((n, i) => {

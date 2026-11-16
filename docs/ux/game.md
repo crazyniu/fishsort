@@ -61,7 +61,7 @@
 ## 提示与引导
 
 - **提示光圈**：玩家一段时间没动（前 3 关 2 秒，其它关 7 秒），给机器人会点的那条鱼套一个金色脉动光圈，前 3 关再加一只手指。**光圈不指向没显形的迷雾鱼**：这时要是没有别的鱼可点，就不给提示。
-- **新机制说明**：解锁关开局弹一句说明（「知道了」关闭），每个机制只弹一次。哪一关弹跟着难度曲线走：分层 3、锁链 16、掉落 26、限时缸 31、迷雾 41、冰封 61、大鱼缸 81、结伴鱼 111。掉落（26）和限时缸（31）不在同一关。
+- **新机制说明**：解锁关开局弹一句说明（「知道了」关闭），每个机制只弹一次。说明上面是用局内同一套图摆的小场景（分层是一前一后两个泡、锁链泡带锁链和数字、迷雾泡带问号和下沿小泡、冰封泡连着冰晶、限时缸和大鱼缸带目标卡），让人对上局里看到的东西（用户 2026-11-17：只有一行字时弹窗中间空一大块）。哪一关弹跟着难度曲线走：分层 3、锁链 16、掉落 26、限时缸 31、迷雾 41、冰封 61、大鱼缸 81、结伴鱼 111。掉落（26）和限时缸（31）不在同一关。
 - 每日挑战里不弹说明、不给新技能教学。
 
 ## 动效
@@ -81,7 +81,7 @@
 | TIP_CHAIN | 锁链泡：每装满一缸，数字减 1 | Chained: each full tank lowers the number |
 | TIP_DROP | 后面还有气泡会掉下来 | More bubbles will drop in later |
 | TIP_TIMER | 限时缸：倒计时归零前装满它 | Timed tank: fill it before time runs out |
-| TIP_FOG | 迷雾泡：看不出里面是什么鱼。每破一个别的气泡数字减 1，到 0 就看清了 | Fog: the fish are hidden. Each other bubble you pop lowers the number. At 0 they show |
+| TIP_FOG | 迷雾泡：看不出是什么鱼。别处每破一个气泡，它下面的小泡少一个，没了就看清 | Fog: the fish are hidden. Each bubble you pop elsewhere removes a dot. No dots, no fog |
 | TIP_ICE | 冰封泡：冻住了点不了。冰晶连着的气泡破掉一个，它就解冻 | Frozen: it can't be tapped. Pop a bubble it is linked to and it thaws |
 | TIP_BIG | 大鱼缸：要装满 6 条 | Big tank: needs 6 fish |
 | TIP_PAIR | 结伴鱼：点一条，两条一起走，各进各的缸 | Buddies: tap one and both go. Each finds its own tank |

@@ -15,8 +15,8 @@ import { PrizeItem, cardItem, rewardPopup, watchAd } from '../ui/popups';
 const rng = new Rng(Date.now() >>> 0);
 
 function dayIcon(d: SignInDay): [string, string] {
-  if (d.bigChest) return ['icon/chest_daily_open', ''];
-  if (d.chest) return ['icon/chest', ''];
+  if (d.bigChest) return ['icon/chest_daily_open', tr('SIGNIN_BIG_CHEST')];
+  if (d.chest) return ['icon/chest', tr('SIGNIN_CHEST')];
   if (d.coins) return ['icon/coin', fmt(d.coins)];
   if (d.wheel) return ['icon/entry_wheel', `+${d.wheel}`];
   if (d.skill) return ['icon/skill_shuffle', `×${d.skill}`];
@@ -37,7 +37,7 @@ export function signInPopup(changed: () => void): void {
   const s = App.save.data;
   const eco = App.config.eco;
   const days = eco.signInDays;
-  const p = openPopup({ w: 680, h: 680, title: tr('UI_SIGNIN'), mascot: 'c03' });
+  const p = openPopup({ w: 680, h: 650, title: tr('UI_SIGNIN') });
   const can = SignIn.canClaim(s, today());
   const next = SignIn.nextIndex(s, eco);
   const claimedThisRound = can ? next : next === 0 ? days.length : next;
@@ -48,16 +48,14 @@ export function signInPopup(changed: () => void): void {
     const row = Math.floor(i / 4);
     const w = big ? 300 : 140;
     const cell = slice(p.body, i === next && can ? 'kit/cell_gold' : 'kit/row', w, 180, `day${i}`);
-    const x = big ? 150 + 7 : (col - 1.5) * 152;
-    at(cell, row === 1 && !big ? (col - 1.5) * 152 : x, 170 - row * 196);
-    if (row === 1 && !big) at(cell, -228 + col * 152, -26);
-    if (big) at(cell, 152, -26);
+    // 上排 4 格；下排 3 格，第 7 天占两格宽。两排上下留的空一样
+    at(cell, big ? 152 : row === 0 ? (col - 1.5) * 152 : -228 + col * 152, row === 0 ? 185 : -11);
     const lbl = text(cell, tr('UI_SIGNIN_DAY', i + 1), 26);
     at(lbl.node, 0, 64);
     const [icon, amount] = dayIcon(d);
     // 第 7 天的大宝箱往下放一点、小一号：原来 120 顶到了上面的「第 7 天」
     const ic = img(cell, icon, big ? 104 : 84, big ? 104 : 84, 'icon');
-    at(ic, 0, big ? -12 : 4);
+    at(ic, 0, big ? -4 : 4);
     if (amount) at(text(cell, amount, 26).node, 0, -62);
     if (i < claimedThisRound) {
       const ok = img(cell, 'kit/ic_check', 70, 70, 'check');
@@ -91,7 +89,7 @@ export function signInPopup(changed: () => void): void {
   };
   if (can) {
     const b = button(p.body, { color: 'green', w: 300, h: 100, label: tr('UI_CLAIM'), onTap: () => claim(false) });
-    at(b.node, -160, -236);
+    at(b.node, -160, -215);
     fx.breathe(b.node, 0.04, 1.2);
     const d = button(p.body, {
       color: 'yellow',
@@ -103,9 +101,9 @@ export function signInPopup(changed: () => void): void {
         if (await watchAd('rv_signin_double')) claim(true);
       },
     });
-    at(d.node, 160, -236);
+    at(d.node, 160, -215);
   } else {
     const t = text(p.body, tr('UI_CLAIMED'), 36);
-    at(t.node, 0, -236);
+    at(t.node, 0, -215);
   }
 }

@@ -6,7 +6,7 @@ import * as PlayerData from '../core/meta/playerData';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { tr } from '../ui/i18n';
-import { COLOR, at, hex, img, onTap, slice, text } from '../ui/kit';
+import { COLOR, at, button, fit, img, onTap, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
@@ -26,19 +26,21 @@ export function profilePopup(): void {
   const frame = img(p.body, 'skin/f_avatar', 190, 190, 'avatar');
   at(frame, -150, h / 2 - 160);
   img(frame, avatarPath(), 160, 160, 'img');
-  // 「点击更换」放在头像下面，蓝色小字，不压在头像上
-  const edit = text(p.body, tr('PROFILE_CHANGE_AVATAR'), 26, { color: hex('#FFE36A') });
-  at(edit.node, -150, h / 2 - 160 - 95 - 22);
-  onTap(frame, () => {
+  // 换头像：名字下面一个蓝色小按钮（原来头像下面一行黄色小字，白底上看不清）；点头像本身也能换
+  const pick = () => {
     p.close();
     avatarPicker();
-  });
+  };
+  onTap(frame, pick);
+  const edit = button(p.body, { color: 'blue', w: 200, h: 68, label: tr('PROFILE_CHANGE_AVATAR'), fontSize: 30, onTap: pick });
+  at(edit.node, -30 + 100, h / 2 - 160 - 48);
   if (Album.hasFrame(s)) {
     const ring = img(frame, 'kit/fx_ring', 210, 210, 'frame');
     (ring.getComponent(Sprite) as Sprite).color = COLOR.yellow;
   }
   const name = text(p.body, tr('PROFILE_DEFAULT_NAME'), 46, { align: 'left' });
-  at(name.node, -30, h / 2 - 160);
+  at(name.node, -30, h / 2 - 160 + 36);
+  fit(name, 330, 46, 28);
   void App.platform.getProfile().then((pr) => {
     if (pr?.nickname && name.isValid) name.string = pr.nickname;
   });

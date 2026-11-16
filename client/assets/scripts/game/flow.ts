@@ -21,6 +21,7 @@ import { App } from '../services/app';
 import { playMusic, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from '../ui/fx';
+import { tipArt } from './tipArt';
 import { tr } from '../ui/i18n';
 import { COLOR, at, button, fmt, img, text } from '../ui/kit';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
@@ -88,17 +89,20 @@ export function onLevelStart(g: GamePage): void {
 function tipPopup(key: string, done: () => void): void {
   const isSkill = key.startsWith('skill_');
   const id = key.slice(6);
-  const p = openPopup({ w: 600, h: 520, title: tr('MECH_TITLE'), mascot: 'c01', onClose: done });
+  const p = openPopup({ w: 600, h: 580, title: tr('MECH_TITLE'), onClose: done });
+  // 上面一张图：技能是技能图标，机制是用局内的图摆的小场景（tipArt）
   if (isSkill) {
-    const icon = img(p.body, `icon/skill_${id}`, 170, 170, 'icon');
-    at(icon, 0, 90);
+    const icon = img(p.body, `icon/skill_${id}`, 190, 190, 'icon');
+    at(icon, 0, 110);
     fx.breathe(icon, 0.06, 1.2);
+  } else {
+    at(tipArt(p.body, key), 0, 110);
   }
   const msg = isSkill ? tr('UI_SKILL_TRY', tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`)) : tr(key);
-  const l = text(p.body, msg, 36, { width: 500 });
-  at(l.node, 0, isSkill ? -40 : 40);
+  const l = text(p.body, msg, 32, { width: 520 });
+  at(l.node, 0, -72);
   const ok = button(p.body, { color: 'green', w: 340, h: 96, label: tr('GOT_IT'), onTap: () => p.close() });
-  at(ok.node, 0, -170);
+  at(ok.node, 0, -202);
 }
 
 /** 新技能的强制教学：这一关第一次能用上它（有效果）时才开始；网兜要先有缸 */
