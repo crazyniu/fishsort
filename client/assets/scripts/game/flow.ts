@@ -13,6 +13,7 @@ import * as PlayerData from '../core/meta/playerData';
 import type { CardResult } from '../core/meta/save';
 import * as Settle from '../core/meta/settle';
 import * as Skills from '../core/meta/skills';
+import * as Tasks from '../core/meta/tasks';
 import { LoseReason, Status } from '../core/model/gameState';
 import { Rng } from '../core/rng/rng';
 import * as Rules from '../core/rules/rules';
@@ -311,6 +312,12 @@ function restart(g: GamePage): void {
 function endRun(g: GamePage): void {
   const s = App.save.data;
   s.bestCombo = Math.max(s.bestCombo, g.combo.best);
+  // 每日任务：救了几只、最高连击，输了、中途离开也算（docs/01 5.9）；一局只记一次
+  if (g.tallied) return;
+  g.tallied = true;
+  const eco = App.config.eco;
+  Tasks.add(s, eco, today(), 'rescue', g.rescued);
+  Tasks.add(s, eco, today(), 'combo', g.combo.best);
 }
 
 // ---------------------------------------------------------------- 连击送卡

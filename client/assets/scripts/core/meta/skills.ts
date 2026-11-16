@@ -4,6 +4,7 @@ import type { EconomyConfig } from '../config';
 import type { Rng } from '../rng/rng';
 import * as Daily from './daily';
 import * as Features from './features';
+import * as Tasks from './tasks';
 import type { SaveData } from './save';
 
 export function ids(eco: EconomyConfig): string[] {
@@ -67,11 +68,12 @@ export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisL
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };
   if (usedThisLevel >= eco.toolMaxPerLevel) return { ok: false, free: false, reason: 'limit' };
+  if (!freeAvailable(save, id) && count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
+  Tasks.add(save, eco, day, 'skill');
   if (freeAvailable(save, id)) {
     save.daily.toolFree[id] = true;
     return { ok: true, free: true, reason: '' };
   }
-  if (count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
   save.tools[id] = count(save, id) - 1;
   return { ok: true, free: false, reason: '' };
 }

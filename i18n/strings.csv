@@ -20,7 +20,6 @@ UI_CLAIMED,今天已领取,Claimed today
 UI_AD_TEST,广告测试,Ad test
 UI_TAB_SHOP,商店,Shop
 UI_TAB_MAIN,主页,Play
-UI_TAB_RANK,排行,Rank
 UI_TAB_COLLECTION,收藏,Cards
 UI_OWNED,已有 %d,Owned %d
 UI_RARITY_COMMON,普通,Common
@@ -76,7 +75,6 @@ H_FEAT_SIGNIN,签到,Daily gift
 H_FEAT_LEVELS,选关,Levels
 H_FEAT_COLLECTION,收藏,Cards
 H_FEAT_WHEEL,抽奖,Spin
-H_FEAT_RANK,排行,Rank
 H_SKILL_SHUFFLE,洗牌,Shuffle
 H_SKILL_BLOW,吹泡,Blow
 H_SKILL_NET,渔网,Net
@@ -196,9 +194,6 @@ ALBUM_FINAL_PREVIEW,集齐 6 册可领,Complete all 6 albums
 DEX_RESCUED,已救 %d 只,Rescued %d
 RANK_TITLE,本周排行,This week
 RANK_RESET_IN,%d 天后重置,Resets in %d days
-RANK_WEEK_CLEARED,本周过关 %d,Cleared this week: %d
-RANK_TIER,%d 关,%d levels
-RANK_TIER_TITLE,本周过 %d 关,Clear %d this week
 RANK_ME,我,Me
 RANK_LEVELS,%d 关,%d
 PRIZE_RANDOM_SKILL,随机技能 ×%d,Random skill ×%d
@@ -272,3 +267,21 @@ SPECIES_L02,月眠鲸,Moon Whale
 PROFILE_CHANGE_AVATAR,点击更换,Tap to change
 PROFILE_PICK_AVATAR,选择头像,Choose avatar
 PROFILE_DEFAULT_AVATAR,默认,Default
+UI_TAB_TASKS,任务,Tasks
+TASK_TITLE,任务中心,Tasks
+TASK_DAY_POINTS,今日积分 %d/%d,Today %d/%d
+TASK_WEEK_POINTS,本周积分 %d/%d,This week %d/%d
+TASK_POINTS,+%d 分,+%d
+TASK_GO,前往,Go
+TASK_NAME_WIN,过 %d 关,Clear %d levels
+TASK_NAME_RESCUE,救 %d 只小鱼,Rescue %d fish
+TASK_NAME_AD,看 %d 次广告,Watch %d ad
+TASK_NAME_COMBO,打出 %d 连击,Hit a %d combo
+TASK_NAME_SKILL,用 %d 次技能,Use %d skill
+TASK_NAME_DAILY,完成 %d 次每日挑战,Win %d daily challenge
+TASK_NAME_WHEEL,开 %d 次抽奖宝箱,Open %d prize chest
+TASK_NAME_BUILD,家园建造 %d 步,Build %d step in the bay
+TASK_NAME_SHARE,分享 %d 次,Share %d time
+TASK_CHEST_DAY,每日任务宝箱,Daily task chest
+TASK_CHEST_WEEK,本周任务宝箱,Weekly task chest
+TASK_CARD_MIN,%s以上,%s+

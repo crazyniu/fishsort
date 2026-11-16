@@ -48,7 +48,7 @@ const FEATURE_LABEL: Record<string, string> = {
   daily: 'UI_TAB_DAILY',
   homeBase: 'UI_TAB_BASE',
   album: 'H_FEAT_COLLECTION',
-  rank: 'H_FEAT_RANK',
+  tasks: 'UI_TAB_TASKS',
 };
 
 export class HomePage extends Page {
@@ -365,7 +365,7 @@ export class HomePage extends Page {
     const [f, ...rest] = features;
     const p = openPopup({ w: 600, h: 560, title: tr('H_UNLOCK_TITLE'), mascot: 'c01', onClose: () => rest.length && this.unlockGuide(rest) });
     const e = this.entries.get(f);
-    const iconPath = e ? `icon/entry_${f === 'levelSelect' ? 'levels' : f}` : f === 'homeBase' ? 'icon/tab_base' : f === 'album' ? 'icon/tab_collect' : 'icon/tab_rank';
+    const iconPath = e ? `icon/entry_${f === 'levelSelect' ? 'levels' : f}` : f === 'homeBase' ? 'icon/tab_base' : f === 'album' ? 'icon/tab_collect' : 'icon/tab_tasks';
     const icon = img(p.body, iconPath, 200, 200, 'icon');
     at(icon, 0, 90);
     fx.rays(p.body, 320).setSiblingIndex(1);
@@ -385,7 +385,7 @@ export class HomePage extends Page {
         else if (f === 'daily') ui.go('daily');
         else if (f === 'homeBase') ui.go('base');
         else if (f === 'album') ui.go('collect');
-        else if (f === 'rank') ui.go('rank');
+        else if (f === 'tasks') ui.go('tasks');
       },
     });
     at(go.node, 0, -180);

@@ -47,6 +47,11 @@ export class Scroller {
       .start();
   }
 
+  /** 现在滚到哪了（页面重画后用 scrollTo 放回去） */
+  get offsetNow(): number {
+    return Math.max(0, Math.min(this.maxOffset, this.offset));
+  }
+
   stop(): void {
     Tween.stopAllByTarget(this.anim);
   }

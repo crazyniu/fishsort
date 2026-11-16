@@ -27,7 +27,7 @@ usage() {
   level <N>             同上，直接进第 N 关
   auto [起] [止]        同上，由机器人代打：过关自动进下一关、输了重打，一直打到最后一关（看连击、结算、宝箱等画面用）；
                         给了起就从第几关开始，否则从当前关；再给止就打到第几关为止
-  page <名字>           同上，启动后直接打开某一页（levels、shop、wheel、daily、rank…）
+  page <名字>           同上，启动后直接打开某一页（levels、shop、wheel、daily、tasks…）
   real                  按真实存档进度玩，不加资源
                         以上参数可以连着写：./run.sh real level 65 auto
   serve [同上的参数]    不重新构建，直接打开上次的构建

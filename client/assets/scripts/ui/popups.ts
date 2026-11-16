@@ -6,6 +6,7 @@ import * as Cards from '../core/meta/cards';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
 import * as Share from '../core/meta/share';
+import * as Tasks from '../core/meta/tasks';
 import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
 import { buzz, applySettings, sfx } from '../services/audio';
@@ -33,6 +34,7 @@ export async function watchAd(placement: string): Promise<boolean> {
   ui.busy(false);
   if (r === 'done') {
     Meta.markRewarded(App.save.data, mono());
+    Tasks.add(App.save.data, App.config.eco, today(), 'ad');
     App.platform.track('ad_rewarded', { placement });
     return true;
   }

@@ -14,6 +14,7 @@ import { DailyPage } from './pages/daily';
 import { LevelsPage } from './pages/levels';
 import { profilePopup } from './pages/profile';
 import { RankPage } from './pages/rank';
+import { TasksPage } from './pages/tasks';
 import { WheelPage } from './pages/wheel';
 import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
@@ -74,6 +75,8 @@ export class Boot extends Component {
     ui.register('shop', () => new ShopPage());
     ui.register('base', () => new BasePage());
     ui.register('collect', () => new CollectPage());
+    ui.register('tasks', () => new TasksPage());
+    // 好友周榜：先隐藏，没有入口，等接平台好友榜时再放出来（用户 2026-11-16）；调试时 ./run.sh page rank 能看
     ui.register('rank', () => new RankPage());
     ui.register('levels', () => new LevelsPage());
     ui.register('daily', () => new DailyPage());
@@ -81,7 +84,7 @@ export class Boot extends Component {
     ui.register('adtest', () => new AdTestPage());
     ui.lockedTab = (tab, feature) => new TodoPage(tab, feature);
     onLanguage(() => ui.rebuild(topActions));
-    // 调试构建：控制台里 fsDebug.ui.go('rank')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
+    // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
     if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups };
     // 调试：直接进关（./run.sh level N、./run.sh auto）；没给关卡号就进当前关
     if (App.flags.play) ui.go('game', { level: App.flags.level > 0 ? App.flags.level : App.save.data.level });

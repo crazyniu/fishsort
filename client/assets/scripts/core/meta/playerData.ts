@@ -7,6 +7,7 @@ import * as Dex from './dex';
 import * as HomeBase from './homeBase';
 import * as LevelChest from './levelChest';
 import * as Lives from './lives';
+import * as Tasks from './tasks';
 import * as Wheel from './wheel';
 import type { SaveData } from './save';
 
@@ -33,7 +34,8 @@ export function create(eco: EconomyConfig): SaveData {
     dex: Dex.fresh(),
     base: HomeBase.fresh(),
     signin: { count: 0, lastDay: -1, doubledDay: -1 },
-    week: { id: -1, cleared: 0, claimed: [] },
+    week: { id: -1, cleared: 0, points: 0, taskClaimed: [] },
+    tasks: Tasks.fresh(),
     daily: Daily.fresh(-1),
     ads: { interstitialAt: -100000.0, interstitialLevel: 0, rewardedAt: -100000.0 },
     seenTips: {},

@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import * as Album from '../assets/scripts/core/meta/album';
+import * as Cards from '../assets/scripts/core/meta/cards';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Features from '../assets/scripts/core/meta/features';
 import * as HomeBase from '../assets/scripts/core/meta/homeBase';
@@ -10,7 +11,9 @@ import * as PlayerData from '../assets/scripts/core/meta/playerData';
 import type { SaveData } from '../assets/scripts/core/meta/save';
 import * as Seas from '../assets/scripts/core/meta/seas';
 import * as Settle from '../assets/scripts/core/meta/settle';
-import * as WeeklyGoal from '../assets/scripts/core/meta/weeklyGoal';
+import * as Skills from '../assets/scripts/core/meta/skills';
+import * as Tasks from '../assets/scripts/core/meta/tasks';
+import * as Wheel from '../assets/scripts/core/meta/wheel';
 import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
 import { colorDistance, pickSpecies } from '../assets/scripts/core/model/speciesPick';
 import { Rng } from '../assets/scripts/core/rng/rng';
@@ -128,53 +131,144 @@ describe('家园 6 个区域（docs/01 5.12）', () => {
   });
 });
 
-describe('每周过关目标（docs/01 5.9）', () => {
+describe('任务中心（docs/01 5.9）', () => {
+  const MON = 4 + 7 * 100; // 周一
   const win = (save: SaveData, level: number, day: number) =>
     Settle.win(save, ECO, { level, challenge: false, day, now: NOW });
+  /** 把今天抽到的任务全做完 */
+  const finishAll = (save: SaveData, day: number) => {
+    for (const t of Tasks.list(save, ECO, day)) Tasks.add(save, ECO, day, t.id, t.goal);
+  };
 
-  it('10 / 25 / 50 关各领一档，按档发奖', () => {
-    const save = fresh(11);
-    const day = 4 + 7 * 100; // 周一
-    for (let i = 0; i < 9; i++) win(save, save.level, day);
-    assert.equal(WeeklyGoal.cleared(save, day), 9);
-    assert.equal(WeeklyGoal.claimable(save, ECO, day), 0);
-    win(save, save.level, day);
-    assert.equal(WeeklyGoal.claimable(save, ECO, day), 1, '红点');
-    const coins = save.coins;
-    assert.deepEqual(WeeklyGoal.claim(save, ECO, 0, day, NOW, new Rng(1)), [{ kind: 'coin', amount: 300 }]);
-    assert.equal(save.coins, coins + 300);
-    assert.deepEqual(WeeklyGoal.claim(save, ECO, 0, day, NOW, new Rng(1)), [], '一档只领一次');
-    assert.deepEqual(WeeklyGoal.claim(save, ECO, 1, day, NOW, new Rng(1)), [], '没到 25 关');
-    for (let i = 0; i < 15; i++) win(save, save.level, day + 1);
-    const p25 = WeeklyGoal.claim(save, ECO, 1, day + 1, NOW, new Rng(1));
-    assert.deepEqual(p25[0], { kind: 'coin', amount: 600 });
-    assert.equal(p25.filter((p) => p.kind === 'skill').length, 1, '25 关：随机技能 1 个');
-    for (let i = 0; i < 25; i++) win(save, save.level, day + 2);
-    const p50 = WeeklyGoal.claim(save, ECO, 2, day + 2, NOW, new Rng(1));
-    assert.deepEqual(p50[0], { kind: 'coin', amount: 1200 });
-    assert.equal(p50.filter((p) => p.kind === 'skill').length, 4, '50 关：每种技能 1 个');
+  it('每天 6 项：3 项固定 + 3 项随机，只抽已开放的；同一天同进度抽到的一样', () => {
+    const save = fresh(30);
+    const ids = Tasks.list(save, ECO, MON).map((t) => t.id);
+    assert.equal(ids.length, 6);
+    assert.deepEqual(ids.slice(0, 3), ['win', 'rescue', 'ad']);
+    assert.equal(new Set(ids).size, 6);
+    assert.deepEqual(Tasks.pick(ECO, MON, 30), ids);
+    const seen = new Set<string>();
+    for (let d = 0; d < 60; d++) for (const id of Tasks.pick(ECO, MON + d, 30)) seen.add(id);
+    assert.equal(seen.size, 9, '9 种任务都会轮到');
+    for (let d = 0; d < 60; d++) assert.ok(!Tasks.pick(ECO, MON + d, 11).includes('daily'), '每日挑战第 20 关才开');
+    const sum = Tasks.list(save, ECO, MON).reduce((a, t) => a + t.points, 0);
+    assert.equal(sum, 130, '能拿到的一共 130 分');
   });
 
-  it('重玩旧关和每日挑战不算；周一清零，没领的作废', () => {
-    const save = fresh(40);
-    const day = 4 + 7 * 100;
-    for (let i = 0; i < 12; i++) win(save, 5, day);
+  it('做完自动记积分，每日封顶 100，同时累计成本周积分', () => {
+    const save = fresh(30);
+    win(save, save.level, MON);
+    win(save, 5, MON);
+    assert.equal(Tasks.progress(save, ECO, 'win', MON), 2);
+    assert.equal(Tasks.dayPoints(save, ECO, MON), 0);
+    win(save, 5, MON);
+    assert.equal(Tasks.dayPoints(save, ECO, MON), 30, '过 3 关 30 分，重玩也算');
+    win(save, 5, MON);
+    assert.equal(Tasks.progress(save, ECO, 'win', MON), 3, '进度到目标为止');
+    assert.equal(Tasks.add(save, ECO, MON, 'rescue', 12), 0);
+    assert.equal(Tasks.add(save, ECO, MON, 'rescue', 18), 20);
+    assert.equal(Tasks.add(save, ECO, MON, 'nothing', 1), 0);
+    finishAll(save, MON);
+    assert.equal(Tasks.dayPoints(save, ECO, MON), 100);
+    assert.equal(Tasks.weekPoints(save, ECO, MON), 100);
+    finishAll(save, MON + 1);
+    assert.equal(Tasks.dayPoints(save, ECO, MON + 1), 100, '第二天从头算');
+    assert.equal(Tasks.weekPoints(save, ECO, MON + 1), 200);
+    assert.equal(Tasks.weekMax(ECO), 700);
+  });
+
+  it('不看广告也能拿满；最高连击取单局最大值', () => {
+    const save = fresh(30);
+    for (const t of Tasks.list(save, ECO, MON)) if (t.id !== 'ad') Tasks.add(save, ECO, MON, t.id, t.goal);
+    assert.equal(Tasks.dayPoints(save, ECO, MON), 100);
+    const day = Array.from({ length: 60 }, (_, d) => MON + d).find((d) => Tasks.pick(ECO, d, 30).includes('combo')) as number;
+    Tasks.add(save, ECO, day, 'combo', 4);
+    Tasks.add(save, ECO, day, 'combo', 5);
+    assert.equal(Tasks.progress(save, ECO, 'combo', day), 5, '4 连 + 5 连不是 9 连');
+    Tasks.add(save, ECO, day, 'combo', 9);
+    assert.ok(Tasks.isDone(save, ECO, 'combo', day));
+  });
+
+  it('技能、抽奖、每日挑战在各自的规则里记进度', () => {
+    const save = fresh(30);
+    const day = Array.from({ length: 60 }, (_, d) => MON + d).find((d) => {
+      const ids = Tasks.pick(ECO, d, 30);
+      return ids.includes('skill') && ids.includes('daily');
+    }) as number;
+    assert.ok(Skills.tryUse(save, ECO, 'shuffle', 0, day).ok);
+    assert.ok(Tasks.isDone(save, ECO, 'skill', day));
     DailyChallenge.win(save, ECO, SPECIES, day, NOW, new Rng(1));
-    assert.equal(WeeklyGoal.cleared(save, day), 0);
-    for (let i = 0; i < 10; i++) win(save, save.level, day + 6);
-    assert.equal(WeeklyGoal.claimable(save, ECO, day + 6), 1);
-    assert.equal(WeeklyGoal.claimable(save, ECO, day + 7), 0, '下周一作废');
-    assert.equal(WeeklyGoal.cleared(save, day + 7), 0);
+    assert.ok(Tasks.isDone(save, ECO, 'daily', day));
+    assert.equal(Tasks.progress(save, ECO, 'win', day), 1, '每日挑战过关也算过一关');
+    const wd = Array.from({ length: 60 }, (_, d) => MON + d).find((d) => Tasks.pick(ECO, d, 30).includes('wheel')) as number;
+    assert.ok(Wheel.spin(save, ECO, SPECIES, new Rng(1), wd, NOW, 'spin'));
+    assert.ok(Tasks.isDone(save, ECO, 'wheel', wd));
   });
 
-  it('第 11 关（排行开放）前不能领', () => {
-    const save = fresh(1);
-    const day = 4 + 7 * 100;
-    for (let i = 0; i < 10; i++) win(save, save.level, day);
-    assert.equal(save.level, 11);
-    assert.equal(WeeklyGoal.claimable(save, ECO, day), 1, '第 11 关开放后，本周之前过的关也算');
-    save.level = 10;
-    assert.equal(WeeklyGoal.claimable(save, ECO, day), 0);
+  it('每日宝箱 20 / 50 / 80 / 100：80 金币、随机技能 1、120 金币、普通或精良卡 1 张', () => {
+    const save = fresh(30);
+    assert.equal(Tasks.claimable(save, ECO, MON), 0);
+    finishAll(save, MON);
+    assert.equal(Tasks.claimable(save, ECO, MON), 4, '红点');
+    const claim = (i: number) => Tasks.claim(save, ECO, SPECIES, 'day', i, MON, NOW, new Rng(7 + i));
+    assert.deepEqual(claim(0), [{ kind: 'coin', amount: 80 }]);
+    assert.deepEqual(claim(0), [], '一档只领一次');
+    const p50 = claim(1);
+    assert.equal(p50.length, 1);
+    assert.equal(p50[0].kind, 'skill');
+    assert.deepEqual(claim(2), [{ kind: 'coin', amount: 120 }]);
+    const p100 = claim(3);
+    assert.equal(p100.length, 1);
+    assert.equal(p100[0].kind, 'card');
+    assert.equal(Tasks.claimable(save, ECO, MON), 0);
+    for (let seed = 0; seed < 200; seed++) {
+      const s2 = fresh(120);
+      finishAll(s2, MON);
+      const card = Tasks.claim(s2, ECO, SPECIES, 'day', 3, MON, NOW, new Rng(seed))[0];
+      assert.ok(card.rarity === 'common' || card.rarity === 'uncommon', '每日的卡不出稀有以上');
+    }
+  });
+
+  it('本周宝箱 150 / 350 / 550：金币 + 技能、精良以上卡、稀有以上卡（优先没有的）+ 无限生命', () => {
+    const save = fresh(120);
+    finishAll(save, MON);
+    assert.deepEqual(Tasks.claim(save, ECO, SPECIES, 'week', 0, MON, NOW, new Rng(1)), [], '100 分不够 150');
+    finishAll(save, MON + 1);
+    const p150 = Tasks.claim(save, ECO, SPECIES, 'week', 0, MON + 1, NOW, new Rng(1));
+    assert.deepEqual(p150[0], { kind: 'coin', amount: 300 });
+    assert.equal(p150.filter((p) => p.kind === 'skill').length, 1);
+    for (let d = 2; d < 6; d++) finishAll(save, MON + d);
+    assert.equal(Tasks.weekPoints(save, ECO, MON + 5), 600);
+    const p350 = Tasks.claim(save, ECO, SPECIES, 'week', 1, MON + 5, NOW, new Rng(2));
+    assert.equal(p350.length, 1);
+    assert.ok(Cards.rank(ECO, p350[0].rarity as string) >= 1, '精良以上');
+    const p550 = Tasks.claim(save, ECO, SPECIES, 'week', 2, MON + 5, NOW, new Rng(3));
+    assert.deepEqual(p550[0], { kind: 'coin', amount: 400 });
+    assert.equal(p550.filter((p) => p.kind === 'skill').length, 4, '每种技能 1 个');
+    assert.deepEqual(p550.find((p) => p.kind === 'inf_life'), { kind: 'inf_life', amount: 30 });
+    const card = p550[p550.length - 1];
+    assert.ok(card.kind === 'card' && Cards.rank(ECO, card.rarity as string) >= 2 && card.is_new, '稀有以上，优先没有的');
+  });
+
+  it('周一清零，没领的作废；第 11 关（任务开放）前不能领', () => {
+    const save = fresh(30);
+    for (let d = 0; d < 2; d++) finishAll(save, MON + d);
+    assert.ok(Tasks.canClaim(save, ECO, 'week', 0, MON + 1));
+    assert.equal(Tasks.weekPoints(save, ECO, MON + 7), 0);
+    assert.equal(Tasks.claimable(save, ECO, MON + 7), 0, '下周一作废');
+    const early = fresh(10);
+    finishAll(early, MON);
+    assert.equal(Tasks.dayPoints(early, ECO, MON), 100, '开放前照样记进度');
+    assert.equal(Tasks.claimable(early, ECO, MON), 0);
+    early.level = 11;
+    assert.equal(Tasks.claimable(early, ECO, MON), 4);
+  });
+
+  it('金币不比原来的每周过关目标多发：每日 200 × 7 + 每周 700 = 2100', () => {
+    const coins = (ts: { reward?: { coins?: number } }[]) => ts.reduce((a, t) => a + (t.reward?.coins ?? 0), 0);
+    assert.equal(coins(Tasks.tiers(ECO, 'day')), 200);
+    assert.equal(coins(Tasks.tiers(ECO, 'week')), 700);
+    assert.equal(coins(Tasks.tiers(ECO, 'day')) * 7 + coins(Tasks.tiers(ECO, 'week')), 2100);
   });
 });
 
@@ -201,7 +295,7 @@ describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', ()
     const raw = JSON.parse(JSON.stringify(save)) as Record<string, unknown>;
     delete raw.dex;
     delete (raw.daily as Record<string, unknown>).lifeAd;
-    delete (raw.week as Record<string, unknown>).claimed;
+    delete (raw.week as Record<string, unknown>).taskClaimed;
     raw.base = 'broken';
     const back = PlayerData.load(raw, ECO);
     assert.equal(back.level, 42);
@@ -209,7 +303,7 @@ describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', ()
     assert.deepEqual(back.cards, { c01: 3 }, '收藏卡不补默认字段');
     assert.deepEqual(back.dex, { seen: {}, claimed: {} });
     assert.equal(back.daily.lifeAd, 0);
-    assert.deepEqual(back.week.claimed, []);
+    assert.deepEqual(back.week.taskClaimed, []);
     assert.deepEqual(back.base, { stars: 0, built: [] }, '类型不对的字段换成默认值');
     assert.deepEqual(PlayerData.load(structuredClone(back), ECO), back, '再读一遍不变');
   });
@@ -261,14 +355,6 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     const oneOff = 11200 + 5000 + 7200;
     const base = HomeBase.totalCost(ECO).coins - HomeBase.areas(ECO).reduce((s, a) => s + (a.reward.coins ?? 0), 0);
     assert.ok(base > oneOff, `家园净消耗 ${base} 大于一次性奖励 ${oneOff}`);
-  });
-
-  it('每周目标：300 / 600 + 随机技能 1 / 1200 + 每种技能 1', () => {
-    assert.deepEqual(WeeklyGoal.tiers(ECO), [
-      { clears: 10, reward: { coins: 300 } },
-      { clears: 25, reward: { coins: 600, skills: 1 } },
-      { clears: 50, reward: { coins: 1200, tools: 1 } },
-    ]);
   });
 });
 

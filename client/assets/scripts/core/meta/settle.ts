@@ -7,6 +7,7 @@ import * as Features from './features';
 import * as HomeBase from './homeBase';
 import * as Lives from './lives';
 import * as Skills from './skills';
+import * as Tasks from './tasks';
 import * as Wheel from './wheel';
 import type { SaveData } from './save';
 
@@ -78,9 +79,11 @@ export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResul
     res.unlimited = eco.lives.firstWinUnlimitedSeconds;
     Lives.grantUnlimited(save, res.unlimited, args.now);
   }
+  // 每日任务「过关」：重玩也算（docs/01 5.9）
+  Tasks.add(save, eco, args.day, 'win');
   save.fails = { level: 0, count: 0 };
   if (levelId === save.level) {
-    // 本周过关数只算首次通过（docs/01 5.9），重玩旧关不算
+    // 本周过关数（好友周榜的分数）只算首次通过，重玩旧关不算
     save.week.cleared += 1;
     const old = save.level;
     save.level = levelId + 1;

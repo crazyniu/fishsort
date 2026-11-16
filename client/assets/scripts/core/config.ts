@@ -75,9 +75,42 @@ export interface SignInDay {
   bigChest?: { minRarity: Rarity; coins: number; unlimitedSeconds: number };
 }
 
-export interface WeeklyGoalTier {
-  clears: number;
-  reward: Reward;
+/** 一项每日任务。mode 为 max 时进度取单次最大值（最高连击），否则累加 */
+export interface TaskDef {
+  id: string;
+  goal: number;
+  points: number;
+  /** 这项功能开放后才会抽到 */
+  feature?: string;
+  /** 平台有这项能力才留在池子里（启动时由服务层筛掉） */
+  cap?: string;
+  mode?: 'max';
+}
+
+/** 任务宝箱里的收藏卡：rates 不写就用过关宝箱的概率；minRarity 是最低稀有度 */
+export interface TaskCard {
+  rates?: Partial<Record<Rarity, number>>;
+  minRarity?: Rarity;
+  preferUnowned?: boolean;
+}
+
+/** 积分进度条上的一档宝箱 */
+export interface TaskTier {
+  points: number;
+  reward?: Reward;
+  card?: TaskCard;
+}
+
+export interface TasksConfig {
+  /** 每天必有的任务 id */
+  fixed: string[];
+  /** 另外再随机抽几个 */
+  random: number;
+  /** 每日积分封顶 */
+  dayMax: number;
+  pool: TaskDef[];
+  dayTiers: TaskTier[];
+  weekTiers: TaskTier[];
 }
 
 export interface EconomyConfig {
@@ -117,7 +150,7 @@ export interface EconomyConfig {
     streakDays: number;
     streakReward: Reward;
   };
-  weeklyGoal?: { tiers: WeeklyGoalTier[] };
+  tasks?: TasksConfig;
   homeBase: { stars: { level: number; challenge: number; challengeEvery: number }; areas: Area[] };
   features: Record<string, number>;
   chest: {

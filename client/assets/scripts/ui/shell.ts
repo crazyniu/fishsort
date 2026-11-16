@@ -1,5 +1,5 @@
 // 界面外壳：分层、页面切换、底栏、顶栏、提示条。
-// 底栏固定 商店 · 家园 · 主页 · 收藏 · 排行（docs/01 5.3）；顶栏按需显示：主页、商店（docs/01 5.3）。
+// 底栏固定 商店 · 家园 · 主页 · 收藏 · 任务（docs/01 5.3）；顶栏按需显示：主页、商店（docs/01 5.3）。
 import { Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
 import * as Dex from '../core/meta/dex';
@@ -7,7 +7,7 @@ import * as Features from '../core/meta/features';
 import * as PlayerData from '../core/meta/playerData';
 import * as HomeBase from '../core/meta/homeBase';
 import * as Lives from '../core/meta/lives';
-import * as WeeklyGoal from '../core/meta/weeklyGoal';
+import * as Tasks from '../core/meta/tasks';
 import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import { fadeIn, popIn, ring, sparkle } from './fx';
@@ -16,23 +16,23 @@ import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, p
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
-export type Tab = 'shop' | 'base' | 'home' | 'collect' | 'rank';
-export const TABS: Tab[] = ['shop', 'base', 'home', 'collect', 'rank'];
+export type Tab = 'shop' | 'base' | 'home' | 'collect' | 'tasks';
+export const TABS: Tab[] = ['shop', 'base', 'home', 'collect', 'tasks'];
 /** 页签对应的功能开放项；商店、主页一开始就有 */
-const TAB_FEATURE: Record<Tab, string | null> = { shop: null, base: 'homeBase', home: null, collect: 'album', rank: 'rank' };
+const TAB_FEATURE: Record<Tab, string | null> = { shop: null, base: 'homeBase', home: null, collect: 'album', tasks: 'tasks' };
 const TAB_ICON: Record<Tab, string> = {
   shop: 'icon/tab_shop',
   base: 'icon/tab_base',
   home: 'icon/tab_home',
   collect: 'icon/tab_collect',
-  rank: 'icon/tab_rank',
+  tasks: 'icon/tab_tasks',
 };
 const TAB_LABEL: Record<Tab, string> = {
   shop: 'UI_TAB_SHOP',
   base: 'UI_TAB_BASE',
   home: 'UI_TAB_MAIN',
   collect: 'UI_TAB_COLLECTION',
-  rank: 'UI_TAB_RANK',
+  tasks: 'UI_TAB_TASKS',
 };
 export const TABBAR_H = 164;
 /** 页签文字都是白的（定版图 01）；选中靠亮色方块和放大的图标区分 */
@@ -159,7 +159,7 @@ class TabBar {
       let dot = false;
       if (!locked) {
         if (t === 'collect') dot = Album.claimable(s, eco) + Dex.claimable(s, eco) > 0;
-        if (t === 'rank') dot = WeeklyGoal.claimable(s, eco, day) > 0;
+        if (t === 'tasks') dot = Tasks.claimable(s, eco, day) > 0;
         if (t === 'base') dot = HomeBase.canBuild(s, eco);
       }
       c.dot.active = dot;

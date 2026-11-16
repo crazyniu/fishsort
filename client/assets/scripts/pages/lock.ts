@@ -4,7 +4,6 @@ import { Node } from 'cc';
 import type { Reward } from '../core/config';
 import * as Features from '../core/meta/features';
 import * as HomeBase from '../core/meta/homeBase';
-import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
@@ -12,11 +11,13 @@ import { at, box, fmt, iconButton, img, lazyImg, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, ui } from '../ui/shell';
+import type { Tab } from '../ui/shell';
+import { tierPreview } from './tasks';
 
 const NAME: Record<string, string> = {
   homeBase: 'UI_TAB_BASE',
   album: 'UI_TAB_COLLECTION',
-  rank: 'UI_TAB_RANK',
+  tasks: 'TASK_TITLE',
   daily: 'H_FEAT_DAILY',
   wheel: 'H_FEAT_WHEEL',
   signin: 'H_FEAT_SIGNIN',
@@ -25,7 +26,7 @@ const NAME: Record<string, string> = {
 const ART: Record<string, string> = {
   homeBase: 'icon/tab_base',
   album: 'icon/tab_collect',
-  rank: 'icon/tab_rank',
+  tasks: 'icon/tab_tasks',
   daily: 'icon/chest_daily',
   wheel: 'icon/entry_wheel',
   signin: 'icon/entry_signin',
@@ -61,8 +62,11 @@ export function lockPrizes(feature: string): PrizeItem[] {
       return rewardItems(sum(HomeBase.areas(eco).map((a) => a.reward)));
     case 'album':
       return [...rewardItems(eco.album.final), { icon: 'kit/fx_ring', amount: tr('H_PRIZE_FRAME') }];
-    case 'rank':
-      return rewardItems(sum(WeeklyGoal.tiers(eco).map((t) => t.reward)));
+    case 'tasks': {
+      // 本周最后一档宝箱
+      const week = eco.tasks?.weekTiers ?? [];
+      return week.length ? tierPreview(week[week.length - 1]) : [];
+    }
     case 'daily':
       return [...rewardItems(eco.dailyChallenge.reward), { icon: 'icon/card_back', amount: '×1' }];
     case 'wheel':
@@ -142,7 +146,7 @@ export class LockPage extends Page {
 /** 还没做完的页面：先放一张锁页一样的占位，免得点进去空白 */
 export class TodoPage extends Page {
   constructor(
-    readonly tab: 'shop' | 'base' | 'home' | 'collect' | 'rank' | null,
+    readonly tab: Tab | null,
     private readonly feature: string,
   ) {
     super();

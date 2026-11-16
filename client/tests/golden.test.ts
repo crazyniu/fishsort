@@ -37,7 +37,7 @@ import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
 import { diff, golden, goldenLevel, hasGolden } from './helpers';
 
 /** 文档改过行为的字段：week（每周过关目标）；version（Cocos 版存档从 1 开始，不迁移旧档） */
-const SAVE_SKIP = ['week', 'version'];
+const SAVE_SKIP = ['week', 'tasks', 'version'];
 
 function same(want: unknown, got: unknown, what: string, skip: readonly string[] = []): void {
   const d = diff(want, got, '$', skip);

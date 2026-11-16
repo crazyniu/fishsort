@@ -241,7 +241,7 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
       homeBase: 8,
       skill_net: 9,
       wheel: 10,
-      rank: 11,
+      tasks: 11,
       skill_current: 12,
       daily: 20,
     };
@@ -513,10 +513,12 @@ describe('分享、签到、每日计数（docs/01 5.6、5.8）', () => {
     assert.deepEqual(save.daily.toolFree, {});
     assert.equal(save.daily.share.wheel, 0);
     save.week.cleared = 9;
-    save.week.claimed = [0];
+    save.week.points = 120;
+    save.week.taskClaimed = [0];
     Daily.roll(save, 4 + 7);
     assert.equal(save.week.cleared, 0);
-    assert.deepEqual(save.week.claimed, []);
+    assert.equal(save.week.points, 0);
+    assert.deepEqual(save.week.taskClaimed, []);
   });
 });
 

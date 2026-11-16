@@ -4,9 +4,10 @@
 // 建造：物件从小弹大 + 金光 + 星星飞溅，数字滚动；建完区域：宝箱晃动弹开 → 开奖 → 换下一区域。
 import { Label, Node, Sprite, Tween, Vec3, tween } from 'cc';
 import * as HomeBase from '../core/meta/homeBase';
+import * as Tasks from '../core/meta/tasks';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
-import { now } from '../services/clock';
+import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
 import { Btn, COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, setImg, sizeOf, slice, text } from '../ui/kit';
@@ -213,6 +214,7 @@ export class BasePage extends Page {
     const coinsBefore = s.coins;
     const res = HomeBase.build(s, eco, now());
     if (!res.ok) return;
+    Tasks.add(s, eco, today(), 'build');
     App.save.write();
     this.busy = true;
     sfx('unlock');

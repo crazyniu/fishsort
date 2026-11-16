@@ -87,6 +87,8 @@ export class GamePage extends Page {
   /** 局内时钟（秒），连击窗口用 */
   clock = 0;
   moved = false;
+  /** 这一局的每日任务进度记过了没有（Flow.endRun） */
+  tallied = false;
   ended = false;
   paused = false;
   used: Record<string, number> = {};
@@ -148,6 +150,11 @@ export class GamePage extends Page {
   private fieldBottom = 0;
   private total = 0;
 
+  /** 这一局已经救了几只 */
+  get rescued(): number {
+    return this.s ? this.total - this.s.fishLeft() : 0;
+  }
+
   build(root: Node): void {
     this.bg = box('bg', root, Screen.W, Screen.H);
     this.under = box('under', root, Screen.W, Screen.H);
@@ -191,6 +198,7 @@ export class GamePage extends Page {
     this.comboBreaking = false;
     this.clock = 0;
     this.moved = false;
+    this.tallied = false;
     this.ended = false;
     this.paused = false;
     this.netMode = false;

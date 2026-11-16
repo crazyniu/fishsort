@@ -292,26 +292,120 @@
       "unlimited": 3600
     }
   },
-  "weeklyGoal": {
-    "tiers": [
+  "tasks": {
+    "fixed": [
+      "win",
+      "rescue",
+      "ad"
+    ],
+    "random": 3,
+    "dayMax": 100,
+    "pool": [
       {
-        "clears": 10,
+        "id": "win",
+        "goal": 3,
+        "points": 30
+      },
+      {
+        "id": "rescue",
+        "goal": 30,
+        "points": 20
+      },
+      {
+        "id": "ad",
+        "goal": 1,
+        "points": 20
+      },
+      {
+        "id": "combo",
+        "goal": 6,
+        "points": 20,
+        "mode": "max"
+      },
+      {
+        "id": "skill",
+        "goal": 1,
+        "points": 20,
+        "feature": "skill_shuffle"
+      },
+      {
+        "id": "daily",
+        "goal": 1,
+        "points": 20,
+        "feature": "daily"
+      },
+      {
+        "id": "wheel",
+        "goal": 1,
+        "points": 20,
+        "feature": "wheel"
+      },
+      {
+        "id": "build",
+        "goal": 1,
+        "points": 20,
+        "feature": "homeBase"
+      },
+      {
+        "id": "share",
+        "goal": 1,
+        "points": 20,
+        "cap": "share"
+      }
+    ],
+    "dayTiers": [
+      {
+        "points": 20,
         "reward": {
-          "coins": 300
+          "coins": 80
         }
       },
       {
-        "clears": 25,
+        "points": 50,
         "reward": {
-          "coins": 600,
           "skills": 1
         }
       },
       {
-        "clears": 50,
+        "points": 80,
         "reward": {
-          "coins": 1200,
-          "tools": 1
+          "coins": 120
+        }
+      },
+      {
+        "points": 100,
+        "card": {
+          "rates": {
+            "common": 75,
+            "uncommon": 25
+          }
+        }
+      }
+    ],
+    "weekTiers": [
+      {
+        "points": 150,
+        "reward": {
+          "coins": 300,
+          "skills": 1
+        }
+      },
+      {
+        "points": 350,
+        "card": {
+          "minRarity": "uncommon"
+        }
+      },
+      {
+        "points": 550,
+        "reward": {
+          "coins": 400,
+          "tools": 1,
+          "unlimited": 1800
+        },
+        "card": {
+          "minRarity": "rare",
+          "preferUnowned": true
         }
       }
     ]
@@ -520,7 +614,7 @@
     "homeBase": 8,
     "skill_net": 9,
     "wheel": 10,
-    "rank": 11,
+    "tasks": 11,
     "skill_current": 12,
     "daily": 20
   },
