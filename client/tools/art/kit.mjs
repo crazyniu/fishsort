@@ -235,7 +235,8 @@ toggle('toggle_off', false);
   // 暂存格：深色半透明圆角 16，细白边；满格前一格变红
   const w = 120;
   const h = 96;
-  part('slot', w, h, rr(1, 1, w - 2, h - 2, 16, 'fill="#08245F" fill-opacity="0.38" stroke="#fff" stroke-opacity="0.35" stroke-width="2"'), [20, 20, 20, 20]);
+  const [gs, ds] = lin([[0, '#1D6FD8', 0.42], [1, '#5FBFFF', 0.3]]);
+  part('slot', w, h, `<defs>${ds}</defs>${rr(1.5, 1.5, w - 3, h - 3, 16, `fill="url(#${gs})" stroke="#fff" stroke-opacity="0.7" stroke-width="3"`)}`, [20, 20, 20, 20]);
   part('slot_warn', w, h, rr(1.5, 1.5, w - 3, h - 3, 16, 'fill="#FF4D4F" fill-opacity="0.22" stroke="#FF4D4F" stroke-width="3"'), [20, 20, 20, 20]);
 }
 {

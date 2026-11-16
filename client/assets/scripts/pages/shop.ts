@@ -59,7 +59,7 @@ export class ShopPage extends Page {
     const y0 = titleY - 32 - 32;
     const y1 = Screen.bottom + TABBAR_H + 32;
     const rowH = 184;
-    const cardH = Math.min(368, (y0 - y1 - rowH - G * 2) / 2);
+    const cardH = Math.min(420, (y0 - y1 - rowH - G * 2) / 2);
     const cx = cardW / 2 + G / 2;
     Skills.ids(eco).forEach((id, i) => {
       const x = (i % 2 === 0 ? -1 : 1) * cx;
