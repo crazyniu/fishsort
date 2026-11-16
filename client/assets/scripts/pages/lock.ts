@@ -7,7 +7,7 @@ import * as HomeBase from '../core/meta/homeBase';
 import { App } from '../services/app';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, fmt, iconButton, img, lazyImg, slice, text } from '../ui/kit';
+import { at, box, fmt, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, ui } from '../ui/shell';
@@ -94,10 +94,8 @@ export function lockView(parent: Node, feature: string, bottom: number): void {
   const bgH = Math.max(Screen.H, Screen.W * 1.5);
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
   const top = Screen.top;
-  const title = slice(parent, 'kit/title_page', 360, 100, 'title');
   // 页头和别的子页面一致：标题牌在 top - 80，返回键 96、在左上同一高度
-  at(title, 0, top - 80);
-  text(title, tr(NAME[feature] ?? feature), 56).node.setPosition(0, 4, 0);
+  at(pageTitle(parent, tr(NAME[feature] ?? feature)), 0, top - 80);
   const span = top - 170 - (Screen.bottom + bottom);
   const artY = top - 170 - span * 0.32;
   const rays = fx.rays(parent, 520);

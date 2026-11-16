@@ -13,7 +13,7 @@ import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, fit, hex, iconButton, img, lazyImg, onTap, opacity, pageTitle, progressBar, redDot, slice, text } from '../ui/kit';
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
@@ -90,9 +90,7 @@ export class CollectPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const top = Screen.top;
-    const title = slice(v, 'kit/title_page', 320, 100, 'title');
-    at(title, 0, top - 90);
-    at(text(title, tr('UI_TAB_COLLECTION'), 60).node, 0, 4);
+    at(pageTitle(v, tr('UI_TAB_COLLECTION')), 0, top - 90);
     const fish = img(v, 'fish/c03', 110, 110, 'fish');
     at(fish, -230, top - 90);
     fx.bob(fish, 8, 2.4);
@@ -147,6 +145,8 @@ export class CollectPage extends Page {
     at(fish, 6, 4);
     const name = text(row, tr(`ALBUM_BOOK_${i + 1}`), 42, { align: 'left' });
     at(name.node, -160, 34);
+    // 右边有「领取」按钮时名字只能到按钮左边，否则到箭头左边
+    fit(name, Album.canClaim(s, eco, i) ? 290 : 380);
     if (!open) {
       for (const n of [cover, fish]) (n.getComponent(Sprite) as Sprite).grayscale = true;
       silhouette(fish);
@@ -158,14 +158,14 @@ export class CollectPage extends Page {
     }
     const have = Album.have(s, eco, i);
     // 名字下面一行：进度条 + 右边的数字，不叠在一起
-    const bar = progressBar(row, 220, 22, 'green');
-    at(bar.node, -160 + 110, -30);
+    const bar = progressBar(row, 190, 22, 'green');
+    at(bar.node, -160 + 95, -30);
     bar.set(have / cards.length);
     const cnt = text(row, `${have}/${cards.length}`, 28, { align: 'left', color: hex('#D4ECFF') });
-    at(cnt.node, -160 + 220 + 16, -30);
+    at(cnt.node, -160 + 190 + 14, -30);
     if (Album.canClaim(s, eco, i)) {
-      const b = button(row, { color: 'green', w: 170, h: 84, label: tr('ALBUM_TAKE'), fontSize: 40, onTap: () => this.claimBook(i) });
-      at(b.node, 220, 0);
+      const b = button(row, { color: 'green', w: 160, h: 80, label: tr('ALBUM_TAKE'), fontSize: 36, onTap: () => this.claimBook(i) });
+      at(b.node, 236, 0);
       fx.breathe(b.node, 0.05, 1.1);
     } else if (Album.isClaimed(s, i)) {
       const t = text(row, tr('ALBUM_CLAIMED'), 34, { color: COLOR.yellow });
@@ -216,9 +216,7 @@ export class CollectPage extends Page {
     const top = Screen.top;
     const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
     at(back, -Screen.W / 2 + 70, top - 80);
-    const title = slice(v, 'kit/title_page', 360, 100, 'title');
-    at(title, 0, top - 80);
-    at(text(title, tr(`ALBUM_BOOK_${i + 1}`), 50).node, 0, 4);
+    at(pageTitle(v, tr(`ALBUM_BOOK_${i + 1}`)), 0, top - 80);
 
     // 大奖条：金币 + 每种技能 ×n + 进度
     const strip = slice(v, 'kit/panel_glass', 690, 150, 'prize');

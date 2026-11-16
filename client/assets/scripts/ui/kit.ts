@@ -358,6 +358,10 @@ export interface TextOpts {
  * 文字（docs/03 第 2 节）：颜色、描边按所在的面自动取——深色底与按钮上白字加深色描边，浅色卡片上深藏青字不描边；
  * 写 COLOR.white / COLOR.yellow 也按面换成对应的正文色 / 强调色；outline: null 强制不描边
  */
+/** 描边、厚度投影各是字号的几分之一 */
+const OUTLINE_DIV = 18;
+const SHADOW_DIV = 26;
+
 export function text(parent: Node | null, s: string, fontSize: number, o: TextOpts = {}): Label {
   const k = o.sharp ?? 1;
   const design = fontSize;
@@ -379,14 +383,14 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (outline) {
     l.enableOutline = true;
     l.outlineColor = outline;
-    // 描边约字号的 1/12：再粗，笔画之间的空隙会被填死
-    l.outlineWidth = o.outlineWidth !== undefined ? Math.round(o.outlineWidth * k) : Math.max(2, Math.round(fontSize / 12));
+    // 描边约字号的 1/18（用户 2026-11-16：原来 1/12，字看着太粗太重）；字体本身已经是最粗的一档，描边只负责和底色分开
+    l.outlineWidth = o.outlineWidth !== undefined ? Math.round(o.outlineWidth * k) : Math.max(2, Math.round(fontSize / OUTLINE_DIV));
   }
   // 描边字下面压一道更深的硬投影，字像有厚度一样立起来（定版图的做法）；小字不加，免得糊
   if (o.shadow ?? (!!outline && design >= 28)) {
     l.enableShadow = true;
     l.shadowColor = depthColor(outline ?? COLOR.shadow);
-    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 18)));
+    l.shadowOffset.set(0, -Math.max(1, Math.round(fontSize / SHADOW_DIV)));
     l.shadowBlur = 1;
   }
   l.horizontalAlign =
@@ -402,6 +406,43 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   l.string = s;
   if (k !== 1) n.setScale(1 / k, 1 / k, 1);
   return l;
+}
+
+/** 这行字现在有多宽（设计单位） */
+export function textWidth(l: Label): number {
+  l.updateRenderData(true);
+  return (l.node.getComponent(UITransform) as UITransform).width * Math.abs(l.node.scale.x);
+}
+
+/**
+ * 一行字最宽 maxW：超了就把字号缩到刚好放下（最小 min）。别的语言字长、数字位数多时不压到旁边的东西。
+ * 内容会变的字（数量、倒计时）每次改完再调一次，base 传原来的字号
+ */
+export function fit(l: Label, maxW: number, base = l.fontSize, min = 20): void {
+  l.fontSize = base;
+  const w = textWidth(l);
+  if (w <= maxW) return;
+  l.fontSize = Math.max(min, Math.floor((base * maxW) / w));
+  l.updateRenderData(true);
+}
+
+/** 一行里左边标题、右边小字状态，一共 room 宽：右边最多占一半，剩下的给左边，中间至少留 gap */
+export function fitPair(left: Label, right: Label, room: number, leftBase: number, rightBase: number, gap = 14): void {
+  fit(right, room * 0.5, rightBase);
+  fit(left, room - textWidth(right) - gap, leftBase);
+}
+
+/**
+ * 页标题牌（各页统一：同一块牌、同一个高度和字号，牌的宽度跟着字走）。
+ * h 默认 80；夹在顶栏和内容之间的（商店）给小一点
+ */
+export function pageTitle(parent: Node, s: string, h = 80): Node {
+  const n = plate(parent, 'skin/j_plate', 240, h, 'title');
+  const l = text(n, s, Math.round(h * 0.56));
+  l.node.setPosition(0, 3, 0);
+  fit(l, 520);
+  resizePlate(n, Math.max(220, Math.round(textWidth(l) + 110)), h);
+  return n;
 }
 
 /** 字的厚度色：比描边再深一档 */
@@ -566,6 +607,8 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const gap = 10;
     const ic = icon && icon.active ? icon : null;
     const iw = ic ? sizeOf(ic).w : 0;
+    // 字比按钮宽（别的语言字长）就缩小字号，两边各留 20，不伸到按钮外面
+    if (label && !art) fit(label, (o.w - 40 - (ic ? iw + gap : 0)) / label.node.scale.x, fs * 2, 28);
     const lw = art ? sizeOf(art).w : label ? (label.node.getComponent(UITransform) as UITransform).width * label.node.scale.x : 0;
     const total = iw + (ic && label ? gap : 0) + lw;
     let x = -total / 2;
@@ -683,7 +726,13 @@ export function capsule(parent: Node, w: number, h: number, iconPath: string | n
   // 有图标：数字左对齐紧跟图标；没图标：居中
   const label = text(n, s, fontSize, iconPath ? { align: 'left' } : {});
   label.node.setPosition(iconPath ? -w / 2 + h * 0.96 + 8 : 0, 0, 0);
-  return { node: n, label, icon, set: (v: string) => (label.string = v) };
+  const room = w - (iconPath ? h * 0.96 + 8 : 0) - 24;
+  const set = (v: string) => {
+    label.string = v;
+    fit(label, room, fontSize);
+  };
+  set(s);
+  return { node: n, label, icon, set };
 }
 
 // ---------------------------------------------------------------- 进度条

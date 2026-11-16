@@ -11,7 +11,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, hex, button, fmt, img, lazyImg, opacity, plate, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, hex, button, fitPair, fmt, img, lazyImg, opacity, pageTitle, plate, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -19,6 +19,9 @@ import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 interface SkillCard {
   id: string;
   node: Node;
+  name: ReturnType<typeof text>;
+  /** 卡片里一行字能用的宽 */
+  room: number;
   icon: Node;
   owned: ReturnType<typeof text>;
   buy: Btn;
@@ -43,6 +46,9 @@ export class ShopPage extends Page {
   override readonly topBar = true;
   private cards: SkillCard[] = [];
   private lifeBtn!: Btn;
+  private lifeTitle!: ReturnType<typeof text>;
+  private adTitle!: ReturnType<typeof text>;
+  private smallRoom = 0;
   private lifeCount!: ReturnType<typeof text>;
   private heart!: Node;
   private adBtn!: Btn;
@@ -56,9 +62,8 @@ export class ShopPage extends Page {
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
     // 顶栏下面：标题牌居中，两侧各一条小鱼（定版图 04）；小鱼上下浮动是全页唯一的常驻动效
     const titleY = Screen.top - 122 - 14 - 40;
-    const title = plate(root, 'skin/j_plate', 236, 80, 'title');
-    at(title, 0, titleY);
-    at(text(title, tr('UI_TAB_SHOP'), 54).node, 0, 3);
+    // 夹在顶栏和卡片之间：牌比别的页小一号，上下各让出几个像素，不贴着顶栏
+    at(pageTitle(root, tr('UI_TAB_SHOP'), 68), 0, titleY - 2);
     for (const [id, x] of [['c01', -196], ['c02', 196]] as const) {
       const f = img(root, `fish/${id}`, 96, 96, `deco_${id}`);
       at(f, x, titleY + 2);
@@ -94,7 +99,8 @@ export class ShopPage extends Page {
     const n = slice(root, 'skin/j_panel', w, h, `skill_${id}`);
     at(n, x, y);
     // 和下面两张小卡同一种排法：左上名字、右上小字状态（已有数量）
-    at(text(n, tr(NAME[id]), 38, { align: 'left' }).node, -w / 2 + 26, h / 2 - 44);
+    const name = text(n, tr(NAME[id]), 38, { align: 'left' });
+    at(name.node, -w / 2 + 26, h / 2 - 44);
     const owned = text(n, '', 26, { color: SOFT, align: 'right' });
     at(owned.node, w / 2 - 24, h / 2 - 44);
     const btnH = 92;
@@ -130,14 +136,16 @@ export class ShopPage extends Page {
     const lw = (ll.node.getComponent(UITransform) as UITransform).width;
     at(li, -(lw + 52) / 2 + 22, 4);
     at(ll.node, 26, 3);
-    return { id, node: n, icon, owned, buy, lock };
+    return { id, node: n, name, room: w - 50, icon, owned, buy, lock };
   }
 
   /** 生命：标题、心 + 当前数量、金币买一条 */
   private lifeRow(root: Node, x: number, y: number, w: number, h: number): Node {
     const n = slice(root, 'skin/j_panel', w, h, 'lives');
     at(n, x, y);
-    at(text(n, tr('H_LIVES_TITLE'), 36, { align: 'left' }).node, -w / 2 + 26, h / 2 - 42);
+    this.lifeTitle = text(n, tr('H_LIVES_TITLE'), 36, { align: 'left' });
+    at(this.lifeTitle.node, -w / 2 + 26, h / 2 - 42);
+    this.smallRoom = w - 50;
     // 和右边的小卡同一种排法：左上标题、右上小字状态、左下图标、右下按钮
     this.lifeCount = text(n, '', 26, { color: SOFT, align: 'right' });
     at(this.lifeCount.node, w / 2 - 24, h / 2 - 42);
@@ -162,7 +170,8 @@ export class ShopPage extends Page {
     const eco = App.config.eco;
     const n = slice(root, 'skin/j_panel', w, h, 'freeCoins');
     at(n, x, y);
-    at(text(n, tr('SHOP_FREE_COINS'), 36, { align: 'left' }).node, -w / 2 + 26, h / 2 - 42);
+    this.adTitle = text(n, tr('SHOP_FREE_COINS'), 36, { align: 'left' });
+    at(this.adTitle.node, -w / 2 + 26, h / 2 - 42);
     this.adLeft = text(n, '', 26, { color: SOFT, align: 'right' });
     at(this.adLeft.node, w / 2 - 24, h / 2 - 42);
     const pile = box3(n);
@@ -207,16 +216,19 @@ export class ShopPage extends Page {
       c.buy.node.active = open;
       c.lock.active = !open;
       c.owned.string = open ? tr('UI_OWNED', Skills.count(s, c.id)) : '';
+      fitPair(c.name, c.owned, c.room, 38, 26);
     }
     Lives.refresh(s, eco, t);
     const unlimited = Lives.isUnlimited(s, t);
     const full = unlimited || Lives.count(s, eco, t) >= eco.lives.max;
     this.lifeCount.string = unlimited ? '∞' : `${Lives.count(s, eco, t)}/${eco.lives.max}`;
+    fitPair(this.lifeTitle, this.lifeCount, this.smallRoom, 36, 26);
     this.lifeBtn.setEnabled(!full);
     if (this.lifeBtn.icon) this.lifeBtn.icon.active = !full;
     this.lifeBtn.setLabel(full ? tr('UI_FULL') : fmt(eco.lives.buyOneCoins));
     const left = Meta.freeCoinLeft(s, eco, today());
     this.adLeft.string = tr('SHOP_AD_LEFT', left, eco.freeCoin.daily);
+    fitPair(this.adTitle, this.adLeft, this.smallRoom, 36, 26);
     this.adBtn.setEnabled(left > 0 && App.platform.adsAvailable());
   }
 

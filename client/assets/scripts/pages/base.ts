@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, setImg, sizeOf, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, pageTitle, setImg, sizeOf, slice, text } from '../ui/kit';
 import { needCoins, prizeItems, rewardPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, ui } from '../ui/shell';
@@ -64,8 +64,8 @@ export class BasePage extends Page {
     const bottom = Screen.bottom + TABBAR_H;
 
     // 区域名
-    const name = text(v, tr(`BASE_AREA_${area.id.toUpperCase()}`), 72, { outlineWidth: 7 });
-    at(name.node, 0, top - 70);
+    // 区域名：和别的页一样的标题牌（原来是一行 72 号的裸字，顶着下面的信息条）
+    at(pageTitle(v, tr(`BASE_AREA_${area.id.toUpperCase()}`), 72), 0, top - 62);
     // 信息条：星星 | 区域 N/6 | 金币
     const bar = slice(v, 'kit/capsule', 690, 84, 'info');
     at(bar, 0, top - 160);
@@ -133,7 +133,7 @@ export class BasePage extends Page {
     // 这一步的名字 + N/5
     let y = sceneY - size / 2 - 60;
     const stepName = done ? tr('BASE_ALL_DONE') : tr(`BASE_STEP_${area.id.toUpperCase()}_${Math.min(built + 1, area.steps.length)}`);
-    at(text(v, stepName, 54, { outlineWidth: 6 }).node, 0, y);
+    at(text(v, stepName, 50).node, 0, y);
     y -= 60;
     const line = img(v, 'kit/tab_divider', 4, 520, 'line');
     line.angle = 90;

@@ -14,7 +14,7 @@ import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, capsule, fmt, iconButton, img, lazyImg, opacity, setImg, slice, text, twoLines } from '../ui/kit';
+import { COLOR, at, box, button, capsule, fmt, iconButton, img, lazyImg, opacity, pageTitle, setImg, slice, text, twoLines } from '../ui/kit';
 import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, skillName, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
@@ -81,9 +81,7 @@ export class WheelPage extends Page {
     const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, top - 80);
     // 标题行：左返回 · 中标题 · 右金币（同一行）
-    const title = slice(v, 'kit/title_page', 290, 100, 'title');
-    at(title, 0, top - 80);
-    at(text(title, tr('H_FEAT_WHEEL'), 56).node, 0, 0);
+    at(pageTitle(v, tr('H_FEAT_WHEEL')), 0, top - 80);
     const coins = capsule(v, 220, 64, 'icon/coin', fmt(s.coins), 28);
     at(coins.node, Screen.W / 2 - 32 - 110, top - 80);
 

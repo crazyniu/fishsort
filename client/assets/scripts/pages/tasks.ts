@@ -11,11 +11,11 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, fmt, img, lazyImg, onTap, progressBar, redDot, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, fit, fmt, img, lazyImg, onTap, pageTitle, progressBar, redDot, slice, text } from '../ui/kit';
 import { PrizeItem, prizeItems, revealCards, rewardPopup } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, enterStagger, ui, width } from '../ui/shell';
+import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 
 const ROW_H = 116;
 const ROW_GAP = 12;
@@ -73,9 +73,7 @@ export class TasksPage extends Page {
     this.view = v;
     const top = Screen.top;
 
-    const title = slice(v, 'kit/title_page', 380, 100, 'title');
-    at(title, 0, top - 90);
-    at(text(title, tr('TASK_TITLE'), 58).node, 0, 4);
+    at(pageTitle(v, tr('TASK_TITLE')), 0, top - 90);
 
     // 今日积分、本周积分：两块一样高的面板
     const dayPts = Tasks.dayPoints(s, eco, day);
@@ -176,9 +174,7 @@ export class TasksPage extends Page {
     const textW = 290;
     const name = text(row, tr(`TASK_NAME_${t.id.toUpperCase()}`, t.goal), 32, { align: 'left' });
     at(name.node, -232, 24);
-    name.updateRenderData(true);
-    const nw = width(name.node);
-    if (nw > textW) name.fontSize = Math.max(24, Math.floor((32 * textW) / nw));
+    fit(name, textW, 32, 24);
     const bar = progressBar(row, textW, 30, 'green');
     at(bar.node, -232 + textW / 2, -24);
     bar.set(prog / t.goal);

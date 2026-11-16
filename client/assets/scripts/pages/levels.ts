@@ -14,7 +14,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, hex, iconButton, img, lazyImg, slice, text } from '../ui/kit';
+import { at, box, fit, hex, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
@@ -77,9 +77,7 @@ export class LevelsPage extends Page {
     (band.getComponent(Sprite) as Sprite).color = hex('#3A9CEB');
     const back = iconButton(head, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, 40);
-    const title = slice(head, 'kit/title_page', 380, 100, 'title');
-    at(title, 0, 40);
-    at(text(title, tr('H_FEAT_LEVELS'), 56).node, 0, 4);
+    at(pageTitle(head, tr('H_FEAT_LEVELS')), 0, 40);
     const replay = slice(head, 'kit/capsule', 360, 56, 'replay');
     at(replay, 0, -40);
     this.replayLabel = text(replay, '', 28);
@@ -141,6 +139,7 @@ export class LevelsPage extends Page {
     Daily.roll(s, today());
     const left = Math.max(0, App.config.eco.replay.rewardedPerDay - s.daily.replay);
     this.replayLabel.string = tr('LV_REPLAY_LEFT', left, App.config.eco.replay.rewardedPerDay);
+    fit(this.replayLabel, 360 - 36, 28);
   }
 
   override hide(): void {

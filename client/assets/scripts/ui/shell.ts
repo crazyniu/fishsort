@@ -12,7 +12,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import { fadeIn, popIn, ring, sparkle } from './fx';
 import { tr } from './i18n';
-import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
+import { COLOR, at, hex, blockInput, box, fit, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
@@ -178,6 +178,7 @@ class TopBar {
   readonly coinIcon: Node;
   private lives: Label;
   private timer: Label;
+  private lifeRoom = 0;
   private heart: Node;
   private avatar: Node;
   private frame: Node;
@@ -216,6 +217,7 @@ class TopBar {
     // 生命：图标 + 数量，回满前后面跟一个小号倒计时
     const lw = x2 - x1 - CW - 10;
     const lifeTap = box('lives', this.node, lw, 92);
+    this.lifeRoom = lw;
     at(lifeTap, x1 + CW + 10 + lw / 2, 0);
     this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
     at(this.heart, -lw / 2 + 36, 2);
@@ -266,7 +268,10 @@ class TopBar {
     this.timer.string = tail;
     this.lives.updateRenderData(true);
     const lw = (this.lives.node.getComponent(UITransform) as UITransform).width;
-    at(this.timer.node, this.lives.node.position.x + lw + 8, -3);
+    const tx = this.lives.node.position.x + lw + 8;
+    at(this.timer.node, tx, -3);
+    // 倒计时最多写到生命这一格的右边留 14 的地方（再往右是设置键）
+    fit(this.timer, this.lifeRoom / 2 - 14 - tx, 26, 18);
   }
 }
 
