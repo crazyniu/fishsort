@@ -30,11 +30,10 @@ interface View {
   ice: Node | null;
   /** 冰晶连线：连到每个依赖的气泡的一串小冰块，位置每帧跟着两头走 */
   iceLinks: { beads: Node[]; dep: number }[];
-  /** 迷雾：雾团、每条鱼位上的问号球、计数角标 */
+  /** 迷雾：雾团、每条鱼位上的问号球、底下一排小泡泡（还要破几个别的气泡，一个小泡泡代表一个） */
   fog: Node | null;
   fogMarks: (Node | null)[];
-  fogBadge: Node | null;
-  fogLabel: Label | null;
+  fogPips: Node[];
   fogMax: number;
   links: Node[];
   /** 已破 */
@@ -50,6 +49,8 @@ const MARK_INK = new Color(40, 52, 120, 255);
 const UNDER_BUBBLE = new Color(70, 105, 180, 255);
 const UNDER_FISH = new Color(120, 135, 170, 255);
 const FROST = new Color(225, 247, 255, 255);
+/** 泡膜上转动的那层流光的颜色 */
+const SHEEN = new Color(255, 200, 240, 255);
 /** 冰晶连线上小冰块的大小和间距 */
 const ICE_BEAD = 34;
 const ICE_GAP = 30;
@@ -126,6 +127,7 @@ export class Field {
     for (const i of order) this.views[i] = this.make(i, centers[i], radii[i], s);
     this.linkLayer = box('iceLinks', this.node, this.w, this.h);
     this.sync(s, false);
+    this.twinkle();
     this.pile = this.newPile();
     this.pile.onLand = (id, speed) => this.landed(id, speed);
     if (covered) {
@@ -148,9 +150,27 @@ export class Field {
     }
   }
 
+  /** 隔一两秒，随便挑一个在场、能看清的气泡，在左上角的高光上闪一颗小星 */
+  private twinkle(): void {
+    tween(this.node)
+      .delay(0.9 + Math.random() * 1.4)
+      .call(() => {
+        if (!this.node.isValid) return;
+        const live = this.views.filter((v) => v && !v.gone && v.node.active && opacity(v.body).opacity > 240);
+        if (live.length > 0) {
+          const v = live[Math.floor(Math.random() * live.length)];
+          const x = v.node.position.x + v.body.position.x - v.r * 0.5;
+          const y = v.node.position.y + v.body.position.y + v.r * 0.52;
+          sparkle(this.node, x, y, 2, v.r * 0.12, WHITE, Math.max(18, v.r * 0.22));
+        }
+        this.twinkle();
+      })
+      .start();
+  }
+
   private newPile(): Pile {
     const p = App.config.ui.pile;
-    return new Pile(this.w, this.h, { gravity: p.gravity, damping: p.damping, substeps: p.substeps, iterations: p.iterations, gap: App.config.ui.field.gap / 2, sleepSpeed: p.sleepSpeed, sleepTime: p.sleepTime, landSpeed: p.landSpeed, separate: p.separate });
+    return new Pile(this.w, this.h, { gravity: p.gravity, damping: p.damping, substeps: p.substeps, iterations: p.iterations, gap: App.config.ui.field.gap / 2, sleepSpeed: p.sleepSpeed, sleepTime: p.sleepTime, landSpeed: p.landSpeed, separate: p.separate, linkMin: p.linkMin });
   }
 
   /** 把气泡 i 从场地上沿放下来（x 是横向位置），交给重力 */
@@ -395,10 +415,20 @@ export class Field {
     at(node, c[0], c[1]);
     // 漂浮只动 body：node 的位置留给掉落、推开
     const body = box('body', node, r * 2, r * 2);
-    const fill = img(body, 'kit/circle_white', r * 1.92, r * 1.92, 'fill');
+    // 泡膜（磨砂底 + 气泡皮 + 流光）放在 shell 里一起软软地晃；里面的鱼另外自己游，不跟着变形
+    const shell = box('shell', body, r * 2, r * 2);
+    const fill = img(shell, 'kit/circle_white', r * 1.92, r * 1.92, 'fill');
     (fill.getComponent(Sprite) as Sprite).color = FROST;
     opacity(fill).opacity = 0;
-    const skin = img(body, 'kit/bubble', r * 2, r * 2, 'skin');
+    const skin = img(shell, 'kit/bubble', r * 2, r * 2, 'skin');
+    // 流光：再叠一层淡淡染色的气泡皮慢慢转，彩虹边和高光沿着泡边流动
+    const sheen = img(shell, 'kit/bubble', r * 2, r * 2, 'sheen');
+    (sheen.getComponent(Sprite) as Sprite).color = SHEEN;
+    opacity(sheen).opacity = 80;
+    sheen.angle = (i * 47) % 360;
+    tween(sheen)
+      .repeatForever(tween(sheen).by(9 + (i % 4) * 1.5, { angle: i % 2 === 0 ? 360 : -360 }))
+      .start();
     const n = d.fish.length;
     const fs = this.fishSize(n, r);
     const offs = this.offsets(n, r);
@@ -431,8 +461,7 @@ export class Field {
       iceLinks: [],
       fog: null,
       fogMarks: [],
-      fogBadge: null,
-      fogLabel: null,
+      fogPips: [],
       fogMax: Math.max(1, d.fog),
       links: [],
       gone: false,
@@ -451,8 +480,17 @@ export class Field {
       for (const dep of d.ice) v.iceLinks.push({ beads: [], dep });
     }
     if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
-    // 气泡互相挨着，漂浮幅度小一点
-    bob(body, 2.5, 2.6 + (i % 5) * 0.3, (i % 7) * 0.2);
+    // 气泡互相挨着，漂浮幅度小一点；泡膜像果冻一样慢慢鼓一下、扁一下（每个错开，不齐步）
+    bob(body, 1.5, 2.6 + (i % 5) * 0.3, (i % 7) * 0.2);
+    const t = 1.5 + (i % 5) * 0.17;
+    tween(shell)
+      .delay((i % 6) * 0.23)
+      .repeatForever(
+        tween(shell)
+          .to(t, { scale: new Vec3(1.025, 0.975, 1) }, { easing: 'sineInOut' })
+          .to(t, { scale: new Vec3(0.98, 1.02, 1) }, { easing: 'sineInOut' }),
+      )
+      .start();
     node.active = !v.queued;
     return v;
   }
@@ -470,9 +508,15 @@ export class Field {
       text(m, '?', Math.round(fs * 0.5), { color: WHITE, outline: MARK_INK, outlineWidth: 4 });
       return m;
     });
-    v.fogBadge = img(v.body, 'kit/round_blue', 60, 60, 'fogBadge');
-    at(v.fogBadge, v.r * 0.62, -v.r * 0.62);
-    v.fogLabel = text(v.fogBadge, String(left), 34);
+    // 还差几次显形：气泡下沿一排小泡泡，别处每破一个气泡，这里就破一个（用户 2026-11-16：数字角标看不懂）
+    const size = Math.min(36, v.r * 0.3);
+    const step = size * 1.12;
+    for (let i = 0; i < left; i++) {
+      const pip = img(v.body, 'skin/j_bubble', size, size, `fogPip${i}`);
+      at(pip, (i - (left - 1) / 2) * step, -v.r * 0.7);
+      bob(pip, 3, 1.4 + i * 0.2, i * 0.3);
+      v.fogPips.push(pip);
+    }
   }
 
   /** 雾随计数变淡：数字越小越透 */
@@ -483,22 +527,28 @@ export class Field {
   /** 迷雾每淡一层：数字跳一下、雾变薄；数到 0 显形：雾散开，问号一个个翻成真的鱼 */
   private syncFog(v: View, left: number, animate: boolean): void {
     if (!v.fog) return;
-    if (left > 0) {
-      if (v.fogLabel && v.fogLabel.string !== String(left)) {
-        v.fogLabel.string = String(left);
-        if (animate && v.fogBadge) {
-          tween(v.fogBadge).to(0.08, { scale: new Vec3(1.35, 1.35, 1) }).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-        }
-        tween(opacity(v.fog)).to(animate ? 0.25 : 0, { opacity: this.fogOpacity(v, left) }).start();
+    // 多出来的小泡泡一个个破掉（从右往左）
+    while (v.fogPips.length > left) {
+      const pip = v.fogPips.pop() as Node;
+      Tween.stopAllByTarget(pip);
+      if (!animate) {
+        pip.destroy();
+        continue;
       }
+      tween(pip).to(0.1, { scale: new Vec3(1.5, 1.5, 1) }, { easing: 'quadOut' }).call(() => pip.destroy()).start();
+      tween(opacity(pip)).to(0.1, { opacity: 0 }).start();
+      if (v.node.active) {
+        const px = v.node.position.x + v.body.position.x + pip.position.x;
+        const py = v.node.position.y + v.body.position.y + pip.position.y;
+        sparkle(this.node, px, py, 5, 26, new Color(235, 245, 255, 255), 18);
+      }
+    }
+    if (left > 0) {
+      tween(opacity(v.fog)).to(animate ? 0.25 : 0, { opacity: this.fogOpacity(v, left) }).start();
       return;
     }
     const fog = v.fog;
-    const badge = v.fogBadge;
     v.fog = null;
-    v.fogBadge = null;
-    v.fogLabel = null;
-    if (badge) tween(badge).to(0.15, { scale: new Vec3(0, 0, 1) }).call(() => badge.destroy()).start();
     tween(fog).to(0.3, { scale: new Vec3(1.25, 1.25, 1) }, { easing: 'quadOut' }).call(() => fog.destroy()).start();
     tween(opacity(fog)).to(0.3, { opacity: 0 }).start();
     v.fogMarks.forEach((m, k) => {
@@ -605,6 +655,9 @@ export class Field {
         v.body.setScale(sc, sc, 1);
       }
       (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
+      // 被压住的不带流光，和能点的一眼分开
+      const sheen = v.skin.parent?.getChildByName('sheen');
+      if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
       opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
       for (const f of v.fish) {
         if (!f) continue;

@@ -208,29 +208,42 @@ export function useNet(s: GameState, slot: number): GameEvent[] {
 }
 
 /**
- * 洋流：场上所有能直接进缸的鱼依次自动入缸。每放进一条就重新判断一次，
- * 所以满缸换新缸后，新缸要的鱼也会继续进。发出的就是普通的 fish_to_bowl 等事件。
+ * 洋流：场上和回流位里能直接进缸的鱼依次自动入缸，**只给用的那一刻架上的缸**（docs/01 5.2）。
+ * 每放进一条就重新判断一次；这几个缸装满换上来的新缸不再管。
+ * 原来新缸上来也接着进，掉落关里几乎所有的鱼都点得到，用一次就把整关清完了（用户 2026-11-16 试玩发现）。
+ * 发出的就是普通的 fish_to_bowl 等事件。
  */
 export function useCurrent(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
+  const served = new Set<number>();
+  for (let i = 0; i < s.openSlots; i++) {
+    const bowl = s.slots[i];
+    if (bowl !== null) served.add(bowl.order);
+  }
   while (s.status === Status.PLAYING) {
-    const pick = currentTarget(s);
+    const pick = currentTarget(s, served);
     if (pick === null) break;
     ev.push(...tap(s, pick[0], pick[1]));
   }
   return ev;
 }
 
-/** 找下一条能直接进缸的鱼 [气泡, 序号]；结伴鱼只有两条都有地方去时才放行 */
-function currentTarget(s: GameState): [number, number] | null {
+/** 这种鱼进的缸（findSlot 的结果）是不是洋流要管的缸 */
+function servedSlot(s: GameState, species: number, served: Set<number>): number {
+  const slot = findSlot(s, species);
+  return slot >= 0 && served.has((s.slots[slot] as Bowl).order) ? slot : -1;
+}
+
+/** 找下一条能直接进洋流要管的缸的鱼 [气泡, 序号]；结伴鱼只有两条都有地方去时才放行 */
+function currentTarget(s: GameState, served: Set<number>): [number, number] | null {
   for (let k = 0; k < s.returnFish.length; k++) {
-    if (findSlot(s, s.returnFish[k]) >= 0) return [RETURN_BUBBLE, k];
+    if (servedSlot(s, s.returnFish[k], served) >= 0) return [RETURN_BUBBLE, k];
   }
   for (const b of openBubbles(s)) {
     const bub = s.bubbles[b];
     for (let k = 0; k < bub.fish.length; k++) {
       const sp = bub.fish[k];
-      if (sp < 0 || findSlot(s, sp) < 0) continue;
+      if (sp < 0 || servedSlot(s, sp, served) < 0) continue;
       const partner = bub.partnerOf(k);
       if (partner >= 0 && bub.fish[partner] >= 0 && !pairFits(s, bub.fish[k], bub.fish[partner])) continue;
       return [b, k];

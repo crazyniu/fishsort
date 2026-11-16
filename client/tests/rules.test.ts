@@ -147,15 +147,27 @@ describe('技能', () => {
     assert.ok(construct(s.clone(), new Rng(1), 0).ok, '洗牌后仍可解');
   });
 
-  it('洋流：逐条入缸，新缸出现后继续，不进暂存槽', () => {
+  it('洋流：只给用的那一刻架上的缸，换上来的新缸不管，不进暂存槽', () => {
+    // 架上两个缸（0、1），后面还有缸 2；场上三种鱼都点得到
     const s = play(level([0, 1, 2], [{ fish: [2, 2, 2] }, { fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [3, 3, 3] }]));
     const ev = Rules.useCurrent(s);
-    assert.equal(ev.filter((e) => e.t === 'fish_to_bowl').length, 9);
-    assert.equal(s.bowlsDone, 3);
-    assert.equal(s.status, Status.PLAYING, '还剩一个没人要的气泡，不判胜');
-    assert.equal(s.bubbles[3].count(), 3, '没人要的鱼原地不动');
+    assert.equal(ev.filter((e) => e.t === 'fish_to_bowl').length, 6, '只装满架上的两个缸');
+    assert.equal(s.bowlsDone, 2);
+    assert.equal(s.bubbles[0].count(), 3, '新上来的缸 2 要的鱼留在原地');
     assert.equal(s.buffer.length, 0);
-    assert.deepEqual(Rules.useCurrent(s), [], '再用没有可入缸的鱼，返回空');
+    assert.equal(s.status, Status.PLAYING);
+    const again = Rules.useCurrent(s);
+    assert.equal(again.filter((e) => e.t === 'fish_to_bowl').length, 3, '再用一次才轮到新缸');
+  });
+
+  it('洋流：鱼多的掉落关用一次不会直接通关', () => {
+    const lv = generate({ species: 6, fish: 60, layers: 1, cap: 12, slack: 1 }, 3);
+    assert.ok(lv !== null);
+    const s = play(lv);
+    const left = s.fishLeft();
+    Rules.useCurrent(s);
+    assert.equal(s.status, Status.PLAYING);
+    assert.ok(left - s.fishLeft() <= 6, `一次最多装满架上的两缸，实际救了 ${left - s.fishLeft()} 条`);
   });
 
   it('洋流：全部入缸即过关', () => {

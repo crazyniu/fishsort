@@ -7,6 +7,7 @@
 // - 生成器：障碍改成照着参考解叠加，带障碍的参数生成结果不同；只比不带障碍的参数
 // - 机器人：计时（限时缸会超时）、看不见迷雾；带限时或迷雾的关卡不比胜率
 // - 迷雾改成计数显形（多了 fog_tick / fog_clear 事件）；洗牌不拆结伴鱼：这两类对局不比
+// - 洋流只给用的那一刻架上的缸（2026-11-16 试玩发现原规则一次就能清完一关）：对局只比到第一次用洋流之前
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { AdsConfig, EconomyConfig, Species } from '../assets/scripts/core/config';
@@ -118,6 +119,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
   it('局内：随机操作序列的事件流与终局', () => {
     type Play = { name: string; start: unknown[]; steps: { act: Action; ev: unknown[] }[]; final: unknown };
     let compared = 0;
+    let steps = 0;
     for (const g of golden<Play[]>('play')) {
       const lv = goldenLevel(g.name);
       if (lv.bubbles.some((b) => b.fog > 0)) continue;
@@ -125,10 +127,14 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
       compared++;
       const s = GameState.fromLevel(lv);
       same(g.start, start(s), `${g.name} 开局`);
-      g.steps.forEach((step, i) => same(step.ev, apply(s, step.act), `${g.name} 第 ${i + 1} 步 ${JSON.stringify(step.act)}`));
-      same(g.final, s.snapshot(), `${g.name} 终局`);
+      // 洋流的规则改过：比到第一次用洋流之前为止，之后的局面已经不同，终局也不比
+      const cut = g.steps.findIndex((x) => x.act.a === 'current');
+      const upto = cut < 0 ? g.steps.length : cut;
+      for (let i = 0; i < upto; i++) same(g.steps[i].ev, apply(s, g.steps[i].act), `${g.name} 第 ${i + 1} 步 ${JSON.stringify(g.steps[i].act)}`);
+      steps += upto;
+      if (cut < 0) same(g.final, s.snapshot(), `${g.name} 终局`);
     }
-    assert.ok(compared >= 10, `比了事件流的对局 ${compared} 局`);
+    assert.ok(compared >= 10 && steps >= 200, `比了事件流的对局 ${compared} 局、${steps} 步`);
   });
 
   it('局外：60 天模拟逐次调用一致', () => {
