@@ -16,6 +16,7 @@ import { tr } from '../ui/i18n';
 import { COLOR, at, box, capsule, img, lazyImg, onTap, progressBar, redDot, slice, text } from '../ui/kit';
 import { prizeItems, rewardPopup } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
+import { avatarPath } from './profile';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 
@@ -132,7 +133,7 @@ export class RankPage extends Page {
       at(c, -280, 0);
       text(c, String(rank), 34);
     }
-    const f = img(row, me ? 'fish/c01' : `fish/${fish}`, 96, 96, 'fish');
+    const f = img(row, me ? avatarPath() : `fish/${fish}`, 96, 96, 'fish');
     at(f, -170, 0);
     const n = text(row, name, 38, { align: 'left' });
     at(n.node, -100, 0);

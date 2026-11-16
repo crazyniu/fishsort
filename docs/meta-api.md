@@ -10,6 +10,7 @@
 | `lives` | `{count, stamp, lastNow, unlimitedUntil}` |
 | `chest` | `{dry, lastLevel, adTaken}` |
 | `wheel` | `{extra, dry, total}`：存下来的次数、连续没出史诗以上的次数、总抽数 |
+| `avatar` | 可选：头像换成的收藏生物 id（`PlayerData.setAvatar` 只接受已拥有的卡，空串恢复平台头像；`avatarOf` 读取），docs/01 5.9 |
 | `skillsGranted` | `{技能id: true}` 已发过解锁礼 |
 | `tools` | 新增 `current`（洋流） |
 | `signin` | 新增 `doubledDay` |

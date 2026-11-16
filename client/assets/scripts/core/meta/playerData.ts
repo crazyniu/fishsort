@@ -70,3 +70,21 @@ export function markTip(save: SaveData, key: string): void {
   if (save.seenTips === undefined) save.seenTips = {};
   save.seenTips[key] = true;
 }
+
+/** 头像换成收藏里的生物：只能选已经拥有的卡；传空串恢复平台头像。成功返回 true（docs/01 5.9） */
+export function setAvatar(save: SaveData, cardId: string): boolean {
+  if (cardId === '') {
+    delete save.avatar;
+    return true;
+  }
+  if (!(save.cards[cardId] > 0)) return false;
+  save.avatar = cardId;
+  return true;
+}
+
+/** 当前头像用的生物 id；空串 = 平台头像 */
+export function avatarOf(save: SaveData): string {
+  const id = save.avatar ?? '';
+  return id && save.cards[id] > 0 ? id : '';
+}
+

@@ -4,6 +4,7 @@ import { Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
 import * as Dex from '../core/meta/dex';
 import * as Features from '../core/meta/features';
+import * as PlayerData from '../core/meta/playerData';
 import * as HomeBase from '../core/meta/homeBase';
 import * as Lives from '../core/meta/lives';
 import * as WeeklyGoal from '../core/meta/weeklyGoal';
@@ -132,6 +133,7 @@ class TopBar {
   private avatar: Node;
   private frame: Node;
   private shownCoins = -1;
+  private shownAvatar = '';
 
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     this.node = box('topbar', parent, Screen.W, 120);
@@ -170,6 +172,12 @@ class TopBar {
       this.shownCoins = s.coins;
     }
     this.frame.active = Album.hasFrame(s);
+    // 头像换成收藏生物（docs/01 5.9）
+    const av = PlayerData.avatarOf(s);
+    if (av !== this.shownAvatar) {
+      this.shownAvatar = av;
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 104, 104);
+    }
     if (Lives.isUnlimited(s, t)) {
       const left = Lives.unlimitedLeft(s, t);
       this.lives.set(`∞ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`);

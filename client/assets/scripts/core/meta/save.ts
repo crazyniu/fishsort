@@ -50,6 +50,8 @@ export interface SaveData {
   seenTips: Record<string, boolean>;
   fails: { level: number; count: number };
   settings: { sound: boolean; music: boolean; vibrate: boolean; lang?: string };
+  /** 头像换成的收藏生物 id；没有 = 用平台头像（docs/01 5.9） */
+  avatar?: string;
 }
 
 /** 一件奖品（开奖弹窗用） */

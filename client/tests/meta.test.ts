@@ -644,3 +644,16 @@ describe('排行榜展示', () => {
     assert.ok(!rows.some((r) => 'me' in r));
   });
 });
+
+describe('头像换成收藏生物（docs/01 5.9）', () => {
+  it('只能选已拥有的卡，空串恢复平台头像', () => {
+    const save = PlayerData.create(ECO);
+    assert.equal(PlayerData.setAvatar(save, 'c01'), false);
+    assert.equal(PlayerData.avatarOf(save), '');
+    save.cards.c01 = 1;
+    assert.equal(PlayerData.setAvatar(save, 'c01'), true);
+    assert.equal(PlayerData.avatarOf(save), 'c01');
+    assert.equal(PlayerData.setAvatar(save, ''), true);
+    assert.equal(PlayerData.avatarOf(save), '');
+  });
+});

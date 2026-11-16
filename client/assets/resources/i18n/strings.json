@@ -378,7 +378,10 @@
   "SPECIES_E04": "云冠鲨",
   "SPECIES_E05": "珠旋旋",
   "SPECIES_L01": "曦尾锦",
-  "SPECIES_L02": "月眠鲸"
+  "SPECIES_L02": "月眠鲸",
+  "PROFILE_CHANGE_AVATAR": "点击更换",
+  "PROFILE_PICK_AVATAR": "选择头像",
+  "PROFILE_DEFAULT_AVATAR": "默认"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -759,6 +762,9 @@
   "SPECIES_E04": "Cloud Shark",
   "SPECIES_E05": "Pearl Swirl",
   "SPECIES_L01": "Dawn Koi",
-  "SPECIES_L02": "Moon Whale"
+  "SPECIES_L02": "Moon Whale",
+  "PROFILE_CHANGE_AVATAR": "Tap to change",
+  "PROFILE_PICK_AVATAR": "Choose avatar",
+  "PROFILE_DEFAULT_AVATAR": "Default"
  }
 }
