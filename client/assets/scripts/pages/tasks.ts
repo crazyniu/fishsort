@@ -169,7 +169,8 @@ export class TasksPage extends Page {
     const done = Tasks.isDone(s, eco, t.id, day);
     const prog = Tasks.progress(s, eco, t.id, day);
     const row = slice(parent, done ? 'kit/panel_glass' : 'kit/row_blue', 690, ROW_H, t.id);
-    const icon = img(row, TASK_ICON[t.id] ?? 'icon/gift', 76, 76, 'icon');
+    // 图标画布四周留了空，按 96 放，看着和旁边的字一样重
+    const icon = img(row, TASK_ICON[t.id] ?? 'icon/gift', 96, 96, 'icon');
     at(icon, -287, 0);
     const textW = 290;
     const name = text(row, tr(`TASK_NAME_${t.id.toUpperCase()}`, t.goal), 32, { align: 'left' });
