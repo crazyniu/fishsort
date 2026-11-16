@@ -37,7 +37,7 @@ export function signInPopup(changed: () => void): void {
   const s = App.save.data;
   const eco = App.config.eco;
   const days = eco.signInDays;
-  const p = openPopup({ w: 680, h: 820, title: tr('UI_SIGNIN'), mascot: 'c03' });
+  const p = openPopup({ w: 680, h: 680, title: tr('UI_SIGNIN'), mascot: 'c03' });
   const can = SignIn.canClaim(s, today());
   const next = SignIn.nextIndex(s, eco);
   const claimedThisRound = can ? next : next === 0 ? days.length : next;
@@ -47,11 +47,11 @@ export function signInPopup(changed: () => void): void {
     const col = i % 4;
     const row = Math.floor(i / 4);
     const w = big ? 300 : 140;
-    const cell = slice(p.body, i === next && can ? 'kit/btn_yellow' : 'kit/row', w, 180, `day${i}`);
+    const cell = slice(p.body, i === next && can ? 'kit/cell_gold' : 'kit/row', w, 180, `day${i}`);
     const x = big ? 150 + 7 : (col - 1.5) * 152;
-    at(cell, row === 1 && !big ? (col - 1.5) * 152 : x, 200 - row * 200);
-    if (row === 1 && !big) at(cell, -228 + col * 152, 0);
-    if (big) at(cell, 152, 0);
+    at(cell, row === 1 && !big ? (col - 1.5) * 152 : x, 170 - row * 196);
+    if (row === 1 && !big) at(cell, -228 + col * 152, -26);
+    if (big) at(cell, 152, -26);
     const lbl = text(cell, tr('UI_SIGNIN_DAY', i + 1), 26);
     at(lbl.node, 0, 64);
     const [icon, amount] = dayIcon(d);
@@ -90,7 +90,7 @@ export function signInPopup(changed: () => void): void {
   };
   if (can) {
     const b = button(p.body, { color: 'green', w: 300, h: 100, label: tr('UI_CLAIM'), onTap: () => claim(false) });
-    at(b.node, -160, -300);
+    at(b.node, -160, -236);
     fx.breathe(b.node, 0.04, 1.2);
     const d = button(p.body, {
       color: 'yellow',
@@ -103,9 +103,9 @@ export function signInPopup(changed: () => void): void {
         if (await watchAd('rv_signin_double')) claim(true);
       },
     });
-    at(d.node, 160, -300);
+    at(d.node, 160, -236);
   } else {
     const t = text(p.body, tr('UI_CLAIMED'), 36, { color: COLOR.ink, outline: null });
-    at(t.node, 0, -300);
+    at(t.node, 0, -236);
   }
 }

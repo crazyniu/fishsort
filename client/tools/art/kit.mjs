@@ -134,6 +134,18 @@ roundBtn('round_red', BTN.red);
     ${rr(22, 9, w - 44, 16, 8, `fill="url(#${gs})"`)}`;
   part('row_blue', w, h, body, [44, 44, 44, 44]);
 }
+// 今天可领的格子（签到）：金黄底 + 白边，上亮下暗
+{
+  const w = 120;
+  const h = 120;
+  const [gf, df] = lin([[0, '#FFE680'], [0.5, '#FFC21F'], [1, '#F29A0C']]);
+  const [gs, ds] = lin([[0, '#fff', 0.7], [1, '#fff', 0]]);
+  const body = `<defs>${df}${ds}</defs>
+    ${rr(2, 6, w - 4, h - 8, 24, `fill="#A85D02"`)}
+    ${rr(2, 2, w - 4, h - 8, 24, `fill="url(#${gf})" stroke="#fff" stroke-width="4"`)}
+    ${rr(14, 8, w - 28, 14, 7, `fill="url(#${gs})"`)}`;
+  part('cell_gold', w, h, body, [30, 30, 30, 30]);
+}
 // 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
 {
   const w = 240;
