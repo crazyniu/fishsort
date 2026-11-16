@@ -17,8 +17,8 @@ import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
-import { tr } from '../ui/i18n';
-import { Capsule, COLOR, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, plate, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { language, tr } from '../ui/i18n';
+import { Capsule, COLOR, artNumber, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, plate, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -79,8 +79,7 @@ export class GamePage extends Page {
   private comboRow!: Node;
   private comboBadge!: Node;
   private comboGlow!: Node;
-  private comboLabel!: Label;
-  private comboCoins!: Label;
+  private comboNum!: Node;
   private comboBar!: Node;
   private comboBarW = 190;
   /** 连击时屏幕左右两边的光 */
@@ -204,13 +203,16 @@ export class GamePage extends Page {
     this.comboGlow = img(this.comboRow, 'kit/fx_glow', 330, 170, 'glow');
     opacity(this.comboGlow).opacity = 150;
     this.comboBadge = plate(this.comboRow, 'skin/j_inset', 226, 76, 'badge');
-    const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 24, { align: 'left' });
-    at(word.node, -102, 6);
-    this.comboLabel = text(this.comboBadge, '', 50, { align: 'left' });
-    at(this.comboLabel.node, -50, 6);
-    at(img(this.comboBadge, 'icon/coin', 28, 28, 'coin'), 52, 6);
-    this.comboCoins = text(this.comboBadge, '', 26, { align: 'left', color: COLOR.yellow });
-    at(this.comboCoins.node, 68, 5);
+    // 「连击」和数字都是 Codex 画的艺术字（中文用图，其它语言用字）
+    if (language() === 'zh_CN') {
+      const word = img(this.comboBadge, 'skin/j_combo_word', 50, 41, 'word');
+      at(word, -80, 6);
+    } else {
+      const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 22, { align: 'left' });
+      at(word.node, -104, 6);
+    }
+    this.comboNum = box('num', this.comboBadge);
+    at(this.comboNum, -46, 6);
     const track = tint(this.comboBadge, this.comboBarW, 7, new Color(0, 10, 50, 150), 'track');
     at(track, 0, -26);
     this.comboBar = tint(this.comboBadge, this.comboBarW, 7, COLOR.yellow, 'bar');
@@ -691,9 +693,13 @@ export class GamePage extends Page {
     const was = this.comboRow.active && !this.comboBreaking;
     this.comboBreaking = false;
     this.comboRow.active = true;
-    this.comboLabel.string = `×${r.count}`;
-    this.comboLabel.color = col;
-    this.comboCoins.string = `+${this.combo.coins}`;
+    artNumber(this.comboNum, `×${r.count}`, 56, 'left');
+    // 连击金币：每次涨了从连击计右边飘一个「金币 +N」
+    if (r.coins > 0) {
+      const cl = text(null, `+${r.coins}`, 30, { color: COLOR.yellow });
+      at(img(cl.node, 'icon/coin', 30, 30, 'coin'), -36, 0);
+      fx.floatUp(this.fly, cl.node, COMBO_X + 150, Screen.top - 70, 46, 0.7);
+    }
     (this.comboBar.getComponent(Sprite) as Sprite).color = col;
     (this.comboGlow.getComponent(Sprite) as Sprite).color = col;
     if (!was) {
@@ -704,7 +710,7 @@ export class GamePage extends Page {
       fx.popIn(this.comboRow, 0, 0.25);
     }
     // 数字砸下来：放大 2 倍、略歪，回弹到正（纯数字允许 ±4° 倾斜，docs/03）
-    const ln = this.comboLabel.node;
+    const ln = this.comboNum;
     Tween.stopAllByTarget(ln);
     ln.setScale(2, 2, 1);
     ln.angle = (Math.random() - 0.5) * 8;
@@ -730,9 +736,10 @@ export class GamePage extends Page {
   }
 
   /** 鱼缸上方冒一个数字，往上飘、淡出 */
-  private hitPop(x: number, s: string, col: Color, fontSize: number): void {
-    const l = text(null, s, fontSize, { color: col });
-    fx.floatUp(this.fly, l.node, x, this.bowlY + 16, 40, 0.5);
+  private hitPop(x: number, s: string, _col: Color, size0: number): void {
+    const n = box('pop', null);
+    artNumber(n, s, size0);
+    fx.floatUp(this.fly, n, x, this.bowlY + 16, 40, 0.5);
   }
 
   /** 屏幕两边的光：随档位换色，档位越高越亮、呼吸越快；tier < 0 熄灭 */
@@ -774,13 +781,22 @@ export class GamePage extends Page {
     (r.getComponent(Sprite) as Sprite).color = col;
     opacity(r).opacity = 0;
     tween(opacity(r)).to(0.2, { opacity: 220 }).start();
-    // 字背后一团档位色的柔光（不用飘带）
-    const glow = img(holder, 'kit/fx_glow', 560, 300, 'glow');
+    // 背后：档位色柔光 + Codex 画的爆炸星（慢慢转）；字：中文用 Codex 艺术字，其它语言用字
+    const glow = img(holder, 'kit/fx_glow', 620, 340, 'glow');
     (glow.getComponent(Sprite) as Sprite).color = col;
     glow.setScale(0.3, 0.3, 1);
     tween(glow).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    const l = text(holder, word, 92, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 8 });
-    at(l.node, 0, 10);
+    const star = img(holder, 'skin/j_burst', 330, 354, 'burst');
+    star.setScale(0.2, 0.2, 1);
+    tween(star).to(0.2, { scale: new Vec3(1.08, 1.08, 1) }, { easing: 'quadOut' }).to(0.12, { scale: new Vec3(1, 1, 1) }).start();
+    tween(star).by(1.4, { angle: -40 }).start();
+    const l = {
+      node:
+        language() === 'zh_CN'
+          ? img(holder, `skin/j_praise_${tier + 1}`, 500, (500 * (tier === 2 ? 341 : 381)) / 660, 'word')
+          : text(holder, word, 84, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 8 }).node,
+    };
+    at(l.node, 0, 6);
     l.node.setScale(2.4, 2.4, 1);
     const lop = opacity(l.node);
     lop.opacity = 0;
@@ -832,14 +848,22 @@ export class GamePage extends Page {
     this.setEdgeGlow(-1, COLOR.white);
     fx.flash(this.fly, Screen.W, Screen.H, 170);
     const yb = this.fieldBottom + 40;
-    fx.confetti(this.fly, -Screen.W / 2 + 50, yb, 45, 520);
-    fx.confetti(this.fly, Screen.W / 2 - 50, yb, 45, 520);
-    const cols = [new Color(255, 214, 64), new Color(110, 215, 255), new Color(255, 120, 200)];
+    fx.confetti(this.fly, -Screen.W / 2 + 50, yb, 70, 620);
+    fx.confetti(this.fly, Screen.W / 2 - 50, yb, 70, 620);
+    const cols = [new Color(255, 214, 64), new Color(110, 215, 255), new Color(255, 120, 200), new Color(140, 255, 120)];
     const mid = (this.fieldTop + this.fieldBottom) / 2;
-    [[-170, mid + 160], [190, mid + 60], [-20, mid - 80]].forEach(([x, y], i) => {
-      fx.delay(this.fly, 0.12 + i * 0.22, () => {
-        fx.ring(this.fly, x, y, 40, 300, cols[i]);
-        fx.sparkle(this.fly, x, y, 16, 190, cols[i], 38);
+    [[-160, mid + 200], [180, mid + 90], [-40, mid - 60], [150, mid - 220]].forEach(([x, y], i) => {
+      fx.delay(this.fly, 0.1 + i * 0.2, () => {
+        // 一发烟花：白光一闪、两圈光环、一大一小两圈火花
+        const g = img(this.fly, 'kit/fx_glow', 120, 120, 'boom');
+        at(g, x, y);
+        (g.getComponent(Sprite) as Sprite).color = cols[i];
+        tween(g).to(0.3, { scale: new Vec3(3.2, 3.2, 1) }, { easing: 'quadOut' }).call(() => g.destroy()).start();
+        tween(opacity(g)).to(0.3, { opacity: 0 }).start();
+        fx.ring(this.fly, x, y, 60, 420, cols[i]);
+        fx.ring(this.fly, x, y, 30, 240, COLOR.white);
+        fx.sparkle(this.fly, x, y, 26, 280, cols[i], 52);
+        fx.sparkle(this.fly, x, y, 12, 140, COLOR.white, 30);
         sfx('firework');
       });
     });
@@ -853,7 +877,10 @@ export class GamePage extends Page {
     if (!had) return;
     // 断连：数字变灰，整块抖一下往下掉、淡出
     this.comboBreaking = true;
-    this.comboLabel.color = COLOR.gray;
+    for (const g of this.comboNum.children) {
+      const sp = g.getComponent(Sprite);
+      if (sp) sp.grayscale = true;
+    }
     const row = this.comboRow;
     Tween.stopAllByTarget(row);
     const x = COMBO_X;

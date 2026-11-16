@@ -148,6 +148,23 @@ def glass(path: Path, width: int) -> Image.Image:
     return res.convert('RGBa').resize((width, round(res.height * width / res.width)), Image.LANCZOS).convert('RGBA')
 
 
+def cut_grid(path: Path, cols: int, rows: int):
+    """按网格切：同一格里的碎块（字旁边的小星星、气泡）并成一张。按行优先返回。"""
+    im = remove_background(Image.open(path))
+    W, H = im.size
+    cells = {}
+    for t, l, b, r in components(np.asarray(im)[:, :, 3]):
+        cx, cy = (l + r) / 2, (t + b) / 2
+        k = (int(cy * rows / H), int(cx * cols / W))
+        u = cells.get(k)
+        cells[k] = (min(u[0], t), min(u[1], l), max(u[2], b), max(u[3], r)) if u else (t, l, b, r)
+    return [im.crop((l, t, r, b)) for (_, _), (t, l, b, r) in sorted(cells.items())]
+
+
+def scaled(im: Image.Image, k: float) -> Image.Image:
+    return im.convert('RGBa').resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS).convert('RGBA')
+
+
 def main() -> None:
     raw = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / 'art/raw/ui_skin'
     OUT.mkdir(parents=True, exist_ok=True)
@@ -262,6 +279,22 @@ def main() -> None:
 
     # 鱼缸：玻璃要透明（白底上的玻璃按「越白越透」还原）
     save('j_bowl', glass(raw / 'bowl.png', 450))
+
+    # 连击艺术字（Codex）：四档夸奖词、数字 0-9、×、「连击」；爆炸星、火焰圆章
+    if (raw / 'praise.png').exists():
+        for i, im in enumerate(cut_grid(raw / 'praise.png', 2, 2)):
+            save(f'j_praise_{i + 1}', scaled(im, 660 / im.width))
+    if (raw / 'digits.png').exists():
+        gl = cut_grid(raw / 'digits.png', 6, 2)
+        k = 180 / float(np.median([g.height for g in gl[:10]]))
+        for i, g in enumerate(gl[:10]):
+            save(f'j_dg_{i}', scaled(g, k))
+        save('j_dg_x', scaled(gl[10], k))
+        save('j_combo_word', scaled(gl[11], k))
+    if (raw / 'burst.png').exists():
+        b, f = cut_grid(raw / 'burst.png', 2, 1)
+        save('j_burst', scaled(b, 600 / b.width))
+        save('j_flame', scaled(f, 420 / f.width))
 
     save('j_inset', *inset())
 

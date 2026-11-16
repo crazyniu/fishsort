@@ -687,6 +687,32 @@ export function progressBar(parent: Node, w: number, h: number, color: 'green' |
   return { node: track, set };
 }
 
+/**
+ * Codex 画的艺术数字（连击用）：'0'-'9' 和 '×'，金色糖果字。h = 数字高度；返回整行的宽。
+ * 内容变了就清空重排（字数很少）
+ */
+export function artNumber(n: Node, s: string, h: number, align: 'left' | 'center' = 'center'): number {
+  n.destroyAllChildren();
+  const k = h / 180;
+  const parts: [Node, number][] = [];
+  for (const ch of s) {
+    const path = ch === '×' ? 'skin/j_dg_x' : /[0-9]/.test(ch) ? `skin/j_dg_${ch}` : null;
+    if (!path) continue;
+    const f = frame(path);
+    if (!f) continue;
+    const g = img(n, path, f.originalSize.width * k, f.originalSize.height * k, 'g');
+    parts.push([g, f.originalSize.width * k]);
+  }
+  const gap = -h * 0.07;
+  const total = parts.reduce((a, [, w]) => a + w, 0) + gap * Math.max(0, parts.length - 1);
+  let x = align === 'left' ? 0 : -total / 2;
+  for (const [g, w] of parts) {
+    at(g, x + w / 2, 0);
+    x += w + gap;
+  }
+  return total;
+}
+
 /** 红点（右上角），可脉动 */
 export function redDot(parent: Node, x: number, y: number, s = 30): Node {
   const n = img(parent, 'kit/dot_red', s, s, 'redDot');

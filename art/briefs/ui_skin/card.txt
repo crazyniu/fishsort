@@ -1,0 +1,9 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE portrait image (1024x1536). Pure flat white background (#FFFFFF) everywhere outside the card.
+In the center draw a single BLANK collectible card frame, about 820 x 1150 px, straight-on front view, left-right symmetric, not touching the image border.
+Shape: a rounded rectangle, corner radius about 9% of its width.
+Material matching the purple card in the attached reference image (reference is for material, color and lighting only; do NOT draw its fish, text, laurel or label):
+- a THICK glossy violet-purple jelly frame (about 7% of the width), thin dark outline, bright lilac highlight rim along the top, darker thickness lip along the bottom, a couple of small white specular shines on the top-left corner;
+- inside, a recessed picture window showing a soft, EMPTY underwater background: light aqua-blue water with gentle light rays from the top and a faint sandy glow at the bottom, NO fish, NO coral, NO plants, NO bubbles, very simple and soft so a character can be placed on top;
+- at the bottom inside the window, a wide empty glossy violet name banner plate (rounded rectangle, about 70% of the card width, about 12% of the card height), blank.
+No text, no letters, no creatures, no laurels, no gems, no icons, no cast shadow, no outer glow. Do not imitate any existing game.
+Reply with only the saved file path.

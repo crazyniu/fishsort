@@ -1,0 +1,12 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly SIX closed collection album books (sticker albums) arranged in a 3 x 2 grid (3 columns, 2 rows), each about 360 px tall, evenly spaced with at least 70 px of white between them, not touching each other or the image border. Straight-on front view of the cover, slightly chunky with a visible page block on the right edge and three golden ring binders on the left spine.
+Cute glossy cartoon game style with soft jelly highlights and thin dark outlines, matching the material of the attached reference image (reference is for material and lighting only).
+Each cover has a rounded inset frame with a simple themed emblem in the middle (no text):
+1) top-left: sky-blue cover, emblem: a sun over a small sandy beach wave (morning beach);
+2) top-middle: coral-pink cover, emblem: a pink coral branch (coral garden);
+3) top-right: leaf-green cover, emblem: two swaying kelp leaves (kelp forest);
+4) bottom-left: warm brown-teal cover, emblem: a small ship anchor (shipwreck bay);
+5) bottom-middle: violet cover, emblem: a glowing crystal cluster (crystal cave);
+6) bottom-right: golden cover, emblem: a small seashell crown (undersea palace).
+No text, no letters, no numbers, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

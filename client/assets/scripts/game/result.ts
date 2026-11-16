@@ -248,12 +248,12 @@ export class ResultPage extends Page {
     sfx('win');
 
     // 2. 宝箱从上面掉下来，落地压扁回弹
-    at(chest, 0, chestY + 420);
+    at(chest, 0, chestY + 150);
     opacity(chest).opacity = 0;
-    tween(opacity(chest)).delay(0.1).to(0.1, { opacity: 255 }).start();
+    tween(opacity(chest)).delay(0.1).to(0.12, { opacity: 255 }).start();
     tween(chest)
       .delay(0.1)
-      .to(0.3, { position: new Vec3(0, chestY, 0) }, { easing: 'quadIn' })
+      .to(0.26, { position: new Vec3(0, chestY, 0) }, { easing: 'quadIn' })
       .to(0.08, { scale: new Vec3(1.15, 0.85, 1) })
       .to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
       .start();
@@ -346,7 +346,7 @@ export class ResultPage extends Page {
     tween(opacity(pill)).delay(at0('coinsAt')).to(0.2, { opacity: 235 }).start();
     if (r.rewarded) {
       const roll = at0('coinsRoll');
-      const coinAt = at0('coinsAt') + 0.2;
+      const coinAt = at0('coinsAt') + 0.1;
       fx.delay(c, coinAt, () => {
         if (!live()) return;
         const ci = coinIcon.worldPosition;
@@ -364,8 +364,8 @@ export class ResultPage extends Page {
           });
         }
       });
-      fx.countUp(coinLabel, 0, r.coins, roll, (v) => `+${v}`, coinAt + 0.3);
-      fx.delay(c, coinAt + 0.3 + roll, () => {
+      fx.countUp(coinLabel, 0, r.coins, roll, (v) => `+${v}`, coinAt + 0.15);
+      fx.delay(c, coinAt + 0.15 + roll, () => {
         if (!live()) return;
         Tween.stopAllByTarget(coinLabel.node);
         coinLabel.node.setScale(1.35, 1.35, 1);
