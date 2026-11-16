@@ -731,7 +731,7 @@ export class GamePage extends Page {
     // 要什么、还差几条，看缸前面叠着的订单卡：一张卡一条鱼，进一条揭掉一张
     const inside = box('inside', node, s, h);
     const cards: Node[] = [];
-    const cw = big ? 50 : 58;
+    const cw = big ? 56 : 68;
     const ch = cw * 1.22;
     const step = cap > 1 ? Math.min(cw * 0.42, (s * 0.86 - cw) / (cap - 1)) : 0;
     for (let i = 0; i < cap; i++) {
@@ -739,7 +739,7 @@ export class GamePage extends Page {
       const card = img(node, 'skin/j_tile', cw, ch, `card${i}`);
       at(card, k * step, -h / 2 + ch * 0.16 + Math.abs(k) * 2.5);
       card.angle = -k * 7;
-      img(card, this.field.spriteFor(sp), cw * 0.82, cw * 0.82, 'fish');
+      img(card, this.field.spriteFor(sp), cw * 0.9, cw * 0.9, 'fish');
       cards.push(card);
     }
     let timerNode: Node | null = null;
