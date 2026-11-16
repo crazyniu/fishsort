@@ -29,13 +29,6 @@ export function fadeIn(n: Node, dur = 0.2, delay = 0, to = 255): void {
   tween(op).delay(delay).to(dur, { opacity: to }).start();
 }
 
-export function fadeOut(n: Node, dur = 0.2, done?: () => void): void {
-  tween(opacity(n))
-    .to(dur, { opacity: 0 })
-    .call(() => done?.())
-    .start();
-}
-
 /** 呼吸：主按钮、「下一关」 */
 export function breathe(n: Node, amp = 0.05, period = 1.2): void {
   const s = n.scale.x || 1;

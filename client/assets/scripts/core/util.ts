@@ -55,7 +55,3 @@ export function deepCopy<T>(v: T): T {
 export function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
-
-export function isEmptyObject(v: unknown): boolean {
-  return isObject(v) && Object.keys(v).length === 0;
-}

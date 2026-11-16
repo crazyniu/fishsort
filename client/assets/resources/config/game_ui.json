@@ -55,7 +55,6 @@
   ]
  },
  "combo": {
-  "numberTiltDegrees": 3.5
  },
  "current": {
   "lead": 0.45,
@@ -84,7 +83,6 @@
   "chestAt": 0.75,
   "chestShake": 0.34,
   "buttonsAt": 1.55,
-  "flashFromRarity": "epic",
   "shareFromRarity": "rare"
  },
  "field": {

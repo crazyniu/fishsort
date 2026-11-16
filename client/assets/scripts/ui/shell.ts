@@ -10,7 +10,7 @@ import * as Lives from '../core/meta/lives';
 import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
 import { now, today } from '../services/clock';
-import { breathe, fadeIn, popIn, ring, sparkle } from './fx';
+import { fadeIn, popIn, ring, sparkle } from './fx';
 import { tr } from './i18n';
 import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
@@ -164,10 +164,6 @@ class TabBar {
       }
       c.dot.active = dot;
     }
-  }
-
-  relabel(): void {
-    for (const t of TABS) this.cells.get(t)?.label && ((this.cells.get(t) as { label: Label }).label.string = tr(TAB_LABEL[t]));
   }
 }
 
@@ -452,10 +448,6 @@ export function reportError(where: string, e: unknown): void {
 /** 进场：依次弹出（总时长 ≤ 0.8 秒，docs/09 第 6 节） */
 export function enterStagger(nodes: Node[], step = 0.06): void {
   nodes.forEach((n, i) => popIn(n, Math.min(0.5, i * step), 0.3));
-}
-
-export function mainButtonBreath(n: Node): void {
-  breathe(n, 0.03, 1.4);
 }
 
 export function width(n: Node): number {

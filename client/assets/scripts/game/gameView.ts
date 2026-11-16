@@ -1258,10 +1258,6 @@ export class GamePage extends Page {
     this.refreshHud();
   }
 
-  bowlPos(slot: number): [number, number] {
-    return [this.bowlX[slot], this.bowlY];
-  }
-
   fxLayer(): Node {
     return this.fly;
   }

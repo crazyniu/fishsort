@@ -69,18 +69,14 @@ const ON_GRAY = btnInk('#5A6880');
 
 /** 部件 → 上面放的字用什么颜色 */
 const PART_INK: Record<string, Ink> = {
-  'kit/panel': ON_LIGHT,
-  'kit/panel_plain': ON_LIGHT,
   'kit/panel_glass': ON_LIGHT,
   'kit/row': ON_LIGHT,
   'kit/seg_bg': ON_LIGHT,
-  'kit/tabbar': ON_DARK,
   'kit/panel_blue': ON_DARK,
   'kit/row_blue': ON_DARK,
   'kit/title_plate': ON_DARK,
   'kit/title_page': ON_DARK,
   'kit/capsule': ON_DARK,
-  'kit/popup_head': ON_DARK,
   'kit/cell_gold': ON_AMBER,
   'kit/tag_red': ON_RED,
   'kit/tag_amber': ON_AMBER,
@@ -129,7 +125,6 @@ export function inkOf(n: Node | null): Ink {
   return ON_DARK;
 }
 
-export const LIGHT_INK = ON_LIGHT;
 export const DARK_INK = ON_DARK;
 
 /** 界面上的数字：取整，不加千分位逗号（用户 2026-11-16 定：100449 就显示 100449） */

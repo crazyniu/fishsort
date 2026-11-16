@@ -321,9 +321,9 @@ def main() -> None:
         save('j_dg_x', scaled(gl[10], k))
         save('j_combo_word', scaled(gl[11], k))
     if (raw / 'burst.png').exists():
-        b, f = cut_grid(raw / 'burst.png', 2, 1)
+        # 出图里右边还有一个火焰圆章，没用上，不切
+        b = cut_grid(raw / 'burst.png', 2, 1)[0]
         save('j_burst', scaled(b, 600 / b.width))
-        save('j_flame', scaled(f, 420 / f.width))
 
     # 局内零件：教学手指、挑战旗、锁链、红点
     if (raw / 'misc.png').exists():
