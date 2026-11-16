@@ -167,10 +167,11 @@ def light_on_black(path: Path, size: int) -> Image.Image:
     return out.convert('RGBa').resize((size, size), Image.LANCZOS).convert('RGBA')
 
 
-def key_magenta(path: Path) -> Image.Image:
+def key_magenta(path) -> Image.Image:
     """品红底上的图案抠出来（白色的艺术字不能用白底：字里封闭的空隙泛洪够不着，会留成白的）。
     品红度 = min(R, B) - G：背景约等于 1，白、绿都 ≤ 0。按它算透明度，再把边缘混进去的品红减掉。裁到外接矩形。"""
-    a = np.asarray(Image.open(path).convert('RGB')).astype(np.float32) / 255.0
+    src = path if isinstance(path, Image.Image) else Image.open(path)
+    a = np.asarray(src.convert('RGB')).astype(np.float32) / 255.0
     corners = np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3), a[-8:, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)])
     bg = np.median(corners, axis=0)
     m0 = min(bg[0], bg[2]) - bg[1]

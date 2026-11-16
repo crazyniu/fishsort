@@ -28,8 +28,8 @@ interface View {
   chain: Node | null;
   chainLabel: Label | null;
   ice: Node | null;
-  /** 冰晶连线：连到每个依赖的气泡的一串小冰块，位置每帧跟着两头走 */
-  iceLinks: { beads: Node[]; dep: number }[];
+  /** 冰晶连线：连到每个依赖的气泡的一串冰晶，咬住依赖泡的那头是一簇冰刺；位置每帧跟着两头走 */
+  iceLinks: { beads: Node[]; clamp: Node | null; dep: number }[];
   /** 迷雾：雾团、每条鱼位上的问号球、底下一排小泡泡（还要破几个别的气泡，一个小泡泡代表一个） */
   fog: Node | null;
   fogMarks: (Node | null)[];
@@ -43,17 +43,19 @@ interface View {
 }
 
 const WHITE = new Color(255, 255, 255, 255);
-/** 问号球上「?」的描边 */
-const MARK_INK = new Color(40, 52, 120, 255);
 /** 下层（被压住、还不能点）的气泡和鱼 */
 const UNDER_BUBBLE = new Color(70, 105, 180, 255);
 const UNDER_FISH = new Color(120, 135, 170, 255);
 const FROST = new Color(225, 247, 255, 255);
 /** 泡膜上转动的那层流光的颜色 */
 const SHEEN = new Color(255, 200, 240, 255);
-/** 冰晶连线上小冰块的大小和间距 */
-const ICE_BEAD = 34;
-const ICE_GAP = 30;
+/** 迷雾计数小泡泡的底色 */
+const PIP = new Color(150, 205, 255, 255);
+/** 冰晶连线：一节冰晶的长、宽（图是 120×68），相邻两节的间距（比长度短一点，首尾相接），咬住依赖泡的冰刺的大小 */
+const ICE_BEAD = 40;
+const ICE_BEAD_H = (ICE_BEAD * 68) / 120;
+const ICE_GAP = 34;
+const ICE_CLAMP = 44;
 
 export class Field {
   node: Node;
@@ -477,7 +479,7 @@ export class Field {
     if (d.ice.length > 0) {
       v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = 170;
-      for (const dep of d.ice) v.iceLinks.push({ beads: [], dep });
+      for (const dep of d.ice) v.iceLinks.push({ beads: [], clamp: null, dep });
     }
     if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
     // 气泡互相挨着，漂浮幅度小一点；泡膜像果冻一样慢慢鼓一下、扁一下（每个错开，不齐步）
@@ -503,18 +505,21 @@ export class Field {
     v.fogMarks = v.fish.map((f, k) => {
       if (!f) return null;
       opacity(f).opacity = 0;
+      // 问号画在图里（Codex 出图），不再叠字
       const m = img(v.body, 'skin/j_mystery', fs * 0.86, fs * 0.86, `fogMark${k}`);
       at(m, v.offsets[k][0], v.offsets[k][1]);
-      text(m, '?', Math.round(fs * 0.5), { color: WHITE, outline: MARK_INK, outlineWidth: 4 });
       return m;
     });
     // 还差几次显形：气泡下沿一排小泡泡，别处每破一个气泡，这里就破一个（用户 2026-11-16：数字角标看不懂）
-    const size = Math.min(36, v.r * 0.3);
-    const step = size * 1.12;
+    // 小泡泡要一眼看得见：实心浅蓝圆点上叠气泡的高光，骑在气泡下沿，画在问号球上面
+    const size = Math.min(34, Math.max(24, v.r * 0.26));
+    const step = size * 1.18;
     for (let i = 0; i < left; i++) {
-      const pip = img(v.body, 'skin/j_bubble', size, size, `fogPip${i}`);
-      at(pip, (i - (left - 1) / 2) * step, -v.r * 0.7);
-      bob(pip, 3, 1.4 + i * 0.2, i * 0.3);
+      const pip = img(v.body, 'kit/circle_white', size, size, `fogPip${i}`);
+      (pip.getComponent(Sprite) as Sprite).color = PIP;
+      img(pip, 'skin/j_bubble', size * 1.08, size * 1.08, 'shine');
+      at(pip, (i - (left - 1) / 2) * step, -v.r * 0.86);
+      bob(pip, 2, 1.4 + i * 0.2, i * 0.3);
       v.fogPips.push(pip);
     }
   }
@@ -567,8 +572,8 @@ export class Field {
   }
 
   /**
-   * 冰晶连线：一串小冰块，从冰封泡的边排到依赖泡的边，两头的气泡动了就跟着动；解冻或任一头不在场就收起。
-   * 小冰块用的就是罩在冰封泡上的那张冰块图，一眼看得出是同一样东西
+   * 冰晶连线：一串冰晶，从冰封泡的边排到依赖泡的边，咬住依赖泡的那头是一簇冰刺（看得出「这头连的是谁」）；
+   * 两头的气泡动了就跟着动；解冻或任一头不在场就收起
    */
   private placeIceLinks(): void {
     for (const v of this.views) {
@@ -578,6 +583,7 @@ export class Field {
         const on = !v.gone && v.node.active && !!v.ice && !!o && !o.gone && o.node.active;
         if (!on) {
           for (const b of l.beads) b.active = false;
+          if (l.clamp) l.clamp.active = false;
           continue;
         }
         const ax = v.node.position.x;
@@ -585,21 +591,25 @@ export class Field {
         const dx = o.node.position.x - ax;
         const dy = o.node.position.y - ay;
         const dist = Math.hypot(dx, dy) || 1;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        // 冰晶从冰封泡的边排到依赖泡的边，顺着连线方向首尾相接；冰刺骑在依赖泡的边上
         const from = v.r * 0.9;
-        const len = Math.max(ICE_GAP, dist - from - o.r * 0.9);
-        const n = Math.min(16, Math.max(2, Math.round(len / ICE_GAP) + 1));
-        while (l.beads.length < n) {
-          const k = l.beads.length;
-          const bead = img(this.linkLayer, 'icon/ice', ICE_BEAD, ICE_BEAD, 'iceBead');
-          bead.angle = k % 2 === 0 ? 14 : -14;
-          l.beads.push(bead);
-        }
+        const to = dist - o.r * 0.92;
+        const len = Math.max(ICE_GAP, to - from - ICE_CLAMP * 0.3);
+        const n = Math.min(16, Math.max(1, Math.round(len / ICE_GAP)));
+        while (l.beads.length < n) l.beads.push(img(this.linkLayer, 'skin/j_ice_bead', ICE_BEAD, ICE_BEAD_H, 'iceBead'));
         l.beads.forEach((bead, k) => {
           bead.active = k < n;
           if (k >= n) return;
-          const t = from + (len * k) / (n - 1);
-          bead.setPosition(ax + (dx / dist) * t, ay + (dy / dist) * t, 0);
+          const t = from + (len * (k + 0.5)) / n;
+          bead.setPosition(ax + ux * t, ay + uy * t, 0);
+          bead.angle = angle;
         });
+        if (!l.clamp) l.clamp = img(this.linkLayer, 'skin/j_frost', ICE_CLAMP, (ICE_CLAMP * 128) / 120, 'iceClamp');
+        l.clamp.active = true;
+        l.clamp.setPosition(ax + ux * to, ay + uy * to, 0);
       }
     }
   }
@@ -684,13 +694,20 @@ export class Field {
     sparkle(this.node, v.node.position.x, v.node.position.y, 8, v.r, new Color(200, 210, 230, 255));
   }
 
+  private dropIceLinks(v: View): void {
+    for (const l of v.iceLinks) {
+      for (const bead of l.beads) bead.destroy();
+      if (l.clamp) l.clamp.destroy();
+    }
+    v.iceLinks = [];
+  }
+
   private melt(v: View): void {
     const ice = v.ice;
     if (!ice) return;
     v.ice = null;
     tween(opacity(ice)).to(0.35, { opacity: 0 }).call(() => ice.destroy()).start();
-    for (const l of v.iceLinks) for (const bead of l.beads) bead.destroy();
-    v.iceLinks = [];
+    this.dropIceLinks(v);
     sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(180, 240, 255, 255));
   }
 
@@ -753,8 +770,7 @@ export class Field {
   pop(b: number): void {
     const v = this.views[b];
     v.gone = true;
-    for (const l of v.iceLinks) for (const bead of l.beads) bead.destroy();
-    v.iceLinks = [];
+    this.dropIceLinks(v);
     const n = v.node;
     // 从重力模拟里拿掉：压在它上面的气泡这就往下落；原来和它绑在一起的重新分组
     if (this.pile.has(b)) {
