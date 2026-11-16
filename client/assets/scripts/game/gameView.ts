@@ -18,7 +18,7 @@ import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, Capsule, at, blockInput, box, capsule, iconButton, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { Capsule, COLOR, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -173,19 +173,19 @@ export class GamePage extends Page {
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
     const hudY = top - 52;
-    this.progress = capsule(this.stage, 200, 64, `fish/${this.species[0]}`, '', 30);
-    at(this.progress.node, -Screen.W / 2 + 32 + 100, hudY);
-    this.levelCap = capsule(this.stage, 168, 64, null, tr('UI_LEVEL', this.arg.level), 28);
-    at(this.levelCap.node, Screen.W / 2 - 32 - 72 - 16 - 84, hudY);
+    this.progress = capsule(this.stage, 196, 66, `fish/${this.species[0]}`, '', 34);
+    at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
+    this.levelCap = capsule(this.stage, 172, 66, null, tr('UI_LEVEL', this.arg.level), 32);
+    at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 12 - 86, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
-    const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 72, () => Flow.pause(this));
-    at(gear, Screen.W / 2 - 52, hudY);
+    const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
+    at(gear, Screen.W / 2 - 24 - 37, hudY);
     // 连击：顶栏中间，大字「连击 ×N」（按档位换色）+ 本局连击金币 + 倒计时细条
     this.comboRow = box('combo', this.stage, 230, 90);
     at(this.comboRow, -28, hudY + 2);
     this.comboLabel = text(this.comboRow, '', 40);
     at(this.comboLabel.node, 0, 12);
-    this.comboCoins = text(this.comboRow, '', 22, { color: COLOR.yellow });
+    this.comboCoins = text(this.comboRow, '', 26, { color: COLOR.yellow });
     at(this.comboCoins.node, 0, -20);
     const track = slice(this.comboRow, 'kit/bar_track', this.comboBarW, 12, 'track');
     at(track, 0, -40);
@@ -255,24 +255,23 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
-  /** 技能键：深色半透明方块（圆角 24），插画图标 + 名字；数量是右上角的琥珀小标签，没有了换绿色加号 */
+  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的琥珀小标签，没有了换绿色加号 */
   private buildSkill(id: SkillId, x: number, y: number): void {
     const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 100, 100, 'icon');
-    at(icon, 0, 18);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 26);
-    at(name.node, 0, -56);
+    const icon = img(node, `icon/skill_${id}`, 108, 108, 'icon');
+    at(icon, 0, 16);
+    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 30);
+    at(name.node, 0, -54);
     const badge = slice(node, 'kit/tag_amber', 64, 40, 'badge');
     at(badge, 156 / 2 - 22, 168 / 2 - 10);
-    const count = text(badge, '', 24);
-    const plus = img(node, 'kit/round_green', 48, 48, 'plus');
-    img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
+    const count = text(badge, '', 26);
+    const plus = keyButton(node, 'green', 'kit/ic_plus', 50, null, 0.62);
     at(plus, 156 / 2 - 18, 168 / 2 - 14);
     const lock = box('lock', node, 156, 168);
     const lockIcon = img(lock, 'kit/ic_lock', 48, 48, 'icon');
     at(lockIcon, 0, 18);
-    const lockLabel = text(lock, '', 22);
+    const lockLabel = text(lock, '', 24);
     at(lockLabel.node, 0, -56);
     lockLabel.string = tr('H_UNLOCKS_AT', Skills.unlockLevel(App.config.eco, id));
     onTap(node, () => Flow.useSkill(this, id));

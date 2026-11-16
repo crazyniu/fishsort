@@ -89,7 +89,7 @@ export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
     const icon = img(n, it.icon, s * 0.86, s * 0.86, 'icon');
     at(icon, 0, 16);
   }
-  const l = text(n, it.amount, Math.round(s * 0.26));
+  const l = text(n, it.amount, Math.max(28, Math.round(s * 0.28)));
   at(l.node, 0, -s / 2 - 8);
   return n;
 }
@@ -104,7 +104,7 @@ export function rewardPopup(
   const rows = Math.ceil(items.length / cols);
   // 标题放在弹窗统一的标题栏里；内容区自上而下：奖品 → 名称数量 → 按钮
   const dbl = o.double ? 115 : 0;
-  const h = many ? 64 + rows * 170 + 32 + 110 + 32 + dbl : 480 + dbl;
+  const h = many ? 64 + rows * 196 + 32 + 110 + 32 + dbl : 480 + dbl;
   const p = openPopup({ w: 640, h, title: o.title ?? tr('H_CONGRATS'), noClose: true, onClose: o.onClose });
   if (!many && items[0]) {
     const iy = h / 2 - 32 - 110;
@@ -120,13 +120,13 @@ export function rewardPopup(
       at(l.node, 0, iy - 146);
     }
   } else {
-    const cw = 118;
+    const cw = cols >= 5 ? 116 : 150;
     items.forEach((it, i) => {
       const r = Math.floor(i / cols);
       const c = i % cols;
       const inRow = Math.min(cols, items.length - r * cols);
-      const cell = prizeCell(p.body, it, 100);
-      at(cell, (c - (inRow - 1) / 2) * cw, h / 2 - 32 - 75 - r * 170);
+      const cell = prizeCell(p.body, it, cols >= 5 ? 104 : 128);
+      at(cell, (c - (inRow - 1) / 2) * cw, h / 2 - 32 - 88 - r * 196);
       fx.popIn(cell, 0.1 + i * 0.07, 0.25);
     });
   }

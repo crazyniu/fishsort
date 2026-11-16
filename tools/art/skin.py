@@ -185,6 +185,11 @@ def main() -> None:
     # 暂存格快满时的警告色
     save('j_slot_warn', recolor(j, 205, 2, 0.4, 1.0, 1.25, 0.85), jb)
 
+    # 排行奖牌：金、银、铜
+    if (raw / 'medals.png').exists():
+        for nm, im in zip(['1', '2', '3'], cut(raw / 'medals.png')):
+            save(f'j_medal_{nm}', im.convert('RGBa').resize((round(im.width * 300 / im.height), 300), Image.LANCZOS).convert('RGBA'))
+
     save('j_inset', *inset())
 
     SLICES.write_text(json.dumps(slices, indent=2) + '\n')

@@ -68,8 +68,8 @@ export class WheelPage extends Page {
     at(coins.node, Screen.W / 2 - 32 - 110, top - 80);
 
     // 自下而上：次按钮一排 → 主按钮 → 剩余次数 → 宝箱（在剩下的空间里居中）
-    const y2 = Screen.bottom + 48 + 48;
-    const btnY = y2 + 48 + 24 + 64;
+    const y2 = Screen.bottom + 40 + 54;
+    const btnY = y2 + 54 + 24 + 64;
     const cntY = btnY + 64 + 32 + 36;
     const room = top - 140 - (cntY + 36 + 16);
     const cs = Math.min(420, room);
@@ -94,15 +94,15 @@ export class WheelPage extends Page {
     fx.breathe(main.node, 0.03, 1.3);
 
     // 下一排（次按钮，两行字都在按钮里）：十连（金币价）· 看广告 +1（今日剩余）· 分享 +1（今日剩余）
-    const BW = 216;
-    const ten = button(v, { color: 'blue', w: BW, h: 96, onTap: () => this.ten() });
+    const BW = 218;
+    const ten = button(v, { color: 'blue', w: BW, h: 108, onTap: () => this.ten() });
     twoLines(ten, tr('H_TEN_PULL'), `${fmt(eco.wheel.tenCost)}`, 'icon/coin');
     at(ten.node, -(BW + 16), y2);
     const adLeft = Wheel.adLeft(s, eco, day);
     const ad = button(v, {
       color: 'yellow',
       w: BW,
-      h: 96,
+      h: 108,
       onTap: async () => {
         if (Wheel.adLeft(App.save.data, eco, today()) <= 0) return;
         if (!(await watchAd('rv_wheel'))) return;
@@ -120,7 +120,7 @@ export class WheelPage extends Page {
       const sh = button(v, {
         color: 'blue',
         w: BW,
-        h: 96,
+        h: 108,
         onTap: async () => {
           if (Share.remaining(App.save.data, eco, 'wheel', today()) <= 0) return;
           if (!(await App.platform.share({ kind: 'wheel' }))) return;

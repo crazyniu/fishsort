@@ -239,6 +239,8 @@ function nineFor(path: string, w: number, h: number): string {
 
 /** 九宫格：外层节点 w×h 管布局和子节点，皮在缩小 1/RES 的子节点上 */
 export function slice(parent: Node | null, path: string, w: number, h: number, name = path): Node {
+  // 页面标题：统一放在蓝色标题牌上（和商店一样），牌子不超过 86 高
+  if (path === 'kit/title_page') return plate(parent, 'skin/j_plate', Math.max(220, w - 70), Math.min(h, 86), name);
   const alias = ALIAS[path];
   if (alias?.[1] === 'plate') return plate(parent, alias[0], w, h, name);
   if (alias) path = nineFor(alias[0], w, h);
@@ -591,15 +593,15 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
 export function twoLines(b: Btn, main: string, sub: string, subIcon: string | null, mainIcon: string | null = null): void {
   const row = b.node.getChildByName('row') as Node;
   const top = box('l1', row);
-  at(top, 0, 13);
+  at(top, 0, 15);
   const parts1: Node[] = [];
-  if (mainIcon) parts1.push(img(top, mainIcon, 36, 36, 'ic'));
-  parts1.push(text(top, main, 30).node);
+  if (mainIcon) parts1.push(img(top, mainIcon, 40, 40, 'ic'));
+  parts1.push(text(top, main, 34).node);
   const bot = box('l2', row);
-  at(bot, 0, -20);
+  at(bot, 0, -22);
   const parts2: Node[] = [];
-  if (subIcon) parts2.push(img(bot, subIcon, 24, 24, 'ic'));
-  parts2.push(text(bot, sub, 22).node);
+  if (subIcon) parts2.push(img(bot, subIcon, 28, 28, 'ic'));
+  parts2.push(text(bot, sub, 26).node);
   for (const parts of [parts1, parts2]) {
     const ws = parts.map((n) => {
       const l = n.getComponent(Label);

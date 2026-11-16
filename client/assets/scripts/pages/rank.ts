@@ -126,8 +126,8 @@ export class RankPage extends Page {
   private row(parent: Node, rank: number, name: string, score: number, me: boolean, fish: string): Node {
     const row = slice(parent, me ? 'kit/panel_glass' : 'kit/row_blue', 690, ROW_H, `r${rank}`);
     if (rank <= 3) {
-      const m = img(row, `kit/medal_${rank}`, 80, 80, 'medal');
-      at(m, -280, 0);
+      const m = img(row, `skin/j_medal_${rank}`, 60, 90, 'medal');
+      at(m, -280, 2);
     } else {
       const c = slice(row, 'kit/capsule', 70, 54, 'no');
       at(c, -280, 0);
