@@ -207,12 +207,14 @@ export class LevelsPage extends Page {
     at(num.node, 0, done ? 12 : 6);
     if (hard) {
       // 挑战关：插一面「挑战」旗
-      const flag = box('flag', holder, 150, 90);
-      at(flag, -size * 0.32, size * 0.55);
-      const f = img(flag, 'skin/j_flag', 104, 112, 'pole');
-      at(f, -10, 10);
+      // 插在节点右上角（左边常有装饰海星），旗面够大写下「挑战」
+      const flag = box('flag', holder, 150, 120);
+      at(flag, size * 0.42, size * 0.6);
+      flag.setSiblingIndex(holder.children.length - 1);
+      const f = img(flag, 'skin/j_flag', 130, 140, 'pole');
+      at(f, 0, 0);
       // 中文「挑战」两个字写在红旗上；其它语言字长，放一块红色小牌
-      if (language() === 'zh_CN') at(text(f, tr('UI_CHALLENGE'), 26).node, 12, 24);
+      if (language() === 'zh_CN') at(text(f, tr('UI_CHALLENGE'), 26).node, 14, 34);
       else {
         const tag = slice(flag, 'kit/btn_red', 130, 48, 'tag');
         at(tag, 50, 16);
