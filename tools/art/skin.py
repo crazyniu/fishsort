@@ -178,6 +178,22 @@ def light_on_black(path: Path, size: int) -> Image.Image:
     return out.convert('RGBa').resize((size, size), Image.LANCZOS).convert('RGBA')
 
 
+def key_magenta(path: Path) -> Image.Image:
+    """品红底上的图案抠出来（白色的艺术字不能用白底：字里封闭的空隙泛洪够不着，会留成白的）。
+    品红度 = min(R, B) - G：背景约等于 1，白、绿都 ≤ 0。按它算透明度，再把边缘混进去的品红减掉。裁到外接矩形。"""
+    a = np.asarray(Image.open(path).convert('RGB')).astype(np.float32) / 255.0
+    corners = np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3), a[-8:, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)])
+    bg = np.median(corners, axis=0)
+    m0 = min(bg[0], bg[2]) - bg[1]
+    m = np.minimum(a[..., 0], a[..., 2]) - a[..., 1]
+    alpha = 1.0 - np.clip(m / (m0 * 0.85), 0.0, 1.0)
+    a3 = np.clip(alpha, 0.02, 1.0)[..., None]
+    col = np.clip((a - (1.0 - a3) * bg) / a3, 0.0, 1.0)
+    out = Image.fromarray(np.clip(np.dstack([col, alpha]) * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
+    ys, xs = np.nonzero(alpha > 0.05)
+    return out.crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+
+
 def main() -> None:
     raw = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / 'art/raw/ui_skin'
     OUT.mkdir(parents=True, exist_ok=True)
@@ -339,6 +355,11 @@ def main() -> None:
             canvas.alpha_composite(im, (max(0, min(660 - im.width, round(330 - cx))), 660 - 4 - im.height))
             canvas.save(OUT.parent / 'icon' / f'{name}.png')
             print(f'  icon/{name}: {im.size}')
+
+    # 主按钮「开始」的艺术字（中文）：品红底出图，抠出来
+    if (raw / 'start_word.png').exists():
+        w = key_magenta(raw / 'start_word.png')
+        save('j_start_word', scaled(w, 660 / w.width))
 
     SLICES.write_text(json.dumps(slices, indent=2) + '\n')
 

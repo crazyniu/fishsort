@@ -12,7 +12,7 @@ import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
-import { tr } from '../ui/i18n';
+import { language, tr } from '../ui/i18n';
 import { Btn, at, box, button, img, lazyImg, onTap, opacity, plate, redDot, resizePlate, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
@@ -25,8 +25,11 @@ const ENTRY_H = 184;
 const ENTRY_ICON = 140;
 const LABEL_H = 58;
 /** 「开始」按钮 */
-const START_W = 470;
-const START_H = 150;
+/** 「开始」艺术字的显示尺寸（宽按图的比例，见 tools/art/skin.py） */
+const START_WORD_H = 90;
+const START_WORD_W = 189;
+const START_W = 420;
+const START_H = 134;
 
 interface Entry {
   node: Node;
@@ -90,7 +93,16 @@ export class HomePage extends Page {
     this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
     this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'), 1.18);
     this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
-    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 94, onTap: () => Flow.startLevel(App.save.data.level) });
+    // 「开始」：中文用 Codex 画的艺术字（位图，不糊）；其它语言用字
+    this.start = button(root, {
+      color: 'green',
+      w: START_W,
+      h: START_H,
+      label: tr('UI_PLAY'),
+      fontSize: 80,
+      art: language() === 'zh_CN' ? { path: 'skin/j_start_word', w: START_WORD_W, h: START_WORD_H } : undefined,
+      onTap: () => Flow.startLevel(App.save.data.level),
+    });
     at(this.start.node, 0, btnY);
     this.levelPill = plate(root, 'skin/j_plate', 232, LABEL_H, 'levelPill');
     at(this.levelPill, 0, pillY);

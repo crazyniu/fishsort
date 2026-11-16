@@ -352,6 +352,11 @@ export interface TextOpts {
   width?: number;
   lineHeight?: number;
   bold?: boolean;
+  /**
+   * 高清倍数：字按 fontSize × sharp 渲染，再把节点缩回去。引擎按设计尺寸（750 宽）画字，到高分屏上会被放大发糊，大字最明显；
+   * 给 2 就清楚了。用了它的字，节点缩放是 1 / sharp：不要再对这个节点 setScale(1) 或做缩放动画（要动就动它的父节点）
+   */
+  sharp?: number;
 }
 
 /**
@@ -359,6 +364,9 @@ export interface TextOpts {
  * 写 COLOR.white / COLOR.yellow 也按面换成对应的正文色 / 强调色；outline: null 强制不描边
  */
 export function text(parent: Node | null, s: string, fontSize: number, o: TextOpts = {}): Label {
+  const k = o.sharp ?? 1;
+  const design = fontSize;
+  fontSize = Math.round(fontSize * k);
   const n = box('text', parent);
   const l = n.addComponent(Label);
   const font = uiFont();
@@ -369,7 +377,7 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
     l.isBold = true;
   }
   l.fontSize = fontSize;
-  l.lineHeight = o.lineHeight ?? Math.round(fontSize * 1.25);
+  l.lineHeight = o.lineHeight !== undefined ? Math.round(o.lineHeight * k) : Math.round(fontSize * 1.25);
   const ink = inkOf(parent);
   l.color = inkColor(ink, o.color);
   const outline = o.outline === undefined ? ink.outline : o.outline;
@@ -377,10 +385,10 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
     l.enableOutline = true;
     l.outlineColor = outline;
     // 描边约字号的 1/12：再粗，笔画之间的空隙会被填死
-    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 12));
+    l.outlineWidth = o.outlineWidth !== undefined ? Math.round(o.outlineWidth * k) : Math.max(2, Math.round(fontSize / 12));
   }
   // 描边字下面压一道更深的硬投影，字像有厚度一样立起来（定版图的做法）；小字不加，免得糊
-  if (o.shadow ?? (!!outline && fontSize >= 28)) {
+  if (o.shadow ?? (!!outline && design >= 28)) {
     l.enableShadow = true;
     l.shadowColor = depthColor(outline ?? COLOR.shadow);
     l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 18)));
@@ -392,11 +400,12 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (o.width !== undefined) {
     l.overflow = Label.Overflow.RESIZE_HEIGHT;
     l.enableWrapText = true;
-    size(n, o.width, l.lineHeight);
+    size(n, o.width * k, l.lineHeight);
   }
   if (o.align === 'left') (n.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
   if (o.align === 'right') (n.getComponent(UITransform) as UITransform).setAnchorPoint(1, 0.5);
   l.string = s;
+  if (k !== 1) n.setScale(1 / k, 1 / k, 1);
   return l;
 }
 
@@ -523,6 +532,8 @@ export interface BtnOpts {
   /** 文字前的小图标（视频、金币…） */
   icon?: string;
   iconSize?: number;
+  /** 用一张艺术字图代替文字（主按钮「开始」；只在有对应语言的图时给）。label 仍然要给，读屏和回退用 */
+  art?: { path: string; w: number; h: number };
   onTap?: () => void;
 }
 
@@ -552,12 +563,15 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const is = o.iconSize ?? Math.round(o.h * 0.5);
     icon = img(row, o.icon, is, is, 'icon');
   }
-  const label = o.label !== undefined ? text(row, o.label, fs) : null;
+  // 按钮字按 2 倍渲染再缩回去：高分屏上不糊（见 TextOpts.sharp）
+  const label = o.label !== undefined ? text(row, o.label, fs, { sharp: 2 }) : null;
+  const art = o.art ? img(row, o.art.path, o.art.w, o.art.h, 'art') : null;
+  if (art && label) label.node.active = false;
   const layout = () => {
     const gap = 10;
     const ic = icon && icon.active ? icon : null;
     const iw = ic ? sizeOf(ic).w : 0;
-    const lw = label ? (label.node.getComponent(UITransform) as UITransform).width : 0;
+    const lw = art ? sizeOf(art).w : label ? (label.node.getComponent(UITransform) as UITransform).width * label.node.scale.x : 0;
     const total = iw + (ic && label ? gap : 0) + lw;
     let x = -total / 2;
     if (ic) {
@@ -565,6 +579,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
       x += iw + gap;
     }
     if (label) label.node.setPosition(x + lw / 2, 0, 0);
+    if (art) art.setPosition(x + lw / 2, 0, 0);
   };
   if (label) label.updateRenderData(true);
   layout();
