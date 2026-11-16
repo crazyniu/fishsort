@@ -81,6 +81,8 @@ const BOWL_SINK = 5;
 const AMBIENT_TAG = 9201;
 /** 夸奖字出现时让连击计让开的 tween 标签 */
 const PRAISE_TAG = 9202;
+/** 技能数量角标的红 */
+const BADGE_RED = new Color(235, 64, 64, 255);
 
 export class GamePage extends Page {
   readonly tab = null;
@@ -345,7 +347,7 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
-  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的红色圆角标（只写数字，不带乘号；用户 2026-11-16），没有了换绿色加号 */
+  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的扁平红色圆角标（只写数字，不带乘号；用户 2026-11-16），没有了换绿色加号 */
   private buildSkill(id: SkillId, x: number, y: number): void {
     const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
     at(node, x, y);
@@ -353,9 +355,14 @@ export class GamePage extends Page {
     at(icon, 0, 16);
     const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 30);
     at(name.node, 0, -54);
-    const badge = img(node, 'skin/j_dot', 54, 54, 'badge');
+    // 常见的扁平角标：白边红底白字，不要反光（用户 2026-11-16）
+    const badge = img(node, 'kit/circle_white', 52, 52, 'badge');
     at(badge, 156 / 2 - 16, 168 / 2 - 14);
-    const count = text(badge, '', 28);
+    const dot = img(badge, 'kit/circle_white', 44, 44, 'dot');
+    (dot.getComponent(Sprite) as Sprite).color = BADGE_RED;
+    const count = text(badge, '', 26, { outline: null, shadow: false });
+    // 白底圆片会被当成浅色面、字换成深色：这里直接写死白字
+    count.color = new Color(255, 255, 255, 255);
     const plus = keyButton(node, 'green', 'kit/ic_plus', 50, null, 0.62);
     at(plus, 156 / 2 - 18, 168 / 2 - 14);
     const lock = box('lock', node, 156, 168);
@@ -384,7 +391,7 @@ export class GamePage extends Page {
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
       // 「免费」两个字比数字宽，字号小一点才放得进圆角标
-      v.count.fontSize = free ? 20 : 28;
+      v.count.fontSize = free ? 19 : 26;
       v.count.lineHeight = Math.round(v.count.fontSize * 1.25);
     }
   }
