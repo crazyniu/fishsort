@@ -83,8 +83,9 @@
   "maxScale": 1.9,
   "gap": 6,
   "relaxSteps": 80,
-  "fishMin": 72,
-  "fishMax": 160
+  "fishMin": 80,
+  "fishMax": 160,
+  "layerBoost": 1.15
  },
  "badgeCap": 99,
  "basePage": {

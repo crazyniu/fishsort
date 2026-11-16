@@ -80,6 +80,9 @@ export class Field {
     } else {
       // 有遮挡的关卡：整体等比放大、居中，用满场地（相对位置和遮挡关系不变；用户 2026-11-16：场地尽量大）
       this.fillBox(centers, radii, centers.length);
+      // 叠层关卡气泡本来就互相压着：半径再放大一点，鱼更大更好点（位置不动，遮挡关系照旧按层画）
+      const boost = App.config.ui.field.layerBoost ?? 1;
+      for (let i = 0; i < radii.length; i++) radii[i] *= boost;
     }
     // 下层先画
     const order = this.lv.bubbles.map((_, i) => i).sort((a, b) => this.lv.bubbles[a].layer - this.lv.bubbles[b].layer || a - b);
