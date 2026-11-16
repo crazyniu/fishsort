@@ -14,11 +14,8 @@ const MAP: Record<string, string> = {
   toggleOff: 'toggle_off',
   blocked: 'error',
   error: 'error',
-  fly: 'whoosh',
   buffer: 'buffer',
-  splash: 'splash',
-  pop: 'pop',
-  bowl: 'bowl_done',
+  bowlDone: 'bowl_done',
   blow: 'blow',
   shuffle: 'shuffle',
   net: 'net',
@@ -41,8 +38,13 @@ const MAP: Record<string, string> = {
   swell: 'swell',
 };
 
-/** 连击命中音的个数：hit_0 … hit_10 逐级升调，hit_11 / hit_12 是升到顶之后交替用的和音（client/tools/audio/instruments.py） */
-const HITS = 13;
+/**
+ * 有几个音高略不同的版本、播放时随机挑一个的音效（文件名 名字_0 … 名字_N-1；client/tools/audio/prepare.py）：
+ * 点鱼的「啵」、鱼进缸的两层（bowl 清脆的一声 + splash 水花）、破泡。连着响的时候不单调
+ */
+const VARIANTS: Record<string, number> = { bo: 3, bowl: 3, splash: 3, pop: 3 };
+/** 连击命中音的个数：hit_0 … hit_10，沿五声音阶逐级升调，到顶后停在最高的一个 */
+const HITS = 11;
 
 export async function initAudio(root: Node): Promise<void> {
   fx = root.addComponent(AudioSource);
@@ -51,7 +53,11 @@ export async function initAudio(root: Node): Promise<void> {
   music = musicNode.addComponent(AudioSource);
   music.loop = true;
   music.volume = 0.45;
-  const names = Array.from(new Set(Object.values(MAP))).concat(Array.from({ length: HITS }, (_, i) => `hit_${i}`), Array.from({ length: 4 }, (_, i) => `tier_${i + 1}`));
+  const names = Array.from(new Set(Object.values(MAP))).concat(
+    Array.from({ length: HITS }, (_, i) => `hit_${i}`),
+    Array.from({ length: 4 }, (_, i) => `tier_${i + 1}`),
+    Object.entries(VARIANTS).flatMap(([k, n]) => Array.from({ length: n }, (_, i) => `${k}_${i}`)),
+  );
   await Promise.all(
     names.map(
       (n) =>
@@ -67,14 +73,16 @@ export async function initAudio(root: Node): Promise<void> {
 
 /**
  * 播一个音效。
- * - hit 带连击数：音高沿五声音阶逐级上行，升到顶后两个和音交替
+ * - hit 带「连击起算后的第几击」（0 起）：沿五声音阶逐级上行
  * - tier 带档位（1–4）：档位越高越长、越亮
+ * - bo / bowl / splash / pop：随机挑一个音高版本
  */
 export function sfx(name: string, n = 0, volume = 1): void {
   if (!fx || !App.save?.data.settings.sound) return;
   let file = MAP[name] ?? name;
-  if (name === 'hit') file = `hit_${n <= HITS - 2 ? Math.max(0, n - 1) : HITS - 2 + (n % 2)}`;
+  if (name === 'hit') file = `hit_${Math.min(HITS - 1, Math.max(0, n))}`;
   else if (name === 'tier' && n > 0) file = `tier_${Math.min(4, n)}`;
+  else if (VARIANTS[name]) file = `${name}_${Math.floor(Math.random() * VARIANTS[name])}`;
   const c = clips.get(file);
   if (c) fx.playOneShot(c, volume);
 }

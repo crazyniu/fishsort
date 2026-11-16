@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """有音高的音效：用真实乐器采样（FluidR3_GM 音色库，MIT 许可）按谱子渲染出来，不用现成的音效素材。
-界面点击、底栏切页、开关、连击命中 / 升档 / 断连、满缸、星星、金币、开箱、过关、失败都在这里；
+连击升档 / 断连、满缸、星星、金币、开箱、功能开放、过关、失败都在这里；
+点鱼、进缸、破泡、连击命中、界面点击是 Godot 版原来那套合成音，见 prepare.py；
 水花、破泡、翻卡这类「拟音」仍然由 kenney.py 从 Kenney 的 CC0 包里挑。
 全部在 C 大调 / C 五声音阶上，和背景音乐同调，叠在一起不打架。
 
@@ -103,24 +104,6 @@ def reverb(x: np.ndarray, wet: float = 0.14, sec: float = 0.5, seed: int = 3) ->
     return out + wet * y
 
 
-def bloop(f0: float, f1: float, sec: float, decay: float = 5.0) -> np.ndarray:
-    """水泡声：频率往上（或往下）滑的正弦，很快衰减。界面点击垫的一层，贴「泡泡」的题"""
-    t = np.arange(int(SR * sec)) / SR
-    f = f0 * (f1 / f0) ** (t / sec)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    return (np.sin(ph) + 0.18 * np.sin(2 * ph)) * np.exp(-t * decay / sec) * np.minimum(1, t * 400)
-
-
-def toot(freq: float, sec: float) -> np.ndarray:
-    """「嘟」的一声：圆润的短音。基音为主，带一点二、三次泛音；8 毫秒起音，后半段平滑收掉；音高开头略微往上滑一点"""
-    t = np.arange(int(SR * sec)) / SR
-    f = freq * (1 - 0.06 * np.exp(-t * 90))
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    wave_ = np.sin(ph) + 0.22 * np.sin(2 * ph) + 0.07 * np.sin(3 * ph)
-    env = np.minimum(1, t / 0.008) * np.minimum(1, (sec - t) / (sec * 0.55)) ** 1.5
-    return wave_ * env
-
-
 def add(base: np.ndarray, sig: np.ndarray, at: float, gain: float) -> np.ndarray:
     i = int(at * SR)
     if i + len(sig) > len(base):
@@ -154,35 +137,6 @@ def save(name: str, x: np.ndarray, peak: float, cut: float = 0.0, fade: float = 
 
 def main() -> None:
     r = Renderer(sys.argv[1])
-
-    # ---- 界面：短、软、圆。卡林巴 / 马林巴的一个音 + 一层水泡声
-    x = r.render([(0, KALIMBA, C6 + 7, 78, 0.1)], 0.3)
-    save("tap", add(x, bloop(620, 980, 0.05), 0, 0.012), 0.42, 0.16)
-    # 底栏切页：「嘟嘟」两声（用户 2026-11-16）——圆润的短音，第二声高一点。不用乐器采样，直接合成：基音加一点二、三次泛音，
-    # 起音软、收得快，像吹了两下小哨子
-    x = np.zeros(int(SR * 0.3))
-    x = add(x, toot(523.25, 0.075), 0, 1.0)
-    x = add(x, toot(659.25, 0.09), 0.095, 1.0)
-    save("tab", x, 0.42, 0.26, 0.02)
-    # 开关：开 = 两个音往上，关 = 两个音往下
-    x = r.render([(0, KALIMBA, C6 + 4, 76, 0.1), (0.07, KALIMBA, C6 + 9, 88, 0.14)], 0.5)
-    save("toggle_on", add(x, bloop(500, 900, 0.06), 0.07, 0.01), 0.45, 0.3)
-    x = r.render([(0, KALIMBA, C6 + 9, 76, 0.1), (0.07, KALIMBA, C6 + 4, 70, 0.14)], 0.5)
-    save("toggle_off", add(x, bloop(800, 440, 0.06), 0.07, 0.01), 0.4, 0.3)
-
-    # ---- 连击命中 hit_0 … hit_12：马林巴在它最好听的音区（C4–C6）沿五声音阶一击升一个音，下面垫低八度（厚）；
-    # 连击起算（第 6 击）后叠同音的颤音琴（余音变长）和高两个八度很轻的钟琴（亮）。
-    # hit_11 / hit_12 是升到顶之后交替用的两个和音
-    scale = penta(C4, 11)
-    for i, key in enumerate(scale):
-        notes = [(0, MARIMBA, key, 98 + i * 2, 0.3), (0, MARIMBA, key - 12, 64, 0.3)]
-        if i >= 5:
-            notes += [(0, VIBES, key, 84, 0.35), (0, GLOCK, key + 24, 46 + i * 2, 0.3)]
-        save(f"hit_{i}", reverb(r.render(notes, 0.9), 0.1, 0.35), 0.72, 0.55, 0.12)
-    for j, top in enumerate([4, 7]):
-        notes = [(0, MARIMBA, C6, 118, 0.3), (0, MARIMBA, C6 + top, 106, 0.3), (0, MARIMBA, C5, 72, 0.3)]
-        notes += [(0, VIBES, C6, 90, 0.4), (0, VIBES, C6 + top, 84, 0.4), (0, GLOCK, C7 + 12, 70, 0.3), (0, GLOCK, C7 + top, 60, 0.3)]
-        save(f"hit_{11 + j}", reverb(r.render(notes, 0.9), 0.12, 0.35), 0.75, 0.6, 0.12)
 
     # ---- 升档 tier_1 … tier_4：竖琴一串往上滑 → 颤音琴 + 钢片琴的和弦落点 → 钟琴往上点几个亮音。
     # 档位越高：滑得越长、和弦越高，加小镲 / 吊镲、铜管、定音鼓
@@ -263,14 +217,13 @@ def main() -> None:
     notes += [(end + 0.16 + i * 0.07, GLOCK, k, 80, 0.4) for i, k in enumerate([C7, C7 + 4, C7 + 7, C7 + 12, C7 + 7, C7 + 12])]
     save("win", reverb(r.render(notes, end + 2.0), 0.18, 0.8), 0.9, end + 1.7, 0.4)
 
-    # ---- 失败：轻、不刺耳。颤音琴 + 拨弦往下走三个音（小调），最后一个音拖长
+    # ---- 失败：短、轻、不丧。马林巴 + 颤音琴往下走三个音（sol、降 mi、do），最后一个音下面垫一个低八度收住；不加弦乐
     notes = []
-    for i, k in enumerate([C5 - 3, C5 - 7, C5 - 10]):
-        d = 0.9 if i == 2 else 0.25
-        notes += [(i * 0.24, VIBES, k, 92 - i * 6, d), (i * 0.24, PIZZ, k - 12, 84, d), (i * 0.24, MARIMBA, k, 60, d)]
-    notes += [(0.48, STRINGS, C4 - 10, 52, 0.9), (0.48, STRINGS, C4 - 3, 46, 0.9)]
-    save("lose", reverb(r.render(notes, 2.0), 0.18, 0.7), 0.7, 1.7, 0.4)
-
+    for i, (t0, k) in enumerate([(0, C4 + 7), (0.21, C4 + 3), (0.45, C4)]):
+        d = 0.7 if i == 2 else 0.2
+        notes += [(t0, MARIMBA, k, 98 - i * 6, d), (t0, VIBES, k, 76, d)]
+    notes += [(0.45, MARIMBA, C4 - 12, 84, 0.7)]
+    save("lose", reverb(r.render(notes, 1.6), 0.1, 0.4), 0.62, 1.25, 0.3)
 
 if __name__ == "__main__":
     main()

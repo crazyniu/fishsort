@@ -19,15 +19,10 @@ OUT = Path(__file__).resolve().parents[2] / "assets" / "resources" / "audio"
 # 游戏里的音效名 → (包内文件名, 音量)
 PICK = {
     "error": ("error_004.ogg", 0.7),  # 点了没用 / 金币不够
-    "whoosh": ("pluck_002.ogg", 0.85),  # 点鱼：鱼从气泡里弹出来
-    "splash": ("drop_002.ogg", 0.9),  # 鱼落进鱼缸
-    "pop": ("drop_001.ogg", 0.8),  # 气泡破
-    "buffer": ("drop_003.ogg", 0.75),  # 鱼进暂存槽（坏事，低沉）
     "card": ("card-slide-1.ogg", 0.85),
     "shuffle": ("card-shuffle.ogg", 0.8),
     "warn": ("question_001.ogg", 0.7),
     "tick": ("tick_002.ogg", 0.6),
-    "land": ("impactSoft_medium_001.ogg", 0.7),
     "swell": ("maximize_009.ogg", 0.7),
     "blow": ("maximize_005.ogg", 0.8),
     "net": ("maximize_004.ogg", 0.7),

@@ -42,6 +42,10 @@ interface BowlView {
   /** 还在路上、要进这个缸的鱼 */
   incoming: number;
   done: boolean;
+  /** 坐在木架上时节点的 y（大缸更高，中心比普通缸高一点） */
+  restY: number;
+  /** 缸的显示高度 */
+  h: number;
   /** 满缸后正在飘走 */
   leaving: boolean;
 }
@@ -65,6 +69,12 @@ const FEVER = [
   { frame: 240, rays: 135, turn: 5.5, rise: 18 },
 ];
 const HOP_TAG = 9102;
+/** 鱼游动时拖的光带、星光的颜色 */
+const TRAIL = new Color(190, 235, 255, 255);
+/** 普通鱼缸的高（宽 150）、木架的厚度、缸底压进木架上沿多少 */
+const BOWL_H = 139;
+const SHELF_H = 46;
+const BOWL_SINK = 5;
 
 export class GamePage extends Page {
   readonly tab = null;
@@ -116,6 +126,8 @@ export class GamePage extends Page {
   private bowls: (BowlView | null)[] = [];
   private bowlX: number[] = [];
   private bowlY = 0;
+  /** 木架上沿的 y：鱼缸底落在这条线上 */
+  private shelfTop = 0;
   private plusNodes: Node[] = [];
   private bufferSlots: Node[] = [];
   private bufferNodes: Node[] = [];
@@ -265,10 +277,13 @@ export class GamePage extends Page {
     opacity(this.feverRays).opacity = 0;
 
     // 木架与鱼缸
-    this.bowlY = top - 180;
+    // 鱼缸坐在木架上：缸底压进木架上沿几个像素（用户 2026-11-16：原来缸底悬在木架前面，没放在底座上）；
+    // 数量牌贴在木架正面
+    this.bowlY = top - 172;
+    this.shelfTop = this.bowlY - BOWL_H / 2 + BOWL_SINK;
     const shelfW = Screen.W - 40;
-    this.shelf = slice(this.stage, 'kit/shelf', shelfW, 40, 'shelf');
-    at(this.shelf, 0, this.bowlY - 70);
+    this.shelf = slice(this.stage, 'kit/shelf', shelfW, SHELF_H, 'shelf');
+    at(this.shelf, 0, this.shelfTop - SHELF_H / 2);
     const bw = (shelfW - 30) / MAX_SLOTS;
     this.bowlX = Array.from({ length: MAX_SLOTS }, (_, i) => -shelfW / 2 + 15 + bw * (i + 0.5));
     for (let i = 0; i < MAX_SLOTS; i++) {
@@ -285,7 +300,7 @@ export class GamePage extends Page {
     }
 
     // 暂存槽
-    this.bufferY = this.bowlY - 150;
+    this.bufferY = top - 330;
     const cap = this.s.bufferCap;
     const sw = Math.min(124, (Screen.W - 60) / cap - 10);
     for (let i = 0; i < cap; i++) {
@@ -415,12 +430,21 @@ export class GamePage extends Page {
       this.blocked(b);
       return;
     }
-    if (this.act(() => Rules.tap(this.s, b, k)).length) this.field.wobble(b);
+    // 点下去的位置：一圈水波 + 短促的「啵」（同 Godot 版）
+    const [fx0, fy0] = this.field.fishPos(b, k);
+    const holder = this.field.node.parent as Node;
+    if (!this.act(() => Rules.tap(this.s, b, k)).length) return;
+    this.field.wobble(b);
+    const px = fx0 + holder.position.x;
+    const py = fy0 + holder.position.y;
+    fx.ripple(this.fly, px, py, 120, [1, 1], 0.3, 0, 220);
+    fx.ripple(this.fly, px, py, 120, [1.25, 1.25], 0.3, 0.07, 150);
+    sfx('bo');
   }
 
   tapReturn(k: number): void {
     if (this.ended || this.paused || this.s.status !== Status.PLAYING) return;
-    this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k));
+    if (this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k)).length) sfx('bo');
   }
 
   private blocked(b: number): void {
@@ -485,7 +509,7 @@ export class GamePage extends Page {
           const src = this.takeSource(e.b as number, e.k as number, sp);
           const idx = this.bufferNodes.length;
           this.bufferNodes.push(src);
-          this.flyTo(src, this.slotX(Math.min(idx, this.s.bufferCap - 1)), this.bufferY, t + flyIdx * cfg.fly.stagger, () => sfx('buffer'), 0.7, 60);
+          this.flyTo(src, this.slotX(Math.min(idx, this.s.bufferCap - 1)), this.bufferY, t + flyIdx * cfg.fly.stagger, () => sfx('buffer'), 0.7, true);
           flyIdx++;
           this.missCombo();
           break;
@@ -497,7 +521,7 @@ export class GamePage extends Page {
           const delay = t + flyIdx * cfg.fly.stagger + 0.25;
           flyIdx++;
           if (view) view.incoming++;
-          if (n) this.flyTo(n, this.bowlX[e.slot as number], this.bowlY + 6, delay, () => this.arrive(view, e.species as number), 1, 80);
+          if (n) this.flyTo(n, this.bowlX[e.slot as number], this.bowlY + 6, delay, () => this.arrive(view, e.species as number), 0.85);
           this.bufferNodes.forEach((m, i) => tween(m).delay(delay + 0.1).to(0.18, { position: new Vec3(this.slotX(i), this.bufferY, 0) }).start());
           hitAt.push([delay, this.bowlX[e.slot as number]]);
           break;
@@ -555,7 +579,7 @@ export class GamePage extends Page {
       }
     }
     // 连击按入缸的先后计（暂存槽自动补进新缸也算命中）
-    for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.seconds, () => this.hitCombo(x));
+    for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.tapPop + cfg.fly.seconds, () => this.hitCombo(x));
     this.field.sync(this.s);
     this.layoutReturn(t + 0.2);
     this.refreshHud();
@@ -589,21 +613,88 @@ export class GamePage extends Page {
     return n;
   }
 
-  private flyTo(n: Node, x: number, y: number, delay: number, done: () => void, scale = 0.6, arc = 120): void {
+  /**
+   * 鱼游过去（同 Godot 版 GameFx.fly）：原地一弹（点击的反馈）→ 沿一条往上拱的弧线游向目的地，头朝游的方向、身体拉长、
+   * 中途仰一下头，快到时缩小钻进去；身后拖一条蓝白的光带，隔一段冒一颗星光。到了调 done。
+   * keep = true 时鱼留在终点（进暂存槽），否则收掉（进缸）
+   */
+  private flyTo(n: Node, x: number, y: number, delay: number, done: () => void, scale = 0.6, keep = false): void {
     const cfg = App.config.ui.fly;
     Tween.stopAllByTarget(n);
     n.angle = 0;
     const s0 = Math.abs(n.scale.x) || 1;
+    const p = { t: 0 };
+    let last = 0;
     tween(n)
       .delay(delay)
-      .to(cfg.tapPop, { scale: new Vec3(s0 * 1.2, s0 * 1.2, 1) })
       .call(() => {
-        sfx('fly');
-        fx.flyArc(n, x, y, cfg.seconds, arc, 'quadIn', done, s0 * scale);
+        // 鱼的原画朝左，往右游时翻过来
+        const from = n.position.clone();
+        const face = x > from.x + 20 ? -1 : 1;
+        const lift = Math.min(130, Math.max(40, Math.hypot(x - from.x, y - from.y) * 0.3));
+        const cx = (from.x + x) / 2;
+        const cy = (from.y + y) / 2 + lift;
+        tween(n)
+          .to(cfg.tapPop * 0.45, { scale: new Vec3(face * s0 * 1.35, s0 * 1.35, 1) }, { easing: 'quadOut' })
+          .to(cfg.tapPop * 0.55, { scale: new Vec3(face * s0 * 1.15, s0 * 0.9, 1) })
+          .call(() => {
+            tween(p)
+              .to(cfg.seconds, { t: 1 }, {
+                easing: 'sineInOut',
+                onUpdate: () => {
+                  if (!n.isValid) return;
+                  const t = p.t;
+                  const u = 1 - t;
+                  const px = u * u * from.x + 2 * u * t * cx + t * t * x;
+                  const py = u * u * from.y + 2 * u * t * cy + t * t * y;
+                  n.setPosition(px, py, 0);
+                  const k = t * t;
+                  n.setScale(face * s0 * (1.25 + (scale - 1.25) * k), s0 * (0.92 + (scale - 0.92) * k), 1);
+                  n.angle = Math.sin(t * Math.PI) * 22 * (face < 0 ? 1 : -1);
+                  this.trail(px, py);
+                  if (t - last > 0.1) {
+                    last = t;
+                    this.trailSpark(px, py);
+                  }
+                },
+              })
+              .call(() => {
+                if (n.isValid) {
+                  n.angle = 0;
+                  if (keep) n.setScale(s0 * scale, s0 * scale, 1);
+                  else n.destroy();
+                }
+                done();
+              })
+              .start();
+          })
+          .start();
       })
       .start();
   }
 
+  /** 光带的一节：一团蓝白柔光，原地缩小淡出（每帧放一节，连起来就是拖尾） */
+  private trail(x: number, y: number): void {
+    const g = img(this.fly, 'kit/fx_glow', 44, 44, 'trail');
+    (g.getComponent(Sprite) as Sprite).color = TRAIL;
+    at(g, x, y);
+    g.setSiblingIndex(0);
+    const op = opacity(g);
+    op.opacity = 150;
+    tween(g).to(0.24, { scale: new Vec3(0.25, 0.25, 1) }).call(() => g.destroy()).start();
+    tween(op).to(0.24, { opacity: 0 }).start();
+  }
+
+  private trailSpark(x: number, y: number): void {
+    const s0 = 26 + Math.random() * 20;
+    const b = img(this.fly, 'kit/fx_spark', s0, s0, 'trailSpark');
+    if (Math.random() < 0.5) (b.getComponent(Sprite) as Sprite).color = TRAIL;
+    at(b, x + (Math.random() - 0.5) * 20, y + (Math.random() - 0.5) * 20);
+    tween(b).to(0.36, { scale: new Vec3(0.2, 0.2, 1), angle: -50 }).call(() => b.destroy()).start();
+    tween(opacity(b)).to(0.36, { opacity: 0 }, { easing: 'quadIn' }).start();
+  }
+
+  /** 鱼进缸（同 Godot 版 GameFx.splash）：缸口溅起一把小气泡、一圈扁的涟漪，缸被压一下，「叮」一声加水花声 */
   private arrive(view: BowlView | null, _sp: number): void {
     if (!view) return;
     view.incoming--;
@@ -611,24 +702,33 @@ export class GamePage extends Page {
     view.count.string = `${Math.min(view.shown, view.cap)}/${view.cap}`;
     // 满缸正在飘走的不再压（它的缩放归飘走动画管）
     if (!view.leaving) fx.squash(view.node, 0.88);
-    fx.sparkle(this.fly, view.node.position.x, this.bowlY, 6, 70, new Color(190, 240, 255, 255), 26);
+    const x = view.node.position.x;
+    const mouth = view.restY + view.h * 0.3;
+    fx.fountain(this.fly, x, mouth, 7, 'kit/bubble_small', 240, 900, 10, 20, 0.45);
+    fx.ripple(this.fly, x, mouth, 90, [1.3, 0.5], 0.25, 0, 180);
+    // 缸里的目标鱼跟着跳一下、数量牌弹一下
+    Tween.stopAllByTarget(view.fish);
+    view.fish.setScale(1.25, 1.25, 1);
+    tween(view.fish).to(0.2, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    Tween.stopAllByTarget(view.badge);
+    view.badge.setScale(1.18, 1.18, 1);
+    tween(view.badge).to(0.18, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    sfx('bowl');
     sfx('splash');
-    // 飞行层里刚落进缸的鱼收掉
-    for (const c of [...this.fly.children]) {
-      if (c.name === 'fish' && Math.hypot(c.position.x - view.node.position.x, c.position.y - this.bowlY - 6) < 4) c.destroy();
-    }
     if (view.done && view.incoming <= 0) this.bowlLeave(view);
   }
 
   private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number): void {
     const big = cap > 3;
     const s = big ? 170 : 150;
-    const node = img(this.stage, 'skin/j_bowl', s, s * 0.925, `bowl${slot}`);
-    at(node, this.bowlX[slot], this.bowlY);
+    const h = s * 0.925;
+    const restY = this.shelfTop - BOWL_SINK + h / 2;
+    const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
+    at(node, this.bowlX[slot], restY);
     const fish = img(node, this.field.spriteFor(sp), s * 0.5, s * 0.5, 'target');
     at(fish, 0, -s * 0.08);
-    const badge = slice(node, 'kit/capsule', 104, 46, 'badge');
-    at(badge, 0, -s / 2 - 2);
+    const badge = slice(node, 'kit/capsule', 104, 42, 'badge');
+    at(badge, 0, this.shelfTop - SHELF_H / 2 - restY);
     const count = text(badge, `0/${cap}`, 28);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
@@ -641,16 +741,17 @@ export class GamePage extends Page {
       const tag = text(node, '×6', 26, { color: COLOR.yellow });
       at(tag.node, -s / 2 + 22, s / 2 - 22);
     }
-    const view: BowlView = { node, fish, count, badge, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, leaving: false };
+    const view: BowlView = { node, fish, count, badge, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
     onTap(node, () => this.tapBowl(slot), { press: 0 });
     // 新缸从上方落下
-    node.setPosition(this.bowlX[slot], this.bowlY + 260, 0);
+    node.setPosition(this.bowlX[slot], restY + 260, 0);
     opacity(node).opacity = 0;
     tween(node)
       .delay(delay)
       .call(() => (opacity(node).opacity = 255))
-      .to(App.config.ui.bowlDone.dropSeconds, { position: new Vec3(this.bowlX[slot], this.bowlY, 0) }, { easing: 'bounceOut' })
+      .to(App.config.ui.bowlDone.dropSeconds, { position: new Vec3(this.bowlX[slot], restY, 0) }, { easing: 'bounceOut' })
+      .call(() => sfx('land'))
       .start();
     const plus = this.plusNodes[slot];
     if (plus) plus.active = false;
@@ -668,7 +769,7 @@ export class GamePage extends Page {
     const n = view.node;
     // 落下、跳动还没播完的先收掉，从架子上的位置开始飘
     Tween.stopAllByTarget(n);
-    n.setPosition(n.position.x, this.bowlY, 0);
+    n.setPosition(n.position.x, view.restY, 0);
     n.setScale(1, 1, 1);
     opacity(n).opacity = 255;
     const cfg = App.config.ui.bowlDone;
@@ -683,7 +784,7 @@ export class GamePage extends Page {
       .call(() => {
         fx.sparkle(this.fly, n.position.x, n.position.y, 14, 140, COLOR.yellow);
         fx.ring(this.fly, n.position.x, n.position.y, 100, 300);
-        sfx('bowl');
+        sfx('bowlDone');
       })
       .to(0.3, { position: new Vec3(n.position.x, n.position.y + 180, 0), scale: new Vec3(0.6, 0.6, 1) }, { easing: 'quadIn' })
       .call(() => n.destroy())
@@ -728,7 +829,8 @@ export class GamePage extends Page {
     const cardsOpen = Features.isUnlocked(eco, 'album', App.save.data.level);
     const r = this.combo.hit(this.clock, eco.combo, this.rng, cardsOpen);
     // 声音：每一击升一个音；震动：每一击轻震一下（docs/01 3.2：画面、声音、震动一起升级）
-    sfx('hit', r.count);
+    // 进缸本身的声音在 arrive 里（每条鱼都有）；连击起算后每一击再叠一声逐级升调的「叮」，震动每一击轻震一下
+    if (r.tier >= 0) sfx('hit', r.count - eco.combo.startAt);
     if (r.count >= 2) buzz('light');
     if (r.tier < 0) {
       this.showCombo(false);
@@ -978,14 +1080,14 @@ export class GamePage extends Page {
     const holder = this.field.node.parent as Node;
     this.field.ripple(-holder.position.x, y - holder.position.y, 0.1 + tier * 0.02);
     this.bowls.forEach((v, i) => {
-      if (!v || v.done || Math.abs(v.node.position.y - this.bowlY) > 1) return;
+      if (!v || v.done || Math.abs(v.node.position.y - v.restY) > 1) return;
       Tween.stopAllByTag(HOP_TAG, v.node);
       const x = this.bowlX[i];
       tween(v.node)
         .tag(HOP_TAG)
         .delay(0.05 + i * 0.05)
-        .to(0.1, { position: new Vec3(x, this.bowlY + 18, 0) }, { easing: 'quadOut' })
-        .to(0.16, { position: new Vec3(x, this.bowlY, 0) }, { easing: 'bounceOut' })
+        .to(0.1, { position: new Vec3(x, v.restY + 18, 0) }, { easing: 'quadOut' })
+        .to(0.16, { position: new Vec3(x, v.restY, 0) }, { easing: 'bounceOut' })
         .start();
     });
     // 红档、紫档：场地里再炸几发烟花

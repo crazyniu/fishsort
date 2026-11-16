@@ -272,6 +272,44 @@ export function sparkle(layer: Node, x: number, y: number, count = 10, r = 110, 
   }
 }
 
+/**
+ * 水花：从 (x, y) 往上喷一把小东西（小气泡、水珠），各自带初速度、受重力落回去、边飞边淡出。
+ * 鱼进缸时缸口溅起来的那一下（同 Godot 版 Anim.burst 的 upward 模式）
+ */
+export function fountain(layer: Node, x: number, y: number, count: number, path: string, speed = 240, gravity = 900, sizeMin = 10, sizeMax = 20, life = 0.45): void {
+  for (let i = 0; i < count; i++) {
+    const s0 = sizeMin + Math.random() * (sizeMax - sizeMin);
+    const b = img(layer, path, s0, s0, 'drop');
+    b.setPosition(x, y, 0);
+    // 朝上的扇面：27°–153°
+    const a = Math.PI * (0.15 + Math.random() * 0.7);
+    const v = speed * (0.6 + Math.random() * 0.6);
+    const vx = Math.cos(a) * v;
+    const vy = Math.sin(a) * v;
+    const p = { t: 0 };
+    tween(p)
+      .to(life, { t: life }, {
+        onUpdate: () => {
+          if (b.isValid) b.setPosition(x + vx * p.t, y + vy * p.t - 0.5 * gravity * p.t * p.t, 0);
+        },
+      })
+      .call(() => b.destroy())
+      .start();
+    tween(opacity(b)).to(life, { opacity: 0 }, { easing: 'quadIn' }).start();
+  }
+}
+
+/** 扁的水波圈：从小放大成一个横着的椭圆、淡出（缸口的涟漪、点鱼处的水波） */
+export function ripple(layer: Node, x: number, y: number, s = 90, to: [number, number] = [1.3, 0.5], dur = 0.25, delaySec = 0, peak = 180): void {
+  const r = img(layer, 'kit/fx_ring', s, s, 'ripple');
+  r.setPosition(x, y, 0);
+  r.setScale(to[0] * 0.25, to[1] * 0.4, 1);
+  const op = opacity(r);
+  op.opacity = 0;
+  tween(r).delay(delaySec).to(dur, { scale: V(to[0], to[1]) }, { easing: 'quadOut' }).call(() => r.destroy()).start();
+  tween(op).delay(delaySec).set({ opacity: peak }).to(dur, { opacity: 0 }, { easing: 'quadIn' }).start();
+}
+
 /** 光环扩散 */
 export function ring(layer: Node, x: number, y: number, from = 60, to = 260, color?: Color, dur = 0.45): void {
   const r = img(layer, 'kit/fx_ring', from, from, 'ring');

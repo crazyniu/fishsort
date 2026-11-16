@@ -292,7 +292,7 @@ export class ResultPage extends Page {
             fx.trauma(c, 0.2, 12);
             // 三颗星三个音：do、mi、sol，一颗比一颗高
             sfx('star');
-            sfx('hit', [6, 8, 9][i] ?? 9, 0.8);
+            sfx('hit', [0, 2, 3][i] ?? 3, 0.8);
             buzz('light');
           })
           .to(0.14, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
