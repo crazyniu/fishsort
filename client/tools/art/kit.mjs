@@ -3,6 +3,7 @@
 // 输出 assets/resources/ui/kit/<名字>.png，九宫格边距写进 tools/art/slices.json（meta.mjs 读它）。
 // 用法：node tools/art/kit.mjs [名字...]   不给名字 = 全部重画；--sheet 另出一张总览图
 import { Resvg } from '@resvg/resvg-js';
+import sharp from 'sharp';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -587,10 +588,12 @@ book('book_6', ['#FFE680', '#E8B020', '#9A6C05']);
 }
 
 // ---------------------------------------------------------------- 输出
-function render(name) {
+async function render(name) {
   const p = parts.get(name);
   const png = new Resvg(svg(p.w, p.h, p.body), { fitTo: { mode: 'original' } }).render().asPng();
-  writeFileSync(join(OUT, `${name}.png`), png);
+  // 直接量化成 256 色调色板（包体；肉眼无差，见 tools/art/compress.mjs）
+  const small = await sharp(png).png({ palette: true, quality: 95, effort: 10, dither: 1.0, compressionLevel: 9 }).toBuffer();
+  writeFileSync(join(OUT, `${name}.png`), small.length < png.length ? small : png);
 }
 
 const sheetAt = process.argv.indexOf('--sheet');
@@ -598,7 +601,7 @@ const args = process.argv.slice(2).filter((a, i) => !a.startsWith('--') && i + 2
 mkdirSync(OUT, { recursive: true });
 for (const name of args.length ? args : [...parts.keys()]) {
   if (!parts.has(name)) throw new Error(`没有这个部件：${name}`);
-  render(name);
+  await render(name);
 }
 writeFileSync(join(ROOT, 'tools/art/slices.json'), JSON.stringify(slices, null, 2) + '\n');
 console.log(`✓ 画了 ${args.length || parts.size} 个部件 → assets/resources/ui/kit（${RES} 倍）`);
