@@ -1,6 +1,6 @@
 // 主页（定版图 01）。四角入口：左上签到、右上抽奖、左下选关、右下每日挑战（docs/09 第 4 节）。
 // 中间鱼群常驻游动；气泡往上冒；「开始」呼吸（全屏唯一的常驻动效）；进场依次弹出（≤ 0.8 秒）。
-import { Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
+import { Color, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Features from '../core/meta/features';
 import * as LevelCurve from '../core/gen/levelCurve';
@@ -57,11 +57,14 @@ export class HomePage extends Page {
   private levelLabel!: ReturnType<typeof text>;
   private tag!: Node;
   private school: Node[] = [];
+  /** 动态光照：光柱、海底的水纹光斑、水里的亮点（盖在背景上、鱼和入口下面） */
+  private light!: Node;
   private bubbles!: Node;
 
   build(root: Node): void {
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
+    this.light = box('light', root, Screen.W, Screen.H);
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
     // 四角入口：页边距 24。开始（全屏唯一的主按钮）+ 关卡号条在底栏上面；下面两个入口在关卡号条上方两侧
     const x0 = Screen.W / 2 - 24 - ENTRY_W / 2;
@@ -132,6 +135,7 @@ export class HomePage extends Page {
       fx.breathe(this.start.node, 0.03, 1.4);
     });
     this.animateSchool();
+    this.startLight();
     this.startBubbles();
     // 有红点的入口隔一会晃一下图标，提醒「这里有东西可领」
     for (const e of this.entries.values()) {
@@ -146,6 +150,7 @@ export class HomePage extends Page {
 
   override hide(): void {
     for (const f of this.school) Tween.stopAllByTarget(f);
+    this.light.destroyAllChildren();
     this.bubbles.destroyAllChildren();
     Tween.stopAllByTarget(this.bubbles);
   }
@@ -199,6 +204,86 @@ export class HomePage extends Page {
         .start();
       tween(opacity(b)).delay(0.6).to(0.5, { opacity: 0 }).start();
     }
+  }
+
+  /**
+   * 动态光照（用户 2026-11-16）：阳光从水面照下来——
+   * 顶上一团呼吸的日光；五束光柱从顶上斜着照下来，各自慢慢摆、忽明忽暗；海底几块水纹光斑左右漂、明暗交替；水里零星的亮点一闪一闪
+   */
+  private startLight(): void {
+    const L = this.light;
+    L.destroyAllChildren();
+    const warm = new Color(255, 250, 215, 255);
+    const sun = img(L, 'kit/fx_glow', Screen.W * 1.3, 620, 'sun');
+    (sun.getComponent(Sprite) as Sprite).color = warm;
+    at(sun, 0, Screen.top - 60);
+    const sop = opacity(sun);
+    sop.opacity = 110;
+    tween(sop).repeatForever(tween(sop).to(2.6, { opacity: 165 }, { easing: 'sineInOut' }).to(2.6, { opacity: 100 }, { easing: 'sineInOut' })).start();
+    // 光柱：[横向位置, 宽, 基础亮度, 摆动周期, 明暗周期]。顶端固定，往两边散开
+    const beams: [number, number, number, number, number][] = [
+      [-290, 200, 105, 7.5, 4.2],
+      [-140, 150, 130, 6.2, 3.4],
+      [20, 240, 120, 8.4, 5.0],
+      [170, 160, 135, 6.8, 3.8],
+      [310, 210, 100, 7.9, 4.6],
+    ];
+    beams.forEach(([x, w, hi, sway, pulse], i) => {
+      const b = img(L, 'kit/fx_beam', w, Screen.H * 0.86, 'beam');
+      (b.getComponent(UITransform) as UITransform).setAnchorPoint(0.5, 1);
+      (b.getComponent(Sprite) as Sprite).color = warm;
+      at(b, x * 0.55, Screen.top + 30);
+      const base = x * 0.045;
+      b.angle = base - 2.5;
+      tween(b)
+        .delay(i * 0.4)
+        .repeatForever(tween(b).to(sway / 2, { angle: base + 2.5 }, { easing: 'sineInOut' }).to(sway / 2, { angle: base - 2.5 }, { easing: 'sineInOut' }))
+        .start();
+      const op = opacity(b);
+      op.opacity = Math.round(hi * 0.5);
+      tween(op)
+        .delay(i * 0.7)
+        .repeatForever(tween(op).to(pulse / 2, { opacity: hi }, { easing: 'sineInOut' }).to(pulse / 2, { opacity: Math.round(hi * 0.35) }, { easing: 'sineInOut' }))
+        .start();
+    });
+    // 海底的水纹光斑：扁的柔光，左右漂、明暗交替
+    const floorTop = Screen.bottom + TABBAR_H + 420;
+    for (let i = 0; i < 7; i++) {
+      const w = 200 + Math.random() * 180;
+      const c = img(L, 'kit/fx_glow', w, w * 0.28, 'caustic');
+      (c.getComponent(Sprite) as Sprite).color = warm;
+      const x = (Math.random() - 0.5) * (Screen.W - 80);
+      const y = Screen.bottom + TABBAR_H + 20 + Math.random() * (floorTop - Screen.bottom - TABBAR_H - 20);
+      at(c, x, y);
+      const dx = 50 + Math.random() * 50;
+      const dur = 3 + Math.random() * 2.5;
+      tween(c)
+        .repeatForever(tween(c).to(dur, { position: new Vec3(x + dx, y, 0) }, { easing: 'sineInOut' }).to(dur, { position: new Vec3(x - dx, y, 0) }, { easing: 'sineInOut' }))
+        .start();
+      const op = opacity(c);
+      op.opacity = 0;
+      const pd = 1.6 + Math.random() * 1.6;
+      tween(op)
+        .delay(Math.random() * 2)
+        .repeatForever(tween(op).to(pd, { opacity: 120 }, { easing: 'sineInOut' }).to(pd, { opacity: 10 }, { easing: 'sineInOut' }))
+        .start();
+    }
+    // 水里的亮点：随机位置闪一下
+    const glint = () => {
+      if (!this.node.active) return;
+      const g = img(L, 'kit/fx_spark', 26, 26, 'glint');
+      at(g, (Math.random() - 0.5) * (Screen.W - 60), Screen.bottom + TABBAR_H + 80 + Math.random() * (Screen.H - TABBAR_H - 320));
+      g.setScale(0.1, 0.1, 1);
+      opacity(g).opacity = 200;
+      const k = 0.6 + Math.random() * 0.8;
+      tween(g)
+        .to(0.35, { scale: new Vec3(k, k, 1), angle: 45 }, { easing: 'quadOut' })
+        .to(0.45, { scale: new Vec3(0.05, 0.05, 1), angle: 90 }, { easing: 'quadIn' })
+        .call(() => g.destroy())
+        .start();
+      fx.delay(L, 0.35 + Math.random() * 0.5, glint);
+    };
+    glint();
   }
 
   /** 气泡从下往上冒 */

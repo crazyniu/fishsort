@@ -132,9 +132,9 @@ export function inkOf(n: Node | null): Ink {
 export const LIGHT_INK = ON_LIGHT;
 export const DARK_INK = ON_DARK;
 
-/** 千分位：100449 → 100,449 */
+/** 界面上的数字：取整，不加千分位逗号（用户 2026-11-16 定：100449 就显示 100449） */
 export function fmt(n: number): string {
-  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return String(Math.round(n));
 }
 
 export function hex(s: string, a = 255): Color {

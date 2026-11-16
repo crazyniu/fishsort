@@ -137,7 +137,7 @@ export class WheelPage extends Page {
     at(cnt, 0, cntY);
     at(text(cnt, tr('H_SPINS_LEFT', left), 32).node, 0, 0);
 
-    // 主按钮：有次数「开箱」，没次数「金币 1,000 开箱」
+    // 主按钮：有次数「开箱」，没次数「金币 1000 开箱」
     const main =
       left > 0
         ? button(v, { color: 'green', w: 520, h: 128, label: tr('H_SPIN'), fontSize: 56, onTap: () => this.open('spin') })

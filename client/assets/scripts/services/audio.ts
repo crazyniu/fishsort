@@ -9,6 +9,9 @@ let music: AudioSource | null = null;
 /** 名字 → 文件（assets/resources/audio） */
 const MAP: Record<string, string> = {
   tap: 'tap',
+  tab: 'tab',
+  toggleOn: 'toggle_on',
+  toggleOff: 'toggle_off',
   blocked: 'error',
   error: 'error',
   fly: 'whoosh',
@@ -20,7 +23,7 @@ const MAP: Record<string, string> = {
   shuffle: 'shuffle',
   net: 'net',
   current: 'current',
-  tier: 'tier',
+  tier: 'tier_1',
   comboBreak: 'combo_break',
   charge: 'wheel_charge',
   win: 'win',
@@ -38,7 +41,7 @@ const MAP: Record<string, string> = {
   swell: 'swell',
 };
 
-/** 连击命中音的个数：hit_0 … hit_10 逐级升调，hit_11 / hit_12 是升到顶之后交替用的和音（client/tools/audio/kenney.py） */
+/** 连击命中音的个数：hit_0 … hit_10 逐级升调，hit_11 / hit_12 是升到顶之后交替用的和音（client/tools/audio/instruments.py） */
 const HITS = 13;
 
 export async function initAudio(root: Node): Promise<void> {

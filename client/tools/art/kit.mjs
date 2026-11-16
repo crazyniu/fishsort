@@ -438,6 +438,14 @@ book('book_6', ['#FFE680', '#E8B020', '#9A6C05']);
   }).join('');
   const [gr, dr] = rad([[0, '#FFF8C2', 0.9], [1, '#FFE066', 0]]);
   part('fx_rays', 200, 200, `<defs>${dr}</defs><g fill="url(#${gr})">${rays}</g>`);
+  // 光柱（主页的动态光照）：上窄下宽的一束白光，上亮下淡、两边虚化；代码里染色、摆动、明暗变化
+  const [gb, db] = lin([[0, '#fff', 0.95], [0.5, '#fff', 0.45], [1, '#fff', 0]]);
+  part(
+    'fx_beam',
+    96,
+    256,
+    `<defs>${db}<filter id="beamBlur" x="-30%" y="-5%" width="160%" height="110%"><feGaussianBlur stdDeviation="5 2"/></filter></defs><path d="M36 4 L60 4 L88 252 L8 252 Z" fill="url(#${gb})" filter="url(#beamBlur)"/>`,
+  );
   part('confetti', 16, 24, rr(0, 0, 16, 24, 3, 'fill="#fff"'));
   part('white', 8, 8, rr(0, 0, 8, 8, 0, 'fill="#fff"'), [3, 3, 3, 3]);
   part('round_white', 64, 64, rr(0, 0, 64, 64, 22, 'fill="#fff"'), [24, 24, 24, 24]);

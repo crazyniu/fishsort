@@ -340,12 +340,21 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     at(l.node, -556 / 2 + 96, 0);
     const tg = img(row, s.settings[field] ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55, 'toggle');
     at(tg, 196, 0);
-    onTap(row, () => {
-      (s.settings as unknown as Record<string, boolean>)[field] = !s.settings[field];
-      setImg(tg, s.settings[field] ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55);
-      App.save.write();
-      applySettings();
-    });
+    onTap(
+      row,
+      () => {
+        (s.settings as unknown as Record<string, boolean>)[field] = !s.settings[field];
+        const on = s.settings[field];
+        setImg(tg, on ? 'skin/j_toggle_on' : 'skin/j_toggle_off', 116, 55);
+        // 开 = 两个音往上，关 = 两个音往下；开关把手顿一下；打开震动时震一下让人知道是什么手感
+        sfx(on ? 'toggleOn' : 'toggleOff');
+        fx.squash(tg, 0.88);
+        if (field === 'vibrate' && on) buzz('medium');
+        App.save.write();
+        applySettings();
+      },
+      { sound: null },
+    );
     y -= 96 + 16;
   }
   if (mode === 'home') {

@@ -87,7 +87,7 @@ class TabBar {
       const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
       at(lock, 32, -2);
       this.cells.set(t, { node: cell, icon, label, dot, lock });
-      onTap(cell, () => this.onSelect(t), { press: 0.94 });
+      onTap(cell, () => this.onSelect(t), { press: 0.94, sound: 'tab' });
     });
     this.select('home', false);
   }
@@ -169,7 +169,7 @@ class TopBar {
     const x2 = BW / 2 - 96;
     const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
     at(well, (x1 + x2) / 2, 1);
-    // 金币：图标 + 数字（最多 7 位带千分位）+ 绿色加号
+    // 金币：图标 + 数字（最多 7 位，不加逗号）+ 绿色加号
     const CW = 312;
     const coinTap = box('coins', this.node, CW, 92);
     at(coinTap, x1 + CW / 2, 0);
