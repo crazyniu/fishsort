@@ -20,8 +20,8 @@ import { signInPopup } from './signin';
 
 /** 入口：大图标直接浮在场景上，下面压一块蓝色标签条（定版图 01） */
 const ENTRY_W = 176;
-const ENTRY_H = 204;
-const ENTRY_ICON = 144;
+const ENTRY_H = 184;
+const ENTRY_ICON = 140;
 const LABEL_H = 58;
 /** 「开始」按钮 */
 const START_W = 470;
@@ -61,24 +61,27 @@ export class HomePage extends Page {
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
-    // 鱼群（中间，越近越大）
-    const midY = (Screen.top - 330 + Screen.bottom + TABBAR_H + 420) / 2;
+    // 四角入口：页边距 24。开始（全屏唯一的主按钮）+ 关卡号条在底栏上面；下面两个入口在关卡号条上方两侧
+    const x0 = Screen.W / 2 - 24 - ENTRY_W / 2;
+    const top = Screen.top - 144 - 16 - ENTRY_H / 2;
+    const btnY = Screen.bottom + TABBAR_H + 28 + START_H / 2;
+    const pillY = btnY + START_H / 2 + 10 + LABEL_H / 2;
+    const low = pillY + LABEL_H / 2 + 14 + ENTRY_H / 2;
+    // 鱼群聚在上下两排入口之间（定版图 01：大而聚拢）；屏幕高就上下拉开一点、放大一点
+    const zoneTop = top - ENTRY_H / 2;
+    const zoneBottom = low + ENTRY_H / 2;
+    const k = Math.max(1, Math.min(1.35, (zoneTop - zoneBottom) / 380));
+    const ks = Math.min(1.15, k);
+    const midY = (zoneTop + zoneBottom) / 2;
     for (const [id, x, y, s] of App.config.ui.homeDeco.school) {
-      const f = img(root, `fish/${id}`, s, s, `fish_${id}`);
-      at(f, x, midY + y);
+      const f = img(root, `fish/${id}`, s * ks, s * ks, `fish_${id}`);
+      at(f, x, midY + y * k);
       if (x > 0) f.setScale(-1, 1, 1);
       this.school.push(f);
     }
-    // 四角入口：页边距 24
-    const x0 = Screen.W / 2 - 24 - ENTRY_W / 2;
-    const top = Screen.top - 144 - 16 - ENTRY_H / 2;
-    // 开始（全屏唯一的主按钮）+ 关卡号条；下面两个入口在按钮上方两侧
-    const btnY = Screen.bottom + TABBAR_H + 28 + START_H / 2;
-    const pillY = btnY + START_H / 2 + 10 + LABEL_H / 2;
-    const low = pillY - LABEL_H / 2 + ENTRY_H / 2 + 8;
     this.entry(root, 'signin', 'icon/entry_signin', -x0, top, () => signInPopup(() => ui.refresh()));
     this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
-    this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'));
+    this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'), 1.18);
     this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
     this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 84, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
@@ -90,10 +93,10 @@ export class HomePage extends Page {
     text(this.tag, tr('UI_CHALLENGE_TAG'), 24);
   }
 
-  private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void): void {
+  private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void, iconScale = 1): void {
     const n = box(feature, root, ENTRY_W, ENTRY_H);
     at(n, x, y);
-    const ic = img(n, icon, ENTRY_ICON, ENTRY_ICON, 'icon');
+    const ic = img(n, icon, ENTRY_ICON * iconScale, ENTRY_ICON * iconScale, 'icon');
     at(ic, 0, ENTRY_H / 2 - ENTRY_ICON / 2);
     // 标签条压住图标下沿一点
     const pl = plate(n, 'skin/j_plate', 150, LABEL_H, 'plate');
