@@ -59,7 +59,7 @@ export class ShopPage extends Page {
     const title = plate(root, 'skin/j_plate', 236, 80, 'title');
     at(title, 0, titleY);
     at(text(title, tr('UI_TAB_SHOP'), 54).node, 0, 3);
-    for (const [id, x] of [['c17', -196], ['c02', 196]] as const) {
+    for (const [id, x] of [['c01', -196], ['c02', 196]] as const) {
       const f = img(root, `fish/${id}`, 96, 96, `deco_${id}`);
       at(f, x, titleY + 2);
       if (x > 0) f.setScale(-1, 1, 1);
