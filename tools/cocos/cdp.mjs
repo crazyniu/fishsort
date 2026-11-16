@@ -63,12 +63,14 @@ if (cmd === 'burst') {
   const { mkdirSync, writeFileSync } = await import('node:fs');
   const [, dir, n = '10', ms = '120', js = ''] = process.argv.slice(2);
   mkdirSync(dir, { recursive: true });
+  const vp = (await send('Runtime.evaluate', { expression: '[innerWidth, innerHeight]', returnByValue: true })).result.value;
+  const clip = { x: 0, y: 0, width: vp[0], height: vp[1], scale: 0.5 };
   if (js) await send('Runtime.evaluate', { expression: js });
   const t0 = Date.now();
   for (let i = 0; i < Number(n); i++) {
     const wait = t0 + i * Number(ms) - Date.now();
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-    const r = await send('Page.captureScreenshot', { format: 'jpeg', quality: 70 });
+    const r = await send('Page.captureScreenshot', { format: 'jpeg', quality: 72, clip });
     writeFileSync(`${dir}/f${String(i).padStart(2, '0')}.jpg`, Buffer.from(r.data, 'base64'));
   }
   console.log(`BURST_DONE ${dir} ${Date.now() - t0}ms`);
