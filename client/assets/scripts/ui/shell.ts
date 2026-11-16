@@ -35,8 +35,8 @@ const TAB_LABEL: Record<Tab, string> = {
   rank: 'UI_TAB_RANK',
 };
 export const TABBAR_H = 164;
-/** 没选中的页签字色 */
-const TAB_DIM = hex('#D6E8FF');
+/** 页签文字都是白的（定版图 01）；选中靠亮色方块和放大的图标区分 */
+const TAB_DIM = COLOR.white;
 
 export abstract class Page {
   node!: Node;
@@ -79,7 +79,7 @@ class TabBar {
       at(cell, x, 0);
       const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
       at(icon, 0, 22);
-      const label = text(cell, tr(TAB_LABEL[t]), 30, { color: TAB_DIM });
+      const label = text(cell, tr(TAB_LABEL[t]), 34, { color: TAB_DIM });
       at(label.node, 0, -50);
       const dot = redDot(cell, 42, 60, 28);
       const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
@@ -169,7 +169,7 @@ class TopBar {
     const coinTap = box('coins', this.node, 296, 92);
     at(coinTap, x1 + 148, 0);
     at(img(coinTap, 'icon/coin', 62, 62, 'icon'), -148 + 36, 2);
-    this.coins = text(coinTap, '0', 36, { align: 'left' });
+    this.coins = text(coinTap, '0', 40, { align: 'left' });
     at(this.coins.node, -148 + 72, 1);
     at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), 148 - 34, 2);
     onTap(coinTap, actions.coins);
@@ -182,9 +182,9 @@ class TopBar {
     at(lifeTap, x1 + 304 + lw / 2, 0);
     this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
     at(this.heart, -lw / 2 + 38, 2);
-    this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
+    this.lives = text(lifeTap, '5/5', 40, { align: 'left' });
     at(this.lives.node, -lw / 2 + 74, 1);
-    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#CFE7FF') });
+    this.timer = text(lifeTap, '', 26, { align: 'left', color: hex('#CFE7FF') });
     onTap(lifeTap, actions.lives);
     at(keyButton(this.node, 'blue', 'skin/g_gear', 72, actions.settings), BW / 2 - 12 - 36, 1);
     // 头像框最后放，压在条的左端上
@@ -200,7 +200,7 @@ class TopBar {
     const t = now();
     if (this.shownCoins !== s.coins) {
       const str = fmt(s.coins);
-      this.coins.fontSize = str.length > 7 ? 30 : 36;
+      this.coins.fontSize = str.length > 7 ? 32 : 40;
       this.coins.string = str;
       if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;

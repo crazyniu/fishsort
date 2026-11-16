@@ -83,14 +83,14 @@ export class HomePage extends Page {
     this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
     this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'), 1.18);
     this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
-    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 84, onTap: () => Flow.startLevel(App.save.data.level) });
+    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 94, spacing: 10, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
     this.levelPill = plate(root, 'skin/j_plate', 232, LABEL_H, 'levelPill');
     at(this.levelPill, 0, pillY);
-    this.levelLabel = text(this.levelPill, '', 34);
+    this.levelLabel = text(this.levelPill, '', 36);
     // 挑战关：关卡号条加宽，左边放红色「挑战」小标（不歪斜、不出条外）
-    this.tag = slice(this.levelPill, 'kit/tag_red', 84, 40, 'tag');
-    text(this.tag, tr('UI_CHALLENGE_TAG'), 24);
+    this.tag = slice(this.levelPill, 'kit/tag_red', 88, 42, 'tag');
+    text(this.tag, tr('UI_CHALLENGE_TAG'), 26);
   }
 
   private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void, iconScale = 1): void {
@@ -101,7 +101,7 @@ export class HomePage extends Page {
     // 标签条压住图标下沿一点
     const pl = plate(n, 'skin/j_plate', 150, LABEL_H, 'plate');
     at(pl, 0, -ENTRY_H / 2 + LABEL_H / 2);
-    const label = text(pl, tr(FEATURE_LABEL[feature]), 32);
+    const label = text(pl, tr(FEATURE_LABEL[feature]), 36);
     at(label.node, 0, 2);
     const lock = img(n, 'kit/ic_lock', 52, 52, 'lock');
     at(lock, 46, 4);
@@ -199,20 +199,21 @@ export class HomePage extends Page {
     const hard = LevelCurve.isChallenge(App.config.curve, file);
     this.start.setColor('green');
     this.tag.active = hard;
-    resizePlate(this.levelPill, hard ? 330 : 232, LABEL_H);
-    at(this.tag, -330 / 2 + 16 + 42, 2);
-    at(this.levelLabel.node, hard ? 46 : 0, 2);
+    resizePlate(this.levelPill, hard ? 344 : 240, LABEL_H);
+    at(this.tag, -344 / 2 + 16 + 44, 2);
+    at(this.levelLabel.node, hard ? 48 : 0, 2);
     for (const e of this.entries.values()) {
       const open = Features.isUnlocked(eco, e.feature, lvl);
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;
       // 没开放时标签写「第 N 关解锁」，字小一号、条按字宽撑开
-      e.label.fontSize = open ? 32 : 24;
-      e.label.string = open ? tr(FEATURE_LABEL[e.feature]) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
+      const name = tr(FEATURE_LABEL[e.feature]);
+      e.label.fontSize = !open ? 24 : name.length > 3 ? 32 : 36;
+      e.label.string = open ? name : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
       e.label.updateRenderData(true);
       const tw = (e.label.node.getComponent(UITransform) as UITransform).width;
-      resizePlate(e.plate, Math.max(150, Math.min(ENTRY_W + 8, tw + 44)), LABEL_H);
+      resizePlate(e.plate, Math.max(156, Math.min(ENTRY_W + 8, tw + 44)), LABEL_H);
       let dot = false;
       if (open) {
         if (e.feature === 'signin') dot = SignIn.canClaim(s, day);

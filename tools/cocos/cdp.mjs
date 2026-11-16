@@ -2,6 +2,7 @@
 // 调试用：连上 ./run.sh web-serve 开的 Chrome（--remote-debugging-port=9333），读控制台输出或在页面里求值。
 // 用法：node tools/cocos/cdp.mjs logs [秒]        收集这么多秒的控制台输出和异常（会先刷新页面）
 //       node tools/cocos/cdp.mjs eval '<表达式>'   在页面里求值，打印 JSON
+//       node tools/cocos/cdp.mjs shot <输出.jpg> [x,y,w,h]  按 2 倍屏截图（可只截一块，比例 0~1）
 // 只用 Node 自带的 fetch / WebSocket，不装东西。
 const PORT = Number(process.env.CDP_PORT ?? 9333);
 const [cmd = 'logs', arg = '6'] = process.argv.slice(2);
@@ -39,6 +40,20 @@ await send('Runtime.enable');
 if (cmd === 'eval') {
   const r = await send('Runtime.evaluate', { expression: arg, returnByValue: true, awaitPromise: true });
   console.log(JSON.stringify(r.result?.value ?? r.exceptionDetails ?? r, null, 1));
+  process.exit(0);
+}
+if (cmd === 'shot') {
+  // 按手机的 2 倍屏渲染后截图（和显示器无关），存成 JPEG：node tools/cocos/cdp.mjs shot <输出路径> [x,y,w,h 设计稿比例 0~1]
+  const { writeFileSync } = await import('node:fs');
+  const vp = (await send('Runtime.evaluate', { expression: '[innerWidth, innerHeight]', returnByValue: true })).result.value;
+  await send('Emulation.setDeviceMetricsOverride', { width: vp[0], height: vp[1], deviceScaleFactor: 2, mobile: false });
+  await new Promise((r) => setTimeout(r, 900));
+  const [fx, fy, fw, fh] = (process.argv[4] ?? '0,0,1,1').split(',').map(Number);
+  const clip = { x: vp[0] * fx, y: vp[1] * fy, width: vp[0] * fw, height: vp[1] * fh, scale: 1 };
+  const r = await send('Page.captureScreenshot', { format: 'jpeg', quality: 90, clip });
+  writeFileSync(arg, Buffer.from(r.data, 'base64'));
+  await send('Emulation.clearDeviceMetricsOverride');
+  console.log(`SHOT_DONE ${arg}`);
   process.exit(0);
 }
 await send('Page.enable');

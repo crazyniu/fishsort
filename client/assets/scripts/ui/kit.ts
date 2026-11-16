@@ -59,7 +59,7 @@ export const INK = {
 const ON_DARK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: COLOR.navy };
 const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
 const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
-const ON_GREEN = btnInk('#1E6B12');
+const ON_GREEN = btnInk('#1A7412');
 const ON_BLUE = btnInk('#0F3F96');
 /** 白色果冻图标键 */
 const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
@@ -288,6 +288,8 @@ export interface TextOpts {
   width?: number;
   lineHeight?: number;
   bold?: boolean;
+  /** 字间距（设计单位）；两三个字的大按钮略拉开更稳 */
+  spacing?: number;
 }
 
 /**
@@ -312,16 +314,17 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (outline) {
     l.enableOutline = true;
     l.outlineColor = outline;
-    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 9));
+    // 描边约字号的 1/12：再粗，笔画之间的空隙会被填死
+    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 12));
   }
-  // 描边字下面再压一道同色投影（定版图的字都是这样立起来的）；小字不加，免得糊
+  // 描边字下面压一道更深的硬投影，字像有厚度一样立起来（定版图的做法）；小字不加，免得糊
   if (o.shadow ?? (!!outline && fontSize >= 28)) {
     l.enableShadow = true;
-    const sc = outline ?? COLOR.shadow;
-    l.shadowColor = new Color(sc.r, sc.g, sc.b, 190);
-    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 14)));
-    l.shadowBlur = 2;
+    l.shadowColor = depthColor(outline ?? COLOR.shadow);
+    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 18)));
+    l.shadowBlur = 1;
   }
+  if (o.spacing) l.spacingX = o.spacing;
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
   l.verticalAlign = VerticalTextAlignment.CENTER;
@@ -334,6 +337,11 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (o.align === 'right') (n.getComponent(UITransform) as UITransform).setAnchorPoint(1, 0.5);
   l.string = s;
   return l;
+}
+
+/** 字的厚度色：比描边再深一档 */
+function depthColor(c: Color): Color {
+  return new Color(Math.round(c.r * 0.7), Math.round(c.g * 0.7), Math.round(c.b * 0.7), 235);
 }
 
 function inkColor(ink: Ink, c?: Color): Color {
@@ -353,7 +361,7 @@ export function reink(n: Node): void {
       l.enableOutline = !!ink.outline;
       if (ink.outline) {
         l.outlineColor = ink.outline;
-        if (l.enableShadow) l.shadowColor = new Color(ink.outline.r, ink.outline.g, ink.outline.b, 190);
+        if (l.enableShadow) l.shadowColor = depthColor(ink.outline);
       }
     }
     const sp = m.getComponent(Sprite);
@@ -454,6 +462,8 @@ export interface BtnOpts {
   h: number;
   label?: string;
   fontSize?: number;
+  /** 字间距 */
+  spacing?: number;
   /** 文字前的小图标（视频、金币…） */
   icon?: string;
   iconSize?: number;
@@ -486,7 +496,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const is = o.iconSize ?? Math.round(o.h * 0.5);
     icon = img(row, o.icon, is, is, 'icon');
   }
-  const label = o.label !== undefined ? text(row, o.label, fs) : null;
+  const label = o.label !== undefined ? text(row, o.label, fs, o.spacing ? { spacing: o.spacing } : {}) : null;
   const layout = () => {
     const gap = 10;
     const ic = icon && icon.active ? icon : null;
