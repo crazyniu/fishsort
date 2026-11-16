@@ -118,7 +118,7 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_popup': ON_DARK,
   'skin/f_plate_blue': ON_FLAT_BLUE,
   'skin/f_pill_navy': ON_FLAT_NAVY,
-  'skin/f_tabbar': ON_FLAT_NAVY,
+  'skin/f_dock': ON_LIGHT,
   'skin/f_tile': ON_FLAT_BLUE,
   'skin/j_key_blue': ON_KEY_BLUE,
   'skin/j_key_green': ON_KEY_GREEN,

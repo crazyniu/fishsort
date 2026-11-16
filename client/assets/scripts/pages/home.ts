@@ -13,20 +13,28 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, at, box, button, img, lazyImg, onTap, opacity, plate, redDot, resizePlate, slice, text } from '../ui/kit';
+import { Btn, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 import { signInPopup } from './signin';
 
-/** 入口：大图标直接浮在场景上，下面压一块平面的蓝色标签牌 */
-const ENTRY_W = 176;
-const ENTRY_H = 184;
-const ENTRY_ICON = 140;
-const LABEL_H = 58;
-/** 「开始」按钮 */
-const START_W = 460;
-const START_H = 134;
+/**
+ * 入口（重排，用户 2026-11-16：原来四个角各放一个、大小形状不一的图标直接浮着，显得乱）：
+ * 左右各一列贴着屏幕边，每个入口是同样大的半透明白格子，图标放在格子里，格子下沿压一块蓝色标签牌
+ */
+const ENTRY_TILE = 128;
+const ENTRY_ICON = 104;
+const LABEL_W = 140;
+const LABEL_H = 44;
+/** 一个入口占的高（格子 + 压出去的半块标签牌），两个入口之间再空 ENTRY_GAP */
+const ENTRY_H = ENTRY_TILE + LABEL_H / 2;
+const ENTRY_GAP = 40;
+/** 「开始」按钮：上面大字「开始」，下面小字「第 N 关」（原来单独一条关卡号，并进按钮里少一样东西） */
+/** 气泡的直径是里面那条鱼的几倍 */
+const BUBBLE_K = 1.42;
+const START_W = 480;
+const START_H = 156;
 
 interface Entry {
   node: Node;
@@ -53,10 +61,12 @@ export class HomePage extends Page {
   override readonly topBar = true;
   private entries = new Map<string, Entry>();
   private start!: Btn;
-  private levelPill!: Node;
   private levelLabel!: ReturnType<typeof text>;
   private tag!: Node;
+  /** 鱼群：一个气泡一条鱼。school 是气泡（整体漂、被点），fishes 是里面的鱼（原地轻摆） */
   private school: Node[] = [];
+  private fishes: Node[] = [];
+  private homes: Vec3[] = [];
   /** 动态光照：光柱、海底的水纹光斑、水里的亮点（盖在背景上、鱼和入口下面） */
   private light!: Node;
   private bubbles!: Node;
@@ -66,61 +76,64 @@ export class HomePage extends Page {
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
     this.light = box('light', root, Screen.W, Screen.H);
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
-    // 四角入口：页边距 24。开始（全屏唯一的主按钮）+ 关卡号条在底栏上面；下面两个入口在关卡号条上方两侧
-    const x0 = Screen.W / 2 - 24 - ENTRY_W / 2;
-    const top = Screen.top - 144 - 16 - ENTRY_H / 2;
-    const btnY = Screen.bottom + TABBAR_H + 28 + START_H / 2;
-    const pillY = btnY + START_H / 2 + 10 + LABEL_H / 2;
-    const low = pillY + LABEL_H / 2 + 14 + ENTRY_H / 2;
-    // 鱼群聚在上下两排入口之间（定版图 01：大而聚拢）；屏幕高就上下拉开一点、放大一点
-    const zoneTop = top - ENTRY_H / 2;
-    const zoneBottom = low + ENTRY_H / 2;
-    const k = Math.max(1, Math.min(1.35, (zoneTop - zoneBottom) / 380));
-    const ks = Math.min(1.15, k);
-    const midY = (zoneTop + zoneBottom) / 2;
+    // 入口：左右各一列，页边距 22，从顶栏下面往下排
+    const x0 = Screen.W / 2 - 22 - ENTRY_TILE / 2;
+    const row1 = Screen.top - 144 - 18 - ENTRY_TILE / 2;
+    const row2 = row1 - ENTRY_H - ENTRY_GAP;
+    const btnY = Screen.bottom + TABBAR_H + 30 + START_H / 2;
+    // 鱼群：排成一个对称的队形（上面两条、中间一条大的、下面两条），放在两列入口之间、顶栏和开始按钮之间的正中偏下
+    const zoneTop = Screen.top - 144;
+    const zoneBottom = btnY + START_H / 2;
+    const k = Math.max(1, Math.min(1.3, (zoneTop - zoneBottom) / 860));
+    const ks = Math.min(1.12, k);
+    const midY = (zoneTop + zoneBottom) / 2 - 50 * k;
     for (const [id, x, y, s] of App.config.ui.homeDeco.school) {
-      const f = img(root, `fish/${id}`, s * ks, s * ks, `fish_${id}`);
-      at(f, x, midY + y * k);
+      // 每条鱼装在一个气泡里（用户 2026-11-16；和局内「困在气泡里的小鱼」是同一个意思）：气泡整体漂，鱼在里面轻轻摆
+      const d = s * ks;
+      const b = box(`bubble_${id}`, root, d * BUBBLE_K, d * BUBBLE_K);
+      at(b, x, midY + y * k);
+      const f = img(b, `fish/${id}`, d, d, 'fish');
       if (x > 0) f.setScale(-1, 1, 1);
-      // 点一下鱼：往上窜一下、吐几个泡泡
-      onTap(f, () => this.poke(f), { press: 0, sound: null });
-      this.school.push(f);
+      img(b, 'kit/bubble', d * BUBBLE_K, d * BUBBLE_K, 'film');
+      // 点一下：气泡往上窜一下、吐几个小泡泡
+      onTap(b, () => this.poke(b), { press: 0, sound: null });
+      this.school.push(b);
+      this.homes.push(b.position.clone());
+      this.fishes.push(f);
     }
-    this.entry(root, 'signin', 'icon/entry_signin', -x0, top, () => signInPopup(() => ui.refresh()));
-    this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
-    this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'), 1.18);
-    this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
-    // 「开始」：全屏唯一的主按钮，平面绿色大按钮，各语言都用字（原来中文用的果冻艺术字和平面按钮不搭）
-    this.start = button(root, {
-      color: 'green',
-      w: START_W,
-      h: START_H,
-      label: tr('UI_PLAY'),
-      fontSize: 72,
-      onTap: () => Flow.startLevel(App.save.data.level),
-    });
+    this.entry(root, 'signin', 'icon/entry_signin', -x0, row1, () => signInPopup(() => ui.refresh()));
+    this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, row2, () => ui.go('levels'), 1.1);
+    this.entry(root, 'wheel', 'icon/entry_wheel', x0, row1, () => ui.go('wheel'));
+    this.entry(root, 'daily', 'icon/entry_daily', x0, row2, () => ui.go('daily'));
+    // 「开始」：全屏唯一的主按钮，平面绿色大按钮，两行字
+    this.start = button(root, { color: 'green', w: START_W, h: START_H, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
-    this.levelPill = plate(root, 'skin/f_plate_blue', 232, LABEL_H, 'levelPill');
-    at(this.levelPill, 0, pillY);
-    this.levelLabel = text(this.levelPill, '', 36);
-    // 挑战关：关卡号条加宽，左边放红色「挑战」小标（不歪斜、不出条外）
-    this.tag = slice(this.levelPill, 'kit/tag_red', 88, 42, 'tag');
-    text(this.tag, tr('UI_CHALLENGE_TAG'), 26);
+    const row = this.start.node.getChildByName('row') as Node;
+    const play = text(row, tr('UI_PLAY'), 66);
+    at(play.node, 0, 22);
+    fit(play, START_W - 80, 66, 40);
+    this.levelLabel = text(row, '', 30, { color: hex('#E9FFE0') });
+    at(this.levelLabel.node, 0, -38);
+    // 挑战关：按钮右上角压一块红色「挑战」小标
+    this.tag = slice(this.start.node, 'kit/tag_red', 96, 44, 'tag');
+    at(this.tag, START_W / 2 - 70, START_H / 2 - 6);
+    at(text(this.tag, tr('UI_CHALLENGE_TAG'), 26).node, 0, 3);
   }
 
   private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void, iconScale = 1): void {
-    const n = box(feature, root, ENTRY_W, ENTRY_H);
+    const n = box(feature, root, LABEL_W, ENTRY_TILE + LABEL_H);
     at(n, x, y);
+    img(n, 'skin/f_card_glass', ENTRY_TILE, ENTRY_TILE, 'tile');
     const ic = img(n, icon, ENTRY_ICON * iconScale, ENTRY_ICON * iconScale, 'icon');
-    at(ic, 0, ENTRY_H / 2 - ENTRY_ICON / 2);
-    // 标签条压住图标下沿一点
-    const pl = plate(n, 'skin/f_plate_blue', 150, LABEL_H, 'plate');
-    at(pl, 0, -ENTRY_H / 2 + LABEL_H / 2);
-    const label = text(pl, tr(FEATURE_LABEL[feature]), 34);
-    at(label.node, 0, 4);
-    const lock = img(n, 'kit/ic_lock', 52, 52, 'lock');
-    at(lock, 46, 4);
-    const dot = redDot(n, ENTRY_ICON / 2 - 8, ENTRY_H / 2 - 12, 30);
+    at(ic, 0, 8);
+    // 标签牌骑在格子的下沿上
+    const pl = plate(n, 'skin/f_plate_blue', LABEL_W, LABEL_H, 'plate');
+    at(pl, 0, -ENTRY_TILE / 2 - 2);
+    const label = text(pl, tr(FEATURE_LABEL[feature]), 26);
+    at(label.node, 0, 3);
+    const lock = img(n, 'kit/ic_lock', 46, 46, 'lock');
+    at(lock, ENTRY_TILE / 2 - 22, -ENTRY_TILE / 2 + 44);
+    const dot = redDot(n, ENTRY_TILE / 2 - 6, ENTRY_TILE / 2 - 6, 30);
     onTap(n, () => {
       const s = App.save.data;
       if (!Features.isUnlocked(App.config.eco, feature, s.level)) {
@@ -136,7 +149,7 @@ export class HomePage extends Page {
   override show(arg?: unknown): void {
     this.refresh();
     const nodes = Array.from(this.entries.values()).map((e) => e.node);
-    enterStagger([...nodes, this.levelPill, this.start.node], 0.07);
+    enterStagger([...nodes, this.start.node], 0.07);
     Tween.stopAllByTarget(this.start.node);
     fx.delay(this.node, 0.6, () => {
       this.start.node.setScale(1, 1, 1);
@@ -158,14 +171,15 @@ export class HomePage extends Page {
 
   override hide(): void {
     for (const f of this.school) Tween.stopAllByTarget(f);
+    for (const f of this.fishes) Tween.stopAllByTarget(f);
     this.light.destroyAllChildren();
     this.bubbles.destroyAllChildren();
     Tween.stopAllByTarget(this.bubbles);
   }
 
-  /** 每条鱼上下浮、身体轻摆；隔几秒挑一条换位置游一小段 */
+  /** 鱼在气泡里身体轻摆；气泡各自慢慢上下浮 */
   private animateSchool(): void {
-    this.school.forEach((f, i) => {
+    this.fishes.forEach((f, i) => {
       Tween.stopAllByTarget(f);
       const sx = f.scale.x;
       tween(f)
@@ -176,21 +190,12 @@ export class HomePage extends Page {
         )
         .start();
     });
-    const home = this.school.map((f) => f.position.clone());
-    const wander = () => {
-      if (!this.node.active) return;
-      const i = Math.floor(Math.random() * this.school.length);
-      const f = this.school[i];
-      const h = home[i];
-      const tx = h.x + (Math.random() - 0.5) * 120;
-      const ty = h.y + (Math.random() - 0.5) * 60;
-      tween(f)
-        .to(1.4, { position: new Vec3(tx, ty, 0) }, { easing: 'sineInOut' })
-        .to(1.6, { position: h.clone() }, { easing: 'sineInOut' })
-        .start();
-      fx.delay(this.node, 2.2 + Math.random() * 1.5, wander);
-    };
-    fx.delay(this.node, 1.2, wander);
+    // 气泡自己慢慢上下浮，各自错开
+    this.school.forEach((b, i) => {
+      Tween.stopAllByTarget(b);
+      b.setPosition(this.homes[i]);
+      fx.bob(b, 7, 2.6 + i * 0.3, i * 0.5);
+    });
   }
 
   private poke(f: Node): void {
@@ -331,21 +336,14 @@ export class HomePage extends Page {
     const hard = LevelCurve.isChallenge(App.config.curve, file);
     this.start.setColor('green');
     this.tag.active = hard;
-    resizePlate(this.levelPill, hard ? 344 : 240, LABEL_H);
-    at(this.tag, -344 / 2 + 16 + 44, 4);
-    at(this.levelLabel.node, hard ? 48 : 0, 4);
     for (const e of this.entries.values()) {
       const open = Features.isUnlocked(eco, e.feature, lvl);
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;
-      // 没开放时标签写「第 N 关解锁」，字小一号、条按字宽撑开
-      const name = tr(FEATURE_LABEL[e.feature]);
-      e.label.fontSize = !open ? 24 : name.length > 3 ? 30 : 34;
-      e.label.string = open ? name : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
-      e.label.updateRenderData(true);
-      const tw = (e.label.node.getComponent(UITransform) as UITransform).width;
-      resizePlate(e.plate, Math.max(156, Math.min(ENTRY_W + 8, tw + 44)), LABEL_H);
+      // 没开放时标签写「第 N 关解锁」；字比标签牌宽就缩小，牌的大小不变（一列里的牌一样宽才整齐）
+      e.label.string = open ? tr(FEATURE_LABEL[e.feature]) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
+      fit(e.label, LABEL_W - 16, 26, 16);
       let dot = false;
       if (open) {
         if (e.feature === 'signin') dot = SignIn.canClaim(s, day);

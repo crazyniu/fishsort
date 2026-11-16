@@ -35,8 +35,15 @@ const TAB_LABEL: Record<Tab, string> = {
   tasks: 'UI_TAB_TASKS',
 };
 export const TABBAR_H = 164;
-/** 页签文字都是白的（定版图 01）；选中靠亮色方块和放大的图标区分 */
-const TAB_DIM = COLOR.white;
+/** 没选中的页签字是深蓝（写在白托盘上），选中的变白（写在亮蓝块上） */
+const TAB_DIM = hex('#1F56B0');
+/** 底栏托盘：离屏幕两边多远、多高；选中块多高、中心在哪（底边离托盘底 6，上面高出托盘一截）；图标、字的位置 */
+const DOCK_INSET = 16;
+const DOCK_H = 132;
+const TILE_H = 150;
+const TILE_Y = -DOCK_H / 2 + 6 + TILE_H / 2;
+const ICON_Y = 14;
+const LABEL_Y = -44;
 
 export abstract class Page {
   node!: Node;
@@ -65,28 +72,28 @@ class TabBar {
   private current: Tab = 'home';
 
   constructor(parent: Node, private readonly onSelect: (t: Tab) => void) {
-    // 平面底栏（新设计，用户 2026-11-16）：一整条深蓝，贴着屏幕两边和底边，只有上面两个角是圆的；
-    // 选中的页签垫一块亮一档的蓝色方块（略高出底栏），图标放大
-    const w = Screen.W;
-    this.node = plate(parent, 'skin/f_tabbar', w, TABBAR_H, 'tabbar');
-    const lift = Math.max(6, Screen.safeBottom);
-    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + lift);
-    // 底栏下面到屏幕底边（手势条那一截）补成同一个颜色
-    at(tint(this.node, w, lift + 4, hex('#123A8E'), 'under'), 0, -TABBAR_H / 2 - lift / 2);
+    // 底栏（用户 2026-11-16：整条深蓝底「不好看，不要带这种背景色」）：一块浮着的白色圆角托盘，两边和底下都留空，场景从四周透出来；
+    // 没选中的页签是彩色图标 + 深蓝字，选中的垫一块平的亮蓝（比托盘高出一截）、图标放大、字变白
+    this.node = box('tabbar', parent, Screen.W, TABBAR_H);
+    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(6, Screen.safeBottom));
     blockInput(this.node);
-    const cw = (w - 28) / TABS.length;
-    this.sel = img(this.node, 'skin/f_tile', cw - 6, ((cw - 6) * 512) / 420, 'sel');
+    const w = Screen.W - DOCK_INSET * 2;
+    plate(this.node, 'skin/f_dock', w, DOCK_H, 'dock');
+    const cw = (w - 20) / TABS.length;
+    this.sel = img(this.node, 'skin/f_tile', cw - 12, TILE_H, 'sel');
     TABS.forEach((t, i) => {
-      const x = -w / 2 + 14 + cw * (i + 0.5);
+      const x = -w / 2 + 10 + cw * (i + 0.5);
       const cell = box(t, this.node, cw, TABBAR_H);
       at(cell, x, 0);
-      const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
-      at(icon, 0, 22);
-      const label = text(cell, tr(TAB_LABEL[t]), 30, { color: TAB_DIM });
-      at(label.node, 0, -52);
-      const dot = redDot(cell, 42, 60, 28);
-      const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
-      at(lock, 32, -2);
+      const icon = img(cell, TAB_ICON[t], 84, 84, 'icon');
+      at(icon, 0, ICON_Y);
+      // 字放在托盘的面上：深蓝、不描边
+      const label = text(cell, tr(TAB_LABEL[t]), 26, { color: TAB_DIM, outline: null, shadow: false });
+      at(label.node, 0, LABEL_Y);
+      fit(label, cw - 16, 26, 18);
+      const dot = redDot(cell, 38, 52, 28);
+      const lock = img(cell, 'kit/ic_lock', 38, 38, 'lock');
+      at(lock, 30, -6);
       this.cells.set(t, { node: cell, icon, label, dot, lock });
       onTap(cell, () => this.onSelect(t), { press: 0.94, sound: 'tab' });
     });
@@ -104,10 +111,10 @@ class TabBar {
       Tween.stopAllByTarget(prev.icon);
       prev.icon.angle = 0;
       prev.label.color = TAB_DIM;
-      if (animate) tween(prev.icon).to(0.14, { scale: new Vec3(1, 1, 1), position: new Vec3(0, 22, 0) }, { easing: 'quadOut' }).start();
+      if (animate) tween(prev.icon).to(0.14, { scale: new Vec3(1, 1, 1), position: new Vec3(0, ICON_Y, 0) }, { easing: 'quadOut' }).start();
       else {
         prev.icon.setScale(1, 1, 1);
-        at(prev.icon, 0, 22);
+        at(prev.icon, 0, ICON_Y);
       }
     }
     this.current = t;
@@ -119,23 +126,23 @@ class TabBar {
     Tween.stopAllByTarget(c.label.node);
     c.label.node.setScale(1, 1, 1);
     if (!animate || same) {
-      at(this.sel, x, 9);
+      at(this.sel, x, TILE_Y);
       this.sel.setScale(1, 1, 1);
       c.icon.angle = 0;
       c.icon.setScale(1.14, 1.14, 1);
-      at(c.icon, 0, 30);
+      at(c.icon, 0, ICON_Y + 10);
       return;
     }
     tween(this.sel)
       .to(0.1, { scale: new Vec3(1.14, 0.94, 1) }, { easing: 'quadOut' })
       .to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
       .start();
-    tween(this.sel).to(0.24, { position: new Vec3(x, 9, 0) }, { easing: 'backOut' }).start();
+    tween(this.sel).to(0.24, { position: new Vec3(x, TILE_Y, 0) }, { easing: 'backOut' }).start();
     c.icon.setScale(0.86, 0.86, 1);
     tween(c.icon)
-      .to(0.14, { scale: new Vec3(1.3, 1.3, 1), position: new Vec3(0, 46, 0), angle: -9 }, { easing: 'quadOut' })
-      .to(0.1, { scale: new Vec3(1.1, 1.18, 1), position: new Vec3(0, 28, 0), angle: 7 }, { easing: 'quadIn' })
-      .to(0.12, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 30, 0), angle: 0 }, { easing: 'backOut' })
+      .to(0.14, { scale: new Vec3(1.3, 1.3, 1), position: new Vec3(0, ICON_Y + 26, 0), angle: -9 }, { easing: 'quadOut' })
+      .to(0.1, { scale: new Vec3(1.1, 1.18, 1), position: new Vec3(0, ICON_Y + 8, 0), angle: 7 }, { easing: 'quadIn' })
+      .to(0.12, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, ICON_Y + 10, 0), angle: 0 }, { easing: 'backOut' })
       .start();
     c.label.node.setScale(1.22, 1.22, 1);
     tween(c.label.node).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
