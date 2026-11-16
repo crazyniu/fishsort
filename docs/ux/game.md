@@ -77,14 +77,14 @@
 
 | 键 | 中文 | English |
 |---|---|---|
-| TIP_LAYER | 被压住的气泡要先点开上面的 | Pop the bubbles on top first |
-| TIP_CHAIN | 锁链泡：每装满一缸，数字减 1 | Chained: each full tank lowers the number |
-| TIP_DROP | 后面还有气泡会掉下来 | More bubbles will drop in later |
-| TIP_TIMER | 限时缸：倒计时归零前装满它 | Timed tank: fill it before time runs out |
-| TIP_FOG | 迷雾泡：看不出是什么鱼。别处每破一个气泡，它下面的小泡少一个，没了就看清 | Fog: the fish are hidden. Each bubble you pop elsewhere removes a dot. No dots, no fog |
-| TIP_ICE | 冰封泡：冻住了点不了。冰晶连着的气泡破掉一个，它就解冻 | Frozen: it can't be tapped. Pop a bubble it is linked to and it thaws |
-| TIP_BIG | 大鱼缸：要装满 6 条 | Big tank: needs 6 fish |
-| TIP_PAIR | 结伴鱼：点一条，两条一起走，各进各的缸 | Buddies: tap one and both go. Each finds its own tank |
+| TIP_LAYER | 先点开压在上面的气泡 | Pop the top bubbles first |
+| TIP_CHAIN | 锁链泡：每装满一缸减 1，到 0 解开 | Chains: each full tank counts down |
+| TIP_DROP | 后面还会掉下新气泡 | More bubbles will drop in |
+| TIP_TIMER | 限时缸：时间到之前装满它 | Timer tank: fill it before time's up |
+| TIP_FOG | 迷雾泡：点破别的气泡，雾就散开 | Fog: pop other bubbles to clear it |
+| TIP_ICE | 冰冻泡：点破连着的气泡就解冻 | Ice: pop the linked bubble to thaw it |
+| TIP_BIG | 大鱼缸：要装 6 条 | Big tank: holds 6 fish |
+| TIP_PAIR | 结伴鱼：点一条，两条一起走 | Buddies: tap one, both go |
 
 ## 参考结论
 

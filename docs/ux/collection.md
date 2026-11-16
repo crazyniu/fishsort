@@ -84,14 +84,14 @@
 
 | 键 | 中文 | English |
 |---|---|---|
-| UI_TAB_COLLECTION | 收藏 | Cards |
+| UI_TAB_COLLECTION | 收藏 | Album |
 | UI_COLLECTED | 已收集 %d/%d | Collected %d/%d |
 | ALBUM_BOOK_1…6 | 册名（晨光沙滩…海底宫殿，现有文案还是旧册名） | Sunrise Shore … Sea Palace |
 | ALBUM_TAKE / ALBUM_CLAIMED | 领取 / 已领取 | Claim / Claimed |
-| H_UNLOCKS_AT | 第 %d 关解锁 | Unlocks at level %d |
+| H_UNLOCKS_AT | 第 %d 关解锁 | Unlocks at Lv.%d |
 | H_GRAND_PRIZE | 大奖 | Grand prize |
 | UI_UNKNOWN | ？？？ | ??? |
-| UI_CARD_OWNED | 已拥有，换 %d 金币 | Already owned: +%d coins |
+| UI_CARD_OWNED | 重复卡，换成 | Duplicate → |
 | H_PRIZE_FRAME | 头像框 | Avatar frame |
 
 ## 参考结论

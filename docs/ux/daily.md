@@ -59,11 +59,11 @@
 | 键 | 中文 | English |
 |---|---|---|
 | UI_TAB_DAILY | 每日挑战 | Daily |
-| DAILY_START | 开始挑战 | Start |
-| DAILY_FREE | 今日免费 1 次 | 1 free try today |
-| DAILY_RETRY | 再试一次 | Try again |
+| DAILY_START | 开始挑战 | Play |
+| DAILY_FREE | 免费 1 次 | 1 free try |
+| DAILY_RETRY | 重试 | Retry |
 | DAILY_DONE / DAILY_TOMORROW | 今日已完成 / 明天再来 | Done today / Come back tomorrow |
-| DAILY_STREAK | 连续过关 %d/%d 天 | Streak %d/%d days |
+| DAILY_STREAK | 连胜 %d/%d 天 | Streak %d/%d |
 | DAILY_CHEST / DAILY_BIG_CHEST | 每日宝箱 / 七日大宝箱 | Daily chest / 7-day chest |
 
 ## 参考结论
