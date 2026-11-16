@@ -91,7 +91,7 @@ export class WheelPage extends Page {
 
     // 下一排：十连 · 看广告 +1 · 分享 +1
     const y2 = btnY - 150;
-    const ten = button(v, { color: 'purple', w: 220, h: 104, label: tr('H_TEN_PULL'), fontSize: 34, onTap: () => this.ten() });
+    const ten = button(v, { color: 'blue', w: 220, h: 104, label: tr('H_TEN_PULL'), fontSize: 34, onTap: () => this.ten() });
     at(ten.node, -235, y2);
     const tenCost = text(ten.node, `${eco.wheel.tenCost}`, 24, { color: COLOR.yellow });
     at(tenCost.node, 0, -66);

@@ -130,7 +130,7 @@ export class DailyPage extends Page {
       fx.breathe(b.node, 0.03, 1.3);
     } else {
       const ad = button(v, {
-        color: 'purple',
+        color: 'yellow',
         w: 320,
         h: 130,
         icon: 'kit/ic_video',

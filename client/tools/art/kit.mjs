@@ -71,291 +71,178 @@ function rad(stops, cx = 0.5, cy = 0.5, r = 0.5, fx = cx, fy = cy) {
 
 const rr = (x, y, w, h, r, attrs) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ry="${r}" ${attrs}/>`;
 
-// ---------------------------------------------------------------- 按钮（胶囊，横向九宫格）
-// 上半高光、下沿深色厚边、细深色描边（docs/09 第 3 节）
-function pill(name, col, w = 120, h = 96) {
-  const [hi, mid, low, edge] = col;
-  const r = (h - 10) / 2;
-  const [g1, d1] = lin([[0, hi], [0.5, mid], [1, low]]);
-  const [g2, d2] = lin([[0, '#fff', 0.85], [1, '#fff', 0.15]]);
-  const body = `<defs>${d1}${d2}</defs>
-    ${rr(2, 8, w - 4, h - 10, r, `fill="${edge}"`)}
-    ${rr(2, 2, w - 4, h - 12, r, `fill="url(#${g1})" stroke="${edge}" stroke-width="2.5"`)}
-    ${rr(r * 0.55, 6, w - r * 1.1, (h - 12) * 0.36, (h - 12) * 0.18, `fill="url(#${g2})"`)}
-    <ellipse cx="${r * 0.62}" cy="${h * 0.26}" rx="${r * 0.18}" ry="${r * 0.12}" fill="#fff" opacity="0.9"/>`;
-  part(name, w, h, body, [0, 0, r + 4, r + 4]);
-}
-for (const [k, v] of Object.entries(BTN)) pill(`btn_${k}`, v);
+// ---------------------------------------------------------------- 设计规范（docs/03 第 2 节「厚果冻」+ docs/09 第 11 节）
+// 实色、上浅下深的柔和渐变，内部下沿一圈深色厚度，顶部一层很淡的柔光；没有硬高光条、没有白描边。
+// 不用胶囊：按钮圆角 22，卡片 / 弹窗 32 / 24，小标签 12。颜色按语义固定。
+const T = {
+  ink: '#13284F',
+  surface: '#F3F9FF',
+  line: '#CFE6FA',
+  blue: '#1B6FD1',
+  deep: '#0E3B8C',
+  shade: '#0A2560',
+};
+// 按钮：面上色、面下色、厚度色、柔光强度
+const FACE = {
+  green: ['#7BE04A', '#3DB923', '#22831A', 0.35],
+  blue: ['#5DB4FF', '#2378EE', '#1650B8', 0.35],
+  yellow: ['#FFDB5C', '#FFB01F', '#C97800', 0.45],
+  red: ['#FF8A70', '#F0503C', '#B3301F', 0.35],
+  gray: ['#D9E1EA', '#B9C5D3', '#8794A6', 0.4],
+};
+const LEDGE = 8;
+const SINK = 5;
 
-// 方形图标按钮（设置、返回）
-function roundBtn(name, col, s = 88) {
-  const [hi, mid, low, edge] = col;
-  const [g1, d1] = lin([[0, hi], [0.55, mid], [1, low]]);
-  const [g2, d2] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
-  const r = s / 2 - 4;
-  const body = `<defs>${d1}${d2}</defs>
-    <circle cx="${s / 2}" cy="${s / 2 + 3}" r="${r}" fill="${edge}"/>
-    <circle cx="${s / 2}" cy="${s / 2}" r="${r}" fill="url(#${g1})" stroke="#fff" stroke-width="3.5"/>
-    <ellipse cx="${s / 2}" cy="${s * 0.3}" rx="${r * 0.62}" ry="${r * 0.32}" fill="url(#${g2})"/>`;
-  part(name, s, s, body);
+/** 厚果冻按钮：整块是厚度色，面在上面、下沿露出 LEDGE 的厚度；down = 按下（面下沉 SINK） */
+function faceBody(col, w, h, down, r = 22) {
+  const [top, bot, ledge, glow] = col;
+  const fh = h - LEDGE;
+  const oy = down ? SINK : 0;
+  const [g, d] = lin([[0, top], [1, bot]]);
+  const [gl, dl] = lin([[0, '#fff', glow], [0.45, '#fff', 0]]);
+  const [gb, db] = lin([[0, ledge, 0], [1, ledge, 0.35]]);
+  return `<defs>${d}${dl}${db}</defs>
+    ${rr(0, 0, w, h, r, `fill="${ledge}"`)}
+    ${rr(0, oy, w, fh, r, `fill="url(#${g})"`)}
+    ${rr(0, oy, w, fh, r, `fill="url(#${gb})"`)}
+    ${rr(4, oy + 3, w - 8, fh * 0.6, r - 4, `fill="url(#${gl})"`)}`;
 }
-roundBtn('round_blue', BTN.blue);
-roundBtn('round_green', BTN.green);
-roundBtn('round_red', BTN.red);
+for (const [k, col] of Object.entries(FACE)) {
+  part(`btn_${k}`, 132, 120, faceBody(col, 132, 120, false), [28, 34, 28, 28]);
+  part(`btn_${k}_down`, 132, 120, faceBody(col, 132, 120, true), [28, 34, 28, 28]);
+}
+// 图标键：同一种厚果冻，正方形圆角 22
+for (const [name, col] of [['round_blue', FACE.blue], ['round_green', FACE.green], ['round_red', FACE.red]]) {
+  part(name, 96, 96, faceBody(col, 96, 96, false));
+  part(`${name}_down`, 96, 96, faceBody(col, 96, 96, true));
+}
 
-// ---------------------------------------------------------------- 弹窗
-// 宝蓝圆角厚框（立体：上亮下暗）+ 饱和青色内底（16、18）。气泡、珊瑚点缀由代码另放
-{
+// ---------------------------------------------------------------- 弹窗：宝蓝厚框（内部下沿有厚度）+ 浅色内容区
+/** top = 顶部框的厚度（有标题时放标题） */
+function popupFrame(name, top) {
   const w = 300;
-  const h = 300;
-  const [gf, df] = lin([[0, '#6EC2FF'], [0.18, '#3592F7'], [0.7, '#1E62DA'], [1, '#164CB8']]);
-  const [gi, di] = lin([[0, '#A6EBFF'], [0.45, '#7AD9FF'], [1, '#4FC2F5']]);
-  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
-  const [gw, dw] = lin([[0, '#fff', 0.55], [0.25, '#fff', 0]]);
-  const body = `<defs>${df}${di}${ds}${dw}</defs>
-    ${rr(3, 10, w - 6, h - 12, 54, `fill="#0A2B7A"`)}
-    ${rr(3, 3, w - 6, h - 12, 54, `fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"`)}
-    ${rr(9, 8, w - 18, h - 24, 48, `fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"`)}
-    ${rr(30, 12, w - 60, 16, 8, `fill="url(#${gs})"`)}
-    ${rr(26, 30, w - 52, h - 64, 34, `fill="#0F4BB8"`)}
-    ${rr(26, 33, w - 52, h - 66, 34, `fill="url(#${gi})"`)}
-    ${rr(26, 33, w - 52, h - 66, 34, `fill="url(#${gw})"`)}
-    ${rr(26, 30, w - 52, h - 63, 34, `fill="none" stroke="#1756C4" stroke-width="3"`)}`;
-  part('panel', w, h, body, [80, 80, 80, 80]);
+  const h = 300 + top;
+  const side = 16;
+  const [gf, df] = lin([[0, '#5BB0FF'], [0.25, '#2C84F0'], [1, '#1B62D2']]);
+  const [gl, dl] = lin([[0, '#fff', 0.35], [1, '#fff', 0]]);
+  const [gi, di] = lin([[0, '#E3F0FC'], [0.08, T.surface], [1, '#FFFFFF']]);
+  const body = `<defs>${df}${dl}${di}</defs>
+    ${rr(0, 8, w, h - 8, 32, `fill="${T.shade}" fill-opacity="0.35"`)}
+    ${rr(0, 0, w, h - 4, 32, 'fill="#154BB0"')}
+    ${rr(0, 0, w, h - 14, 32, `fill="url(#${gf})"`)}
+    ${rr(6, 4, w - 12, Math.min(top, 60), 26, `fill="url(#${gl})"`)}
+    ${rr(side, top, w - side * 2, h - top - side - 12, 20, `fill="url(#${gi})" stroke="#1450B4" stroke-opacity="0.35" stroke-width="2"`)}`;
+  part(name, w, h, body, [top + 24, side + 34, side + 24, side + 24]);
 }
-// 列表行（17 排行）：宝蓝底 + 亮青描边，上亮下暗
+popupFrame('panel', 96);
+popupFrame('panel_plain', 16);
+// 关闭键：右上角红色圆角方块 + 白叉（深色描边）
 {
-  const w = 200;
-  const h = 120;
-  const [gf, df] = lin([[0, '#3A8CF5'], [0.5, '#1F64DC'], [1, '#174FC0']]);
-  const [gs, ds] = lin([[0, '#fff', 0.5], [1, '#fff', 0]]);
-  const body = `<defs>${df}${ds}</defs>
-    ${rr(3, 8, w - 6, h - 10, 36, `fill="#0A2B7A"`)}
-    ${rr(3, 3, w - 6, h - 10, 36, `fill="url(#${gf})" stroke="#8FD8FF" stroke-width="4"`)}
-    ${rr(22, 9, w - 44, 16, 8, `fill="url(#${gs})"`)}`;
-  part('row_blue', w, h, body, [44, 44, 44, 44]);
+  const s = 80;
+  const x = `<path d="M28 26 L52 50 M52 26 L28 50" stroke-linecap="round"`;
+  part('close', s, s, `${faceBody(FACE.red, s, s, false, 20)}${x} stroke="#8A1F12" stroke-width="13"/>${x} stroke="#fff" stroke-width="8"/>`);
 }
-// 今天可领的格子（签到）：金黄底 + 白边，上亮下暗
-{
-  const w = 120;
-  const h = 120;
-  const [gf, df] = lin([[0, '#FFE680'], [0.5, '#FFC21F'], [1, '#F29A0C']]);
-  const [gs, ds] = lin([[0, '#fff', 0.7], [1, '#fff', 0]]);
-  const body = `<defs>${df}${ds}</defs>
-    ${rr(2, 6, w - 4, h - 8, 24, `fill="#A85D02"`)}
-    ${rr(2, 2, w - 4, h - 8, 24, `fill="url(#${gf})" stroke="#fff" stroke-width="4"`)}
-    ${rr(14, 8, w - 28, 14, 7, `fill="url(#${gs})"`)}`;
-  part('cell_gold', w, h, body, [30, 30, 30, 30]);
+part('popup_head', 64, 96, rr(0, 0, 64, 96, 0, 'fill="#fff" fill-opacity="0"'), [0, 0, 8, 8]);
+
+// ---------------------------------------------------------------- 卡片
+/** 浅色卡片（页面上的商店卡、排行自己那行）：白面 + 下沿浅蓝厚度 + 顶部柔光 */
+function lightCard(name, w, h, r) {
+  const [g, d] = lin([[0, '#FFFFFF'], [1, '#EAF4FE']]);
+  const body = `<defs>${d}</defs>
+    ${rr(0, 4, w, h - 4, r, `fill="${T.shade}" fill-opacity="0.25"`)}
+    ${rr(0, 0, w, h - 4, r, 'fill="#BCD6F0"')}
+    ${rr(0, 0, w, h - 10, r, `fill="url(#${g})"`)}`;
+  part(name, w, h, body, [r + 8, r + 16, r + 8, r + 8]);
 }
-// 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
-{
-  const w = 240;
-  const h = 110;
-  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2B7CEB']]);
-  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
-  const shape = (o) =>
-    `M0 ${h} Q22 ${h} 24 ${h - 22} V${50 + o} Q24 ${6 + o} 66 ${6 + o} H${w - 66} Q${w - 24} ${6 + o} ${w - 24} ${50 + o} V${h - 22} Q${w - 22} ${h} ${w} ${h} Z`;
-  const body = `<defs>${df}${ds}</defs>
-    <path d="${shape(4)}" fill="#0A2B7A"/>
-    <path d="${shape(0)}" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M31 ${h - 20} V52 Q31 13 68 13 H${w - 68} Q${w - 31} 13 ${w - 31} 52 V${h - 20}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
-    ${rr(54, 14, w - 108, 16, 8, `fill="url(#${gs})"`)}
-    <rect x="0" y="${h - 3}" width="${w}" height="3" fill="#2B7CEB"/>`;
-  part('popup_head', w, h, body, [0, 0, 76, 76]);
-}
-// 页面里的玻璃卡片（04 商店、06 收藏、13 结算奖励条）：半透明浅蓝 + 亮青描边
-{
-  const w = 200;
-  const h = 200;
-  const [gf, df] = lin([[0, '#9BE2FF', 0.62], [0.5, '#4FA8F2', 0.5], [1, '#2C7FE0', 0.55]]);
-  const [gs, ds] = lin([[0, '#fff', 0.6], [1, '#fff', 0]]);
-  const body = `<defs>${df}${ds}</defs>
-    ${rr(3, 7, w - 6, h - 9, 40, `fill="#0B3A8F" fill-opacity="0.35"`)}
-    ${rr(3, 3, w - 6, h - 9, 40, `fill="url(#${gf})" stroke="#CFF6FF" stroke-width="5"`)}
-    ${rr(10, 10, w - 20, h - 23, 33, `fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"`)}
-    ${rr(24, 12, w - 48, 22, 11, `fill="url(#${gs})"`)}`;
-  part('panel_glass', w, h, body, [56, 56, 56, 56]);
-}
-// 整块宝蓝底（15、19）：亮蓝厚边（上亮下暗）+ 深宝蓝内底
-{
-  const w = 300;
-  const h = 300;
-  const [gf, df] = lin([[0, '#8AD4FF'], [0.2, '#3FA2FF'], [0.75, '#2378EC'], [1, '#1A5CD0']]);
-  const [gi, di] = lin([[0, '#2F7CF0'], [0.5, '#1C5ED8'], [1, '#1548BC']]);
-  const [gs, ds] = lin([[0, '#fff', 0.85], [1, '#fff', 0]]);
-  const [gw, dw] = lin([[0, '#fff', 0.25], [0.3, '#fff', 0]]);
-  const body = `<defs>${df}${di}${ds}${dw}</defs>
-    ${rr(3, 10, w - 6, h - 12, 54, `fill="#0A2B7A"`)}
-    ${rr(3, 3, w - 6, h - 12, 54, `fill="url(#${gf})" stroke="#0B2F86" stroke-width="4"`)}
-    ${rr(9, 8, w - 18, h - 24, 48, `fill="none" stroke="#C4ECFF" stroke-width="3" opacity="0.8"`)}
-    ${rr(30, 12, w - 60, 14, 7, `fill="url(#${gs})"`)}
-    ${rr(24, 26, w - 48, h - 58, 36, `fill="#0D3A9A"`)}
-    ${rr(24, 29, w - 48, h - 60, 36, `fill="url(#${gi})"`)}
-    ${rr(24, 29, w - 48, h - 60, 36, `fill="url(#${gw})"`)}`;
-  part('panel_blue', w, h, body, [80, 80, 80, 80]);
-}
-// 弹窗标题凸台：和框同色的圆顶台子，两肩圆弧过渡到框上沿（16、18）
-{
-  const w = 240;
-  const h = 110;
-  const [gf, df] = lin([[0, '#6EC2FF'], [0.35, '#3592F7'], [1, '#2B7CEB']]);
-  const [gs, ds] = lin([[0, '#fff', 0.8], [1, '#fff', 0]]);
-  const shape = (o) =>
-    `M0 ${h} Q22 ${h} 24 ${h - 22} V${50 + o} Q24 ${6 + o} 66 ${6 + o} H${w - 66} Q${w - 24} ${6 + o} ${w - 24} ${50 + o} V${h - 22} Q${w - 22} ${h} ${w} ${h} Z`;
-  const body = `<defs>${df}${ds}</defs>
-    <path d="${shape(4)}" fill="#0A2B7A"/>
-    <path d="${shape(0)}" fill="url(#${gf})" stroke="#0B2F86" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M31 ${h - 20} V52 Q31 13 68 13 H${w - 68} Q${w - 31} 13 ${w - 31} 52 V${h - 20}" fill="none" stroke="#9FD8FF" stroke-width="3" opacity="0.8"/>
-    ${rr(54, 14, w - 108, 16, 8, `fill="url(#${gs})"`)}
-    <rect x="0" y="${h - 3}" width="${w}" height="3" fill="#2B7CEB"/>`;
-  part('popup_head', w, h, body, [0, 0, 76, 76]);
-}
-// 页面里的玻璃卡片（04 商店、06 收藏、13 结算奖励条）：半透明浅蓝 + 亮青描边
-{
-  const w = 200;
-  const h = 200;
-  const [gf, df] = lin([[0, '#9BE2FF', 0.62], [0.5, '#4FA8F2', 0.5], [1, '#2C7FE0', 0.55]]);
-  const [gs, ds] = lin([[0, '#fff', 0.6], [1, '#fff', 0]]);
-  const body = `<defs>${df}${ds}</defs>
-    ${rr(3, 7, w - 6, h - 9, 40, `fill="#0B3A8F" fill-opacity="0.35"`)}
-    ${rr(3, 3, w - 6, h - 9, 40, `fill="url(#${gf})" stroke="#CFF6FF" stroke-width="5"`)}
-    ${rr(10, 10, w - 20, h - 23, 33, `fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="2"`)}
-    ${rr(24, 12, w - 48, 22, 11, `fill="url(#${gs})"`)}`;
-  part('panel_glass', w, h, body, [56, 56, 56, 56]);
-}
-// 整块宝蓝底（15、19）
-{
-  const w = 240;
-  const h = 240;
-  const [gf, df] = lin([[0, '#5CB4FF'], [0.18, C.royal2], [1, '#1546B8']]);
-  const [gs, ds] = lin([[0, '#fff', 0.55], [1, '#fff', 0]]);
-  const body = `<defs>${df}${ds}</defs>
-    ${rr(2, 6, w - 4, h - 8, 44, `fill="${C.navy}"`)}
-    ${rr(2, 2, w - 4, h - 8, 44, `fill="url(#${gf})" stroke="${C.navy}" stroke-width="3"`)}
-    ${rr(8, 8, w - 16, h - 20, 38, `fill="none" stroke="#8FD0FF" stroke-width="3" opacity="0.8"`)}
-    ${rr(22, 16, w - 44, 34, 17, `fill="url(#${gs})"`)}`;
-  part('panel_blue', w, h, body, [64, 64, 64, 64]);
-}
-// 弹窗里的一行（浅色底条）
-{
-  const w = 120;
-  const h = 64;
-  const body = `${rr(1, 1, w - 2, h - 2, 22, `fill="#fff" fill-opacity="0.5" stroke="#fff" stroke-opacity="0.9" stroke-width="2"`)}`;
-  part('row', w, h, body, [26, 26, 26, 26]);
-}
-// 标题胶囊（顶部）
-{
-  const w = 160;
-  const h = 84;
-  const [g, d] = lin([[0, '#6CC4FF'], [0.5, '#2E86F5'], [1, '#1A5BD0']]);
-  const [gs, ds] = lin([[0, '#fff', 0.75], [1, '#fff', 0]]);
+lightCard('panel_glass', 200, 200, 24);
+/** 深色半透明卡片（压在背景图上：主页入口、技能键、排行行）：上沿一道淡亮边，下沿深一点 */
+function darkCard(name, w, h, r, a = 0.55) {
+  const [g, d] = lin([[0, '#0D3A8E', a], [1, '#061C52', a + 0.1]]);
+  const [gs, ds] = lin([[0, '#fff', 0.45], [0.2, '#fff', 0.08], [1, '#fff', 0.04]]);
   const body = `<defs>${d}${ds}</defs>
-    ${rr(2, 7, w - 4, h - 9, 36, `fill="${C.navy}"`)}
-    ${rr(2, 2, w - 4, h - 9, 36, `fill="url(#${g})" stroke="#fff" stroke-width="4"`)}
-    ${rr(24, 8, w - 48, 22, 11, `fill="url(#${gs})"`)}`;
-  part('title_plate', w, h, body, [0, 0, 42, 42]);
+    ${rr(1, 1, w - 2, h - 2, r, `fill="url(#${g})" stroke="url(#${gs})" stroke-width="2"`)}`;
+  part(name, w, h, body, [r + 6, r + 6, r + 6, r + 6]);
 }
-// 关闭键
+darkCard('panel_blue', 200, 200, 24);
+darkCard('row_blue', 120, 120, 16);
+darkCard('title_plate', 80, 64, 16, 0.62);
+darkCard('capsule', 80, 64, 16, 0.62);
+part('title_page', 64, 64, rr(0, 0, 64, 64, 12, 'fill="#fff" fill-opacity="0"'), [16, 16, 16, 16]);
+// 弹窗里的一行：白面 + 下沿浅蓝厚度
 {
-  const s = 84;
-  const [g1, d1] = lin([[0, '#7CCBFF'], [1, '#1F63D6']]);
-  const body = `<defs>${d1}</defs>
-    <circle cx="42" cy="45" r="37" fill="${C.navy}"/>
-    <circle cx="42" cy="41" r="37" fill="url(#${g1})" stroke="#fff" stroke-width="5"/>
-    <path d="M28 27 L56 55 M56 27 L28 55" stroke="${C.navy}" stroke-width="13" stroke-linecap="round"/>
-    <path d="M28 27 L56 55 M56 27 L28 55" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`;
-  part('close', s, s, body);
+  const [g, d] = lin([[0, '#FFFFFF'], [1, '#F2F8FF']]);
+  part('row', 120, 100, `<defs>${d}</defs>${rr(0, 0, 120, 100, 18, 'fill="#C7DCF2"')}${rr(0, 0, 120, 95, 18, `fill="url(#${g})"`)}`, [22, 26, 22, 22]);
+}
+// 今天可领的格子（签到）：琥珀厚果冻
+part('cell_gold', 120, 120, faceBody(FACE.yellow, 120, 120, false, 20), [26, 34, 26, 26]);
+// 小标签（「挑战」「新」、技能数量）
+part('tag_red', 80, 48, faceBody(FACE.red, 80, 48, false, 12), [0, 0, 16, 16]);
+part('tag_amber', 80, 48, faceBody(FACE.yellow, 80, 48, false, 12), [0, 0, 16, 16]);
+// 页面背景：深海蓝竖向渐变，拉伸到全屏
+{
+  const [g, d] = lin([[0, '#2A8BEA'], [0.5, '#1661C2'], [1, T.deep]]);
+  part('bg_page', 8, 400, `<defs>${d}</defs><rect width="8" height="400" fill="url(#${g})"/>`);
 }
 
-// ---------------------------------------------------------------- 胶囊信息条（顶栏、家园、局内）
-{
-  const w = 120;
-  const h = 64;
-  const [g, d] = lin([[0, '#0E3A9E', 0.92], [1, '#071F63', 0.92]]);
-  const body = `<defs>${d}</defs>
-    ${rr(2, 2, w - 4, h - 4, 30, `fill="url(#${g})" stroke="#4A9BFF" stroke-width="3"`)}
-    ${rr(10, 6, w - 20, 14, 7, `fill="#fff" opacity="0.12"`)}`;
-  part('capsule', w, h, body, [0, 0, 32, 32]);
-}
-// 页面大标题下的底板（云朵状）
-{
-  const w = 200;
-  const h = 96;
-  const [g, d] = lin([[0, '#5DB9FF'], [1, '#1D5FD6']]);
-  const body = `<defs>${d}</defs>
-    ${rr(3, 8, w - 6, h - 10, 44, `fill="${C.navy}"`)}
-    ${rr(3, 3, w - 6, h - 12, 42, `fill="url(#${g})" stroke="#fff" stroke-width="4"`)}
-    ${rr(28, 10, w - 56, 20, 10, `fill="#fff" opacity="0.4"`)}`;
-  part('title_page', w, h, body, [0, 0, 48, 48]);
-}
-
-// ---------------------------------------------------------------- 底栏
+// ---------------------------------------------------------------- 底栏：宝蓝厚果冻长条，选中格是亮青厚果冻
 {
   const w = 200;
   const h = 150;
-  const [g, d] = lin([[0, '#3C8DFF'], [0.08, C.royal], [1, '#0F3FAE']]);
-  const body = `<defs>${d}</defs>
-    ${rr(2, 2, w - 4, h - 4, 40, `fill="url(#${g})" stroke="${C.navy}" stroke-width="4"`)}
-    ${rr(10, 6, w - 20, 6, 3, `fill="#9BD3FF" opacity="0.7"`)}`;
-  part('tabbar', w, h, body, [48, 48, 48, 48]);
+  const [g, d] = lin([[0, '#3D93F5'], [1, '#1A5BCB']]);
+  const [gl, dl] = lin([[0, '#fff', 0.3], [1, '#fff', 0]]);
+  const body = `<defs>${d}${dl}</defs>
+    ${rr(0, 0, w, h, 32, 'fill="#123F9E"')}
+    ${rr(0, 0, w, h - 8, 32, `fill="url(#${g})"`)}
+    ${rr(6, 3, w - 12, 30, 24, `fill="url(#${gl})"`)}`;
+  part('tabbar', w, h, body, [40, 40, 40, 40]);
+  part('tab_sel', 132, 132, faceBody(['#8FE6FF', '#3CB6F5', '#1B7FC8', 0.45], 132, 132, false, 24), [30, 36, 30, 30]);
+  part('tab_divider', 4, 80, rr(0, 0, 4, 80, 2, 'fill="#0B2A73" fill-opacity="0.3"'));
 }
-{
-  const w = 140;
-  const h = 150;
-  const [g, d] = lin([[0, '#BFF0FF'], [0.45, '#5BC6FF'], [1, '#2E8FF0']]);
-  const body = `<defs>${d}</defs>
-    ${rr(4, 10, w - 8, h - 12, 34, `fill="#0D3C99"`)}
-    ${rr(4, 4, w - 8, h - 14, 34, `fill="url(#${g})" stroke="#fff" stroke-width="5"`)}
-    ${rr(18, 12, w - 36, 24, 12, `fill="#fff" opacity="0.55"`)}`;
-  part('tab_sel', w, h, body, [44, 44, 44, 44]);
-}
-part('tab_divider', 4, 80, `${rr(0.5, 0, 3, 80, 1.5, `fill="#0B2A73" opacity="0.55"`)}${rr(2.5, 0, 1.5, 80, 0.75, `fill="#7FC0FF" opacity="0.5"`)}`);
 
 // ---------------------------------------------------------------- 开关、分段、进度条
 function toggle(name, on) {
-  const w = 120;
+  const w = 108;
   const h = 64;
-  const col = on ? BTN.green : BTN.gray;
-  const [g, d] = lin([[0, col[2]], [1, col[1]]]);
   const kx = on ? w - 32 : 32;
+  const [g, d] = lin([[0, on ? '#2E9E1C' : '#9AA7B8'], [1, on ? '#4CC42E' : '#C2CCD8']]);
   const body = `<defs>${d}</defs>
-    ${rr(2, 2, w - 4, h - 4, 30, `fill="url(#${g})" stroke="${col[3]}" stroke-width="3"`)}
-    <circle cx="${kx}" cy="${h / 2 + 2}" r="23" fill="#000" opacity="0.18"/>
-    <circle cx="${kx}" cy="${h / 2}" r="23" fill="#fff" stroke="#DDE6F0" stroke-width="2"/>`;
+    ${rr(0, 0, w, h, 32, `fill="url(#${g})"`)}
+    <circle cx="${kx}" cy="${h / 2 + 3}" r="25" fill="${T.shade}" opacity="0.25"/>
+    <circle cx="${kx}" cy="${h / 2}" r="25" fill="#E3ECF5"/>
+    <circle cx="${kx}" cy="${h / 2 - 2}" r="23" fill="#fff"/>`;
   part(name, w, h, body);
 }
 toggle('toggle_on', true);
 toggle('toggle_off', false);
 {
-  const w = 100;
-  const h = 60;
-  part('seg_bg', w, h, rr(2, 2, w - 4, h - 4, 28, `fill="#1048B8" stroke="${C.navy}" stroke-width="3"`), [0, 0, 30, 30]);
-  const [g, d] = lin([[0, BTN.green[0]], [1, BTN.green[2]]]);
-  part('seg_on', w, h, `<defs>${d}</defs>${rr(4, 4, w - 8, h - 8, 26, `fill="url(#${g})" stroke="#fff" stroke-width="3"`)}`, [0, 0, 30, 30]);
+  const [g, d] = lin([[0, '#C9DCF0'], [1, '#E2EDF9']]);
+  part('seg_bg', 100, 64, `<defs>${d}</defs>${rr(0, 0, 100, 64, 16, `fill="url(#${g})"`)}`, [0, 0, 18, 18]);
+  part('seg_on', 100, 64, faceBody(FACE.blue, 92, 56, false, 12).replace('<defs>', '<g transform="translate(4 4)"><defs>') + '</g>', [0, 0, 18, 18]);
 }
 {
   const w = 80;
   const h = 28;
-  part('bar_track', w, h, rr(1, 1, w - 2, h - 2, 13, `fill="#0A2A70" stroke="#4A8FEF" stroke-width="2"`), [0, 0, 14, 14]);
-  for (const [k, col] of [['green', BTN.green], ['yellow', BTN.yellow], ['blue', BTN.blue], ['purple', BTN.purple]]) {
-    const [g, d] = lin([[0, col[0]], [1, col[2]]]);
-    part(`bar_${k}`, w, h, `<defs>${d}</defs>${rr(3, 3, w - 6, h - 6, 11, `fill="url(#${g})"`)}${rr(9, 5, w - 18, 6, 3, `fill="#fff" opacity="0.55"`)}`, [0, 0, 14, 14]);
+  part('bar_track', w, h, `${rr(0, 0, w, h, 12, 'fill="#061C52" fill-opacity="0.55"')}${rr(0, h - 3, w, 3, 1.5, 'fill="#fff" fill-opacity="0.15"')}`, [0, 0, 14, 14]);
+  for (const [k, c] of [['green', FACE.green], ['yellow', FACE.yellow], ['blue', FACE.blue], ['purple', ['#C79BFF', '#8E5BD9', '#5E2FA8', 0.4]]]) {
+    const [g, d] = lin([[0, c[0]], [1, c[1]]]);
+    part(`bar_${k}`, w, h, `<defs>${d}</defs>${rr(0, 0, w, h, 12, `fill="${c[2]}"`)}${rr(0, 0, w, h - 4, 12, `fill="url(#${g})"`)}${rr(6, 3, w - 12, 6, 3, 'fill="#fff" opacity="0.35"')}`, [0, 0, 14, 14]);
   }
 }
 
-// ---------------------------------------------------------------- 局内：暂存格、木架、鱼缸、气泡
+// ---------------------------------------------------------------- 局内：暂存格、鱼缸托盘、鱼缸、气泡
 {
+  // 暂存格：深色半透明圆角 16，细白边；满格前一格变红
   const w = 120;
   const h = 96;
-  const [g, d] = lin([[0, '#fff', 0.35], [1, '#9FE6FF', 0.15]]);
-  part('slot', w, h, `<defs>${d}</defs>${rr(3, 3, w - 6, h - 6, 18, `fill="url(#${g})" stroke="#BDF0FF" stroke-width="4"`)}${rr(12, 9, w - 24, 8, 4, `fill="#fff" opacity="0.5"`)}`, [24, 24, 24, 24]);
-  part('slot_warn', w, h, `<defs>${d}</defs>${rr(3, 3, w - 6, h - 6, 18, `fill="#FF4A4A" fill-opacity="0.25" stroke="#FF4040" stroke-width="5"`)}`, [24, 24, 24, 24]);
+  part('slot', w, h, rr(1, 1, w - 2, h - 2, 16, 'fill="#08245F" fill-opacity="0.38" stroke="#fff" stroke-opacity="0.35" stroke-width="2"'), [20, 20, 20, 20]);
+  part('slot_warn', w, h, rr(1.5, 1.5, w - 3, h - 3, 16, 'fill="#FF4D4F" fill-opacity="0.22" stroke="#FF4D4F" stroke-width="3"'), [20, 20, 20, 20]);
 }
 {
+  // 鱼缸下的托盘：一条浅色半透明的台面（不再是木架）
   const w = 200;
   const h = 44;
-  const [g, d] = lin([[0, '#E9A866'], [0.45, '#C17A3B'], [1, '#8C5222']]);
-  part('shelf', w, h, `<defs>${d}</defs>${rr(2, 6, w - 4, h - 8, 12, `fill="#5E3410"`)}${rr(2, 2, w - 4, h - 10, 12, `fill="url(#${g})" stroke="#6B3D14" stroke-width="2.5"`)}${rr(12, 6, w - 24, 5, 2.5, `fill="#FFD8A8" opacity="0.6"`)}<path d="M30 20 Q60 16 90 21 M110 24 Q140 19 170 23" stroke="#8C5222" stroke-width="2" fill="none" opacity="0.6"/>`, [0, 0, 22, 22]);
+  const [g, d] = lin([[0, '#fff', 0.5], [1, '#fff', 0.18]]);
+  part('shelf', w, h, `<defs>${d}</defs>${rr(0, 6, w, h - 6, 12, `fill="${T.shade}" fill-opacity="0.25"`)}${rr(0, 2, w, h - 8, 12, `fill="url(#${g})" stroke="#fff" stroke-opacity="0.5" stroke-width="2"`)}`, [0, 0, 16, 16]);
 }
 {
   // 玻璃鱼缸：圆肚、窄口、厚口沿
@@ -399,45 +286,41 @@ toggle('toggle_off', false);
   part('chain', 200, 200, `${link(40, 40, 45)}${link(76, 76, -45)}${link(112, 112, 45)}${link(148, 148, -45)}${link(160, 40, -45)}${link(124, 76, 45)}${link(88, 112, -45)}${link(52, 148, 45)}`);
 }
 
-// ---------------------------------------------------------------- 图标（白色 + 深蓝描边）
+// ---------------------------------------------------------------- 图标（白字深描边：白色图形 + 深藏青描边；放在浅色面上由代码染色）
+const NAVY = '#0B2A73';
+/** 线条图标：深色粗线打底，白色细线压上 */
 function icon(name, inner, s = 64) {
-  const o = `<g fill="none" stroke="${C.navy}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
-  const f = `<g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
+  const o = `<g fill="none" stroke="${NAVY}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
+  const f = `<g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
   part(name, s, s, o + f);
 }
-function solidIcon(name, d, s = 64, fill = '#fff') {
-  part(name, s, s, `<path d="${d}" fill="${C.navy}" stroke="${C.navy}" stroke-width="7" stroke-linejoin="round"/><path d="${d}" fill="${fill}"/>`);
+/** 实心图标：深色描边 + 白色填充 */
+function solid(name, shapes, s = 64) {
+  part(name, s, s, `<g fill="${NAVY}" stroke="${NAVY}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">${shapes}</g><g fill="#fff">${shapes}</g>`);
 }
-icon('ic_plus', '<path d="M32 14 V50 M14 32 H50"/>');
-icon('ic_check', '<path d="M14 34 L27 47 L51 19"/>');
-icon('ic_back', '<path d="M40 14 L20 32 L40 50"/>');
-icon('ic_arrow', '<path d="M24 14 L44 32 L24 50"/>');
-icon('ic_music', '<path d="M24 46 V16 L48 11 V40"/><circle cx="18" cy="46" r="6"/><circle cx="42" cy="41" r="6"/>');
-icon('ic_sound', '<path d="M12 26 H22 L34 16 V48 L22 38 H12 Z"/><path d="M42 24 Q48 32 42 40 M48 18 Q58 32 48 46"/>');
-icon('ic_vibrate', '<rect x="22" y="12" width="20" height="40" rx="4"/><path d="M12 22 L8 27 L12 32 L8 37 L12 42 M52 22 L56 27 L52 32 L56 37 L52 42"/>');
-icon('ic_globe', '<circle cx="32" cy="32" r="20"/><path d="M12 32 H52 M32 12 Q20 32 32 52 Q44 32 32 12"/>');
-icon('ic_timer', '<circle cx="32" cy="36" r="17"/><path d="M32 36 V26 M26 12 H38 M47 20 L50 17"/>');
-icon('ic_share', '<circle cx="18" cy="32" r="6"/><circle cx="46" cy="17" r="6"/><circle cx="46" cy="47" r="6"/><path d="M23 29 L41 20 M23 35 L41 44"/>');
-icon('ic_info', '<circle cx="32" cy="32" r="20"/><path d="M32 30 V44 M32 21 V21.5"/>');
-icon('ic_retry', '<path d="M46 22 A18 18 0 1 0 50 36"/><path d="M48 12 V24 H36"/>');
-icon('ic_home', '<path d="M12 32 L32 14 L52 32"/><path d="M18 28 V50 H46 V28"/><path d="M28 50 V38 H36 V50"/>');
-solidIcon('ic_gear', 'M28 6 h8 l2 8 a19 19 0 0 1 6 3 l7-4 6 6-4 7 a19 19 0 0 1 3 6 l8 2 v8 l-8 2 a19 19 0 0 1-3 6 l4 7-6 6-7-4 a19 19 0 0 1-6 3 l-2 8 h-8 l-2-8 a19 19 0 0 1-6-3 l-7 4-6-6 4-7 a19 19 0 0 1-3-6 l-8-2 v-8 l8-2 a19 19 0 0 1 3-6 l-4-7 6-6 7 4 a19 19 0 0 1 6-3 Z M32 23 a9 9 0 1 0 0.01 0 Z');
-{
-  // 视频（广告）图标：彩色小胶片
-  const body = `${rr(6, 14, 52, 38, 8, `fill="#fff" stroke="${C.navy}" stroke-width="5"`)}
-    ${rr(6, 14, 52, 9, 4, `fill="#FF5A4E" stroke="${C.navy}" stroke-width="4"`)}
-    <path d="M27 30 L42 38 L27 46 Z" fill="#FF5A4E" stroke="${C.navy}" stroke-width="3.5" stroke-linejoin="round"/>`;
-  part('ic_video', 64, 64, body);
-}
+icon('ic_plus', '<path d="M32 15 V49 M15 32 H49"/>');
+icon('ic_check', '<path d="M15 33 L27 45 L50 20"/>');
+icon('ic_back', '<path d="M38 15 L21 32 L38 49"/>');
+icon('ic_arrow', '<path d="M26 15 L43 32 L26 49"/>');
+part('ic_music', 64, 64, `<g stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"><path d="M23 44 V16 L49 10 V39" fill="none" stroke-width="12"/><circle cx="17" cy="45" r="9" fill="${NAVY}"/><circle cx="43" cy="40" r="9" fill="${NAVY}"/></g><path d="M23 44 V16 L49 10 V39" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><circle cx="17" cy="45" r="8" fill="#fff"/><circle cx="43" cy="40" r="8" fill="#fff"/>`);
+part('ic_sound', 64, 64, `<path d="M9 25 H19 L32 14 V50 L19 39 H9 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><g fill="none" stroke-linecap="round"><path d="M40 24 Q46 32 40 40 M47 17 Q57 32 47 47" stroke="${NAVY}" stroke-width="12"/><path d="M40 24 Q46 32 40 40 M47 17 Q57 32 47 47" stroke="#fff" stroke-width="6"/></g>`);
+part('ic_vibrate', 64, 64, `<rect x="20" y="9" width="24" height="46" rx="7" fill="#fff" stroke="${NAVY}" stroke-width="5"/><rect x="26" y="15" width="12" height="28" rx="3" fill="${NAVY}" opacity="0.25"/><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22 L6 27 L10 32 L6 37 L10 42 M54 22 L58 27 L54 32 L58 37 L54 42" stroke="${NAVY}" stroke-width="10"/><path d="M10 22 L6 27 L10 32 L6 37 L10 42 M54 22 L58 27 L54 32 L58 37 L54 42" stroke="#fff" stroke-width="5"/></g>`);
+part('ic_globe', 64, 64, `<circle cx="32" cy="32" r="22" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M10 32 H54 M32 10 Q18 32 32 54 Q46 32 32 10" fill="none" stroke="${NAVY}" stroke-width="4"/>`);
+part('ic_timer', 64, 64, `<path d="M26 10 H38" stroke="${NAVY}" stroke-width="12" stroke-linecap="round"/><path d="M26 10 H38" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="32" cy="36" r="19" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M32 36 V26" stroke="${NAVY}" stroke-width="5" stroke-linecap="round"/>`);
+part('ic_share', 64, 64, `<path d="M20 32 L44 18 M20 32 L44 46" stroke="${NAVY}" stroke-width="12"/><path d="M20 32 L44 18 M20 32 L44 46" stroke="#fff" stroke-width="5"/><g fill="#fff" stroke="${NAVY}" stroke-width="5"><circle cx="17" cy="32" r="9"/><circle cx="46" cy="17" r="9"/><circle cx="46" cy="47" r="9"/></g>`);
+part('ic_info', 64, 64, `<circle cx="32" cy="32" r="23" fill="#fff" stroke="${NAVY}" stroke-width="5"/><path d="M32 30 V44" stroke="${NAVY}" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="21" r="4" fill="${NAVY}"/>`);
+icon('ic_retry', '<path d="M47 24 A18 18 0 1 0 50 37"/><path d="M49 12 V25 H36"/>');
+part('ic_home', 64, 64, `<path d="M10 31 L32 12 L54 31" fill="none" stroke="${NAVY}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 30 L32 18 L47 30 V50 a3 3 0 0 1 -3 3 H38 V40 H26 V53 H20 a3 3 0 0 1 -3 -3 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><path d="M10 31 L32 12 L54 31" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`);
+part('ic_gear', 64, 64, `<path fill="#fff" fill-rule="evenodd" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round" d="M28 6 h8 l2 8 a19 19 0 0 1 6 3 l7-4 6 6-4 7 a19 19 0 0 1 3 6 l8 2 v8 l-8 2 a19 19 0 0 1-3 6 l4 7-6 6-7-4 a19 19 0 0 1-6 3 l-2 8 h-8 l-2-8 a19 19 0 0 1-6-3 l-7 4-6-6 4-7 a19 19 0 0 1-3-6 l-8-2 v-8 l8-2 a19 19 0 0 1 3-6 l-4-7 6-6 7 4 a19 19 0 0 1 6-3 Z M32 24 a8 8 0 1 0 0.01 0 Z"/>`);
+// 视频（广告）：白色摄像机 + 紫色播放角（docs/03：金黄按钮带紫色视频角标）
+part('ic_video', 64, 64, `<path d="M12 16 H42 a6 6 0 0 1 6 6 V25 L58 18 V46 L48 39 V42 a6 6 0 0 1 -6 6 H12 a6 6 0 0 1 -6 -6 V22 a6 6 0 0 1 6 -6 Z" fill="#fff" stroke="${NAVY}" stroke-width="5" stroke-linejoin="round"/><path d="M21 24 V40 L35 32 Z" fill="#8E5BD9" stroke="#8E5BD9" stroke-width="3" stroke-linejoin="round"/>`);
 {
   // 红点
   const [g, d] = rad([[0, '#FF8A80'], [1, '#E2231A']], 0.4, 0.35, 0.65);
-  part('dot_red', 32, 32, `<defs>${d}</defs><circle cx="16" cy="16" r="13" fill="url(#${g})" stroke="#fff" stroke-width="3.5"/>`);
-}
-{
-  // 小锁（灰锁、未开放入口用）
-  const [g, d] = lin([[0, '#FFE27A'], [1, '#E09A10']]);
-  part('ic_lock', 64, 64, `<defs>${d}</defs><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="${C.navy}" stroke-width="11"/><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="#C9D4E2" stroke-width="6"/>${rr(12, 28, 40, 30, 8, `fill="url(#${g})" stroke="${C.navy}" stroke-width="4"`)}<circle cx="32" cy="41" r="4.5" fill="${C.navy}"/><rect x="30" y="42" width="4" height="9" rx="2" fill="${C.navy}"/>`);
+  part('dot_red', 32, 32, `<defs>${d}</defs><circle cx="16" cy="16" r="13.5" fill="url(#${g})" stroke="#fff" stroke-width="3"/>`);
+  // 锁：金色锁身 + 灰银锁梁，深色描边（锁定状态，放在哪都看得清）
+  const [gl, dl] = lin([[0, '#FFE27A'], [1, '#E09A10']]);
+  part('ic_lock', 64, 64, `<defs>${dl}</defs><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="${NAVY}" stroke-width="12"/><path d="M20 30 V22 a12 12 0 0 1 24 0 V30" fill="none" stroke="#DCE4EE" stroke-width="6"/>${rr(12, 28, 40, 30, 9, `fill="url(#${gl})" stroke="${NAVY}" stroke-width="4.5"`)}<circle cx="32" cy="41" r="4.5" fill="${NAVY}"/><rect x="30" y="42" width="4" height="9" rx="2" fill="${NAVY}"/>`);
 }
 {
   // 名次奖牌 1/2/3

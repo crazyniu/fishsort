@@ -18,7 +18,7 @@ import { sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, Capsule, at, blockInput, box, capsule, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { COLOR, Capsule, at, blockInput, box, capsule, iconButton, img, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -84,7 +84,7 @@ export class GamePage extends Page {
   private bufferY = 0;
   private returnNodes: Node[] = [];
   private returnY = 0;
-  private skillNodes = new Map<SkillId, { node: Node; icon: Node; count: Label; lock: Node; plus: Node }>();
+  private skillNodes = new Map<SkillId, { node: Node; icon: Node; count: Label; lock: Node; plus: Node; name: Node; badge: Node }>();
   private hintNode: Node | null = null;
   /** 这一关要强制教的新技能（解锁关第一次能用上时压暗全屏只让点它，docs/01 第 8 节）；"" = 没有 */
   tutor = '';
@@ -169,19 +169,19 @@ export class GamePage extends Page {
     const sea = eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore';
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
+    // 局内背景压暗一层，让鱼最醒目（docs/09 第 11 节）
+    tint(this.bg, Screen.W * 2, Screen.H * 2, new Color(10, 37, 96, 90), 'calm');
 
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
     const hudY = top - 52;
-    this.progress = capsule(this.stage, 230, 64, `fish/${this.species[0]}`, '');
-    at(this.progress.node, -Screen.W / 2 + 140, hudY);
-    this.levelCap = capsule(this.stage, 180, 64, null, tr('UI_LEVEL', this.arg.level));
-    at(this.levelCap.node, Screen.W / 2 - 170, hudY);
+    this.progress = capsule(this.stage, 200, 64, `fish/${this.species[0]}`, '', 30);
+    at(this.progress.node, -Screen.W / 2 + 32 + 100, hudY);
+    this.levelCap = capsule(this.stage, 168, 64, null, tr('UI_LEVEL', this.arg.level), 28);
+    at(this.levelCap.node, Screen.W / 2 - 32 - 72 - 16 - 84, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
-    const gear = img(this.stage, 'kit/round_blue', 78, 78, 'gear');
-    img(gear, 'kit/ic_gear', 46, 46, 'glyph');
-    at(gear, Screen.W / 2 - 46, hudY);
-    onTap(gear, () => Flow.pause(this));
+    const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 72, () => Flow.pause(this));
+    at(gear, Screen.W / 2 - 52, hudY);
     this.comboRow = box('combo', this.stage, 240, 70);
     at(this.comboRow, 6, hudY + 4);
     this.comboLabel = text(this.comboRow, '', 34);
@@ -256,26 +256,28 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
+  /** 技能键：深色半透明方块（圆角 24），插画图标 + 名字；数量是右上角的琥珀小标签，没有了换绿色加号 */
   private buildSkill(id: SkillId, x: number, y: number): void {
-    const node = box(id, this.stage, 160, 190);
+    const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 120, 120, 'icon');
-    at(icon, 0, 26);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 32);
-    at(name.node, 0, -44);
-    const count = text(node, '', 30, { color: COLOR.yellow });
-    at(count.node, 38, 70);
+    const icon = img(node, `icon/skill_${id}`, 100, 100, 'icon');
+    at(icon, 0, 18);
+    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 26);
+    at(name.node, 0, -56);
+    const badge = slice(node, 'kit/tag_amber', 64, 40, 'badge');
+    at(badge, 156 / 2 - 22, 168 / 2 - 10);
+    const count = text(badge, '', 24);
     const plus = img(node, 'kit/round_green', 48, 48, 'plus');
-    img(plus, 'kit/ic_plus', 30, 30, 'glyph');
-    at(plus, 44, 70);
-    const lock = box('lock', node, 160, 190);
-    const lockIcon = img(lock, 'kit/ic_lock', 60, 60, 'icon');
-    at(lockIcon, 0, 30);
-    const lockLabel = text(lock, '', 24);
-    at(lockLabel.node, 0, -76);
+    img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
+    at(plus, 156 / 2 - 18, 168 / 2 - 14);
+    const lock = box('lock', node, 156, 168);
+    const lockIcon = img(lock, 'kit/ic_lock', 48, 48, 'icon');
+    at(lockIcon, 0, 18);
+    const lockLabel = text(lock, '', 22);
+    at(lockLabel.node, 0, -56);
     lockLabel.string = tr('H_UNLOCKS_AT', Skills.unlockLevel(App.config.eco, id));
     onTap(node, () => Flow.useSkill(this, id));
-    this.skillNodes.set(id, { node, icon, count, lock, plus });
+    this.skillNodes.set(id, { node, icon, count, lock, plus, name: name.node, badge });
   }
 
   refreshSkills(): void {
@@ -286,10 +288,11 @@ export class GamePage extends Page {
       const unlocked = Skills.isUnlocked(eco, id, lvl);
       v.lock.active = !unlocked;
       (v.icon.getComponent(Sprite) as Sprite).grayscale = !unlocked;
-      opacity(v.icon).opacity = unlocked ? 255 : 150;
+      opacity(v.icon).opacity = unlocked ? 255 : 110;
+      v.name.active = unlocked;
       const n = Skills.count(save, id);
       const free = Skills.freeAvailable(save, id);
-      v.count.node.active = unlocked && (n > 0 || free);
+      v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : `×${Math.min(n, App.config.ui.badgeCap)}`;
     }

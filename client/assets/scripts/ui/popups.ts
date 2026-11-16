@@ -324,46 +324,46 @@ export function livesPopup(onChange?: () => void): void {
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const h = mode === 'pause' ? 640 : 560 + (App.platform.hasCapability('ad_test') ? 110 : 0);
-  const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), mascot: 'c02', onClose: o.onClose });
+  const h = mode === 'pause' ? 528 : 512 + (App.platform.hasCapability('ad_test') ? 112 : 0);
+  const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
     ['kit/ic_music', 'H_MUSIC', 'music'],
     ['kit/ic_sound', 'H_SOUND', 'sound'],
     ['kit/ic_vibrate', 'H_VIBRATION', 'vibrate'],
   ];
-  let y = h / 2 - 100;
+  let y = h / 2 - 32 - 48;
   for (const [icon, key, field] of rows) {
-    const row = slice(p.body, 'kit/row', 540, 100, 'row');
+    const row = slice(p.body, 'kit/row', 556, 96, 'row');
     at(row, 0, y);
-    const ic = img(row, icon, 64, 64, 'icon');
-    at(ic, -220, 0);
-    const l = text(row, tr(key), 38, { align: 'left' });
-    at(l.node, -170, 0);
-    const tg = img(row, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 120, 64, 'toggle');
-    at(tg, 190, 0);
+    const ic = img(row, icon, 48, 48, 'icon');
+    at(ic, -556 / 2 + 24 + 24, 0);
+    const l = text(row, tr(key), 32, { align: 'left' });
+    at(l.node, -556 / 2 + 96, 0);
+    const tg = img(row, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 104, 60, 'toggle');
+    at(tg, 196, 0);
     onTap(row, () => {
       (s.settings as unknown as Record<string, boolean>)[field] = !s.settings[field];
-      setImg(tg, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 120, 64);
+      setImg(tg, s.settings[field] ? 'kit/toggle_on' : 'kit/toggle_off', 104, 60);
       App.save.write();
       applySettings();
     });
-    y -= 112;
+    y -= 96 + 16;
   }
   if (mode === 'home') {
-    const row = slice(p.body, 'kit/row', 540, 100, 'lang');
+    const row = slice(p.body, 'kit/row', 556, 96, 'lang');
     at(row, 0, y);
-    const ic = img(row, 'kit/ic_globe', 64, 64, 'icon');
-    at(ic, -220, 0);
-    const l = text(row, tr('H_LANGUAGE'), 38, { align: 'left' });
-    at(l.node, -170, 0);
-    const seg = slice(row, 'kit/seg_bg', 280, 64, 'seg');
-    at(seg, 110, 0);
-    const on = slice(seg, 'kit/seg_on', 140, 60, 'on');
-    const zh = text(seg, '中文', 28);
-    at(zh.node, -70, 0);
-    const en = text(seg, 'English', 28);
-    at(en.node, 70, 0);
-    const place = () => at(on, language() === 'zh_CN' ? -70 : 70, 0);
+    const ic = img(row, 'kit/ic_globe', 48, 48, 'icon');
+    at(ic, -556 / 2 + 48, 0);
+    const l = text(row, tr('H_LANGUAGE'), 32, { align: 'left' });
+    at(l.node, -556 / 2 + 96, 0);
+    const seg = slice(row, 'kit/seg_bg', 256, 64, 'seg');
+    at(seg, 556 / 2 - 16 - 128, 0);
+    const on = slice(seg, 'kit/seg_on', 128, 64, 'on');
+    const zh = text(seg, '中文', 26);
+    at(zh.node, -64, 0);
+    const en = text(seg, 'English', 26);
+    at(en.node, 64, 0);
+    const place = () => at(on, language() === 'zh_CN' ? -64 : 64, 0);
     place();
     onTap(seg, () => {
       setLanguage(language() === 'zh_CN' ? 'en' : 'zh_CN');
@@ -371,16 +371,16 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
       App.save.write();
       place();
     });
-    y -= 112;
+    y -= 96 + 16;
     if (App.platform.hasCapability('ad_test')) {
-      const b = button(p.body, { color: 'purple', w: 360, h: 84, label: tr('UI_AD_TEST'), onTap: () => (p.close(), ui.go('adtest')) });
-      at(b.node, 0, y - 10);
+      const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_AD_TEST'), fontSize: 32, onTap: () => (p.close(), ui.go('adtest')) });
+      at(b.node, 0, y - 8);
     }
   } else {
-    const home = button(p.body, { color: 'blue', w: 250, h: 100, label: tr('H_TO_HOME'), onTap: () => (p.close(), o.onHome?.()) });
-    at(home.node, -135, y - 20);
-    const retry = button(p.body, { color: 'green', w: 250, h: 100, label: tr('H_RETRY'), onTap: () => (p.close(), o.onRetry?.()) });
-    at(retry.node, 135, y - 20);
+    const home = button(p.body, { color: 'blue', w: 270, h: 112, label: tr('H_TO_HOME'), fontSize: 40, onTap: () => (p.close(), o.onHome?.()) });
+    at(home.node, -143, y - 24);
+    const retry = button(p.body, { color: 'green', w: 270, h: 112, label: tr('H_RETRY'), fontSize: 40, onTap: () => (p.close(), o.onRetry?.()) });
+    at(retry.node, 143, y - 24);
   }
 }
 

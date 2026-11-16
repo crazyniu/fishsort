@@ -1,21 +1,26 @@
-// 弹窗：压暗的背景 + 缩放回弹出现。宝蓝厚框浅青内底（panel）或整块宝蓝（panel_blue），
-// 标题在顶部胶囊里，右上圆形关闭键，角落点缀小鱼（docs/09 第 3 节）。
+// 弹窗（docs/03 第 2 节）：压暗的背景 + 缩放回弹出现。宝蓝厚框（内部下沿有厚度）+ 浅色内容区；
+// 有标题时框顶加厚 HEAD，白字深描边的标题压在上面；右上角红色关闭键。不再放角落小鱼和装饰气泡。
+// 标题框加在 h 之外（往上长 HEAD），内容坐标不受影响。
 import { Node, tween } from 'cc';
 import { popIn, popOut } from './fx';
-import { COLOR, blockInput, box, img, onTap, opacity, slice, text, tint } from './kit';
+import { COLOR, blockInput, box, img, onTap, opacity, size, slice, text, tint } from './kit';
+import { RES } from './kit';
+
+/** 标题栏高度 */
+export const HEAD = 96;
 import { Screen } from './screen';
 
 export interface PopupOpts {
   w: number;
   h: number;
   title?: string;
-  /** 整块宝蓝底（失败、开奖） */
+  /** 旧参数（整块宝蓝底），现在所有弹窗同一种浅色卡片 */
   blue?: boolean;
   /** 不给关闭键（必须点按钮离开） */
   noClose?: boolean;
   /** 点压暗处也关 */
   tapOutside?: boolean;
-  /** 角落小鱼（生物 id），null = 不放 */
+  /** 旧参数（角落小鱼），不再显示 */
   mascot?: string | null;
   onClose?: () => void;
 }
@@ -49,7 +54,14 @@ export function openPopup(o: PopupOpts): Popup {
   const op = opacity(dim);
   op.opacity = 0;
   tween(op).to(0.18, { opacity: 255 }).start();
-  const body = slice(root, o.blue ? 'kit/panel_blue' : 'kit/panel', o.w, o.h, 'body');
+  const head = o.title !== undefined ? HEAD : 0;
+  const body = slice(root, head ? 'kit/panel' : 'kit/panel_plain', o.w, o.h, 'body');
+  if (head) {
+    // 卡片的皮往上长出标题栏的高度，标题栏盖在上面，圆角对齐
+    const skin = body.getChildByName('skin') as Node;
+    size(skin, o.w * RES, (o.h + head) * RES);
+    skin.setPosition(0, head / 2, 0);
+  }
   let closed = false;
   const p: Popup = {
     root,
@@ -64,34 +76,17 @@ export function openPopup(o: PopupOpts): Popup {
       o.onClose?.();
     },
   };
-  // 框里飘几个小气泡（定版图 16、18 的内底点缀）
-  if (!o.blue) {
-    for (const [fx0, fy0, s] of [
-      [0.42, 0.36, 26],
-      [0.45, -0.3, 18],
-      [-0.44, -0.38, 22],
-      [-0.4, 0.1, 14],
-    ]) {
-      const b = img(body, 'kit/bubble_small', s, s, 'deco');
-      b.setPosition(fx0 * (o.w - 80), fy0 * (o.h - 80), 0);
-      opacity(b).opacity = 150;
-    }
-  }
   if (o.title !== undefined) {
-    // 标题凸台压在框上沿正中，大白字
-    const head = slice(body, 'kit/popup_head', Math.max(340, o.title.length * 66 + 170), 110, 'title');
-    head.setPosition(0, o.h / 2 + 33, 0);
-    text(head, o.title, 62).node.setPosition(0, 2, 0);
-  }
-  if (o.mascot !== null) {
-    const m = img(body, `fish/${o.mascot ?? 'c02'}`, 140, 140, 'mascot');
-    m.setPosition(-o.w / 2 + 64, o.h / 2 + 50, 0);
-    m.angle = 8;
+    const bar = slice(body, 'kit/popup_head', o.w, HEAD, 'title');
+    bar.setPosition(0, o.h / 2 + HEAD / 2 - 6, 0);
+    text(bar, o.title, 48).node.setPosition(0, 0, 0);
   }
   if (!o.noClose) {
-    const x = img(body, 'kit/close', 84, 84, 'close');
-    x.setPosition(o.w / 2 - 18, o.h / 2 - 6, 0);
-    onTap(x, () => p.close());
+    // 关闭键：右上角红色方块，压在框角上
+    const x = img(body, 'kit/close', 76, 76, 'close');
+    x.setPosition(o.w / 2 - 22, o.h / 2 + head - 14, 0);
+    const hit = box('hit', x, 96, 96);
+    onTap(hit, () => p.close(), { press: 0 });
   }
   if (o.tapOutside) onTap(dim, () => p.close(), { press: 0, sound: null });
   popIn(body);

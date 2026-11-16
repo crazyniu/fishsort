@@ -10,7 +10,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, Capsule, at, button, capsule, img, lazyImg, slice, text } from '../ui/kit';
+import { Btn, COLOR, Capsule, INK, at, button, capsule, fmt, img, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -44,110 +44,116 @@ export class ShopPage extends Page {
 
   build(root: Node): void {
     const eco = App.config.eco;
-    const bgH = Math.max(Screen.H, Screen.W * 1.5);
-    lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
+    img(root, 'kit/bg_page', Screen.W, Screen.H, 'bg');
     const top = Screen.top;
-    // 标题 + 两条鱼 + 金币胶囊
-    const title = slice(root, 'kit/title_page', 320, 100, 'title');
-    at(title, 0, top - 150);
-    at(text(title, tr('UI_TAB_SHOP'), 60).node, 0, 4);
-    const f1 = img(root, 'fish/c03', 120, 120, 'fishL');
-    at(f1, -250, top - 150);
-    const f2 = img(root, 'fish/c05', 110, 110, 'fishR');
-    at(f2, 250, top - 150);
-    f2.setScale(-1, 1, 1);
-    fx.bob(f1, 8, 2.2);
-    fx.bob(f2, 8, 2.6, 0.5);
-    this.coins = capsule(root, 230, 64, 'icon/coin', '0');
-    at(this.coins.node, Screen.W / 2 - 140, top - 50);
+    // 标题 + 右上金币（8 栅格，页边距 32）
+    const titleY = top - 72;
+    at(text(root, tr('UI_TAB_SHOP'), 56).node, 0, titleY);
+    this.coins = capsule(root, 220, 64, 'icon/coin', '0', 30);
+    at(this.coins.node, Screen.W / 2 - 32 - 110, titleY);
 
-    // 可用高度：标题下到底栏上
-    const y0 = top - 220;
-    const y1 = Screen.bottom + TABBAR_H + 20;
-    const rowH = 150;
-    const gap = 22;
-    const cardH = Math.min(380, (y0 - y1 - rowH - gap * 3) / 2);
-    const cardW = 330;
+    // 2 × 2 技能卡 + 一行两张小卡（生命、免费金币），卡片间距 24
+    const M = 32;
+    const G = 24;
+    const cardW = (Screen.W - M * 2 - G) / 2;
+    const y0 = titleY - 32 - 32;
+    const y1 = Screen.bottom + TABBAR_H + 32;
+    const rowH = 184;
+    const cardH = Math.min(368, (y0 - y1 - rowH - G * 2) / 2);
+    const cx = cardW / 2 + G / 2;
     Skills.ids(eco).forEach((id, i) => {
-      const x = (i % 2 === 0 ? -1 : 1) * (cardW / 2 + gap / 2);
-      const y = y0 - cardH / 2 - Math.floor(i / 2) * (cardH + gap);
+      const x = (i % 2 === 0 ? -1 : 1) * cx;
+      const y = y0 - cardH / 2 - Math.floor(i / 2) * (cardH + G);
       this.cards.push(this.skillCard(root, id, x, y, cardW, cardH));
     });
-    const rowY = y0 - 2 * (cardH + gap) - rowH / 2;
-    this.rows.push(this.lifeRow(root, -(cardW / 2 + gap / 2), rowY, cardW, rowH));
-    this.rows.push(this.adRow(root, cardW / 2 + gap / 2, rowY, cardW, rowH));
+    const rowY = y0 - 2 * (cardH + G) - rowH / 2;
+    this.rows.push(this.lifeRow(root, -cx, rowY, cardW, rowH));
+    this.rows.push(this.adRow(root, cx, rowY, cardW, rowH));
   }
 
+  /** 技能卡：名字 · 插画 · 已有数量 · 金币价格按钮（主按钮色）；没开放的换灰色锁定条 */
   private skillCard(root: Node, id: string, x: number, y: number, w: number, h: number): SkillCard {
     const eco = App.config.eco;
     const n = slice(root, 'kit/panel_glass', w, h, `skill_${id}`);
     at(n, x, y);
-    const name = text(n, tr(NAME[id]), 44);
-    at(name.node, 0, h / 2 - 40);
-    const is = Math.min(180, h * 0.46);
-    const icon = img(n, `icon/skill_${id}`, is, is, 'icon');
-    at(icon, 0, h * 0.07);
-    const owned = text(n, '', 28);
-    at(owned.node, 0, -h / 2 + 104);
+    const name = text(n, tr(NAME[id]), 32);
+    at(name.node, 0, h / 2 - 24 - 20);
+    const btnH = 88;
+    const btnY = -h / 2 + 24 + btnH / 2;
+    const ownedY = btnY + btnH / 2 + 24;
+
+    const icon = img(n, `icon/skill_${id}`, 140, 140, 'icon');
+    at(icon, 0, (h / 2 - 64 + ownedY + 13) / 2);
+
+    const owned = text(n, '', 26, { color: INK.sub });
+    at(owned.node, 0, ownedY);
     const buy = button(n, {
       color: 'green',
-      w: w - 60,
-      h: 78,
+      w: w - 48,
+      h: btnH,
       icon: 'icon/coin',
-      label: String(Skills.price(eco, id)),
-      fontSize: 44,
+      iconSize: 48,
+      label: fmt(Skills.price(eco, id)),
+      fontSize: 34,
       onTap: () => this.buySkill(id),
     });
-    at(buy.node, 0, -h / 2 + 52);
-    const lock = slice(n, 'kit/btn_gray', w - 60, 78, 'lock');
-    at(lock, 0, -h / 2 + 52);
-    const li = img(lock, 'kit/ic_lock', 44, 44, 'ic');
-    at(li, -(w - 60) / 2 + 50, 2);
-    at(text(lock, tr('SKILL_LOCKED', Skills.unlockLevel(eco, id)), 30).node, 20, 3);
+    at(buy.node, 0, btnY);
+    const lock = slice(n, 'kit/btn_gray', w - 48, btnH, 'lock');
+    at(lock, 0, btnY);
+    const li = img(lock, 'kit/ic_lock', 40, 40, 'ic');
+    const ll = text(lock, tr('SKILL_LOCKED', Skills.unlockLevel(eco, id)), 28);
+    ll.updateRenderData(true);
+    const lw = (ll.node.getComponent(UITransform) as UITransform).width;
+    at(li, -(lw + 48) / 2 + 20, 4);
+    at(ll.node, 24, 4);
     return { id, node: n, icon, owned, buy, lock };
   }
 
+  /** 生命：标题、心 + 当前数量、金币买一条 */
   private lifeRow(root: Node, x: number, y: number, w: number, h: number): Node {
     const n = slice(root, 'kit/panel_glass', w, h, 'lives');
     at(n, x, y);
-    at(text(n, tr('H_LIVES_TITLE'), 32, { align: 'left' }).node, -w / 2 + 26, 36);
-    this.heart = img(n, 'icon/heart', 84, 84, 'heart');
-    at(this.heart, -w / 2 + 76, -22);
-    this.lifeCount = text(this.heart, '', 30);
+    at(text(n, tr('H_LIVES_TITLE'), 32, { align: 'left' }).node, -w / 2 + 24, h / 2 - 44);
+    this.heart = img(n, 'icon/heart', 72, 72, 'heart');
+    at(this.heart, -w / 2 + 24 + 36, -28);
+    this.lifeCount = text(this.heart, '', 28, { color: COLOR.white });
     at(this.lifeCount.node, 0, 2);
     this.lifeBtn = button(n, {
       color: 'green',
-      w: 170,
-      h: 80,
+      w: 168,
+      h: 72,
       icon: 'icon/coin',
-      label: String(App.config.eco.lives.buyOneCoins),
-      fontSize: 36,
+      iconSize: 40,
+      label: fmt(App.config.eco.lives.buyOneCoins),
+      fontSize: 30,
       onTap: () => this.buyLife(),
     });
-    at(this.lifeBtn.node, w / 2 - 100, 0);
+    at(this.lifeBtn.node, w / 2 - 24 - 84, -28);
     return n;
   }
 
+  /** 免费金币：看广告（琥珀色按钮）+ 今日剩余次数 */
   private adRow(root: Node, x: number, y: number, w: number, h: number): Node {
     const eco = App.config.eco;
     const n = slice(root, 'kit/panel_glass', w, h, 'freeCoins');
     at(n, x, y);
-    at(text(n, tr('SHOP_FREE_COINS'), 32, { align: 'left' }).node, -w / 2 + 26, 36);
+    at(text(n, tr('SHOP_FREE_COINS'), 32, { align: 'left' }).node, -w / 2 + 24, h / 2 - 44);
+    this.adLeft = text(n, '', 22, { color: INK.sub, align: 'right' });
+    at(this.adLeft.node, w / 2 - 24, h / 2 - 44);
     const pile = box3(n);
-    at(pile, -w / 2 + 76, -20);
-    pile.setScale(0.8, 0.8, 1);
-    this.adLeft = text(n, '', 24);
-    at(this.adLeft.node, w / 2 - 95, -50);
+    at(pile, -w / 2 + 24 + 36, -24);
+    pile.setScale(0.72, 0.72, 1);
     this.adBtn = button(n, {
       color: 'yellow',
-      w: 170,
-      h: 76,
+      w: 168,
+      h: 72,
       icon: 'kit/ic_video',
+      iconSize: 36,
       label: `+${eco.freeCoin.amount}`,
-      fontSize: 34,
+      fontSize: 30,
       onTap: () => void this.freeCoins(),
     });
-    at(this.adBtn.node, w / 2 - 95, 14);
+    at(this.adBtn.node, w / 2 - 24 - 84, -28);
     return n;
   }
 
@@ -160,7 +166,7 @@ export class ShopPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const t = now();
-    this.coins.set(String(s.coins));
+    this.coins.set(fmt(s.coins));
     for (const c of this.cards) {
       const open = Skills.isUnlocked(eco, c.id, s.level);
       (c.icon.getComponent(Sprite) as Sprite).grayscale = !open;
@@ -174,7 +180,7 @@ export class ShopPage extends Page {
     this.lifeCount.string = unlimited ? '∞' : String(Lives.count(s, eco, t));
     this.lifeBtn.setEnabled(!full);
     if (this.lifeBtn.icon) this.lifeBtn.icon.active = !full;
-    this.lifeBtn.setLabel(full ? tr('UI_FULL') : String(eco.lives.buyOneCoins));
+    this.lifeBtn.setLabel(full ? tr('UI_FULL') : fmt(eco.lives.buyOneCoins));
     const left = Meta.freeCoinLeft(s, eco, today());
     this.adLeft.string = tr('SHOP_AD_LEFT', left, eco.freeCoin.daily);
     this.adBtn.setEnabled(left > 0 && App.platform.adsAvailable());

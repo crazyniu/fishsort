@@ -1,5 +1,5 @@
 // 主页（定版图 01）。四角入口：左上签到、右上抽奖、左下选关、右下每日挑战（docs/09 第 4 节）。
-// 中间鱼群常驻游动；气泡往上冒；「开始」呼吸；有红点的入口轻晃；进场依次弹出（≤ 0.8 秒）。
+// 中间鱼群常驻游动；气泡往上冒；「开始」呼吸（全屏唯一的常驻动效）；进场依次弹出（≤ 0.8 秒）。
 import { Node, Sprite, Tween, Vec3, tween } from 'cc';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Features from '../core/meta/features';
@@ -17,6 +17,10 @@ import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 import { signInPopup } from './signin';
+
+/** 入口方块尺寸 */
+const ENTRY_W = 168;
+const ENTRY_H = 184;
 
 interface Entry {
   node: Node;
@@ -59,39 +63,36 @@ export class HomePage extends Page {
       if (x > 0) f.setScale(-1, 1, 1);
       this.school.push(f);
     }
-    // 四角入口
-    const top = Screen.top - 210;
-    const low = Screen.bottom + TABBAR_H + 330;
-    this.entry(root, 'signin', 'icon/entry_signin', -Screen.W / 2 + 112, top, () => signInPopup(() => ui.refresh()));
-    this.entry(root, 'wheel', 'icon/entry_wheel', Screen.W / 2 - 112, top, () => ui.go('wheel'));
-    this.entry(root, 'levelSelect', 'icon/entry_levels', -Screen.W / 2 + 112, low, () => ui.go('levels'));
-    this.entry(root, 'daily', 'icon/entry_daily', Screen.W / 2 - 112, low, () => ui.go('daily'));
-    // 关卡号 + 开始
-    const btnY = Screen.bottom + TABBAR_H + 150;
-    this.levelPill = slice(root, 'kit/title_plate', 250, 66, 'levelPill');
-    at(this.levelPill, 0, btnY + 112);
-    this.levelLabel = text(this.levelPill, '', 38);
-    at(this.levelLabel.node, 0, 4);
-    this.start = button(root, { color: 'green', w: 560, h: 164, label: tr('UI_PLAY'), fontSize: 100, onTap: () => Flow.startLevel(App.save.data.level) });
+    // 四角入口：深色半透明方块（圆角 24），插画图标 + 白字；页边距 32
+    const x0 = Screen.W / 2 - 32 - ENTRY_W / 2;
+    const top = Screen.top - 144 - 24 - ENTRY_H / 2;
+    const low = Screen.bottom + TABBAR_H + 40 + 128 + 32 + ENTRY_H / 2;
+    this.entry(root, 'signin', 'icon/entry_signin', -x0, top, () => signInPopup(() => ui.refresh()));
+    this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
+    this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'));
+    this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
+    // 关卡号 + 开始（全屏唯一的主按钮）
+    const btnY = Screen.bottom + TABBAR_H + 40 + 64;
+    this.start = button(root, { color: 'green', w: 480, h: 128, label: tr('UI_PLAY'), fontSize: 56, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
-    this.tag = slice(this.start.node, 'kit/btn_purple', 120, 56, 'tag');
-    at(this.tag, 220, 64);
-    text(this.tag, tr('UI_CHALLENGE_TAG'), 28);
-    this.tag.angle = 8;
+    this.levelPill = slice(root, 'kit/title_plate', 200, 56, 'levelPill');
+    at(this.levelPill, 0, btnY + 64 + 24 + 28);
+    this.levelLabel = text(this.levelPill, '', 30);
+    this.tag = slice(this.levelPill, 'kit/tag_red', 88, 44, 'tag');
+    at(this.tag, 100 + 16 + 44, 0);
+    text(this.tag, tr('UI_CHALLENGE_TAG'), 24);
   }
 
   private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void): void {
-    const n = box(feature, root, 200, 220);
+    const n = slice(root, 'kit/panel_blue', ENTRY_W, ENTRY_H, feature);
     at(n, x, y);
-    const ic = img(n, icon, 176, 176, 'icon');
-    at(ic, 0, 34);
-    const pill = slice(n, 'kit/title_page', 184, 70, 'pill');
-    at(pill, 0, -66);
-    const label = text(pill, tr(FEATURE_LABEL[feature]), 36);
-    at(label.node, 0, 4);
-    const lock = img(n, 'kit/ic_lock', 56, 56, 'lock');
-    at(lock, 50, 0);
-    const dot = redDot(n, 62, 92, 34);
+    const ic = img(n, icon, 128, 128, 'icon');
+    at(ic, 0, 22);
+    const label = text(n, tr(FEATURE_LABEL[feature]), 26);
+    at(label.node, 0, -ENTRY_H / 2 + 30);
+    const lock = img(n, 'kit/ic_lock', 44, 44, 'lock');
+    at(lock, 44, -14);
+    const dot = redDot(n, ENTRY_W / 2 - 10, ENTRY_H / 2 - 10, 28);
     onTap(n, () => {
       const s = App.save.data;
       if (!Features.isUnlocked(App.config.eco, feature, s.level)) {
@@ -183,12 +184,13 @@ export class HomePage extends Page {
     // 挑战关主按钮换橙色并加「挑战」小标
     const file = Meta.levelFile(lvl, App.config.levelCount);
     const hard = LevelCurve.isChallenge(App.config.curve, file);
-    this.start.setColor(hard ? 'orange' : 'green');
+    this.start.setColor('green');
     this.tag.active = hard;
     for (const e of this.entries.values()) {
       const open = Features.isUnlocked(eco, e.feature, lvl);
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
+      opacity(e.icon).opacity = open ? 255 : 120;
       e.label.string = open ? tr(FEATURE_LABEL[e.feature]) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
       let dot = false;
       if (open) {
@@ -196,15 +198,7 @@ export class HomePage extends Page {
         if (e.feature === 'wheel') dot = Wheel.spinsLeft(s, eco, day) > 0;
         if (e.feature === 'daily') dot = DailyChallenge.canStartFree(s, day);
       }
-      const had = e.dot.active;
       e.dot.active = dot;
-      if (dot && !had) {
-        fx.wiggle(e.icon, 7, 2.6);
-        fx.breathe(e.dot, 0.15, 0.9);
-      } else if (!dot) {
-        Tween.stopAllByTarget(e.icon);
-        e.icon.angle = 0;
-      }
     }
   }
 

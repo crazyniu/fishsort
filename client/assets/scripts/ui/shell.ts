@@ -12,7 +12,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import { breathe, fadeIn, popIn } from './fx';
 import { tr } from './i18n';
-import { COLOR, Capsule, at, blockInput, box, capsule, img, onTap, opacity, redDot, setImg, slice, text, tint } from './kit';
+import { COLOR, Capsule, at, hex, blockInput, box, capsule, fmt, iconButton, img, onTap, opacity, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
@@ -34,7 +34,9 @@ const TAB_LABEL: Record<Tab, string> = {
   collect: 'UI_TAB_COLLECTION',
   rank: 'UI_TAB_RANK',
 };
-export const TABBAR_H = 150;
+export const TABBAR_H = 136;
+/** 没选中的页签字色 */
+const TAB_DIM = hex('#CFE4FF');
 
 export abstract class Page {
   node!: Node;
@@ -59,26 +61,26 @@ class TabBar {
   private current: Tab = 'home';
 
   constructor(parent: Node, private readonly onSelect: (t: Tab) => void) {
+    // 宝蓝厚果冻底栏（圆角 32）；选中的页签垫一块亮青果冻方块，图标略放大（docs/03 第 2 节）
     const w = Screen.W - 16;
     this.node = slice(parent, 'kit/tabbar', w, TABBAR_H, 'tabbar');
-    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(4, Screen.safeBottom));
+    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(8, Screen.safeBottom));
     blockInput(this.node);
     const cw = w / TABS.length;
-    this.sel = slice(this.node, 'kit/tab_sel', cw + 6, TABBAR_H + 18, 'sel');
+    this.sel = slice(this.node, 'kit/tab_sel', cw - 12, TABBAR_H - 22, 'sel');
     TABS.forEach((t, i) => {
       const x = -w / 2 + cw * (i + 0.5);
-      if (i > 0) at(img(this.node, 'kit/tab_divider', 4, 80, 'div'), -w / 2 + cw * i, 0);
       const cell = box(t, this.node, cw, TABBAR_H);
       at(cell, x, 0);
-      const icon = img(cell, TAB_ICON[t], 84, 84, 'icon');
-      at(icon, 0, 16);
-      const label = text(cell, tr(TAB_LABEL[t]), 28);
-      at(label.node, 0, -46);
-      const dot = redDot(cell, 38, 50);
-      const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
-      at(lock, 30, -6);
+      const icon = img(cell, TAB_ICON[t], 76, 76, 'icon');
+      at(icon, 0, 14);
+      const label = text(cell, tr(TAB_LABEL[t]), 24, { color: TAB_DIM });
+      at(label.node, 0, -42);
+      const dot = redDot(cell, 34, 46, 26);
+      const lock = img(cell, 'kit/ic_lock', 36, 36, 'lock');
+      at(lock, 28, -4);
       this.cells.set(t, { node: cell, icon, label, dot, lock });
-      onTap(cell, () => this.onSelect(t), { press: 0.92 });
+      onTap(cell, () => this.onSelect(t), { press: 0.94 });
     });
     this.select('home', false);
   }
@@ -88,15 +90,17 @@ class TabBar {
     if (prev) {
       Tween.stopAllByTarget(prev.icon);
       prev.icon.setScale(1, 1, 1);
-      at(prev.icon, 0, 16);
+      at(prev.icon, 0, 14);
+      prev.label.color = TAB_DIM;
     }
     this.current = t;
-    const c = this.cells.get(t) as { node: Node; icon: Node };
+    const c = this.cells.get(t) as { node: Node; icon: Node; label: Label };
     const x = c.node.position.x;
+    c.label.color = COLOR.white;
     Tween.stopAllByTarget(this.sel);
-    if (animate) tween(this.sel).to(0.18, { position: new Vec3(x, 6, 0) }, { easing: 'quadOut' }).start();
-    else at(this.sel, x, 6);
-    tween(c.icon).to(0.18, { scale: new Vec3(1.3, 1.3, 1), position: new Vec3(0, 34, 0) }, { easing: 'backOut' }).start();
+    if (animate) tween(this.sel).to(0.16, { position: new Vec3(x, 4, 0) }, { easing: 'quadOut' }).start();
+    else at(this.sel, x, 4);
+    tween(c.icon).to(0.16, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 18, 0) }, { easing: 'quadOut' }).start();
   }
 
   refresh(): void {
@@ -110,6 +114,7 @@ class TabBar {
       const locked = f !== null && !Features.isUnlocked(eco, f, s.level);
       c.lock.active = locked;
       (c.icon.getComponent(Sprite) as Sprite).grayscale = locked;
+      opacity(c.icon).opacity = locked ? 120 : 255;
       let dot = false;
       if (!locked) {
         if (t === 'collect') dot = Album.claimable(s, eco) + Dex.claimable(s, eco) > 0;
@@ -125,41 +130,44 @@ class TabBar {
   }
 }
 
-/** 主页顶栏：头像 · 金币「＋」· 生命 · 设置。没有整条底板，各项悬浮，顶上垫一层淡渐变（docs/01 5.3） */
+/**
+ * 主页顶栏：头像 · 金币（右端绿色加号）· 生命 · 设置，四项同高、同一条基线，间距按 8 栅格（docs/09 第 11 节）。
+ * 顶上垫一层淡渐变压住背景图
+ */
 class TopBar {
   node: Node;
   private coins: Capsule;
   private lives: Capsule;
   private avatar: Node;
-  private frame: Node;
+  private plate: Node;
   private shownCoins = -1;
   private shownAvatar = '';
 
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     this.node = box('topbar', parent, Screen.W, 120);
-    at(this.node, 0, Screen.top - 64);
-    const fade = img(this.node, 'kit/fade_down', Screen.W, 200, 'fade');
+    at(this.node, 0, Screen.top - 72);
+    const fade = img(this.node, 'kit/fade_down', Screen.W, 220, 'fade');
     fade.angle = 180;
-    opacity(fade).opacity = 70;
-    at(fade, 0, 30);
-    this.avatar = img(this.node, 'icon/avatar', 104, 104, 'avatar');
-    at(this.avatar, -Screen.W / 2 + 76, 0);
-    this.frame = img(this.avatar, 'kit/fx_ring', 118, 118, 'frame');
-    (this.frame.getComponent(Sprite) as Sprite).color = COLOR.yellow;
-    onTap(this.avatar, actions.profile);
-    this.coins = capsule(this.node, 230, 64, 'icon/coin', '0');
-    at(this.coins.node, -95, 0);
-    const plus = img(this.coins.node, 'kit/round_green', 54, 54, 'plus');
-    img(plus, 'kit/ic_plus', 34, 34, 'glyph');
-    at(plus, 104, 0);
+    opacity(fade).opacity = 90;
+    at(fade, 0, 40);
+    const L = -Screen.W / 2 + 32;
+    this.plate = slice(this.node, 'kit/panel_glass', 92, 92, 'avatarPlate');
+    at(this.plate, L + 46, 0);
+    this.avatar = img(this.plate, 'icon/avatar', 76, 76, 'avatar');
+    at(this.avatar, 0, 2);
+    onTap(this.plate, actions.profile);
+    this.coins = capsule(this.node, 228, 64, 'icon/coin', '0', 30);
+    at(this.coins.node, L + 92 + 24 + 114, 0);
+    this.coins.label.node.setPosition(-6, 0, 0);
+    const plus = img(this.coins.node, 'kit/round_green', 48, 48, 'plus');
+    img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
+    at(plus, 228 / 2 - 30, 0);
     onTap(this.coins.node, actions.coins);
-    this.lives = capsule(this.node, 190, 64, 'icon/heart', '5/5');
-    at(this.lives.node, 160, 0);
+    this.lives = capsule(this.node, 196, 64, 'icon/heart', '5/5', 30);
+    at(this.lives.node, L + 92 + 24 + 228 + 16 + 98, 0);
     onTap(this.lives.node, actions.lives);
-    const gear = img(this.node, 'kit/round_blue', 86, 86, 'gear');
-    img(gear, 'kit/ic_gear', 50, 50, 'glyph');
-    at(gear, Screen.W / 2 - 62, 0);
-    onTap(gear, actions.settings);
+    const gear = iconButton(this.node, 'kit/round_blue', 'kit/ic_gear', 76, actions.settings);
+    at(gear, Screen.W / 2 - 32 - 38, 0);
   }
 
   refresh(): void {
@@ -167,23 +175,25 @@ class TopBar {
     const eco = App.config.eco;
     const t = now();
     if (this.shownCoins !== s.coins) {
-      this.coins.set(String(s.coins));
+      this.coins.set(fmt(s.coins));
       if (this.shownCoins >= 0) popIn(this.coins.label.node, 0, 0.2);
       this.shownCoins = s.coins;
     }
-    this.frame.active = Album.hasFrame(s);
+    // 集齐收藏的头像框：头像底板变金色
+    const sk = this.plate.getChildByName('skin')?.getComponent(Sprite);
+    if (sk) sk.color = Album.hasFrame(s) ? COLOR.yellow : COLOR.white;
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 104, 104);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 76, 76);
     }
     if (Lives.isUnlimited(s, t)) {
       const left = Lives.unlimitedLeft(s, t);
       this.lives.set(`∞ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`);
-      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart_inf', 66, 66);
+      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart_inf', 58, 58);
     } else {
-      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart', 66, 66);
+      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart', 58, 58);
       const n = Lives.count(s, eco, t);
       const next = Lives.secondsToNext(s, eco, t);
       this.lives.set(n >= eco.lives.max ? `${n}/${eco.lives.max}` : `${n} · ${Math.floor(next / 60)}:${String(next % 60).padStart(2, '0')}`);

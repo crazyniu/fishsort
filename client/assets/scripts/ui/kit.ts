@@ -34,6 +34,88 @@ export const COLOR = {
   shadow: new Color(0, 20, 70, 140),
 };
 
+// ---------------------------------------------------------------- 面的「墨色」
+// 设计规范（docs/09 第 11 节）：浅色卡片上用深藏青字、蓝色图标，深色底上白字；按钮各有自己的字色。
+// 部件建出来时登记在节点上，文字、图标按最近的祖先自动取色，页面代码不用分别写。
+
+export interface Ink {
+  /** 正文色（代码里写 COLOR.white 或不写颜色时用它） */
+  text: Color;
+  /** 强调色（代码里写 COLOR.yellow 时用它；浅底上黄字看不清，换成深琥珀） */
+  accent: Color;
+  /** kit/ic_* 图标的染色；null = 保持原色（白图形深描边） */
+  glyph: Color | null;
+  /** 文字描边色（docs/03：白字加深色描边，浅色面上深色字不描边）；null = 不描边 */
+  outline: Color | null;
+}
+
+export const INK = {
+  ink: hex('#13284F'),
+  sub: hex('#5B7090'),
+  blue: hex('#1B6FD1'),
+  amber: hex('#D98200'),
+};
+
+const ON_DARK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: COLOR.navy };
+const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: hex('#4C8EE8'), outline: null };
+const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
+const ON_GREEN = btnInk('#1E6B12');
+const ON_BLUE = btnInk('#0F3F96');
+const ON_AMBER = btnInk('#8A4F00');
+const ON_RED = btnInk('#8A1F12');
+const ON_GRAY = btnInk('#6E7B8D');
+
+/** 部件 → 上面放的字用什么颜色 */
+const PART_INK: Record<string, Ink> = {
+  'kit/panel': ON_LIGHT,
+  'kit/panel_plain': ON_LIGHT,
+  'kit/panel_glass': ON_LIGHT,
+  'kit/row': ON_LIGHT,
+  'kit/seg_bg': ON_LIGHT,
+  'kit/tabbar': ON_DARK,
+  'kit/panel_blue': ON_DARK,
+  'kit/row_blue': ON_DARK,
+  'kit/title_plate': ON_DARK,
+  'kit/title_page': ON_DARK,
+  'kit/capsule': ON_DARK,
+  'kit/popup_head': ON_DARK,
+  'kit/cell_gold': ON_AMBER,
+  'kit/tag_red': ON_RED,
+  'kit/tag_amber': ON_AMBER,
+  'kit/btn_green': ON_GREEN,
+  'kit/btn_red': ON_RED,
+  'kit/btn_blue': ON_BLUE,
+  'kit/btn_yellow': ON_AMBER,
+  'kit/btn_gray': ON_GRAY,
+  'kit/round_green': ON_GREEN,
+  'kit/round_red': ON_RED,
+  'kit/round_blue': ON_BLUE,
+};
+
+const inks = new WeakMap<Node, Ink>();
+/** 单色图标节点（跟着面染色） */
+const glyphs = new WeakSet<Node>();
+
+export function setInk(n: Node, ink: Ink): void {
+  inks.set(n, ink);
+}
+
+/** 最近的登记过的祖先决定墨色；都没有 = 深色底 */
+export function inkOf(n: Node | null): Ink {
+  for (let p = n; p; p = p.parent) {
+    const k = inks.get(p);
+    if (k) return k;
+  }
+  return ON_DARK;
+}
+
+export const LIGHT_INK = ON_LIGHT;
+
+/** 千分位：100449 → 100,449 */
+export function fmt(n: number): string {
+  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 export function hex(s: string, a = 255): Color {
   const n = parseInt(s.replace('#', ''), 16);
   return new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, a);
@@ -70,6 +152,13 @@ export function img(parent: Node | null, path: string, w?: number, h?: number, n
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
   const f = frame(path);
   setFrame(n, f, w, h);
+  const k = PART_INK[path];
+  if (k) inks.set(n, k);
+  if (path.startsWith('kit/ic_') && path !== 'kit/ic_lock') {
+    glyphs.add(n);
+    const g = inkOf(parent).glyph;
+    if (g) sp.color = g;
+  }
   return n;
 }
 
@@ -112,6 +201,8 @@ export function slice(parent: Node | null, path: string, w: number, h: number, n
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
   sp.spriteFrame = frame(path);
   size(skin, w * RES, h * RES);
+  const k = PART_INK[path];
+  if (k) inks.set(n, k);
   return n;
 }
 
@@ -147,7 +238,10 @@ export interface TextOpts {
   bold?: boolean;
 }
 
-/** 文字：白字 + 深蓝描边 + 轻投影（docs/09 第 3 节）。汉字不倾斜 */
+/**
+ * 文字（docs/03 第 2 节）：颜色、描边按所在的面自动取——深色底与按钮上白字加深色描边，浅色卡片上深藏青字不描边；
+ * 写 COLOR.white / COLOR.yellow 也按面换成对应的正文色 / 强调色；outline: null 强制不描边
+ */
 export function text(parent: Node | null, s: string, fontSize: number, o: TextOpts = {}): Label {
   const n = box('text', parent);
   const l = n.addComponent(Label);
@@ -160,18 +254,19 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   }
   l.fontSize = fontSize;
   l.lineHeight = o.lineHeight ?? Math.round(fontSize * 1.25);
-  l.color = o.color ?? COLOR.white;
-  const outline = o.outline === undefined ? COLOR.navy : o.outline;
+  const ink = inkOf(parent);
+  l.color = inkColor(ink, o.color);
+  const outline = o.outline === undefined ? ink.outline : o.outline;
   if (outline) {
     l.enableOutline = true;
     l.outlineColor = outline;
-    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 9));
+    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 11));
   }
-  if (o.shadow ?? outline !== null) {
+  if (o.shadow) {
     l.enableShadow = true;
     l.shadowColor = COLOR.shadow;
-    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 14)));
-    l.shadowBlur = 2;
+    l.shadowOffset.set(0, -Math.max(1, Math.round(fontSize / 18)));
+    l.shadowBlur = 3;
   }
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
@@ -185,6 +280,30 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (o.align === 'right') (n.getComponent(UITransform) as UITransform).setAnchorPoint(1, 0.5);
   l.string = s;
   return l;
+}
+
+function inkColor(ink: Ink, c?: Color): Color {
+  if (!c || c.equals(COLOR.white)) return ink.text;
+  if (c.equals(COLOR.yellow)) return ink.accent;
+  return c;
+}
+
+/** 文字、图标按新的面重新取色（按钮换颜色时用） */
+export function reink(n: Node): void {
+  const ink = inkOf(n);
+  const walk = (m: Node) => {
+    if (m !== n && inks.has(m)) return;
+    const l = m.getComponent(Label);
+    if (l) {
+      l.color = ink.text;
+      l.enableOutline = !!ink.outline;
+      if (ink.outline) l.outlineColor = ink.outline;
+    }
+    const sp = m.getComponent(Sprite);
+    if (sp && glyphs.has(m)) sp.color = ink.glyph ?? COLOR.white;
+    m.children.forEach(walk);
+  };
+  n.children.forEach(walk);
 }
 
 export function opacity(n: Node): UIOpacity {
@@ -202,6 +321,8 @@ export interface TapOpts {
   press?: number;
   /** 按下时的音效名；null = 不响 */
   sound?: string | null;
+  /** 按下 / 松开时调（按钮换「按下」的皮、字下沉） */
+  onPress?: (down: boolean) => void;
 }
 
 let onTapSound: (name: string) => void = () => {};
@@ -219,6 +340,7 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
   let down = false;
   n.on(Node.EventType.TOUCH_START, () => {
     down = true;
+    o.onPress?.(true);
     if (press > 0) {
       Tween.stopAllByTarget(n);
       base = base.x === 0 ? new Vec3(1, 1, 1) : base;
@@ -228,6 +350,7 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
   const release = (fire: boolean, e?: EventTouch) => {
     if (!down) return;
     down = false;
+    o.onPress?.(false);
     // 手指滑动过（在滚动列表里拖）就不算点
     if (e && Vec2.distance(e.getUILocation(), e.getUIStartLocation()) > TAP_SLOP) fire = false;
     if (press > 0) {
@@ -248,7 +371,15 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
 
 // ---------------------------------------------------------------- 按钮
 
-export type BtnColor = 'green' | 'blue' | 'yellow' | 'purple' | 'orange' | 'red' | 'gray';
+/**
+ * 按钮颜色按语义固定（docs/09 第 11 节）：green 主行动 · blue 次行动（白底蓝字）· yellow 奖励 / 广告（琥珀）·
+ * red 危险 · gray 不可用。一屏只有一个主按钮
+ */
+export type BtnColor = 'green' | 'blue' | 'yellow' | 'red' | 'gray';
+
+/** 台阶高度与按下的下沉量（和 tools/art/kit.mjs 的 LEDGE、SINK 一致） */
+const LEDGE = 8;
+const SINK = 5;
 
 export interface BtnOpts {
   color: BtnColor;
@@ -273,21 +404,23 @@ export interface Btn {
   enabled: boolean;
 }
 
-/** 胶囊按钮：绿 = 主行动，蓝 = 次行动，黄 = 广告翻倍类，灰 = 禁用（docs/09 第 3 节） */
+/** 厚果冻按钮（圆角 22，不是胶囊）：下沿一圈深色厚度；按下面下沉、厚度变薄（不缩放） */
 export function button(parent: Node | null, o: BtnOpts): Btn {
   const n = slice(parent, `kit/btn_${o.color}`, o.w, o.h, 'button');
-  const fs = o.fontSize ?? Math.round(o.h * 0.4);
+  const fs = o.fontSize ?? Math.round(o.h * 0.36);
   let color = o.color;
+  let pressed = false;
   const row = box('row', n);
-  row.setPosition(0, 2, 0);
+  const place = () => row.setPosition(0, LEDGE / 2 - (pressed ? SINK : 0) + 1, 0);
+  place();
   let icon: Node | null = null;
   if (o.icon) {
-    const is = o.iconSize ?? Math.round(o.h * 0.56);
+    const is = o.iconSize ?? Math.round(o.h * 0.5);
     icon = img(row, o.icon, is, is, 'icon');
   }
   const label = o.label !== undefined ? text(row, o.label, fs) : null;
   const layout = () => {
-    const gap = 8;
+    const gap = 10;
     const ic = icon && icon.active ? icon : null;
     const iw = ic ? sizeOf(ic).w : 0;
     const lw = label ? (label.node.getComponent(UITransform) as UITransform).width : 0;
@@ -301,6 +434,15 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   };
   if (label) label.updateRenderData(true);
   layout();
+  const skin = () => {
+    const c = b.enabled ? color : 'gray';
+    setSlice(n, `kit/btn_${c}${pressed ? '_down' : ''}`);
+    const k = PART_INK[`kit/btn_${c}`];
+    if (k && inks.get(n) !== k) {
+      inks.set(n, k);
+      reink(n);
+    }
+  };
   const b: Btn = {
     node: n,
     label,
@@ -314,29 +456,44 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     },
     setColor(c: BtnColor) {
       color = c;
-      setSlice(n, `kit/btn_${b.enabled ? c : 'gray'}`);
+      skin();
     },
     setEnabled(on: boolean) {
       b.enabled = on;
-      setSlice(n, `kit/btn_${on ? color : 'gray'}`);
+      skin();
     },
+  };
+  const press = (down: boolean) => {
+    pressed = down;
+    place();
+    skin();
   };
   if (o.onTap) {
     const fn = o.onTap;
-    onTap(n, () => fn());
+    onTap(n, () => fn(), { press: 0, onPress: press });
   }
   return b;
 }
 
-/** 圆形图标按钮（设置、返回、关闭） */
+/** 方形图标按钮（设置、返回）：软方块 + 单色图标，按下下沉 */
 export function iconButton(parent: Node, skin: string, glyph: string | null, s: number, fn: () => void): Node {
   const n = img(parent, skin, s, s, 'iconButton');
-  if (glyph) img(n, glyph, s * 0.56, s * 0.56, 'glyph');
-  onTap(n, () => fn());
+  let g: Node | null = null;
+  if (glyph) g = img(n, glyph, s * 0.5, s * 0.5, 'glyph');
+  const k = s / 96;
+  const place = (down: boolean) => g?.setPosition(0, (LEDGE / 2 - (down ? SINK : 0)) * k, 0);
+  place(false);
+  onTap(n, () => fn(), {
+    press: 0,
+    onPress: (down) => {
+      setImg(n, down ? `${skin}_down` : skin, s, s);
+      place(down);
+    },
+  });
   return n;
 }
 
-/** 深蓝胶囊信息条：左边图标 + 白色数字 */
+/** 信息条（金币、生命、关卡号）：深色半透明圆角 12，左边图标 + 白色数字 */
 export interface Capsule {
   node: Node;
   label: Label;
@@ -348,11 +505,11 @@ export function capsule(parent: Node, w: number, h: number, iconPath: string | n
   const n = slice(parent, 'kit/capsule', w, h, 'capsule');
   let icon: Node | null = null;
   if (iconPath) {
-    icon = img(n, iconPath, h * 1.05, h * 1.05, 'icon');
-    icon.setPosition(-w / 2 + h * 0.42, 0, 0);
+    icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
+    icon.setPosition(-w / 2 + h * 0.5, 0, 0);
   }
   const label = text(n, s, fontSize);
-  label.node.setPosition(iconPath ? h * 0.3 : 0, 0, 0);
+  label.node.setPosition(iconPath ? h * 0.42 : 0, 0, 0);
   return { node: n, label, icon, set: (v: string) => (label.string = v) };
 }
 
@@ -364,7 +521,7 @@ export interface Bar {
 }
 
 /** 进度条：底槽 + 从左往右长的填充（填充最短也有一个高度宽，圆头不变形） */
-export function progressBar(parent: Node, w: number, h: number, color: 'green' | 'yellow' | 'blue' | 'purple' = 'green'): Bar {
+export function progressBar(parent: Node, w: number, h: number, color: 'green' | 'yellow' | 'blue' = 'green'): Bar {
   const track = slice(parent, 'kit/bar_track', w, h, 'bar');
   const fill = slice(track, `kit/bar_${color}`, w, h, 'fill');
   const set = (frac: number) => {
