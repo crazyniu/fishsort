@@ -55,8 +55,9 @@ export function signInPopup(changed: () => void): void {
     const lbl = text(cell, tr('UI_SIGNIN_DAY', i + 1), 26);
     at(lbl.node, 0, 64);
     const [icon, amount] = dayIcon(d);
-    const ic = img(cell, icon, big ? 120 : 84, big ? 120 : 84, 'icon');
-    at(ic, 0, 4);
+    // 第 7 天的大宝箱往下放一点、小一号：原来 120 顶到了上面的「第 7 天」
+    const ic = img(cell, icon, big ? 104 : 84, big ? 104 : 84, 'icon');
+    at(ic, 0, big ? -12 : 4);
     if (amount) at(text(cell, amount, 26).node, 0, -62);
     if (i < claimedThisRound) {
       const ok = img(cell, 'kit/ic_check', 70, 70, 'check');
