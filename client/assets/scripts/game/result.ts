@@ -247,15 +247,16 @@ export class ResultPage extends Page {
       .start();
     sfx('win');
 
-    // 2. 宝箱从上面掉下来，落地压扁回弹
-    at(chest, 0, chestY + 150);
+    // 2. 宝箱弹出来：压扁、拉长、回弹
+    at(chest, 0, chestY);
+    chest.setScale(0.2, 0.2, 1);
     opacity(chest).opacity = 0;
-    tween(opacity(chest)).delay(0.1).to(0.12, { opacity: 255 }).start();
+    tween(opacity(chest)).delay(0.15).to(0.1, { opacity: 255 }).start();
     tween(chest)
-      .delay(0.1)
-      .to(0.26, { position: new Vec3(0, chestY, 0) }, { easing: 'quadIn' })
-      .to(0.08, { scale: new Vec3(1.15, 0.85, 1) })
-      .to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .delay(0.15)
+      .to(0.2, { scale: new Vec3(1.18, 0.86, 1) }, { easing: 'quadOut' })
+      .to(0.1, { scale: new Vec3(0.92, 1.1, 1) })
+      .to(0.14, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
       .start();
 
     // 3. 三颗星：灰色星位先在，金星从宝箱处转着飞上去依次落位
