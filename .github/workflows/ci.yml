@@ -44,3 +44,15 @@ jobs:
 
       - name: 校验改动的关卡
         run: GODOT=~/godot/godot BASE_REF="origin/${{ github.base_ref }}" ./run.sh level-verify-changed
+
+      # Cocos 版（client/，docs/09）：类型检查、.meta 与图片压缩检查、核心逻辑单测（对照 Godot 金标数据）
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Cocos 版检查与单元测试
+        run: |
+          npm ci --prefix client --no-audit --no-fund
+          ./run.sh ts-check
