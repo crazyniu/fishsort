@@ -42,7 +42,7 @@ BUTTONS = {
 PLATE_BLUE = ('#2B7BEF', '#1A52BE')
 NAVY = '#102F7C'
 TABBAR = '#123A8E'
-TILE = ('#46A6FF', '#2474DA')
+TILE = '#3F9CFF'
 KEYS = {'blue': ('#3F8DFF', '#1E55C4'), 'green': ('#3CC62B', '#268F1B'), 'red': ('#F2553E', '#BC3320')}
 AVATAR = {'': ('#8AD6FF', '#2F80F6'), '_gold': ('#FFD75E', '#D08A00')}
 DOT = ('#F2453A', '#FFFFFF')
@@ -128,7 +128,8 @@ def main() -> None:
     save('f_plate_blue', raised(w3, H, *PLATE_BLUE, 0.3, 0.12), True)
     save('f_pill_navy', flat(w3, H, NAVY, 0.36), True)
     save('f_tabbar', flat(w3, H, TABBAR, 0.2, (True, True, False, False)), True)
-    save('f_tile', raised(420, 512, *TILE, 0.14, 0.07))
+    # 选中的页签：平的一块亮蓝，不带下边（用户 2026-11-16：底栏贴着屏幕底边，页签底下再压一道边不协调）
+    save('f_tile', flat(420, 512, TILE, 0.16))
     for name, (face, edge) in KEYS.items():
         save(f'f_key_{name}', raised(256, 256, face, edge, 0.3))
     for name, (face, edge) in AVATAR.items():
