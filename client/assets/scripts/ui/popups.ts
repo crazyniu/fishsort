@@ -426,14 +426,16 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   // 名字在卡面白底里（深色字），稀有度在下沿彩色框条上（白字）
   const name = text(front, sp ? speciesName(sp.id) : c.id, 44, { color: INK.ink, outline: null });
   at(name.node, 0, -112);
-  const rar = text(front, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 30);
-  at(rar.node, 0, -207);
+  // 稀有度写在卡片下面（卡框下沿有宝石装饰，不压在上面），翻完才出来
+  const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 36, { color: RARITY_GLOW[c.rarity] });
+  at(rar.node, 0, 60 - 252 - 36);
+  rar.node.active = false;
   front.active = false;
   const line = text(p.body, c.is_new ? tr('CARD_RARITY_NEW') : tr('UI_CARD_OWNED', c.coins), 40);
-  at(line.node, 0, -280);
+  at(line.node, 0, 60 - 252 - 100);
   line.node.active = false;
   const cont = text(p.body, tr('TAP_CONTINUE'), 30);
-  at(cont.node, 0, -380);
+  at(cont.node, 0, 60 - 252 - 190);
   cont.node.active = false;
   let ready = false;
   fx.popIn(card, 0.05, 0.35);
@@ -456,6 +458,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
     .to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
     .call(() => {
       line.node.active = true;
+      rar.node.active = true;
       cont.node.active = true;
       fx.breathe(cont.node, 0.06, 1.2);
       ready = true;
