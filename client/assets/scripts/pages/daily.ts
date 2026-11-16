@@ -100,7 +100,7 @@ export class DailyPage extends Page {
     }
 
     // 今日宝箱
-    y -= 170;
+    y -= 195;
     const box2 = slice(v, 'kit/panel_blue', 690, 200, 'today');
     at(box2, 0, y);
     const tag = slice(box2, 'kit/title_plate', 260, 64, 'tag');
