@@ -69,7 +69,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh level-gen             # 生成关卡（level-gen 1 120 = 指定范围）
 ./run.sh level-verify          # 全量关卡校验
 ./run.sh meta                  # 给新资源补 .meta（结果要提交）
-./run.sh art-compress          # 包体压缩：PNG 量化、家园物件缩图、背景音乐转 mp3
+./run.sh art-compress          # 包体压缩：PNG 量化、背景音乐转 mp3
 ./run.sh font-subset           # 按文案重新裁字体
 ```
 

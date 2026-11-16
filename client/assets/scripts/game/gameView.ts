@@ -753,10 +753,12 @@ export class GamePage extends Page {
     const tag = img(node, 'skin/j_goal', GOAL_W, GOAL_H, 'tag');
     // 卡顶上的图钉压在木架正面
     at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
-    const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.7, GOAL_H * 0.7, 'fish');
-    at(tagFish, -GOAL_W * 0.12, -GOAL_H * 0.04);
-    const tagLabel = text(tag, `0/${cap}`, 34, { outline: COLOR.navy, outlineWidth: 4 });
-    at(tagLabel.node, GOAL_W * 0.2, -GOAL_H * 0.22);
+    const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
+    at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
+    // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
+    const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
+    at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
+    fit(tagLabel, GOAL_W * 0.5, 38, 26);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {
@@ -785,6 +787,7 @@ export class GamePage extends Page {
   private bumpTag(view: BowlView): void {
     view.got = Math.min(view.cap, view.got + 1);
     view.tagLabel.string = `${view.got}/${view.cap}`;
+    fit(view.tagLabel, GOAL_W * 0.5, 38, 26);
     fx.punch(view.tag, 1.18, 0.22);
   }
 
