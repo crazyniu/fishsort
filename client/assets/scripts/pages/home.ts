@@ -267,7 +267,7 @@ export class HomePage extends Page {
     sweep.angle = -20;
     tween(sweep).repeatForever(tween(sweep).to(5.5, { angle: 20 }, { easing: 'sineInOut' }).to(5.5, { angle: -20 }, { easing: 'sineInOut' })).start();
     // 海底的水纹光斑：扁的柔光，左右漂、明暗交替
-    const floorTop = Screen.bottom + TABBAR_H + 420;
+    const floorTop = Screen.bottom + TABBAR_H + 280;
     for (let i = 0; i < 7; i++) {
       const w = 240 + Math.random() * 220;
       const c = img(L, 'kit/fx_glow', w, w * 0.28, 'caustic');

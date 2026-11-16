@@ -204,7 +204,8 @@ class TopBar {
     const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
     at(well, (x1 + x2) / 2, 1);
     // 金币：图标 + 数字（最多 7 位，不加逗号）+ 绿色加号
-    const CW = 312;
+    // 去掉逗号后金币这一格可以窄一点，让给生命后面的倒计时（不然倒计时顶到设置键）
+    const CW = 284;
     const coinTap = box('coins', this.node, CW, 92);
     at(coinTap, x1 + CW / 2, 0);
     this.coinIcon = img(coinTap, 'icon/coin', 62, 62, 'icon');
