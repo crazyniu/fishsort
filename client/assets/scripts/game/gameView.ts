@@ -244,7 +244,8 @@ export class GamePage extends Page {
     this.comboBarW = this.comboW - 48;
     const COMBO_W = this.comboW;
     const COMBO_X = this.comboX;
-    this.comboRow = box('combo', this.stage, COMBO_W, 90);
+    // 放在最上面的特效层里（四边光框之上）：不然顶上那条光晕会盖在连击计上，把字压得发灰
+    this.comboRow = box('combo', this.fly, COMBO_W, 90);
     at(this.comboRow, COMBO_X, hudY);
     this.comboGlow = img(this.comboRow, 'kit/fx_glow', COMBO_W * 1.1, 130, 'glow');
     opacity(this.comboGlow).opacity = 120;
@@ -273,6 +274,7 @@ export class GamePage extends Page {
     for (const sx of [-1, 1]) at(img(this.frame, 'kit/fx_glow', 300, Screen.H * 1.2, 'side'), (sx * Screen.W) / 2, 0);
     for (const sy of [-1, 1]) at(img(this.frame, 'kit/fx_glow', Screen.W * 1.2, 280, 'cap'), 0, (sy * Screen.H) / 2);
     opacity(this.frame).opacity = 0;
+    this.frame.setSiblingIndex(0);
     // 连击放射光：垫在玩法后面，整屏大，慢慢转
     const raysS = Math.hypot(Screen.W, Screen.H) * 1.15;
     this.feverRays = img(this.under, 'kit/fx_rays', raysS, raysS, 'rays');
