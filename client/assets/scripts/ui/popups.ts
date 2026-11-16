@@ -1,6 +1,6 @@
 // 各页共用的弹窗：恭喜获得 / 十连、金币不足、离开确认、生命、设置 / 暂停、新收藏卡翻面、看广告。
 // 版式照定版图 16、18、19、08 右（docs/09 第 3、4 节）。
-import { Color, Label, Node, Sprite, Vec3, tween } from 'cc';
+import { Color, Label, Node, Sprite, Vec3, tween, UITransform } from 'cc';
 import type { CardResult, Prize } from '../core/meta/save';
 import * as Cards from '../core/meta/cards';
 import * as Lives from '../core/meta/lives';
@@ -447,8 +447,21 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   at(rar.node, 0, 60 - 254 - 36);
   rar.node.active = false;
   front.active = false;
-  const line = text(p.body, c.is_new ? tr('CARD_RARITY_NEW') : tr('UI_CARD_OWNED', c.coins), 40);
+  // 新卡写「新收藏！」；重复卡是自动换成金币的（docs/01 5.4），写清楚「已自动换成」+ 金币图标和数量，不让人以为要自己去换
+  const line = text(p.body, c.is_new ? tr('CARD_RARITY_NEW') : tr('UI_CARD_OWNED'), c.is_new ? 40 : 34);
   at(line.node, 0, 60 - 252 - 100);
+  if (!c.is_new) {
+    line.updateRenderData(true);
+    const tw = (line.node.getComponent(UITransform) as UITransform).width;
+    const amount = text(line.node, `+${c.coins}`, 44, { color: COLOR.yellow, align: 'left' });
+    amount.updateRenderData(true);
+    const aw = (amount.node.getComponent(UITransform) as UITransform).width;
+    // 一行：文字 · 金币图标 · +N，整体居中
+    const total = tw + 14 + 48 + 8 + aw;
+    at(line.node, -total / 2 + tw / 2, 60 - 252 - 100);
+    at(img(line.node, 'icon/coin', 48, 48, 'coin'), tw / 2 + 14 + 24, 0);
+    at(amount.node, tw / 2 + 14 + 48 + 8, 0);
+  }
   line.node.active = false;
   const cont = text(p.body, tr('TAP_CONTINUE'), 30);
   at(cont.node, 0, 60 - 252 - 190);

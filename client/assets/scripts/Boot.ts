@@ -18,7 +18,7 @@ import { WheelPage } from './pages/wheel';
 import { ShopPage } from './pages/shop';
 import { LockPage, TodoPage } from './pages/lock';
 import { App } from './services/app';
-import { initAudio, sfx } from './services/audio';
+import { initAudio, sfx, startMusic } from './services/audio';
 import { loadStrings, onLanguage, tr } from './ui/i18n';
 import { setTapSound } from './ui/kit';
 import * as Popups from './ui/popups';
@@ -57,6 +57,7 @@ export class Boot extends Component {
     await App.start();
     await Promise.all([loadStrings(App.save.data.settings.lang ?? 'zh_CN'), preload(), initAudio(this.node)]);
     setTapSound((n) => sfx(n));
+    startMusic();
     const topActions = {
       coins: () => ui.go('shop'),
       lives: () => livesPopup(),

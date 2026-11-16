@@ -1,5 +1,5 @@
 // 音效、背景音乐与震动。音效短，启动时一起读；背景音乐用到时再读。开关在存档 settings 里（docs/01 5.10）。
-import { AudioClip, AudioSource, Node, resources } from 'cc';
+import { AudioClip, AudioSource, Input, Node, input, resources } from 'cc';
 import { App } from './app';
 
 const clips = new Map<string, AudioClip>();
@@ -96,6 +96,21 @@ export function playMusic(): void {
     music.clip = c;
     if (App.save.data.settings.music) music.play();
   });
+}
+
+/**
+ * 启动就放背景音乐（设置里开着的话）。浏览器和小游戏都要等玩家第一次碰屏幕才让出声，
+ * 所以启动时先放一次，第一次触摸时没在响就再放一次
+ */
+export function startMusic(): void {
+  playMusic();
+  const kick = (): void => {
+    if (!music || !App.save.data.settings.music) return;
+    if (!music.clip) playMusic();
+    else if (!music.playing) music.play();
+  };
+  input.once(Input.EventType.TOUCH_START, kick);
+  input.once(Input.EventType.TOUCH_END, kick);
 }
 
 export function stopMusic(): void {

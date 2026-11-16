@@ -53,8 +53,10 @@ type SkillId = (typeof SKILLS)[number];
 const COMBO_COLORS = [new Color(110, 215, 255), new Color(255, 214, 64), new Color(255, 110, 80), new Color(214, 130, 255)];
 /** 升档夸奖词的字色：压在蓝色飘带上要看得清，比档位色更亮 */
 const PRAISE_FILL = [new Color(150, 240, 255), new Color(255, 222, 70), new Color(255, 150, 120), new Color(235, 170, 255)];
-/** 连击计的位置（顶栏中间，进度条和关卡号之间） */
-const COMBO_X = -42;
+/**
+ * 连击计（用户 2026-11-16：原来挤在进度和关卡号中间，位置不行）：连击时关卡号让位，连击计占满进度条右边到设置键左边这一整段，
+ * 做大、不和别的东西叠。位置和宽度在 layout 里按屏宽算（comboX、comboW）
+ */
 /** 连击「满屏」的强度，按档位（docs/01 3.2）：四边光框的亮度、背景放射光的亮度和转一圈的秒数、每秒冒几个光点 */
 const FEVER = [
   { frame: 150, rays: 60, turn: 16, rise: 6 },
@@ -93,7 +95,9 @@ export class GamePage extends Page {
   private comboGlow!: Node;
   private comboNum!: Node;
   private comboBar!: Node;
-  private comboBarW = 190;
+  private comboX = 0;
+  private comboW = 400;
+  private comboBarW = 352;
   /** 连击时屏幕四边的光框（一个节点装四条边，整体调亮度） */
   private frame!: Node;
   private frameHi = 0;
@@ -216,27 +220,34 @@ export class GamePage extends Page {
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 24 - 37, hudY);
-    // 连击计（顶栏中间，docs/01 3.2）：深色凹槽里「连击 ×N」+ 本局连击金币，底边一条倒计时；背后一团按档位换色的光
-    this.comboRow = box('combo', this.stage, 250, 90);
+    // 连击计（docs/01 3.2）：连击时关卡号淡出让位，深色凹槽里大号的「连击 ×N」，底边一条倒计时；背后一团按档位换色的光（不盖到两边的东西）
+    const comboL = -Screen.W / 2 + 24 + 196 + 14;
+    const comboR = Screen.W / 2 - 24 - 74 - 14;
+    this.comboX = (comboL + comboR) / 2;
+    this.comboW = Math.min(400, comboR - comboL);
+    this.comboBarW = this.comboW - 48;
+    const COMBO_W = this.comboW;
+    const COMBO_X = this.comboX;
+    this.comboRow = box('combo', this.stage, COMBO_W, 90);
     at(this.comboRow, COMBO_X, hudY);
-    this.comboGlow = img(this.comboRow, 'kit/fx_glow', 330, 170, 'glow');
-    opacity(this.comboGlow).opacity = 150;
-    this.comboBadge = plate(this.comboRow, 'skin/j_inset', 226, 76, 'badge');
+    this.comboGlow = img(this.comboRow, 'kit/fx_glow', COMBO_W * 1.1, 130, 'glow');
+    opacity(this.comboGlow).opacity = 120;
+    this.comboBadge = plate(this.comboRow, 'skin/j_inset', COMBO_W, 82, 'badge');
     // 「连击」和数字都是 Codex 画的艺术字（中文用图，其它语言用字）
     if (language() === 'zh_CN') {
-      const word = img(this.comboBadge, 'skin/j_combo_word', 50, 41, 'word');
-      at(word, -80, 6);
+      const word = img(this.comboBadge, 'skin/j_combo_word', 78, 64, 'word');
+      at(word, -COMBO_W / 2 + 62, 7);
     } else {
-      const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 22, { align: 'left' });
-      at(word.node, -104, 6);
+      const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 30, { align: 'left' });
+      at(word.node, -COMBO_W / 2 + 20, 7);
     }
     this.comboNum = box('num', this.comboBadge);
-    at(this.comboNum, -46, 6);
-    const track = tint(this.comboBadge, this.comboBarW, 7, new Color(0, 10, 50, 150), 'track');
-    at(track, 0, -26);
-    this.comboBar = tint(this.comboBadge, this.comboBarW, 7, COLOR.yellow, 'bar');
+    at(this.comboNum, -COMBO_W / 2 + 118, 7);
+    const track = tint(this.comboBadge, this.comboBarW, 8, new Color(0, 10, 50, 150), 'track');
+    at(track, 0, -30);
+    this.comboBar = tint(this.comboBadge, this.comboBarW, 8, COLOR.yellow, 'bar');
     (this.comboBar.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
-    at(this.comboBar, -this.comboBarW / 2, -26);
+    at(this.comboBar, -this.comboBarW / 2, -30);
     this.comboRow.active = false;
     // 连击光框：四边各一条柔光，6 连以上常亮、随档位换色，每次命中闪一下，断连熄灭。盖在玩法上面、不挡点击
     this.frame = box('frame', this.fly, Screen.W, Screen.H);
@@ -715,28 +726,28 @@ export class GamePage extends Page {
     sfx('hit', r.count);
     if (r.count >= 2) buzz('light');
     if (r.tier < 0) {
-      this.comboRow.active = false;
+      this.showCombo(false);
       // 蓄势（2–5 连）：鱼缸上方的数字一次比一次大
-      if (r.count >= 2) this.hitPop(bowlX, `×${r.count}`, 24 + r.count * 4);
+      if (r.count >= 2) this.hitPop(bowlX, `×${r.count}`, 24 + r.count * 3);
       return;
     }
     const col = COMBO_COLORS[r.tier] ?? COLOR.white;
     const was = this.comboRow.active && !this.comboBreaking;
     this.comboBreaking = false;
-    this.comboRow.active = true;
-    artNumber(this.comboNum, `×${r.count}`, 56, 'left');
+    this.showCombo(true);
+    artNumber(this.comboNum, `×${r.count}`, 62, 'left');
     // 连击金币：每次涨了从连击计右边飘一个「金币 +N」
     if (r.coins > 0) {
       const cl = text(null, `+${r.coins}`, 28, { color: COLOR.yellow });
       at(img(cl.node, 'icon/coin', 28, 28, 'coin'), -34, 0);
-      fx.floatUp(this.fly, cl.node, COMBO_X + 70, Screen.top - 100, 28, 0.6);
+      fx.floatUp(this.fly, cl.node, this.comboX + this.comboW / 2 - 60, Screen.top - 104, 26, 0.6);
     }
     (this.comboBar.getComponent(Sprite) as Sprite).color = col;
     (this.comboGlow.getComponent(Sprite) as Sprite).color = col;
     if (!was) {
       Tween.stopAllByTarget(this.comboRow);
       Tween.stopAllByTarget(opacity(this.comboRow));
-      at(this.comboRow, COMBO_X, Screen.top - 52);
+      at(this.comboRow, this.comboX, Screen.top - 52);
       opacity(this.comboRow).opacity = 255;
       fx.popIn(this.comboRow, 0, 0.25);
     }
@@ -755,15 +766,14 @@ export class GamePage extends Page {
     Tween.stopAllByTarget(gop);
     gop.opacity = 255;
     tween(gop).to(0.4, { opacity: 140 }).start();
-    const cx = COMBO_X;
+    const cx = this.comboX;
     const cy = Screen.top - 52;
-    fx.ring(this.fly, cx, cy, 70, 200 + r.tier * 30, col);
-    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 110, col, 28);
+    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 150, col, 28);
     // 满屏跟着这一击动：鱼缸炸一圈档位色的光和火花、冒出大号「×N」，整个场面顿一下，四边光框闪一下
     fx.glowPop(this.fly, bowlX, this.bowlY, 260 + r.tier * 40, col, 0.3, 220);
     fx.ring(this.fly, bowlX, this.bowlY, 80, 240 + r.tier * 40, col);
     fx.sparkle(this.fly, bowlX, this.bowlY, 8 + r.tier * 2, 130 + r.tier * 15, col, 30);
-    this.hitPop(bowlX, `×${r.count}`, 46 + r.tier * 8);
+    this.hitPop(bowlX, `×${r.count}`, 38 + r.tier * 4);
     fx.punch(this.stage, 1.008 + r.tier * 0.004);
     this.setFever(r.tier, col);
     this.pulseFrame();
@@ -771,12 +781,20 @@ export class GamePage extends Page {
     if (r.card) Flow.comboCard(this);
   }
 
-  /** 鱼缸上方冒一个数字：略歪着弹出来，往上飘、淡出 */
+  /** 连击计出现 / 收起：出现时关卡号淡出让位，收起时淡回来 */
+  private showCombo(on: boolean): void {
+    this.comboRow.active = on;
+    const op = opacity(this.levelCap.node);
+    Tween.stopAllByTarget(op);
+    tween(op).to(0.15, { opacity: on ? 0 : 255 }).start();
+  }
+
+  /** 鱼缸上方冒一个数字：略歪着弹出来，往上飘一点、淡出（不冲进顶栏） */
   private hitPop(x: number, s: string, size0: number): void {
     const n = box('pop', null);
     artNumber(n, s, size0);
     n.angle = (Math.random() - 0.5) * 14;
-    fx.floatUp(this.fly, n, x, this.bowlY + 16, 48, 0.55);
+    fx.floatUp(this.fly, n, x, this.bowlY + 6, 30, 0.5);
   }
 
   /**
@@ -905,7 +923,7 @@ export class GamePage extends Page {
       .to(0.1, { scale: new Vec3(1, 1, 1) })
       .start();
     // 停一下，缩小飞进连击计
-    const cx = COMBO_X;
+    const cx = this.comboX;
     const cy = Screen.top - 52;
     fx.delay(this.fly, 0.9, () => {
       if (!holder.isValid) return;
@@ -975,7 +993,7 @@ export class GamePage extends Page {
 
   /** 过关庆祝（局内）：闪白、放射光、屏幕震、两个下角喷彩纸、四发烟花；连击计和连击的满屏效果收掉 */
   private celebrate(): void {
-    this.comboRow.active = false;
+    this.showCombo(false);
     this.setFever(-1, COLOR.white);
     const mid = (this.fieldTop + this.fieldBottom) / 2;
     const half = Screen.W / 2;
@@ -1009,7 +1027,7 @@ export class GamePage extends Page {
     }
     const row = this.comboRow;
     Tween.stopAllByTarget(row);
-    const x = COMBO_X;
+    const x = this.comboX;
     const y = Screen.top - 52;
     tween(row)
       .to(0.05, { position: new Vec3(x - 6, y, 0) })
@@ -1018,7 +1036,7 @@ export class GamePage extends Page {
       .to(0.25, { position: new Vec3(x, y - 24, 0) }, { easing: 'quadIn' })
       .call(() => {
         this.comboBreaking = false;
-        row.active = false;
+        this.showCombo(false);
         at(row, x, y);
         opacity(row).opacity = 255;
       })
@@ -1038,7 +1056,7 @@ export class GamePage extends Page {
     // 连击倒计时细条
     if (this.comboRow.active && !this.comboBreaking) {
       const left = Math.max(0, 1 - (this.clock - this.lastHit()) / App.config.eco.combo.windowSeconds);
-      size(this.comboBar, this.comboBarW * left, 7);
+      size(this.comboBar, this.comboBarW * left, 8);
       if (left <= 0) this.missCombo();
     }
     // 连击中：光点按档位的频率往上冒

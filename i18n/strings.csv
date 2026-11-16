@@ -223,7 +223,7 @@ RANK_PRIZE_TOP,每周一按上周名次发奖：第 1 名 %d 金币 + 每种技�
 RANK_PRIZE_REST,第 2 / 3 名 %d / %d 金币 + 技能 · 4–10 名 %d · 其余上榜 %d,No.2 / 3: %d / %d coins + skills · 4–10: %d · others: %d
 RANK_WEEK_PRIZE,上周排名第 %d,Last week: No.%d
 H_PRIZE_FRAME,头像框,Avatar frame
-UI_CARD_OWNED,已拥有，换 %d 金币,Already owned: +%d coins
+UI_CARD_OWNED,重复卡，已自动换成,"Duplicate, converted to"
 BASE_AREA_SHORE,晨光沙滩,Sunrise Shore
 BASE_AREA_CORAL,珊瑚花园,Coral Garden
 BASE_AREA_WRECK,沉船湾,Shipwreck Cove
