@@ -33,8 +33,24 @@ const ENTRY_GAP = 40;
 /** 「开始」按钮：上面大字「开始」，下面小字「第 N 关」（原来单独一条关卡号，并进按钮里少一样东西） */
 /** 气泡的直径是里面那条鱼的几倍 */
 const BUBBLE_K = 1.42;
+/** 泡膜上转动的那层流光的颜色（和局内的气泡一样） */
+const SHEEN = new Color(255, 200, 240, 255);
+const WHITE = new Color(255, 255, 255, 255);
 const START_W = 480;
 const START_H = 156;
+
+/** 主页上的一个气泡：node 整体漂、被点；drift 带着鱼在泡里慢慢转圈；fish 自己摆尾、偶尔往前窜一下；shell 是泡膜，sheen 是上面那层流光 */
+interface Bubble {
+  node: Node;
+  home: Vec3;
+  drift: Node;
+  fish: Node;
+  /** 鱼头朝哪边：1 朝左（原图方向），-1 朝右 */
+  dir: number;
+  shell: Node;
+  sheen: Node;
+  r: number;
+}
 
 interface Entry {
   node: Node;
@@ -63,10 +79,10 @@ export class HomePage extends Page {
   private start!: Btn;
   private levelLabel!: ReturnType<typeof text>;
   private tag!: Node;
-  /** 鱼群：一个气泡一条鱼。school 是气泡（整体漂、被点），fishes 是里面的鱼（原地轻摆） */
-  private school: Node[] = [];
-  private fishes: Node[] = [];
-  private homes: Vec3[] = [];
+  /** 鱼群：一个气泡一条鱼 */
+  private school: Bubble[] = [];
+  /** 每次进主页重新起一轮动画；上一轮还没到点的定时回调看到号变了就不再接着跑 */
+  private animGen = 0;
   /** 动态光照：光柱、海底的水纹光斑、水里的亮点（盖在背景上、鱼和入口下面） */
   private light!: Node;
   private bubbles!: Node;
@@ -88,18 +104,24 @@ export class HomePage extends Page {
     const ks = Math.min(1.12, k);
     const midY = (zoneTop + zoneBottom) / 2 - 50 * k;
     for (const [id, x, y, s] of App.config.ui.homeDeco.school) {
-      // 每条鱼装在一个气泡里（用户 2026-11-16；和局内「困在气泡里的小鱼」是同一个意思）：气泡整体漂，鱼在里面轻轻摆
+      // 每条鱼装在一个气泡里（用户 2026-11-16；和局内「困在气泡里的小鱼」是同一个意思）。
+      // 结构和局内的气泡一样：鱼在里面自己游；泡膜（气泡皮 + 一层慢慢转的流光）盖在鱼上面，像果冻一样软软地鼓、扁
       const d = s * ks;
-      const b = box(`bubble_${id}`, root, d * BUBBLE_K, d * BUBBLE_K);
+      const D = d * BUBBLE_K;
+      const b = box(`bubble_${id}`, root, D, D);
       at(b, x, midY + y * k);
-      const f = img(b, `fish/${id}`, d, d, 'fish');
-      if (x > 0) f.setScale(-1, 1, 1);
-      img(b, 'kit/bubble', d * BUBBLE_K, d * BUBBLE_K, 'film');
+      const drift = box('drift', b);
+      const f = img(drift, `fish/${id}`, d, d, 'fish');
+      const dir = x > 0 ? -1 : 1;
+      f.setScale(dir, 1, 1);
+      const shell = box('shell', b, D, D);
+      img(shell, 'kit/bubble', D, D, 'film');
+      const sheen = img(shell, 'kit/bubble', D, D, 'sheen');
+      (sheen.getComponent(Sprite) as Sprite).color = SHEEN;
+      opacity(sheen).opacity = 80;
       // 点一下：气泡往上窜一下、吐几个小泡泡
       onTap(b, () => this.poke(b), { press: 0, sound: null });
-      this.school.push(b);
-      this.homes.push(b.position.clone());
-      this.fishes.push(f);
+      this.school.push({ node: b, home: b.position.clone(), drift, fish: f, dir, shell, sheen, r: D / 2 });
     }
     this.entry(root, 'signin', 'icon/entry_signin', -x0, row1, () => signInPopup(() => ui.refresh()));
     this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, row2, () => ui.go('levels'), 1.1);
@@ -170,32 +192,105 @@ export class HomePage extends Page {
   }
 
   override hide(): void {
-    for (const f of this.school) Tween.stopAllByTarget(f);
-    for (const f of this.fishes) Tween.stopAllByTarget(f);
+    this.animGen++;
+    for (const b of this.school) for (const n of [b.node, b.drift, b.fish, b.shell, b.sheen]) Tween.stopAllByTarget(n);
     this.light.destroyAllChildren();
     this.bubbles.destroyAllChildren();
     Tween.stopAllByTarget(this.bubbles);
   }
 
-  /** 鱼在气泡里身体轻摆；气泡各自慢慢上下浮 */
+  /**
+   * 气泡的待机动画（用户 2026-11-16 要求加；参考了他发的录屏里「鱼在泡里一直是活的」那种感觉，做法是我们自己的）：
+   * 气泡整体慢慢上下浮；泡膜像果冻一样鼓一下、扁一下，上面一层流光沿着泡边慢慢转；隔一两秒某个气泡的高光上闪一颗小星；
+   * 鱼在泡里摆尾、慢慢转小圈，隔几秒挑一条往前窜一下、吐两个小泡泡再游回来。每个气泡的节奏都错开，不齐步
+   */
   private animateSchool(): void {
-    this.fishes.forEach((f, i) => {
-      Tween.stopAllByTarget(f);
-      const sx = f.scale.x;
-      tween(f)
+    const gen = ++this.animGen;
+    this.school.forEach((b, i) => {
+      for (const n of [b.node, b.drift, b.fish, b.shell, b.sheen]) Tween.stopAllByTarget(n);
+      b.node.setPosition(b.home);
+      fx.bob(b.node, 8, 2.8 + i * 0.3, i * 0.45);
+      // 泡膜：果冻
+      b.shell.setScale(1, 1, 1);
+      const t = 1.5 + (i % 5) * 0.17;
+      tween(b.shell)
+        .delay(i * 0.23)
         .repeatForever(
-          tween(f)
-            .to(0.6 + i * 0.07, { angle: 5, scale: new Vec3(sx * 1.03, 0.97, 1) }, { easing: 'sineInOut' })
-            .to(0.6 + i * 0.07, { angle: -4, scale: new Vec3(sx, 1, 1) }, { easing: 'sineInOut' }),
+          tween(b.shell)
+            .to(t, { scale: new Vec3(1.03, 0.97, 1) }, { easing: 'sineInOut' })
+            .to(t, { scale: new Vec3(0.975, 1.025, 1) }, { easing: 'sineInOut' }),
+        )
+        .start();
+      // 流光：慢慢转
+      b.sheen.angle = (i * 47) % 360;
+      tween(b.sheen)
+        .repeatForever(tween(b.sheen).by(9 + (i % 4) * 1.5, { angle: i % 2 === 0 ? 360 : -360 }))
+        .start();
+      // 鱼：摆尾
+      b.fish.setPosition(0, 0, 0);
+      b.fish.angle = 0;
+      b.fish.setScale(b.dir, 1, 1);
+      tween(b.fish)
+        .delay(i * 0.2)
+        .repeatForever(
+          tween(b.fish)
+            .to(0.65 + i * 0.06, { angle: 5, scale: new Vec3(b.dir * 1.04, 0.96, 1) }, { easing: 'sineInOut' })
+            .to(0.65 + i * 0.06, { angle: -4, scale: new Vec3(b.dir, 1, 1) }, { easing: 'sineInOut' }),
+        )
+        .start();
+      // 鱼：在泡里慢慢转一个小圈（四个点连起来）
+      const ax = b.r * 0.1;
+      const ay = b.r * 0.08;
+      const seg = 1.3 + (i % 3) * 0.25;
+      b.drift.setPosition(0, 0, 0);
+      tween(b.drift)
+        .delay(i * 0.37)
+        .repeatForever(
+          tween(b.drift)
+            .to(seg, { position: new Vec3(ax, ay, 0) }, { easing: 'sineInOut' })
+            .to(seg, { position: new Vec3(-ax, ay * 0.4, 0) }, { easing: 'sineInOut' })
+            .to(seg, { position: new Vec3(-ax * 0.6, -ay, 0) }, { easing: 'sineInOut' })
+            .to(seg, { position: new Vec3(ax * 0.5, -ay * 0.5, 0) }, { easing: 'sineInOut' }),
         )
         .start();
     });
-    // 气泡自己慢慢上下浮，各自错开
-    this.school.forEach((b, i) => {
-      Tween.stopAllByTarget(b);
-      b.setPosition(this.homes[i]);
-      fx.bob(b, 7, 2.6 + i * 0.3, i * 0.5);
-    });
+    // 隔一两秒，挑一个气泡在左上角的高光上闪一颗小星
+    const twinkle = () => {
+      if (gen !== this.animGen || !this.node.active) return;
+      const b = this.school[Math.floor(Math.random() * this.school.length)];
+      if (b) fx.sparkle(b.node, -b.r * 0.5, b.r * 0.52, 2, b.r * 0.12, WHITE, Math.max(18, b.r * 0.22));
+      fx.delay(this.node, 0.9 + Math.random() * 1.4, twinkle);
+    };
+    fx.delay(this.node, 1, twinkle);
+    // 隔几秒，挑一条鱼往前窜一下、吐两个小泡泡，再慢慢游回来
+    const dart = () => {
+      if (gen !== this.animGen || !this.node.active) return;
+      const b = this.school[Math.floor(Math.random() * this.school.length)];
+      if (b) {
+        const step = -b.dir * b.r * 0.16;
+        tween(b.fish)
+          .to(0.18, { position: new Vec3(step, 0, 0) }, { easing: 'quadOut' })
+          .delay(0.35)
+          .to(0.9, { position: new Vec3(0, 0, 0) }, { easing: 'sineInOut' })
+          .start();
+        for (let j = 0; j < 2; j++) {
+          const s = b.r * (0.09 + Math.random() * 0.05);
+          const air = img(b.node, 'kit/bubble_small', s, s, 'air');
+          // 从鱼嘴前面冒出来，往上漂到泡顶淡掉
+          const x0 = b.drift.position.x + step - b.dir * b.r * 0.38;
+          at(air, x0, b.drift.position.y + b.r * 0.05);
+          opacity(air).opacity = 0;
+          tween(opacity(air)).delay(0.12 + j * 0.16).to(0.1, { opacity: 220 }).delay(0.5).to(0.4, { opacity: 0 }).start();
+          tween(air)
+            .delay(0.12 + j * 0.16)
+            .to(1, { position: new Vec3(x0 - b.dir * b.r * (0.05 + j * 0.08), b.r * 0.62, 0) }, { easing: 'sineOut' })
+            .call(() => air.destroy())
+            .start();
+        }
+      }
+      fx.delay(this.node, 2.4 + Math.random() * 2, dart);
+    };
+    fx.delay(this.node, 1.8, dart);
   }
 
   private poke(f: Node): void {

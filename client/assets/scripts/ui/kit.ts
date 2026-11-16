@@ -72,9 +72,8 @@ const ON_KEY_BLUE = lineInk('#0F3F96');
 const ON_KEY_RED = lineInk('#8A1F12');
 /** 白色果冻图标键 */
 const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
-/** 平面的深色底（顶栏小条、底栏）和蓝色标签牌：白字不描边，强调色还是黄 */
+/** 平面的蓝色标签牌：白字不描边，强调色还是黄 */
 const flatInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: null, depth: hex(o) });
-const ON_FLAT_NAVY = flatInk('#081C52');
 const ON_FLAT_BLUE = flatInk('#1A52BE');
 const ON_AMBER = btnInk('#C47400');
 const ON_RED = btnInk('#BC3320');
@@ -117,7 +116,6 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_row_gold': ON_GOLD,
   'skin/j_popup': ON_DARK,
   'skin/f_plate_blue': ON_FLAT_BLUE,
-  'skin/f_pill_navy': ON_FLAT_NAVY,
   'skin/f_dock': ON_LIGHT,
   'skin/f_tile': ON_FLAT_BLUE,
   'skin/j_key_blue': ON_KEY_BLUE,

@@ -196,7 +196,7 @@ class TopBar {
     this.node = box('topbar', parent, Screen.W, 120);
     at(this.node, 0, Screen.top - 76);
     // 平面顶栏（新设计，用户 2026-11-16）：不再有一整条底板，四块东西各自浮在场景上——
-    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。小条是深蓝纯色圆角方块，字白色不描边
+    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。小条和底栏托盘是同一种白色圆角块，字深蓝不描边（容器都是白的，上下才协调）
     const BW = Screen.W - 40;
     const L = -BW / 2;
     const G = 14;
@@ -215,7 +215,7 @@ class TopBar {
     const room = BW - AV - KEY - G * 3;
     const CW = Math.round(room * 0.54);
     const lw = room - CW;
-    const coinTap = plate(this.node, 'skin/f_pill_navy', CW, PH, 'coins');
+    const coinTap = plate(this.node, 'skin/f_dock', CW, PH, 'coins');
     at(coinTap, L + AV + G + CW / 2, 0);
     this.coinIcon = img(coinTap, 'icon/coin', 58, 58, 'icon');
     at(this.coinIcon, -CW / 2 + 38, 0);
@@ -225,14 +225,14 @@ class TopBar {
     this.coinRoom = CW - 76 - 36 - 25 - 10;
     onTap(coinTap, actions.coins);
     // 生命：图标 + 数量，回满前后面跟一个小号倒计时
-    const lifeTap = plate(this.node, 'skin/f_pill_navy', lw, PH, 'lives');
+    const lifeTap = plate(this.node, 'skin/f_dock', lw, PH, 'lives');
     this.lifeRoom = lw;
     at(lifeTap, L + AV + G + CW + G + lw / 2, 0);
     this.heart = img(lifeTap, 'icon/heart', 58, 58, 'icon');
     at(this.heart, -lw / 2 + 38, 0);
     this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
     at(this.lives.node, -lw / 2 + 76, 1);
-    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#BFDCFF') });
+    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#5E86C0') });
     onTap(lifeTap, actions.lives);
   }
 
