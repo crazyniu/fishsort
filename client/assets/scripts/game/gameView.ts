@@ -52,7 +52,7 @@ const COMBO_COLORS = [new Color(110, 215, 255), new Color(255, 214, 64), new Col
 /** 升档夸奖词的字色：压在蓝色飘带上要看得清，比档位色更亮 */
 const PRAISE_FILL = [new Color(150, 240, 255), new Color(255, 222, 70), new Color(255, 150, 120), new Color(235, 170, 255)];
 /** 连击计的位置（顶栏中间，进度条和关卡号之间） */
-const COMBO_X = -30;
+const COMBO_X = -42;
 
 export class GamePage extends Page {
   readonly tab = null;
@@ -82,12 +82,14 @@ export class GamePage extends Page {
   private comboLabel!: Label;
   private comboCoins!: Label;
   private comboBar!: Node;
-  private comboBarW = 210;
+  private comboBarW = 190;
   /** 连击时屏幕左右两边的光 */
   private edgeGlow: Node[] = [];
   private comboTier = -1;
   /** 断连动画播放中（倒计时到 0 后每帧都会进来，只播一次） */
   private comboBreaking = false;
+  /** 正在播的升档夸奖（新的一来，旧的立刻收掉） */
+  private praiseNode: Node | null = null;
   private shelf!: Node;
   private bowls: (BowlView | null)[] = [];
   private bowlX: number[] = [];
@@ -191,8 +193,8 @@ export class GamePage extends Page {
     const hudY = top - 52;
     this.progress = capsule(this.stage, 196, 66, `fish/${this.species[0]}`, '', 34);
     at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-    this.levelCap = capsule(this.stage, 172, 66, null, tr('UI_LEVEL', this.arg.level), 32);
-    at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 12 - 86, hudY);
+    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30);
+    at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 24 - 37, hudY);
@@ -201,14 +203,14 @@ export class GamePage extends Page {
     at(this.comboRow, COMBO_X, hudY);
     this.comboGlow = img(this.comboRow, 'kit/fx_glow', 330, 170, 'glow');
     opacity(this.comboGlow).opacity = 150;
-    this.comboBadge = plate(this.comboRow, 'skin/j_inset', 248, 76, 'badge');
+    this.comboBadge = plate(this.comboRow, 'skin/j_inset', 226, 76, 'badge');
     const word = text(this.comboBadge, tr('UI_COMBO_WORD'), 24, { align: 'left' });
-    at(word.node, -112, 6);
+    at(word.node, -102, 6);
     this.comboLabel = text(this.comboBadge, '', 50, { align: 'left' });
-    at(this.comboLabel.node, -58, 6);
-    at(img(this.comboBadge, 'icon/coin', 30, 30, 'coin'), 62, 6);
+    at(this.comboLabel.node, -50, 6);
+    at(img(this.comboBadge, 'icon/coin', 28, 28, 'coin'), 52, 6);
     this.comboCoins = text(this.comboBadge, '', 26, { align: 'left', color: COLOR.yellow });
-    at(this.comboCoins.node, 80, 5);
+    at(this.comboCoins.node, 68, 5);
     const track = tint(this.comboBadge, this.comboBarW, 7, new Color(0, 10, 50, 150), 'track');
     at(track, 0, -26);
     this.comboBar = tint(this.comboBadge, this.comboBarW, 7, COLOR.yellow, 'bar');
@@ -217,7 +219,7 @@ export class GamePage extends Page {
     this.comboRow.active = false;
     // 屏幕两边的连击光（6 连以上常亮、随档位换色，断连熄灭）
     this.edgeGlow = [-1, 1].map((sx) => {
-      const g = img(this.stage, 'kit/fx_glow', 220, Screen.H * 1.15, 'edge');
+      const g = img(this.stage, 'kit/fx_glow', 260, Screen.H * 1.15, 'edge');
       at(g, (sx * Screen.W) / 2, 0);
       opacity(g).opacity = 0;
       g.setSiblingIndex(0);
@@ -682,7 +684,7 @@ export class GamePage extends Page {
     if (r.tier < 0) {
       this.comboRow.active = false;
       // 还没到 6 连：鱼缸上方冒一个小数字，提示「在连」
-      if (r.count >= 3) this.hitPop(bowlX, `×${r.count}`, COMBO_COLORS[0], 34);
+      if (r.count >= 3) this.hitPop(bowlX, `×${r.count}`, COMBO_COLORS[0], 32);
       return;
     }
     const col = COMBO_COLORS[r.tier] ?? COLOR.white;
@@ -721,7 +723,7 @@ export class GamePage extends Page {
     fx.ring(this.fly, cx, cy, 70, 200 + r.tier * 30, col);
     fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 110, col, 28);
     // 鱼缸上方同步冒出「×N」
-    this.hitPop(bowlX, `×${r.count}`, col, 44);
+    this.hitPop(bowlX, `×${r.count}`, col, 40);
     this.setEdgeGlow(r.tier, col);
     if (r.tier_up) this.praise(tr(eco.combo.tiers[r.tier].key), r.tier, col);
     if (r.card) Flow.comboCard(this);
@@ -730,7 +732,7 @@ export class GamePage extends Page {
   /** 鱼缸上方冒一个数字，往上飘、淡出 */
   private hitPop(x: number, s: string, col: Color, fontSize: number): void {
     const l = text(null, s, fontSize, { color: col });
-    fx.floatUp(this.fly, l.node, x, this.bowlY + 66, 56, 0.55);
+    fx.floatUp(this.fly, l.node, x, this.bowlY + 16, 40, 0.5);
   }
 
   /** 屏幕两边的光：随档位换色，档位越高越亮、呼吸越快；tier < 0 熄灭 */
@@ -745,7 +747,7 @@ export class GamePage extends Page {
         tween(op).to(0.3, { opacity: 0 }).start();
         continue;
       }
-      const hi = 120 + tier * 30;
+      const hi = 150 + tier * 25;
       const period = 1.1 - tier * 0.18;
       tween(op)
         .to(0.25, { opacity: hi })
@@ -759,21 +761,25 @@ export class GamePage extends Page {
   }
 
   /**
-   * 连击升档（docs/01 3.2）：场地上方一条飘带「展开」，夸奖词砸下来——光芒、光环、火花、彩纸、全屏闪、屏幕震；
+   * 连击升档（docs/01 3.2）：夸奖词从大砸下来，背后一团档位色柔光和光芒——光环、火花、彩纸、全屏闪、屏幕震（不用飘带，用户 2026-11-16）；
    * 停一下后整块缩小飞进顶上的连击计，连击计再弹一下
    */
   private praise(word: string, tier: number, col: Color): void {
     const y = this.fieldTop - 150;
+    if (this.praiseNode?.isValid) this.praiseNode.destroy();
     const holder = box('praise', this.fly, 600, 220);
+    this.praiseNode = holder;
     at(holder, 0, y);
     const r = fx.rays(holder, 520);
     (r.getComponent(Sprite) as Sprite).color = col;
     opacity(r).opacity = 0;
     tween(opacity(r)).to(0.2, { opacity: 220 }).start();
-    const rib = plate(holder, 'skin/j_ribbon', 560, 150, 'ribbon');
-    rib.setScale(0.05, 1, 1);
-    tween(rib).to(0.16, { scale: new Vec3(1.08, 1, 1) }, { easing: 'quadOut' }).to(0.1, { scale: new Vec3(1, 1, 1) }).start();
-    const l = text(holder, word, 76, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 7 });
+    // 字背后一团档位色的柔光（不用飘带）
+    const glow = img(holder, 'kit/fx_glow', 560, 300, 'glow');
+    (glow.getComponent(Sprite) as Sprite).color = col;
+    glow.setScale(0.3, 0.3, 1);
+    tween(glow).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    const l = text(holder, word, 92, { color: PRAISE_FILL[tier] ?? COLOR.white, outline: COLOR.navy, outlineWidth: 8 });
     at(l.node, 0, 10);
     l.node.setScale(2.4, 2.4, 1);
     const lop = opacity(l.node);
