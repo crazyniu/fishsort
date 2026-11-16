@@ -63,6 +63,17 @@ def bake(im: Image.Image, w: int, h: int, top: float = 0.4, bottom: float = 0.3)
     return Image.fromarray(out, 'RGBa').convert('RGBA')
 
 
+def nine(im: Image.Image, size: int, cap: int, mid: int = 24):
+    """九宫格：缩到宽 size，四角各留 cap 像素；中间横向取正中一列（左右必须均匀），纵向按原比例取 mid 行（保住上下渐变）。"""
+    im = im.convert('RGBa').resize((size, round(im.height * size / im.width)), Image.LANCZOS)
+    a = np.asarray(im)
+    h, w = a.shape[:2]
+    rows = np.r_[0:cap, np.linspace(cap, h - cap - 1, mid).round().astype(int), h - cap:h]
+    cols = np.r_[0:cap, np.full(mid, w // 2), w - cap:w]
+    out = a[np.ix_(rows, cols)]
+    return Image.fromarray(out, 'RGBa').convert('RGBA'), [cap, cap, cap, cap]
+
+
 def rgb2hsv(c):
     r, g, b = c[..., 0], c[..., 1], c[..., 2]
     mx, mn = c.max(-1), c.min(-1)
@@ -137,6 +148,15 @@ def main() -> None:
     save('j_avatar', av)
     # 集齐收藏后的金色头像框
     save('j_avatar_gold', recolor(av, 215, 44, -0.3, 1.0, 1.1, 0.8))
+
+    # 蓝色玻璃卡片（商店的技能卡、列表卡）：九宫格，按 3 倍图用（ui/kit.ts 的 slice）
+    if (raw / 'panel.png').exists():
+        (panel,) = cut(raw / 'panel.png')
+        pim, pb = nine(panel, 800, 156)
+        # 略微透一点场景（定版图的卡片是半透明玻璃）
+        pa = np.asarray(pim).astype(np.float32)
+        pa[..., 3] *= 0.93
+        save('j_panel', Image.fromarray(pa.astype(np.uint8), 'RGBA'), pb)
 
     save('j_inset', *inset())
 

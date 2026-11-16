@@ -103,6 +103,7 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_plate': ON_DARK,
   'skin/j_tile': ON_DARK,
   'skin/j_inset': ON_DARK,
+  'skin/j_panel': ON_DARK,
   'skin/j_key_blue': ON_BLUE,
   'skin/j_key_green': ON_GREEN,
   'skin/j_key_red': ON_RED,
