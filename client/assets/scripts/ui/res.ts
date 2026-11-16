@@ -22,7 +22,7 @@ function loadDir(dir: string): Promise<void> {
 }
 
 export async function preload(): Promise<void> {
-  await Promise.all([loadDir('ui/kit'), loadDir('ui/icon'), loadDir('fish'), loadFont()]);
+  await Promise.all([loadDir('ui/kit'), loadDir('ui/skin'), loadDir('ui/icon'), loadDir('fish'), loadFont()]);
 }
 
 function loadFont(): Promise<void> {
@@ -39,7 +39,7 @@ export function uiFont(): Font | null {
   return font;
 }
 
-/** 已预读的图：'kit/btn_green'、'icon/coin'、'fish/c01' */
+/** 已预读的图：'kit/dot_red'、'skin/j_btn_green'、'icon/coin'、'fish/c01' */
 export function frame(path: string): SpriteFrame | null {
   const f = frames.get(path);
   if (!f) console.warn(`没有这张图：${path}`);

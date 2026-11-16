@@ -12,7 +12,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import { breathe, fadeIn, popIn } from './fx';
 import { tr } from './i18n';
-import { COLOR, Capsule, at, hex, blockInput, box, capsule, fmt, iconButton, img, onTap, opacity, redDot, setImg, slice, text, tint } from './kit';
+import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
@@ -34,9 +34,9 @@ const TAB_LABEL: Record<Tab, string> = {
   collect: 'UI_TAB_COLLECTION',
   rank: 'UI_TAB_RANK',
 };
-export const TABBAR_H = 136;
+export const TABBAR_H = 164;
 /** 没选中的页签字色 */
-const TAB_DIM = hex('#CFE4FF');
+const TAB_DIM = hex('#D6E8FF');
 
 export abstract class Page {
   node!: Node;
@@ -61,24 +61,29 @@ class TabBar {
   private current: Tab = 'home';
 
   constructor(parent: Node, private readonly onSelect: (t: Tab) => void) {
-    // 宝蓝厚果冻底栏（圆角 32）；选中的页签垫一块亮青果冻方块，图标略放大（docs/03 第 2 节）
-    const w = Screen.W - 16;
-    this.node = slice(parent, 'kit/tabbar', w, TABBAR_H, 'tabbar');
-    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(8, Screen.safeBottom));
+    // 宝蓝亮面底栏；选中的页签垫一块亮青色方块（略高出底栏），图标放大（docs/03 第 2 节、定版图 01）
+    const w = Screen.W - 12;
+    this.node = plate(parent, 'skin/j_bar_tab', w, TABBAR_H, 'tabbar');
+    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(6, Screen.safeBottom));
     blockInput(this.node);
-    const cw = w / TABS.length;
-    this.sel = slice(this.node, 'kit/tab_sel', cw - 12, TABBAR_H - 22, 'sel');
+    const cw = (w - 16) / TABS.length;
+    for (let i = 1; i < TABS.length; i++) {
+      const line = tint(this.node, 3, 84, hex('#0A2A8A'), 'sep');
+      opacity(line).opacity = 90;
+      at(line, -w / 2 + 8 + cw * i, 0);
+    }
+    this.sel = img(this.node, 'skin/j_tile', cw + 2, ((cw + 2) * 512) / 420, 'sel');
     TABS.forEach((t, i) => {
-      const x = -w / 2 + cw * (i + 0.5);
+      const x = -w / 2 + 8 + cw * (i + 0.5);
       const cell = box(t, this.node, cw, TABBAR_H);
       at(cell, x, 0);
-      const icon = img(cell, TAB_ICON[t], 76, 76, 'icon');
-      at(icon, 0, 14);
-      const label = text(cell, tr(TAB_LABEL[t]), 24, { color: TAB_DIM });
-      at(label.node, 0, -42);
-      const dot = redDot(cell, 34, 46, 26);
-      const lock = img(cell, 'kit/ic_lock', 36, 36, 'lock');
-      at(lock, 28, -4);
+      const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
+      at(icon, 0, 22);
+      const label = text(cell, tr(TAB_LABEL[t]), 30, { color: TAB_DIM });
+      at(label.node, 0, -50);
+      const dot = redDot(cell, 42, 60, 28);
+      const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
+      at(lock, 32, -2);
       this.cells.set(t, { node: cell, icon, label, dot, lock });
       onTap(cell, () => this.onSelect(t), { press: 0.94 });
     });
@@ -90,7 +95,7 @@ class TabBar {
     if (prev) {
       Tween.stopAllByTarget(prev.icon);
       prev.icon.setScale(1, 1, 1);
-      at(prev.icon, 0, 14);
+      at(prev.icon, 0, 22);
       prev.label.color = TAB_DIM;
     }
     this.current = t;
@@ -98,9 +103,9 @@ class TabBar {
     const x = c.node.position.x;
     c.label.color = COLOR.white;
     Tween.stopAllByTarget(this.sel);
-    if (animate) tween(this.sel).to(0.16, { position: new Vec3(x, 4, 0) }, { easing: 'quadOut' }).start();
-    else at(this.sel, x, 4);
-    tween(c.icon).to(0.16, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 18, 0) }, { easing: 'quadOut' }).start();
+    if (animate) tween(this.sel).to(0.16, { position: new Vec3(x, 9, 0) }, { easing: 'quadOut' }).start();
+    else at(this.sel, x, 9);
+    tween(c.icon).to(0.16, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 30, 0) }, { easing: 'quadOut' }).start();
   }
 
   refresh(): void {
@@ -131,44 +136,62 @@ class TabBar {
 }
 
 /**
- * 主页顶栏：头像 · 金币（右端绿色加号）· 生命 · 设置，四项同高、同一条基线，间距按 8 栅格（docs/09 第 11 节）。
+ * 主页顶栏（定版图 01）：一整条宝蓝亮面条——左端头像框压在条上，中间一道深色凹槽里放金币（带绿色加号）和生命，右端设置键。
  * 顶上垫一层淡渐变压住背景图
  */
 class TopBar {
   node: Node;
-  private coins: Capsule;
-  private lives: Capsule;
+  private coins: Label;
+  private lives: Label;
+  private timer: Label;
+  private heart: Node;
   private avatar: Node;
-  private plate: Node;
+  private frame: Node;
   private shownCoins = -1;
   private shownAvatar = '';
 
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     this.node = box('topbar', parent, Screen.W, 120);
-    at(this.node, 0, Screen.top - 72);
+    at(this.node, 0, Screen.top - 76);
     const fade = img(this.node, 'kit/fade_down', Screen.W, 220, 'fade');
     fade.angle = 180;
     opacity(fade).opacity = 90;
     at(fade, 0, 40);
-    const L = -Screen.W / 2 + 32;
-    this.plate = slice(this.node, 'kit/panel_glass', 92, 92, 'avatarPlate');
-    at(this.plate, L + 46, 0);
-    this.avatar = img(this.plate, 'icon/avatar', 76, 76, 'avatar');
-    at(this.avatar, 0, 2);
-    onTap(this.plate, actions.profile);
-    // 金币条要放得下 7 位带千分位的数（9,999,999）和右端的加号
-    const CW = 262;
-    this.coins = capsule(this.node, CW, 64, 'icon/coin', '0', 30);
-    at(this.coins.node, L + 92 + 20 + CW / 2, 0);
-    const plus = img(this.coins.node, 'kit/round_green', 48, 48, 'plus');
-    img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
-    at(plus, CW / 2 - 30, 0);
-    onTap(this.coins.node, actions.coins);
-    this.lives = capsule(this.node, 188, 64, 'icon/heart', '5/5', 28);
-    at(this.lives.node, L + 92 + 20 + CW + 14 + 94, 0);
-    onTap(this.lives.node, actions.lives);
-    const gear = iconButton(this.node, 'kit/round_blue', 'kit/ic_gear', 76, actions.settings);
-    at(gear, Screen.W / 2 - 32 - 38, 0);
+    const BW = Screen.W - 40;
+    plate(this.node, 'skin/j_bar_top', BW, 92, 'bar');
+    const L = -BW / 2;
+    // 凹槽：从头像框右边到设置键左边
+    const x1 = L + 118;
+    const x2 = BW / 2 - 96;
+    const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
+    at(well, (x1 + x2) / 2, 1);
+    // 金币：图标 + 数字（最多 7 位带千分位）+ 绿色加号
+    const coinTap = box('coins', this.node, 296, 92);
+    at(coinTap, x1 + 148, 0);
+    at(img(coinTap, 'icon/coin', 62, 62, 'icon'), -148 + 36, 2);
+    this.coins = text(coinTap, '0', 36, { align: 'left' });
+    at(this.coins.node, -148 + 72, 1);
+    at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), 148 - 34, 2);
+    onTap(coinTap, actions.coins);
+    const sep = tint(this.node, 3, 40, hex('#7FC4FF'), 'sep');
+    opacity(sep).opacity = 110;
+    at(sep, x1 + 300, 1);
+    // 生命：图标 + 数量，回满前后面跟一个小号倒计时
+    const lifeTap = box('lives', this.node, x2 - x1 - 304, 92);
+    const lw = x2 - x1 - 304;
+    at(lifeTap, x1 + 304 + lw / 2, 0);
+    this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
+    at(this.heart, -lw / 2 + 38, 2);
+    this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
+    at(this.lives.node, -lw / 2 + 74, 1);
+    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#CFE7FF') });
+    onTap(lifeTap, actions.lives);
+    at(keyButton(this.node, 'blue', 'skin/g_gear', 72, actions.settings), BW / 2 - 12 - 36, 1);
+    // 头像框最后放，压在条的左端上
+    this.frame = img(this.node, 'skin/j_avatar', 118, 115, 'avatarFrame');
+    at(this.frame, L + 52, 0);
+    this.avatar = img(this.frame, 'icon/avatar', 82, 82, 'avatar');
+    onTap(this.frame, actions.profile);
   }
 
   refresh(): void {
@@ -176,29 +199,37 @@ class TopBar {
     const eco = App.config.eco;
     const t = now();
     if (this.shownCoins !== s.coins) {
-      this.coins.set(fmt(s.coins));
-      if (this.shownCoins >= 0) popIn(this.coins.label.node, 0, 0.2);
+      const str = fmt(s.coins);
+      this.coins.fontSize = str.length > 7 ? 30 : 36;
+      this.coins.string = str;
+      if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;
     }
-    // 集齐收藏的头像框：头像底板变金色
-    const sk = this.plate.getChildByName('skin')?.getComponent(Sprite);
-    if (sk) sk.color = Album.hasFrame(s) ? COLOR.yellow : COLOR.white;
+    // 集齐收藏的头像框：换成金色
+    setImg(this.frame, Album.hasFrame(s) ? 'skin/j_avatar_gold' : 'skin/j_avatar', 118, 115);
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 76, 76);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 82, 82);
     }
+    const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+    let tail = '';
     if (Lives.isUnlimited(s, t)) {
-      const left = Lives.unlimitedLeft(s, t);
-      this.lives.set(`∞ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`);
-      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart_inf', 58, 58);
+      setImg(this.heart, 'icon/heart_inf', 62, 62);
+      this.lives.string = '∞';
+      tail = mmss(Lives.unlimitedLeft(s, t));
     } else {
-      if (this.lives.icon) setImg(this.lives.icon, 'icon/heart', 58, 58);
+      setImg(this.heart, 'icon/heart', 62, 62);
       const n = Lives.count(s, eco, t);
-      const next = Lives.secondsToNext(s, eco, t);
-      this.lives.set(n >= eco.lives.max ? `${n}/${eco.lives.max}` : `${n} · ${Math.floor(next / 60)}:${String(next % 60).padStart(2, '0')}`);
+      const full = n >= eco.lives.max;
+      this.lives.string = full ? `${n}/${eco.lives.max}` : String(n);
+      if (!full) tail = mmss(Lives.secondsToNext(s, eco, t));
     }
+    this.timer.string = tail;
+    this.lives.updateRenderData(true);
+    const lw = (this.lives.node.getComponent(UITransform) as UITransform).width;
+    at(this.timer.node, this.lives.node.position.x + lw + 8, -3);
   }
 }
 

@@ -92,6 +92,20 @@ const PART_INK: Record<string, Ink> = {
   'kit/round_green': ON_GREEN,
   'kit/round_red': ON_RED,
   'kit/round_blue': ON_WHITE_KEY,
+  // Codex 位图部件（ui/skin）
+  'skin/j_btn_green': ON_GREEN,
+  'skin/j_btn_blue': ON_BLUE,
+  'skin/j_btn_amber': ON_AMBER,
+  'skin/j_btn_red': ON_RED,
+  'skin/j_btn_gray': ON_GRAY,
+  'skin/j_bar_top': ON_DARK,
+  'skin/j_bar_tab': ON_DARK,
+  'skin/j_plate': ON_DARK,
+  'skin/j_tile': ON_DARK,
+  'skin/j_inset': ON_DARK,
+  'skin/j_key_blue': ON_BLUE,
+  'skin/j_key_green': ON_GREEN,
+  'skin/j_key_red': ON_RED,
 };
 
 const inks = new WeakMap<Node, Ink>();
@@ -221,6 +235,41 @@ export function setSlice(n: Node, path: string): void {
   if (sp) sp.spriteFrame = frame(path);
 }
 
+/**
+ * 位图部件（ui/skin，Codex 出的母版）：整张按高度等比缩放，只有中间一段横向拉伸，
+ * 所以圆角、描边、高光在任何尺寸下都不变形（按钮越高圆角越大）。docs/03 第 5 节「界面部件」
+ */
+export function plate(parent: Node | null, path: string, w: number, h: number, name = path): Node {
+  const n = box(name, parent, w, h);
+  const skin = box('skin', n);
+  const sp = skin.addComponent(Sprite);
+  sp.type = Sprite.Type.SLICED;
+  sp.sizeMode = Sprite.SizeMode.CUSTOM;
+  sp.spriteFrame = frame(path);
+  resizePlate(n, w, h);
+  const k = PART_INK[path];
+  if (k) inks.set(n, k);
+  return n;
+}
+
+export function resizePlate(n: Node, w: number, h: number): void {
+  size(n, w, h);
+  const skin = n.getChildByName('skin');
+  const f = skin?.getComponent(Sprite)?.spriteFrame;
+  if (!skin || !f) return;
+  const k = h / f.originalSize.height;
+  size(skin, w / k, f.originalSize.height);
+  skin.setScale(k, k, 1);
+}
+
+export function setPlate(n: Node, path: string): void {
+  const sp = n.getChildByName('skin')?.getComponent(Sprite);
+  if (!sp) return;
+  sp.spriteFrame = frame(path);
+  const t = n.getComponent(UITransform) as UITransform;
+  resizePlate(n, t.width, t.height);
+}
+
 /** 纯色块（遮罩、压暗）：用白图染色，不是界面部件 */
 export function tint(parent: Node, w: number, h: number, c: Color, name = 'tint'): Node {
   const n = img(parent, 'kit/white', w, h, name);
@@ -263,13 +312,15 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (outline) {
     l.enableOutline = true;
     l.outlineColor = outline;
-    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 11));
+    l.outlineWidth = o.outlineWidth ?? Math.max(2, Math.round(fontSize / 9));
   }
-  if (o.shadow) {
+  // 描边字下面再压一道同色投影（定版图的字都是这样立起来的）；小字不加，免得糊
+  if (o.shadow ?? (!!outline && fontSize >= 28)) {
     l.enableShadow = true;
-    l.shadowColor = COLOR.shadow;
-    l.shadowOffset.set(0, -Math.max(1, Math.round(fontSize / 18)));
-    l.shadowBlur = 3;
+    const sc = outline ?? COLOR.shadow;
+    l.shadowColor = new Color(sc.r, sc.g, sc.b, 190);
+    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 14)));
+    l.shadowBlur = 2;
   }
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
@@ -300,7 +351,10 @@ export function reink(n: Node): void {
     if (l) {
       l.color = ink.text;
       l.enableOutline = !!ink.outline;
-      if (ink.outline) l.outlineColor = ink.outline;
+      if (ink.outline) {
+        l.outlineColor = ink.outline;
+        if (l.enableShadow) l.shadowColor = new Color(ink.outline.r, ink.outline.g, ink.outline.b, 190);
+      }
     }
     const sp = m.getComponent(Sprite);
     if (sp && glyphs.has(m)) sp.color = ink.glyph ?? COLOR.white;
@@ -380,9 +434,19 @@ export function onTap(n: Node, fn: (e: EventTouch) => void, o: TapOpts = {}): vo
  */
 export type BtnColor = 'green' | 'blue' | 'yellow' | 'red' | 'gray';
 
-/** 台阶高度与按下的下沉量（和 tools/art/kit.mjs 的 LEDGE、SINK 一致） */
+/** 台阶高度与按下的下沉量（和 tools/art/kit.mjs 的 LEDGE、SINK 一致；老的方形图标键还在用） */
 const LEDGE = 8;
 const SINK = 5;
+
+const BTN_SKIN: Record<BtnColor, string> = {
+  green: 'skin/j_btn_green',
+  blue: 'skin/j_btn_blue',
+  yellow: 'skin/j_btn_amber',
+  red: 'skin/j_btn_red',
+  gray: 'skin/j_btn_gray',
+};
+/** 按下时皮压暗到这个颜色 */
+const PRESSED = new Color(205, 205, 205, 255);
 
 export interface BtnOpts {
   color: BtnColor;
@@ -407,14 +471,15 @@ export interface Btn {
   enabled: boolean;
 }
 
-/** 厚果冻按钮（圆角 22，不是胶囊）：下沿一圈深色厚度；按下面下沉、厚度变薄（不缩放） */
+/** 亮面果冻按钮（圆角方块，不是胶囊；Codex 位图）：深色描边、下沿厚度、顶部高光；按下整体缩一点并压暗 */
 export function button(parent: Node | null, o: BtnOpts): Btn {
-  const n = slice(parent, `kit/btn_${o.color}`, o.w, o.h, 'button');
-  const fs = o.fontSize ?? Math.round(o.h * 0.36);
+  const n = plate(parent, BTN_SKIN[o.color], o.w, o.h, 'button');
+  const fs = o.fontSize ?? Math.round(o.h * 0.4);
   let color = o.color;
   let pressed = false;
   const row = box('row', n);
-  const place = () => row.setPosition(0, LEDGE / 2 - (pressed ? SINK : 0) + 1, 0);
+  // 面的中心比外框中心高一点（下沿有厚度）
+  const place = () => row.setPosition(0, o.h * 0.03 - (pressed ? 2 : 0), 0);
   place();
   let icon: Node | null = null;
   if (o.icon) {
@@ -439,8 +504,10 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   layout();
   const skin = () => {
     const c = b.enabled ? color : 'gray';
-    setSlice(n, `kit/btn_${c}${pressed ? '_down' : ''}`);
-    const k = PART_INK[`kit/btn_${c}`];
+    setPlate(n, BTN_SKIN[c]);
+    const sp = n.getChildByName('skin')?.getComponent(Sprite);
+    if (sp) sp.color = pressed ? PRESSED : COLOR.white;
+    const k = PART_INK[BTN_SKIN[c]];
     if (k && inks.get(n) !== k) {
       inks.set(n, k);
       reink(n);
@@ -473,7 +540,7 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   };
   if (o.onTap) {
     const fn = o.onTap;
-    onTap(n, () => fn(), { press: 0, onPress: press });
+    onTap(n, () => fn(), { press: 0.96, onPress: press });
   }
   return b;
 }
@@ -504,6 +571,16 @@ export function twoLines(b: Btn, main: string, sub: string, subIcon: string | nu
       x += ws[i] + 6;
     });
   }
+}
+
+/** 图标键（设置、加号…）：果冻方块（Codex 位图）+ 图标；按下缩一点并压暗 */
+export function keyButton(parent: Node, color: 'blue' | 'green' | 'red', glyph: string, s: number, fn: (() => void) | null, glyphScale = 0.6): Node {
+  const n = img(parent, `skin/j_key_${color}`, s, s, 'key');
+  const g = img(n, glyph, s * glyphScale, s * glyphScale, 'glyph');
+  g.setPosition(0, s * 0.02, 0);
+  const sp = n.getComponent(Sprite) as Sprite;
+  if (fn) onTap(n, () => fn(), { press: 0.92, onPress: (down) => (sp.color = down ? PRESSED : COLOR.white) });
+  return n;
 }
 
 /** 方形图标按钮（设置、返回）：软方块 + 单色图标，按下下沉 */

@@ -36,6 +36,9 @@ const base = { imported: true, files: [], subMetas: {}, userData: {} };
 // 九宫格边距（像素，上 下 左 右）：tools/art/kit.mjs 画部件时写的
 const slicesPath = join(root, 'tools/art/slices.json');
 const SLICES = existsSync(slicesPath) ? JSON.parse(readFileSync(slicesPath, 'utf8')) : {};
+// Codex 位图部件（ui/skin）的边距：tools/art/skin.py 切图时写的
+const skinSlicesPath = join(root, 'tools/art/slices_skin.json');
+if (existsSync(skinSlicesPath)) Object.assign(SLICES, JSON.parse(readFileSync(skinSlicesPath, 'utf8')));
 
 /** 读 PNG / JPEG 的宽高（只看文件头） */
 function imageSize(abs) {

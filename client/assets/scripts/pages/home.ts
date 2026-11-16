@@ -1,6 +1,6 @@
 // 主页（定版图 01）。四角入口：左上签到、右上抽奖、左下选关、右下每日挑战（docs/09 第 4 节）。
 // 中间鱼群常驻游动；气泡往上冒；「开始」呼吸（全屏唯一的常驻动效）；进场依次弹出（≤ 0.8 秒）。
-import { Node, Sprite, Tween, Vec3, tween } from 'cc';
+import { Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Features from '../core/meta/features';
 import * as LevelCurve from '../core/gen/levelCurve';
@@ -12,19 +12,25 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, at, box, button, img, lazyImg, onTap, opacity, redDot, resizeSlice, slice, text } from '../ui/kit';
+import { Btn, at, box, button, img, lazyImg, onTap, opacity, plate, redDot, resizePlate, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
 import { signInPopup } from './signin';
 
-/** 入口方块尺寸 */
-const ENTRY_W = 168;
-const ENTRY_H = 184;
+/** 入口：大图标直接浮在场景上，下面压一块蓝色标签条（定版图 01） */
+const ENTRY_W = 176;
+const ENTRY_H = 204;
+const ENTRY_ICON = 144;
+const LABEL_H = 58;
+/** 「开始」按钮 */
+const START_W = 470;
+const START_H = 150;
 
 interface Entry {
   node: Node;
   icon: Node;
+  plate: Node;
   lock: Node;
   dot: Node;
   label: ReturnType<typeof text>;
@@ -56,43 +62,47 @@ export class HomePage extends Page {
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
     // 鱼群（中间，越近越大）
-    const midY = (Screen.top - 260 + Screen.bottom + TABBAR_H + 300) / 2;
+    const midY = (Screen.top - 330 + Screen.bottom + TABBAR_H + 420) / 2;
     for (const [id, x, y, s] of App.config.ui.homeDeco.school) {
       const f = img(root, `fish/${id}`, s, s, `fish_${id}`);
       at(f, x, midY + y);
       if (x > 0) f.setScale(-1, 1, 1);
       this.school.push(f);
     }
-    // 四角入口：深色半透明方块（圆角 24），插画图标 + 白字；页边距 32
-    const x0 = Screen.W / 2 - 32 - ENTRY_W / 2;
-    const top = Screen.top - 144 - 24 - ENTRY_H / 2;
-    const low = Screen.bottom + TABBAR_H + 40 + 128 + 32 + ENTRY_H / 2;
+    // 四角入口：页边距 24
+    const x0 = Screen.W / 2 - 24 - ENTRY_W / 2;
+    const top = Screen.top - 144 - 16 - ENTRY_H / 2;
+    // 开始（全屏唯一的主按钮）+ 关卡号条；下面两个入口在按钮上方两侧
+    const btnY = Screen.bottom + TABBAR_H + 28 + START_H / 2;
+    const pillY = btnY + START_H / 2 + 10 + LABEL_H / 2;
+    const low = pillY - LABEL_H / 2 + ENTRY_H / 2 + 8;
     this.entry(root, 'signin', 'icon/entry_signin', -x0, top, () => signInPopup(() => ui.refresh()));
     this.entry(root, 'wheel', 'icon/entry_wheel', x0, top, () => ui.go('wheel'));
     this.entry(root, 'levelSelect', 'icon/entry_levels', -x0, low, () => ui.go('levels'));
     this.entry(root, 'daily', 'icon/entry_daily', x0, low, () => ui.go('daily'));
-    // 关卡号 + 开始（全屏唯一的主按钮）
-    const btnY = Screen.bottom + TABBAR_H + 40 + 64;
-    this.start = button(root, { color: 'green', w: 480, h: 128, label: tr('UI_PLAY'), fontSize: 56, onTap: () => Flow.startLevel(App.save.data.level) });
+    this.start = button(root, { color: 'green', w: START_W, h: START_H, label: tr('UI_PLAY'), fontSize: 84, onTap: () => Flow.startLevel(App.save.data.level) });
     at(this.start.node, 0, btnY);
-    this.levelPill = slice(root, 'kit/title_plate', 200, 56, 'levelPill');
-    at(this.levelPill, 0, btnY + 64 + 24 + 28);
-    this.levelLabel = text(this.levelPill, '', 30);
+    this.levelPill = plate(root, 'skin/j_plate', 232, LABEL_H, 'levelPill');
+    at(this.levelPill, 0, pillY);
+    this.levelLabel = text(this.levelPill, '', 34);
     // 挑战关：关卡号条加宽，左边放红色「挑战」小标（不歪斜、不出条外）
     this.tag = slice(this.levelPill, 'kit/tag_red', 84, 40, 'tag');
     text(this.tag, tr('UI_CHALLENGE_TAG'), 24);
   }
 
   private entry(root: Node, feature: string, icon: string, x: number, y: number, open: () => void): void {
-    const n = slice(root, 'kit/panel_blue', ENTRY_W, ENTRY_H, feature);
+    const n = box(feature, root, ENTRY_W, ENTRY_H);
     at(n, x, y);
-    const ic = img(n, icon, 128, 128, 'icon');
-    at(ic, 0, 22);
-    const label = text(n, tr(FEATURE_LABEL[feature]), 26);
-    at(label.node, 0, -ENTRY_H / 2 + 30);
-    const lock = img(n, 'kit/ic_lock', 44, 44, 'lock');
-    at(lock, 44, -14);
-    const dot = redDot(n, ENTRY_W / 2 - 10, ENTRY_H / 2 - 10, 28);
+    const ic = img(n, icon, ENTRY_ICON, ENTRY_ICON, 'icon');
+    at(ic, 0, ENTRY_H / 2 - ENTRY_ICON / 2);
+    // 标签条压住图标下沿一点
+    const pl = plate(n, 'skin/j_plate', 150, LABEL_H, 'plate');
+    at(pl, 0, -ENTRY_H / 2 + LABEL_H / 2);
+    const label = text(pl, tr(FEATURE_LABEL[feature]), 32);
+    at(label.node, 0, 2);
+    const lock = img(n, 'kit/ic_lock', 52, 52, 'lock');
+    at(lock, 46, 4);
+    const dot = redDot(n, ENTRY_ICON / 2 - 8, ENTRY_H / 2 - 12, 30);
     onTap(n, () => {
       const s = App.save.data;
       if (!Features.isUnlocked(App.config.eco, feature, s.level)) {
@@ -102,7 +112,7 @@ export class HomePage extends Page {
       }
       open();
     });
-    this.entries.set(feature, { node: n, icon: ic, lock, dot, label, feature });
+    this.entries.set(feature, { node: n, icon: ic, plate: pl, lock, dot, label, feature });
   }
 
   override show(arg?: unknown): void {
@@ -186,15 +196,20 @@ export class HomePage extends Page {
     const hard = LevelCurve.isChallenge(App.config.curve, file);
     this.start.setColor('green');
     this.tag.active = hard;
-    resizeSlice(this.levelPill, hard ? 296 : 200, 56);
-    at(this.tag, -296 / 2 + 8 + 42, 0);
-    at(this.levelLabel.node, hard ? 46 : 0, 0);
+    resizePlate(this.levelPill, hard ? 330 : 232, LABEL_H);
+    at(this.tag, -330 / 2 + 16 + 42, 2);
+    at(this.levelLabel.node, hard ? 46 : 0, 2);
     for (const e of this.entries.values()) {
       const open = Features.isUnlocked(eco, e.feature, lvl);
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;
+      // 没开放时标签写「第 N 关解锁」，字小一号、条按字宽撑开
+      e.label.fontSize = open ? 32 : 24;
       e.label.string = open ? tr(FEATURE_LABEL[e.feature]) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, e.feature));
+      e.label.updateRenderData(true);
+      const tw = (e.label.node.getComponent(UITransform) as UITransform).width;
+      resizePlate(e.plate, Math.max(150, Math.min(ENTRY_W + 8, tw + 44)), LABEL_H);
       let dot = false;
       if (open) {
         if (e.feature === 'signin') dot = SignIn.canClaim(s, day);
