@@ -1,0 +1,8 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly FOUR separate objects in a 2 x 2 grid (2 columns, 2 rows), each centered in its quarter, about 380 px, with plenty of white between them, not touching each other or the image border. Cute chunky glossy cartoon mobile game style with soft jelly highlights and thick dark navy outlines, matching the material of the attached reference image (reference is for material and lighting only):
+1) top-left: a tutorial pointing hand: a plump white cartoon glove hand seen from the back, index finger pointing straight UP, other fingers curled, soft light-blue shading, thick navy outline;
+2) top-right: a challenge flag: a short golden pole with a round golden knob on top and a waving glossy red pennant flag attached to its right side, blank flag with no text;
+3) bottom-left: a locked chain cross: two thick shiny silver-steel chains crossing in a big X shape, with a small glossy golden padlock hanging at the crossing point;
+4) bottom-right: a notification badge: a glossy round red jelly dot with a white rim and a small white shine on the top-left.
+No text, no letters, no numbers, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

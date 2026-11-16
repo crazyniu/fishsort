@@ -1,0 +1,10 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly FOUR blank round level-map node buttons in one horizontal row, each about 300 px across, evenly spaced with at least 60 px of white between them, not touching each other or the image border. Straight-on front view with a visible darker thickness lip at the bottom of each disc so they look like raised jelly buttons.
+Material matching the level nodes in the attached reference image (reference is for material, color and lighting only; ignore its numbers, stars, flags, path and background):
+1) glossy royal-blue jelly disc with a bright cyan top rim and a white specular shine near the top-left (completed level);
+2) glossy bright lime-green jelly disc with a thick shiny golden outer ring around it (current level);
+3) frosted gray-blue disc, desaturated and slightly translucent looking, matte with a soft top highlight (locked level);
+4) glossy purple jelly disc with a thick shiny golden outer ring (challenge level).
+Every disc has a thin dark navy outline. Faces are blank and smooth.
+No numbers, no text, no stars, no locks, no icons, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -1,0 +1,20 @@
+{
+  "//": "Linux 上检查 client 全部脚本（含用到 cc 的界面、服务、平台层）。cc 的声明从 Mac 的 Cocos 3.8.8 取一份放 .cc-types/（不进仓库，见 docs/09 第 8 节）",
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "types": [],
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "files": [".cc-types/cc.d.ts", ".cc-types/cc.env.d.ts", ".cc-types/cc.custom-macro.d.ts"],
+  "include": ["assets/scripts/**/*.ts"]
+}

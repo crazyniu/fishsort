@@ -1,0 +1,7 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+In the center draw a single large BLANK button, straight-on orthographic front view, perfectly horizontal, about 1300 px wide and 340 px tall.
+Shape: a rounded RECTANGLE whose corner radius is about 28% of its height. It must clearly read as a rounded rectangle with long straight top and bottom edges and short straight left and right edges. It must NOT be a capsule, pill or stadium shape.
+Material: glossy candy / jelly green, same material, saturation and lighting as the big green button in the attached reference image (reference is for material only, not shape): vivid lime-to-green vertical gradient face; a thin dark-green outline around the whole silhouette; a clearly visible darker green thickness lip along the bottom edge so the button looks raised; a soft light-green inner rim highlight along the top edge; a subtle broad glossy highlight across the upper third; one or two small crisp white specular shine marks near the top-left corner.
+The middle 60% of the button must be perfectly uniform from left to right (no spots, no texture, no variation) so the art can be stretched horizontally.
+No text, no letters, no icon, no pattern, no cast shadow, no outer glow, no extra objects. Do not imitate any existing game.
+Reply with only the saved file path.

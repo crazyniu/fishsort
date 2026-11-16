@@ -1,6 +1,6 @@
 # UX 规格：主页（重做）
 
-状态：**待用户确认**。确认前不改 `src/ui/main_page.gd`。
+状态：**待用户确认**。Cocos 版实现在 `pages/home.ts`。
 
 ## 玩家目标
 
@@ -70,7 +70,7 @@
 |---|---|---|
 | UI_START | 开始 | Play |
 | UI_LEVEL_SUB | 第 %d 关 | Level %d |
-| UI_TITLE | 啵啵救援队 | Pop Pop Rescue（Logo 图内的字，仍保留键用于无障碍文本） |
+| UI_TITLE | 啵啵救援队 | Pop Pop Rescue（Logo 图内的字。现在的主页按定版图没有放 Logo，这个键没人用、已从 `i18n/strings.csv` 删掉，加 Logo 时再加回） |
 
 ## 美术需求（Codex）
 

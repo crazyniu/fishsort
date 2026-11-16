@@ -1,0 +1,9 @@
+Game UI asset for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE square image (1024x1024). Pure flat white background (#FFFFFF) everywhere.
+In the center draw a single BLANK popup window frame, about 880 x 880 px, straight-on orthographic front view, left-right symmetric, not touching the image border.
+Shape: a rounded square, outer corner radius about 8% of its size.
+Material, matching the popup window in the attached reference image (reference is for material, color and lighting only; ignore its title, close button, text, icons and decorations):
+- a THICK glossy royal-blue jelly border, about 6% of the size wide, with a thin dark navy outline outside, a bright cyan highlight rim along the top of the border, a slightly darker thickness lip along the bottom of the border, and one small white specular shine near the top-left corner;
+- inside the border, a recessed content area filled with smooth light sky-blue glass (lighter cyan-blue at the top, slightly deeper sky blue at the bottom), with a soft inner shadow just under the top border.
+The whole interior must be empty and perfectly uniform from left to right in the middle 70% (no bubbles, no coral, no sparkles, no texture) so the art can be stretched.
+No text, no letters, no icons, no title bar, no close button, no decorations, no cast shadow, no outer glow. Do not imitate any existing game.
+Reply with only the saved file path.

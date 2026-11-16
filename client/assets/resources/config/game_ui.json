@@ -1,0 +1,308 @@
+{
+ "fly": {
+  "seconds": 0.4,
+  "tapPop": 0.09,
+  "stagger": 0.07,
+  "bufferSeconds": 0.26
+ },
+ "bowlDone": {
+  "shake": 0.5,
+  "swell": 0.3,
+  "dropAt": 0.95,
+  "dropSeconds": 0.35
+ },
+ "praise": {
+  "keys": [
+   "UI_PRAISE_1",
+   "UI_PRAISE_2",
+   "UI_PRAISE_3"
+  ],
+  "streakSeconds": 4.0
+ },
+ "intro": {
+  "startDelay": 0.25,
+  "batchSize": 4,
+  "batchGap": 0.14
+ },
+ "drop": {
+  "delay": 0.25
+ },
+ "pile": {
+  "gravity": 3200,
+  "damping": 1.2,
+  "substeps": 2,
+  "iterations": 8,
+  "sleepSpeed": 14,
+  "sleepTime": 0.35,
+  "landSpeed": 380,
+  "separate": 420,
+  "stagger": 0.06,
+  "maxHeight": 0.97
+ },
+ "hint": {
+  "tutorialLevels": 3,
+  "tutorialSeconds": 2.0,
+  "seconds": 7.0
+ },
+ "buffer": {
+  "warnFree": 1,
+  "skillNudgeFree": 2,
+  "rescueSkills": [
+   "blow",
+   "shuffle",
+   "net",
+   "current"
+  ]
+ },
+ "combo": {
+ },
+ "current": {
+  "lead": 0.45,
+  "stagger": 0.13
+ },
+ "tips": {
+  "25": "TIP_DROP",
+  "6": "TIP_LIVES"
+ },
+ "unlockGuide": {
+  "delay": 0.5,
+  "lockSeconds": 0.45,
+  "sparks": 14
+ },
+ "tutorial": {
+  "delay": 1.3,
+  "blowMinBuffer": 2,
+  "tipGap": 2.1
+ },
+ "win": {
+  "celebrate": 1.0,
+  "starAt": 0.35,
+  "starGap": 0.15,
+  "coinsAt": 0.85,
+  "coinsRoll": 0.5,
+  "chestAt": 0.75,
+  "chestShake": 0.34,
+  "buttonsAt": 1.55,
+  "shareFromRarity": "rare"
+ },
+ "field": {
+  "fill": 0.66,
+  "maxScale": 1.9,
+  "gap": 6,
+  "relaxSteps": 80,
+  "fishMin": 80,
+  "fishMax": 160,
+  "maxRadius": 150,
+  "layerBoost": 1.15
+ },
+ "badgeCap": 99,
+ "basePage": {
+  "scene": 690,
+  "buildFx": 0.45,
+  "chestDelay": 0.7,
+  "steps": {
+   "shore": [
+    [
+     0.22,
+     0.7,
+     190
+    ],
+    [
+     0.74,
+     0.3,
+     150
+    ],
+    [
+     0.5,
+     0.82,
+     170
+    ],
+    [
+     0.3,
+     0.38,
+     170
+    ],
+    [
+     0.76,
+     0.66,
+     200
+    ]
+   ],
+   "coral": [
+    [
+     0.25,
+     0.72,
+     180
+    ],
+    [
+     0.72,
+     0.74,
+     170
+    ],
+    [
+     0.5,
+     0.4,
+     210
+    ],
+    [
+     0.22,
+     0.32,
+     150
+    ],
+    [
+     0.76,
+     0.3,
+     170
+    ]
+   ],
+   "kelp": [
+    [
+     0.22,
+     0.66,
+     190
+    ],
+    [
+     0.74,
+     0.7,
+     180
+    ],
+    [
+     0.5,
+     0.38,
+     200
+    ],
+    [
+     0.24,
+     0.3,
+     150
+    ],
+    [
+     0.76,
+     0.32,
+     180
+    ]
+   ],
+   "wreck": [
+    [
+     0.5,
+     0.66,
+     240
+    ],
+    [
+     0.24,
+     0.34,
+     160
+    ],
+    [
+     0.78,
+     0.36,
+     160
+    ],
+    [
+     0.22,
+     0.78,
+     170
+    ],
+    [
+     0.78,
+     0.8,
+     160
+    ]
+   ],
+   "crystal": [
+    [
+     0.24,
+     0.68,
+     180
+    ],
+    [
+     0.76,
+     0.7,
+     180
+    ],
+    [
+     0.5,
+     0.36,
+     200
+    ],
+    [
+     0.24,
+     0.3,
+     150
+    ],
+    [
+     0.76,
+     0.3,
+     150
+    ]
+   ],
+   "palace": [
+    [
+     0.5,
+     0.3,
+     220
+    ],
+    [
+     0.2,
+     0.56,
+     160
+    ],
+    [
+     0.8,
+     0.56,
+     160
+    ],
+    [
+     0.5,
+     0.7,
+     180
+    ],
+    [
+     0.5,
+     0.88,
+     200
+    ]
+   ]
+  }
+ },
+ "homeDeco": {
+  "school": [
+   [
+    "c20",
+    -120,
+    132,
+    176
+   ],
+   [
+    "u07",
+    152,
+    126,
+    170
+   ],
+   [
+    "c17",
+    -246,
+    -4,
+    180
+   ],
+   [
+    "c02",
+    236,
+    -26,
+    186
+   ],
+   [
+    "c01",
+    0,
+    0,
+    320
+   ],
+   [
+    "c09",
+    -128,
+    -142,
+    196
+   ]
+  ]
+ }
+}

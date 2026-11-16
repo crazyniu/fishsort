@@ -1,0 +1,8 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw a set of combo counter glyphs as separate pieces in a 6 x 2 grid (6 columns, 2 rows), each glyph centered in its cell, all the same height (about 300 px tall) and on the same baseline within a row, separated by white space, not touching each other or the image border, upright (not tilted, not italic):
+Row 1: 0 1 2 3 4 5
+Row 2: 6 7 8 9 × 连击
+(the last cell is the two Chinese characters 连击 written together as one word, correct strokes, about 300 px tall; the × is a multiplication sign).
+Style for every glyph: chunky, rounded, bouncy cartoon game numerals, glossy golden-yellow to orange candy fill with glossy white highlight streaks on the top, thick dark navy outline, a second thin white outer rim, a strong 3D extrusion on the bottom in deep orange-brown. All glyphs share exactly the same style, colors and stroke weight so they can be combined into numbers.
+No background shapes, no other text, no cast shadow. Do not imitate any existing game.
+Reply with only the saved file path.

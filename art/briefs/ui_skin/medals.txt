@@ -1,0 +1,8 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly THREE ranking medals in one horizontal row, each about 340 px tall, evenly spaced with at least 80 px of white between them, not touching each other or the image border. Straight-on front view, each left-right symmetric.
+Each medal: a thick round glossy medallion with a raised rim and a small embossed five-pointed star in the center, hanging from a short folded ribbon at the top (two ribbon tails in a V). Cute chunky cartoon game style with soft jelly highlights and a thin dark outline, matching the glossy material of the attached reference image (reference is for material and lighting only).
+1) LEFT: shiny GOLD medal with a red ribbon.
+2) CENTER: shiny SILVER medal with a blue ribbon.
+3) RIGHT: shiny BRONZE medal with a green ribbon.
+No numbers, no text, no letters, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

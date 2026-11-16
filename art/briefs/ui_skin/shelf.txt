@@ -1,0 +1,6 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat white background (#FFFFFF) everywhere.
+Draw exactly TWO blank objects stacked vertically, centered, with at least 150 px of white between them, not touching the image border. Straight-on front view, left-right symmetric.
+1) TOP: a long cartoon wooden shelf plank, about 1400 px wide and 110 px tall, seen from the front and slightly from above so a little of its top surface shows; warm honey-brown polished wood with soft grain, rounded ends, a thin dark-brown outline, a light highlight along the top front edge, a darker underside. The middle 60% must be perfectly uniform from left to right (no knots, no nails, no variation) so it can be stretched.
+2) BOTTOM: a single empty rounded-square slot well, about 300 x 300 px, corner radius about 22%: a recessed dark navy-blue translucent glass socket with a thin bright cyan inner rim and a soft inner shadow at the top, like the empty slot cells under the shelf in the attached reference image (reference is for material only).
+No text, no icons, no fish, no bowls, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

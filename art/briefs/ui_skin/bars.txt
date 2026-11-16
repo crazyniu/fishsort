@@ -1,0 +1,8 @@
+Game UI assets for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE portrait image (1024x1536). Pure flat white background (#FFFFFF) everywhere. Draw exactly THREE blank horizontal UI plates stacked vertically, centered, separated by at least 120 px of white, not touching each other or the image border. Straight-on orthographic front view, perfectly horizontal, left-right symmetric.
+All three share one material: glossy royal-blue jelly / glass like the blue bars in the attached reference image (reference is for material, color and lighting only): saturated royal blue vertical gradient (lighter at top, deeper at bottom), a thin dark navy outline around the silhouette, a bright cyan inner rim highlight along the top edge, a slightly darker thickness lip along the bottom edge, a soft broad gloss on the upper part.
+1) TOP: status bar plate, about 900 px wide and 130 px tall, rounded rectangle with corner radius about 32% of its height.
+2) MIDDLE: bottom navigation bar plate, about 920 px wide and 230 px tall, rounded rectangle with corner radius about 20% of its height, a slightly deeper blue than the others.
+3) BOTTOM: small label plate, about 560 px wide and 150 px tall, rounded rectangle with corner radius about 34% of its height, a slightly brighter blue than the others.
+All shapes are rounded RECTANGLES with straight edges, NOT capsules or pills. The middle 60% of every plate must be perfectly uniform from left to right (no spots, dividers, bubbles, texture or variation) so the art can be stretched horizontally.
+No text, no letters, no icons, no dividers, no cast shadows, no outer glow, no extra objects. Do not imitate any existing game.
+Reply with only the saved file path.
