@@ -13,7 +13,7 @@ import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
+import { COLOR, INK, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
@@ -154,17 +154,15 @@ export class CollectPage extends Page {
       at(l, -140, -30);
       const t = text(row, tr('H_UNLOCKS_AT', unlock), 32, { align: 'left', color: COLOR.yellow });
       at(t.node, -110, -30);
-      const big = img(row, 'kit/ic_lock', 80, 80, 'lock');
-      at(big, 250, 0);
-      opacity(big).opacity = 160;
       return row;
     }
     const have = Album.have(s, eco, i);
-    const bar = progressBar(row, 260, 26, 'green');
-    at(bar.node, -30, -34);
+    // 名字下面一行：进度条 + 右边的数字，不叠在一起
+    const bar = progressBar(row, 220, 22, 'green');
+    at(bar.node, -160 + 110, -30);
     bar.set(have / cards.length);
-    const cnt = text(row, `${have}/${cards.length}`, 28, { align: 'left' });
-    at(cnt.node, -160, -4);
+    const cnt = text(row, `${have}/${cards.length}`, 26, { align: 'left', color: INK.sub });
+    at(cnt.node, -160 + 220 + 16, -30);
     if (Album.canClaim(s, eco, i)) {
       const b = button(row, { color: 'green', w: 170, h: 84, label: tr('ALBUM_TAKE'), fontSize: 40, onTap: () => this.claimBook(i) });
       at(b.node, 220, 0);
@@ -173,8 +171,10 @@ export class CollectPage extends Page {
       const t = text(row, tr('ALBUM_CLAIMED'), 34, { color: COLOR.yellow });
       at(t.node, 230, 0);
     } else {
-      const arrow = img(row, 'kit/ic_arrow', 56, 56, 'arrow');
-      at(arrow, 270, 0);
+      // 往右的箭头：用返回键图标左右翻转，和全套图标同一风格
+      const arrow = img(row, 'kit/ic_back', 52, 52, 'arrow');
+      arrow.setScale(-1, 1, 1);
+      at(arrow, 262, 0);
     }
     onTap(row, () => {
       CollectPage.book = i;
@@ -343,11 +343,12 @@ export class CollectPage extends Page {
   }
 }
 
-/** 剪影：灰度后染深蓝（没有的卡、没开的册子封面鱼） */
+/** 剪影：灰度后染成浅蓝、半透明（没有的卡、没开的册子封面鱼）。不用深色，锁定状态要干净 */
 function silhouette(n: Node): void {
   const sp = n.getComponent(Sprite) as Sprite;
   sp.grayscale = true;
-  sp.color = hex('#16336E');
+  sp.color = hex('#7FA6DA');
+  opacity(n).opacity = 190;
 }
 
 /** 只为生成奖品列表的空存档（预览用，不改真存档） */

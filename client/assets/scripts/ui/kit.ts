@@ -25,7 +25,7 @@ export const RES = 3;
 export const COLOR = {
   white: new Color(255, 255, 255, 255),
   navy: new Color(11, 42, 115, 255),
-  ink: new Color(18, 52, 120, 255),
+  ink: new Color(31, 86, 176, 255),
   dim: new Color(0, 18, 60, 160),
   yellow: new Color(255, 214, 64, 255),
   red: new Color(255, 76, 64, 255),
@@ -112,6 +112,7 @@ export function inkOf(n: Node | null): Ink {
 }
 
 export const LIGHT_INK = ON_LIGHT;
+export const DARK_INK = ON_DARK;
 
 /** 千分位：100449 → 100,449 */
 export function fmt(n: number): string {
@@ -477,6 +478,34 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
   return b;
 }
 
+/** 次按钮里放两行字：上面主文字（可带图标），下面小字（可带图标）。都放在按钮的 row 里，按下时一起下沉 */
+export function twoLines(b: Btn, main: string, sub: string, subIcon: string | null, mainIcon: string | null = null): void {
+  const row = b.node.getChildByName('row') as Node;
+  const top = box('l1', row);
+  at(top, 0, 13);
+  const parts1: Node[] = [];
+  if (mainIcon) parts1.push(img(top, mainIcon, 36, 36, 'ic'));
+  parts1.push(text(top, main, 30).node);
+  const bot = box('l2', row);
+  at(bot, 0, -20);
+  const parts2: Node[] = [];
+  if (subIcon) parts2.push(img(bot, subIcon, 24, 24, 'ic'));
+  parts2.push(text(bot, sub, 22).node);
+  for (const parts of [parts1, parts2]) {
+    const ws = parts.map((n) => {
+      const l = n.getComponent(Label);
+      if (l) l.updateRenderData(true);
+      return (n.getComponent(UITransform) as UITransform).width;
+    });
+    const total = ws.reduce((x, y) => x + y, 0) + 6 * (ws.length - 1);
+    let x = -total / 2;
+    parts.forEach((n, i) => {
+      at(n, x + ws[i] / 2, 0);
+      x += ws[i] + 6;
+    });
+  }
+}
+
 /** 方形图标按钮（设置、返回）：软方块 + 单色图标，按下下沉 */
 export function iconButton(parent: Node, skin: string, glyph: string | null, s: number, fn: () => void): Node {
   const n = img(parent, skin, s, s, 'iconButton');
@@ -525,7 +554,8 @@ export interface Bar {
 
 /** 进度条：底槽 + 从左往右长的填充（填充最短也有一个高度宽，圆头不变形） */
 export function progressBar(parent: Node, w: number, h: number, color: 'green' | 'yellow' | 'blue' = 'green'): Bar {
-  const track = slice(parent, 'kit/bar_track', w, h, 'bar');
+  // 浅色卡片上用浅蓝凹槽，深色底上用深色半透明槽
+  const track = slice(parent, inkOf(parent) === ON_LIGHT ? 'kit/bar_track_light' : 'kit/bar_track', w, h, 'bar');
   const fill = slice(track, `kit/bar_${color}`, w, h, 'fill');
   const set = (frac: number) => {
     const f = Math.max(0, Math.min(1, frac));

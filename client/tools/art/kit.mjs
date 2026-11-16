@@ -224,6 +224,8 @@ toggle('toggle_off', false);
   const w = 80;
   const h = 28;
   part('bar_track', w, h, `${rr(0, 0, w, h, 12, 'fill="#061C52" fill-opacity="0.55"')}${rr(0, h - 3, w, 3, 1.5, 'fill="#fff" fill-opacity="0.15"')}`, [0, 0, 14, 14]);
+  // 浅色卡片上的进度槽：浅蓝凹槽（顶部一道内阴影）
+  part('bar_track_light', w, h, `${rr(0, 0, w, h, 12, 'fill="#D5E6F8"')}${rr(1, 1, w - 2, 5, 2.5, 'fill="#9FBFE3" fill-opacity="0.55"')}`, [0, 0, 14, 14]);
   for (const [k, c] of [['green', FACE.green], ['yellow', FACE.yellow], ['blue', FACE.blue], ['purple', ['#C79BFF', '#8E5BD9', '#5E2FA8', 0.4]]]) {
     const [g, d] = lin([[0, c[0]], [1, c[1]]]);
     part(`bar_${k}`, w, h, `<defs>${d}</defs>${rr(0, 0, w, h, 12, `fill="${c[2]}"`)}${rr(0, 0, w, h - 4, 12, `fill="url(#${g})"`)}${rr(6, 3, w - 12, 6, 3, 'fill="#fff" opacity="0.35"')}`, [0, 0, 14, 14]);
@@ -441,6 +443,9 @@ book('book_6', ['#FFE680', '#E8B020', '#9A6C05']);
   part('round_white', 64, 64, rr(0, 0, 64, 64, 22, 'fill="#fff"'), [24, 24, 24, 24]);
   part('circle_white', 64, 64, '<circle cx="32" cy="32" r="31" fill="#fff"/>');
   const [gv, dv] = lin([[0, '#000', 0], [1, '#000', 1]]);
+  // 页顶标题区的底：上面 60% 不透明，往下淡出（白色，代码里染色）
+  const [gw, dw] = lin([[0, '#fff', 1], [0.6, '#fff', 1], [1, '#fff', 0]]);
+  part('fade_white', 8, 64, `<defs>${dw}</defs><rect width="8" height="64" fill="url(#${gw})"/>`);
   part('fade_down', 8, 64, `<defs>${dv}</defs><rect width="8" height="64" fill="url(#${gv})"/>`);
 }
 

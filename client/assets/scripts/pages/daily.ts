@@ -11,7 +11,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, hex, iconButton, img, lazyImg, opacity, setImg, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, fmt, hex, iconButton, img, lazyImg, opacity, setImg, slice, text } from '../ui/kit';
 import { needCoins, prizeCell, prizeItems, revealCards, rewardPopup, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
@@ -117,22 +117,23 @@ export class DailyPage extends Page {
     });
 
     // 小字 + 按钮
-    const btnY = Math.max(Screen.bottom + 110, y - 230);
-    const hint = text(v, won ? tr('DAILY_TOMORROW') : free ? tr('DAILY_FREE') : tr('DAILY_RETRY_HINT'), 32);
-    at(hint.node, 0, btnY + 105);
+    // 宝箱面板下沿 → 24 → 一行小字 → 24 → 按钮（高 128），不挤在一起
+    const btnY = Math.max(Screen.bottom + 96, y - 100 - 24 - 32 - 24 - 64);
+    const hint = text(v, won ? tr('DAILY_TOMORROW') : free ? tr('DAILY_FREE') : tr('DAILY_RETRY_HINT'), 30);
+    at(hint.node, 0, btnY + 64 + 24 + 16);
     if (won) {
-      const b = button(v, { color: 'gray', w: 520, h: 140, label: tr('DAILY_DONE'), fontSize: 56 });
+      const b = button(v, { color: 'gray', w: 520, h: 128, label: tr('DAILY_DONE'), fontSize: 52 });
       b.setEnabled(false);
       at(b.node, 0, btnY);
     } else if (free) {
-      const b = button(v, { color: 'green', w: 560, h: 150, label: tr('DAILY_START'), fontSize: 68, onTap: () => Flow.startDaily() });
+      const b = button(v, { color: 'green', w: 540, h: 128, label: tr('DAILY_START'), fontSize: 56, onTap: () => Flow.startDaily() });
       at(b.node, 0, btnY);
       fx.breathe(b.node, 0.03, 1.3);
     } else {
       const ad = button(v, {
         color: 'yellow',
         w: 320,
-        h: 130,
+        h: 120,
         icon: 'kit/ic_video',
         label: tr('DAILY_RETRY'),
         fontSize: 40,
@@ -148,9 +149,9 @@ export class DailyPage extends Page {
       const coins = button(v, {
         color: 'green',
         w: 300,
-        h: 130,
+        h: 120,
         icon: 'icon/coin',
-        label: String(cfg.retryCoins),
+        label: fmt(cfg.retryCoins),
         fontSize: 44,
         onTap: () => {
           const sv = App.save.data;

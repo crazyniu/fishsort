@@ -20,7 +20,7 @@ import { playMusic, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, button, img, text } from '../ui/kit';
+import { COLOR, at, button, fmt, img, text } from '../ui/kit';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
 import { confirmLeave, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
@@ -197,7 +197,7 @@ function buySkill(g: GamePage, id: string): void {
   });
   at(buy.node, 0, -60);
   const ad = button(p.body, {
-    color: 'blue',
+    color: 'yellow',
     w: 420,
     h: 92,
     icon: 'kit/ic_video',
@@ -235,7 +235,7 @@ export function unlockSlot(g: GamePage): void {
     w: 420,
     h: 100,
     icon: 'icon/coin',
-    label: String(eco.bowlSlotCoinPrice),
+    label: fmt(eco.bowlSlotCoinPrice),
     onTap: () => {
       if (!spend(eco.bowlSlotCoinPrice)) return;
       App.save.data.coins -= eco.bowlSlotCoinPrice;
@@ -245,7 +245,7 @@ export function unlockSlot(g: GamePage): void {
   });
   at(coins.node, 0, -120);
   const ad = button(p.body, {
-    color: 'blue',
+    color: 'yellow',
     w: 420,
     h: 92,
     icon: 'kit/ic_video',
@@ -357,7 +357,7 @@ function revivePopup(g: GamePage): void {
   const line = text(p.body, tr(REVIVE_KEY[reason] ?? 'H_REVIVE_LINE'), 34, { width: 540 });
   at(line.node, 0, -70);
   const ad = button(p.body, {
-    color: 'green',
+    color: 'yellow',
     w: 500,
     h: 110,
     icon: 'kit/ic_video',
@@ -398,43 +398,43 @@ function failPopup(g: GamePage): void {
     Meta.failLevel(s, eco, g.arg.level);
   }
   App.save.write();
-  const p = openPopup({ w: 640, h: 820, blue: true, noClose: true, mascot: null });
-  const title = text(p.body, tr('UI_LOSE'), 76);
-  at(title.node, 0, 320);
+  const p = openPopup({ w: 640, h: 700, title: tr('UI_LOSE'), noClose: true });
   const fish = img(p.body, 'fish/c02', 220, 220, 'fish');
-  at(fish, 0, 140);
+  at(fish, 0, 200);
   fish.angle = -8;
   fx.bob(fish, 6, 2);
-  const why = text(p.body, tr(LOSE_KEY[g.s.loseReason] ?? 'UI_LOSE'), 44);
-  at(why.node, 0, -10);
+  const why = text(p.body, tr(LOSE_KEY[g.s.loseReason] ?? 'UI_LOSE'), 40);
+  at(why.node, 0, 50);
   if (lost) {
-    const h = img(p.body, 'icon/heart', 60, 60, 'heart');
-    at(h, -70, -80);
-    const t = text(p.body, tr('LIFE_MINUS'), 34, { color: COLOR.yellow });
-    at(t.node, 30, -80);
+    const h = img(p.body, 'icon/heart', 56, 56, 'heart');
+    at(h, -70, -24);
+    const t = text(p.body, tr('LIFE_MINUS'), 32, { color: COLOR.yellow });
+    at(t.node, 30, -24);
   }
   const retry = button(p.body, {
     color: 'green',
     w: 480,
-    h: 110,
+    h: 112,
+    fontSize: 44,
     label: tr(g.arg.daily ? 'DAILY_RETRY' : 'H_RETRY'),
     onTap: () => {
       p.close();
       restart(g);
     },
   });
-  at(retry.node, 0, -200);
+  at(retry.node, 0, -148);
   const home = button(p.body, {
     color: 'blue',
     w: 440,
-    h: 96,
+    h: 92,
+    fontSize: 36,
     label: tr('H_TO_HOME'),
     onTap: () => {
       p.close();
       ui.go(g.arg.daily ? 'daily' : 'home');
     },
   });
-  at(home.node, 0, -320);
+  at(home.node, 0, -262);
 }
 
 // ---------------------------------------------------------------- 过关

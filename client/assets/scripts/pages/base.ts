@@ -9,7 +9,7 @@ import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, box, button, hex, img, lazyImg, opacity, setImg, sizeOf, slice, text } from '../ui/kit';
+import { Btn, COLOR, at, box, button, fmt, hex, img, lazyImg, opacity, setImg, sizeOf, slice, text } from '../ui/kit';
 import { needCoins, prizeItems, rewardPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, ui } from '../ui/shell';
@@ -77,7 +77,7 @@ export class BasePage extends Page {
     at(img(bar, 'kit/tab_divider', 4, 56, 'd2'), 115, 0);
     const co = img(bar, 'icon/coin', 66, 66, 'coin');
     at(co, 150, 2);
-    this.coinsLabel = text(bar, String(s.coins), 40, { align: 'left' });
+    this.coinsLabel = text(bar, fmt(s.coins), 40, { align: 'left' });
     at(this.coinsLabel.node, 195, 0);
 
     // 场景（带框）：高度按屏幕剩下的空间算
@@ -97,9 +97,10 @@ export class BasePage extends Page {
       at(o, (fx0 - 0.5) * size, (0.5 - fy0) * size);
       if (i >= built) {
         const sp = o.getComponent(Sprite) as Sprite;
+        // 还没建的：浅色半透明的「虚影」，不用深色剪影
         sp.grayscale = true;
-        sp.color = hex('#1C3F86');
-        opacity(o).opacity = 215;
+        sp.color = hex('#DCEBFF');
+        opacity(o).opacity = 150;
       }
       this.objects.push(o);
     });
@@ -152,7 +153,8 @@ export class BasePage extends Page {
       if (i >= built) {
         const sp = sl.getComponent(Sprite) as Sprite;
         sp.grayscale = true;
-        sp.color = hex('#2A55B0');
+        sp.color = hex('#BFD6F3');
+        opacity(sl).opacity = 170;
       }
       this.slots.push(sl);
     }
@@ -160,7 +162,7 @@ export class BasePage extends Page {
     at(this.chest, x0 + n * gap + 10, y + 6);
 
     // 建造按钮：两行（建造 / ★2 ●100）
-    const btnY = Math.max(y - 70 - btnH / 2, bottom + 20 + btnH / 2);
+    const btnY = Math.max(y - 70 - btnH / 2, bottom + 32 + btnH / 2);
     const cost = HomeBase.nextCost(s, eco);
     this.btn = button(v, { color: 'green', w: 560, h: btnH, onTap: () => this.tapBuild() });
     at(this.btn.node, 0, btnY);
@@ -176,7 +178,7 @@ export class BasePage extends Page {
     at(this.costStars.node, -88, 0);
     const cc = img(row, 'icon/coin', 52, 52, 'co');
     at(cc, 20, 0);
-    this.costCoins = text(row, String(cost?.coins ?? 0), 40, { align: 'left', outline: hex('#1B6B10') });
+    this.costCoins = text(row, fmt(cost?.coins ?? 0), 40, { align: 'left', outline: hex('#1B6B10') });
     at(this.costCoins.node, 52, 0);
     row.active = Boolean(cost) && open && !done;
     const block = HomeBase.check(s, eco);

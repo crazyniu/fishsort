@@ -8,7 +8,7 @@ import { App } from '../services/app';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, button, img, slice, text } from '../ui/kit';
+import { COLOR, at, button, fmt, img, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { PrizeItem, cardItem, rewardPopup, watchAd } from '../ui/popups';
 
@@ -17,7 +17,7 @@ const rng = new Rng(Date.now() >>> 0);
 function dayIcon(d: SignInDay): [string, string] {
   if (d.bigChest) return ['icon/chest_daily_open', ''];
   if (d.chest) return ['icon/chest', ''];
-  if (d.coins) return ['icon/coin', String(d.coins)];
+  if (d.coins) return ['icon/coin', fmt(d.coins)];
   if (d.wheel) return ['icon/entry_wheel', `+${d.wheel}`];
   if (d.skill) return ['icon/skill_shuffle', `×${d.skill}`];
   return ['icon/gift', ''];
@@ -25,7 +25,7 @@ function dayIcon(d: SignInDay): [string, string] {
 
 function items(r: SignIn.SignInResult): PrizeItem[] {
   const out: PrizeItem[] = [];
-  if (r.coins) out.push({ icon: 'icon/coin', amount: String(r.coins) });
+  if (r.coins) out.push({ icon: 'icon/coin', amount: fmt(r.coins) });
   if (r.wheel) out.push({ icon: 'icon/entry_wheel', amount: `+${r.wheel}` });
   for (const s of r.skills) if (s) out.push({ icon: `icon/skill_${s}`, amount: '×1' });
   for (const c of r.cards) out.push(cardItem(c));

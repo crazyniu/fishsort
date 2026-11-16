@@ -13,7 +13,7 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, capsule, iconButton, img, lazyImg, setImg, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, capsule, fmt, iconButton, img, lazyImg, setImg, slice, text, twoLines } from '../ui/kit';
 import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, skillName, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
@@ -21,7 +21,7 @@ import { Page, ui } from '../ui/shell';
 /** 一次抽奖结果 → 奖品格 */
 export function spinItem(r: Wheel.SpinResult): PrizeItem {
   if (r.card) return cardItem(r.card);
-  if (r.kind === 'coins') return { icon: 'icon/coin', amount: String(r.coins), name: tr('PRIZE_COINS') };
+  if (r.kind === 'coins') return { icon: 'icon/coin', amount: fmt(r.coins), name: tr('PRIZE_COINS') };
   if (r.kind === 'skill') return { icon: skillIcon(r.skill || 'shuffle'), amount: '×1', name: skillName(r.skill || 'shuffle') };
   if (r.kind === 'unlimited') return { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) };
   return { icon: 'icon/gift', amount: '' };
@@ -60,49 +60,49 @@ export class WheelPage extends Page {
     const top = Screen.top;
     const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, top - 80);
+    // 标题行：左返回 · 中标题 · 右金币（同一行）
     const title = slice(v, 'kit/title_page', 340, 104, 'title');
-    at(title, 20, top - 80);
-    at(text(title, tr('H_FEAT_WHEEL'), 60).node, 0, 4);
-    const coins = capsule(v, 230, 60, 'icon/coin', String(s.coins), 30);
-    at(coins.node, Screen.W / 2 - 135, top - 180);
+    at(title, 0, top - 80);
+    at(text(title, tr('H_FEAT_WHEEL'), 56).node, 0, 0);
+    const coins = capsule(v, 220, 64, 'icon/coin', fmt(s.coins), 28);
+    at(coins.node, Screen.W / 2 - 32 - 110, top - 80);
 
-    // 大宝箱 + 光芒
-    const mid = (top - 180 + Screen.bottom + 470) / 2;
-    const rays = fx.rays(v, 640);
+    // 自下而上：次按钮一排 → 主按钮 → 剩余次数 → 宝箱（在剩下的空间里居中）
+    const y2 = Screen.bottom + 48 + 48;
+    const btnY = y2 + 48 + 24 + 64;
+    const cntY = btnY + 64 + 32 + 36;
+    const room = top - 140 - (cntY + 36 + 16);
+    const cs = Math.min(420, room);
+    const mid = cntY + 36 + 16 + room / 2;
+    const rays = fx.rays(v, cs * 1.5);
     at(rays, 0, mid);
-    this.chest = img(v, 'icon/chest', 420, 420, 'chest');
+    this.chest = img(v, 'icon/chest', cs, cs, 'chest');
     at(this.chest, 0, mid);
     if (left > 0) fx.wiggle(this.chest, 5, 2.2);
-    else fx.bob(this.chest, 8, 2.6);
 
     // 剩余次数
-    const cnt = slice(v, 'kit/title_plate', 340, 72, 'left');
-    at(cnt, 0, mid - 270);
-    at(text(cnt, tr('H_SPINS_LEFT', left), 36).node, 0, 3);
+    const cnt = slice(v, 'kit/title_plate', 320, 72, 'left');
+    at(cnt, 0, cntY);
+    at(text(cnt, tr('H_SPINS_LEFT', left), 32).node, 0, 0);
 
-    // 主按钮
-    const btnY = Screen.bottom + 330;
+    // 主按钮：有次数「开箱」，没次数「金币 1,000 开箱」
     const main =
       left > 0
-        ? button(v, { color: 'green', w: 520, h: 140, label: tr('H_SPIN'), fontSize: 64, onTap: () => this.open('spin') })
-        : button(v, { color: 'green', w: 520, h: 140, icon: 'icon/coin', iconSize: 76, label: String(eco.wheel.coinCost), fontSize: 60, onTap: () => this.open('coins') });
+        ? button(v, { color: 'green', w: 520, h: 128, label: tr('H_SPIN'), fontSize: 56, onTap: () => this.open('spin') })
+        : button(v, { color: 'green', w: 520, h: 128, icon: 'icon/coin', iconSize: 64, label: `${fmt(eco.wheel.coinCost)} ${tr('H_SPIN')}`, fontSize: 48, onTap: () => this.open('coins') });
     at(main.node, 0, btnY);
     fx.breathe(main.node, 0.03, 1.3);
 
-    // 下一排：十连 · 看广告 +1 · 分享 +1
-    const y2 = btnY - 150;
-    const ten = button(v, { color: 'blue', w: 220, h: 104, label: tr('H_TEN_PULL'), fontSize: 34, onTap: () => this.ten() });
-    at(ten.node, -235, y2);
-    const tenCost = text(ten.node, `${eco.wheel.tenCost}`, 24, { color: COLOR.yellow });
-    at(tenCost.node, 0, -66);
+    // 下一排（次按钮，两行字都在按钮里）：十连（金币价）· 看广告 +1（今日剩余）· 分享 +1（今日剩余）
+    const BW = 216;
+    const ten = button(v, { color: 'blue', w: BW, h: 96, onTap: () => this.ten() });
+    twoLines(ten, tr('H_TEN_PULL'), `${fmt(eco.wheel.tenCost)}`, 'icon/coin');
+    at(ten.node, -(BW + 16), y2);
     const adLeft = Wheel.adLeft(s, eco, day);
     const ad = button(v, {
       color: 'yellow',
-      w: 220,
-      h: 104,
-      icon: 'kit/ic_video',
-      label: '+1',
-      fontSize: 40,
+      w: BW,
+      h: 96,
       onTap: async () => {
         if (Wheel.adLeft(App.save.data, eco, today()) <= 0) return;
         if (!(await watchAd('rv_wheel'))) return;
@@ -112,18 +112,15 @@ export class WheelPage extends Page {
         ui.refresh();
       },
     });
+    twoLines(ad, '+1', `${adLeft}/${eco.wheel.adPerDay}`, null, 'kit/ic_video');
     at(ad.node, 0, y2);
     ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
-    at(text(ad.node, `${adLeft}/${eco.wheel.adPerDay}`, 24).node, 0, -66);
     if (App.platform.hasCapability('share')) {
       const shareLeft = Share.remaining(s, eco, 'wheel', day);
       const sh = button(v, {
         color: 'blue',
-        w: 220,
-        h: 104,
-        icon: 'kit/ic_share',
-        label: '+1',
-        fontSize: 40,
+        w: BW,
+        h: 96,
         onTap: async () => {
           if (Share.remaining(App.save.data, eco, 'wheel', today()) <= 0) return;
           if (!(await App.platform.share({ kind: 'wheel' }))) return;
@@ -133,7 +130,8 @@ export class WheelPage extends Page {
           ui.refresh();
         },
       });
-      at(sh.node, 235, y2);
+      twoLines(sh, '+1', String(shareLeft), null, 'kit/ic_share');
+      at(sh.node, BW + 16, y2);
       sh.setEnabled(shareLeft > 0);
     }
     if (enter) fx.popIn(this.chest, 0, 0.3);

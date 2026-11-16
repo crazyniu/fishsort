@@ -2,7 +2,7 @@
 // 已过关蓝色 + 绿勾 + 这关首通给的家园星星（普通 1、挑战关 2）；当前关绿色发光 +「当前」；
 // 挑战关紫色奖杯台 +「挑战」旗；没到的灰色带锁。打开时自动滚到当前关。
 // 路线可能有几百关，只给屏幕附近的关建节点（滚动时增删）。
-import { EventTouch, Node, Tween, UITransform, Vec3, tween } from 'cc';
+import { EventTouch, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
 import * as HomeBase from '../core/meta/homeBase';
 import * as LevelCurve from '../core/gen/levelCurve';
@@ -14,7 +14,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, hex, iconButton, img, lazyImg, opacity, slice, text } from '../ui/kit';
+import { at, box, hex, iconButton, img, lazyImg, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
@@ -69,9 +69,12 @@ export class LevelsPage extends Page {
     const top = Screen.top;
     const head = box('head', root, Screen.W, 220);
     at(head, 0, top - 110);
-    const shade = img(head, 'kit/fade_down', Screen.W, 240, 'shade');
-    shade.angle = 180;
-    opacity(shade).opacity = 70;
+    // 标题区垫一条和海面同色的底，往下淡出：路线上的关卡滚到这里就被盖住，不和标题、重玩条叠在一起
+    const yTop = Screen.H / 2 - (top - 110);
+    const yBot = -170;
+    const band = img(head, 'kit/fade_white', Screen.W, yTop - yBot, 'band');
+    at(band, 0, (yTop + yBot) / 2);
+    (band.getComponent(Sprite) as Sprite).color = hex('#3A9CEB');
     const back = iconButton(head, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, 40);
     const title = slice(head, 'kit/title_page', 380, 100, 'title');

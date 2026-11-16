@@ -156,14 +156,16 @@ class TopBar {
     this.avatar = img(this.plate, 'icon/avatar', 76, 76, 'avatar');
     at(this.avatar, 0, 2);
     onTap(this.plate, actions.profile);
-    this.coins = capsule(this.node, 228, 64, 'icon/coin', '0', 30);
-    at(this.coins.node, L + 92 + 24 + 114, 0);
+    // 金币条要放得下 7 位带千分位的数（9,999,999）和右端的加号
+    const CW = 262;
+    this.coins = capsule(this.node, CW, 64, 'icon/coin', '0', 30);
+    at(this.coins.node, L + 92 + 20 + CW / 2, 0);
     const plus = img(this.coins.node, 'kit/round_green', 48, 48, 'plus');
     img(plus, 'kit/ic_plus', 26, 26, 'glyph').setPosition(0, 1.5, 0);
-    at(plus, 228 / 2 - 30, 0);
+    at(plus, CW / 2 - 30, 0);
     onTap(this.coins.node, actions.coins);
-    this.lives = capsule(this.node, 196, 64, 'icon/heart', '5/5', 30);
-    at(this.lives.node, L + 92 + 24 + 228 + 16 + 98, 0);
+    this.lives = capsule(this.node, 188, 64, 'icon/heart', '5/5', 28);
+    at(this.lives.node, L + 92 + 20 + CW + 14 + 94, 0);
     onTap(this.lives.node, actions.lives);
     const gear = iconButton(this.node, 'kit/round_blue', 'kit/ic_gear', 76, actions.settings);
     at(gear, Screen.W / 2 - 32 - 38, 0);

@@ -8,7 +8,7 @@ import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, iconButton, img, lazyImg, slice, text } from '../ui/kit';
+import { at, box, fmt, iconButton, img, lazyImg, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, ui } from '../ui/shell';
@@ -35,7 +35,7 @@ const ART: Record<string, string> = {
 /** 一份奖励换成预览格：金币、技能（每种 n 个 → ×4n）、无限生命 */
 function rewardItems(r: Reward, mult = 1): PrizeItem[] {
   const out: PrizeItem[] = [];
-  if (r.coins) out.push({ icon: 'icon/coin', amount: String(r.coins * mult) });
+  if (r.coins) out.push({ icon: 'icon/coin', amount: fmt(r.coins * mult) });
   const skills = (r.tools ?? 0) * 4 * mult + (r.skills ?? 0) * mult;
   if (skills) out.push({ icon: 'icon/skill_net', amount: `×${skills}` });
   if (r.unlimited) out.push({ icon: 'icon/heart_inf', amount: tr('PRIZE_HOURS', Math.round((r.unlimited * mult) / 3600)) });
@@ -77,7 +77,7 @@ export function lockPrizes(feature: string): PrizeItem[] {
         );
     case 'signin': {
       const coins = eco.signInDays.reduce((a, d) => a + (d.coins ?? 0) + (d.bigChest?.coins ?? 0), 0);
-      return [{ icon: 'icon/coin', amount: String(coins) }, { icon: 'icon/chest_daily', amount: '×2' }];
+      return [{ icon: 'icon/coin', amount: fmt(coins) }, { icon: 'icon/chest_daily', amount: '×2' }];
     }
     default:
       return [];

@@ -91,11 +91,12 @@ export class ResultPage extends Page {
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
     const items: Node[] = [];
-    const coinCell = box('coins', pill, 220, 150);
-    const coinIcon = img(coinCell, 'icon/coin', 100, 100, 'icon');
-    at(coinIcon, -50, 0);
-    const coinLabel = text(coinCell, '+0', 52);
-    at(coinLabel.node, 60, 0);
+    // 金币一格：图标 + 左对齐的数字（数字跳动变长也不压到右边的格子）
+    const coinCell = box('coins', pill, 270, 150);
+    const coinIcon = img(coinCell, 'icon/coin', 96, 96, 'icon');
+    at(coinIcon, -80, 0);
+    const coinLabel = text(coinCell, '+0', 50, { align: 'left' });
+    at(coinLabel.node, -24, 0);
     items.push(coinCell);
     const extras: Node[] = [];
     if (r.stars > 0) {
@@ -115,7 +116,7 @@ export class ResultPage extends Page {
     for (const card of d.cards) extras.push(prizeCell(pill, cardItem(card), 96));
     if (r.first_win) extras.push(prizeCell(pill, { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) }, 96));
     const all = [coinCell, ...extras];
-    const widths = all.map((_n, i) => (i === 0 ? 220 : 120));
+    const widths = all.map((_n, i) => (i === 0 ? 270 : 128));
     const total = widths.reduce((a, b) => a + b, 0);
     let x = -total / 2;
     all.forEach((n, i) => {

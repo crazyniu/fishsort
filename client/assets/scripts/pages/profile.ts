@@ -6,7 +6,7 @@ import * as PlayerData from '../core/meta/playerData';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { tr } from '../ui/i18n';
-import { COLOR, at, img, onTap, slice, text } from '../ui/kit';
+import { COLOR, INK, at, img, onTap, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
@@ -26,8 +26,9 @@ export function profilePopup(): void {
   const frame = slice(p.body, 'kit/tab_sel', 190, 190, 'avatar');
   at(frame, -150, h / 2 - 160);
   img(frame, avatarPath(), 160, 160, 'img');
-  const edit = text(frame, tr('PROFILE_CHANGE_AVATAR'), 24, { color: COLOR.yellow });
-  at(edit.node, 0, -82);
+  // 「点击更换」放在头像下面，蓝色小字，不压在头像上
+  const edit = text(p.body, tr('PROFILE_CHANGE_AVATAR'), 24, { color: INK.blue });
+  at(edit.node, -150, h / 2 - 160 - 95 - 22);
   onTap(frame, () => {
     p.close();
     avatarPicker();
@@ -51,7 +52,7 @@ export function profilePopup(): void {
   ];
   rows.forEach(([k, v], i) => {
     const row = slice(p.body, 'kit/row', 540, 92, 'row');
-    at(row, 0, h / 2 - 320 - i * 106);
+    at(row, 0, h / 2 - 350 - i * 106);
     at(text(row, k, 38, { align: 'left' }).node, -240, 0);
     const pill = slice(row, 'kit/capsule', 200, 66, 'v');
     at(pill, 150, 0);
