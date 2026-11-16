@@ -83,6 +83,8 @@ const AMBIENT_TAG = 9201;
 const PRAISE_TAG = 9202;
 /** 技能数量角标的红 */
 const BADGE_RED = new Color(235, 64, 64, 255);
+/** 订单卡的高宽比（skin/j_order 是 200×257） */
+const ORDER_RATIO = 257 / 200;
 
 export class GamePage extends Page {
   readonly tab = null;
@@ -739,14 +741,16 @@ export class GamePage extends Page {
     const inside = box('inside', node, s, h);
     const cards: Node[] = [];
     const cw = big ? 56 : 68;
-    const ch = cw * 1.22;
+    const ch = cw * ORDER_RATIO;
     const step = cap > 1 ? Math.min(cw * 0.42, (s * 0.86 - cw) / (cap - 1)) : 0;
     for (let i = 0; i < cap; i++) {
       const k = i - (cap - 1) / 2;
-      const card = img(node, 'skin/j_tile', cw, ch, `card${i}`);
+      const card = img(node, 'skin/j_order', cw, ch, `card${i}`);
       at(card, k * step, -h / 2 + ch * 0.16 + Math.abs(k) * 2.5);
       card.angle = -k * 7;
-      img(card, this.field.spriteFor(sp), cw * 0.9, cw * 0.9, 'fish');
+      // 鱼画在纸面中间偏上一点，不压住卡边的手绘描线和左下角的小浪花
+      const fish = img(card, this.field.spriteFor(sp), cw * 0.8, cw * 0.8, 'fish');
+      at(fish, 0, ch * 0.04);
       cards.push(card);
     }
     let timerNode: Node | null = null;
