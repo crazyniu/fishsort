@@ -1,9 +1,10 @@
-// 关卡生成器，见 docs/02-关卡设计.md 第 4 节。对应 Godot 版 src/core/gen/level_gen.gd。
+// 关卡生成器，见 docs/02-关卡设计.md 第 4 节。
+// 先按解构造出一关和它的参考解，再在不破坏参考解的前提下叠加障碍（锁链、冰封、迷雾、结伴鱼、限时）。
 import { GameState, UNASSIGNED } from '../model/gameState';
 import { BubbleData, LevelData, OrderData } from '../model/levelData';
 import { Rng } from '../rng/rng';
-import { start } from '../rules/rules';
-import { solve } from '../solver/bots';
+import { start, tap } from '../rules/rules';
+import { DEFAULT_CLOCK, solve, wins } from '../solver/bots';
 import { replay } from '../solver/levelCheck';
 import { clampi, dist32, idiv, roundi, snappedf } from '../util';
 import { construct, key } from './constructor';
@@ -13,14 +14,15 @@ import type { GenParams } from './levelCurve';
 export const FIELD_H = 1.1;
 export const MAX_PER_BUBBLE = 5;
 export const ATTEMPTS = 40;
+/** 定限时秒数时，开 3、4 个缸位各取几局通关的打法 */
+export const TIMER_SAMPLES = 3;
 /** 打乱后找参考解时贪心机器人最多试几局 */
 export const SOLVE_TRIES = 60;
 
 export function generate(p: GenParams, seed: number): LevelData | null {
   const rng = new Rng(seed);
   for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
-    // 后一半尝试去掉锁链和冰封，保证总能出关卡
-    const lv = attemptOnce(p, rng, attempt >= ATTEMPTS / 2);
+    const lv = attemptOnce(p, rng);
     if (lv !== null) {
       lv.levelSeed = seed;
       return lv;
@@ -29,7 +31,7 @@ export function generate(p: GenParams, seed: number): LevelData | null {
   return null;
 }
 
-function attemptOnce(p: GenParams, rng: Rng, plain: boolean): LevelData | null {
+function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
   const lv = new LevelData();
   const ns = p.species;
   const total = p.fish;
@@ -38,15 +40,6 @@ function attemptOnce(p: GenParams, rng: Rng, plain: boolean): LevelData | null {
   lv.orders = makeOrders(rng, ns, total, p.big ?? 0);
   lv.fieldCap = Math.trunc(p.cap ?? 0);
   lv.bubbles = makeBubbles(rng, total, p.layers, lv.fieldCap, p.per_min ?? 1, p.per_max ?? 5);
-  if (!plain) {
-    addChain(rng, lv, p.chain ?? 0);
-    addIce(rng, lv, p.ice ?? 0);
-  }
-  const fog = p.fog ?? 0.0;
-  for (const b of lv.bubbles) {
-    const covered = lv.fieldCap > 0 || b.layer < p.layers - 1;
-    b.fog = fog > 0.0 && covered && rng.randf() < fog;
-  }
 
   const s = GameState.fromLevel(lv);
   start(s);
@@ -63,10 +56,48 @@ function attemptOnce(p: GenParams, rng: Rng, plain: boolean): LevelData | null {
     lv.ref = solve(lv, SOLVE_TRIES);
     if (lv.ref.length === 0) return null;
   }
+  // 叠加障碍：都照着参考解加，参考解照样能通关
+  const tl = timeline(lv);
+  addChain(rng, lv, tl, p.chain ?? 0);
+  addIce(rng, lv, tl, p.ice ?? 0);
+  addFog(rng, lv, tl, p.fog ?? 0.0, p.fogCount ?? [1, 1]);
   addPairs(rng, lv, p.pairs ?? 0);
-  addTimers(rng, lv, p.timer ?? 0);
+  addTimers(rng, lv, p);
   if (!replay(lv).won) return null;
   return lv;
+}
+
+/** 参考解走一遍，记下每个气泡什么时候落到场上、第一次被点、破掉（都是「第几次点击之前」），以及每次点击前已经装满几缸 */
+interface Timeline {
+  land: number[];
+  first: number[];
+  pop: number[];
+  done: number[];
+}
+
+const NEVER = 1 << 30;
+
+function timeline(lv: LevelData): Timeline {
+  const n = lv.bubbles.length;
+  const tl: Timeline = { land: [], first: [], pop: [], done: [] };
+  const s = GameState.fromLevel(lv);
+  start(s);
+  for (let b = 0; b < n; b++) {
+    tl.land.push(s.bubbles[b].onField ? 0 : NEVER);
+    tl.first.push(NEVER);
+    tl.pop.push(NEVER);
+  }
+  for (let i = 0; i < lv.ref.length; i++) {
+    tl.done.push(s.bowlsDone);
+    const b = lv.ref[i][0];
+    if (b >= 0 && tl.first[b] === NEVER) tl.first[b] = i;
+    for (const e of tap(s, b, lv.ref[i][1])) {
+      if (e.t === 'bubble_pop') tl.pop[e.b as number] = i;
+      else if (e.t === 'bubble_drop') tl.land[e.b as number] = i + 1;
+    }
+  }
+  tl.done.push(s.bowlsDone);
+  return tl;
 }
 
 /**
@@ -175,7 +206,7 @@ function makeBubbles(
       fish,
       under,
       chain: 0,
-      fog: false,
+      fog: 0,
       ice: [],
       pairs: [],
     });
@@ -183,35 +214,71 @@ function makeBubbles(
   return out;
 }
 
-function addChain(rng: Rng, lv: LevelData, count: number): void {
-  for (let i = 0; i < count; i++) {
-    const b = rng.pick(lv.bubbles);
-    if (b.chain === 0) b.chain = rng.rangeI(1, 2);
+/**
+ * 锁链泡：落到场上时还锁着（还差 1–2 缸），参考解第一次点它之前已经解开。
+ * 锁链数字从开局就随满缸递减，所以数字 = 落下时已装满的缸数 + 还差的缸数
+ */
+function addChain(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
+  if (count <= 0) return;
+  const cands: number[] = [];
+  for (const b of lv.bubbles) {
+    if (tl.land[b.id] === NEVER || tl.first[b.id] === NEVER) continue;
+    if (tl.done[tl.first[b.id]] - tl.done[tl.land[b.id]] >= 1) cands.push(b.id);
+  }
+  rng.shuffle(cands);
+  for (let i = 0; i < Math.min(count, cands.length); i++) {
+    const b = cands[i];
+    const atLand = tl.done[tl.land[b]];
+    lv.bubbles[b].chain = atLand + rng.rangeI(1, Math.min(2, tl.done[tl.first[b]] - atLand));
   }
 }
 
-function addIce(rng: Rng, lv: LevelData, count: number): void {
+/**
+ * 冰封泡：依赖 1–2 个别的气泡，任何一个破了就解冻（docs/02 第 3 节）。照着参考解挑：
+ * 冰封泡落到场上时依赖泡都已在场、还没破（不然落下来就没冻），并且参考解第一次点它之前至少有一个依赖泡已经破了。
+ * 开局就在场的冰封泡挑离得近的做依赖，界面好画连线
+ */
+function addIce(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
+  if (count <= 0) return;
+  const order = lv.bubbles.map((b) => b.id);
+  rng.shuffle(order);
   const depended = new Set<number>();
-  for (let i = 0; i < count; i++) {
-    const b = rng.pick(lv.bubbles);
-    if (b.chain > 0 || b.ice.length > 0 || depended.has(b.id)) continue;
-    // 依赖的邻居必须不比自己低、自己没被冰封，否则可能互相等待。
-    // 掉落关里邻居必须排在自己前面，并且与自己同时可能在场
-    let best = -1;
-    let bestD = Infinity;
-    for (const o of lv.bubbles) {
-      if (o.id === b.id || o.layer < b.layer || o.ice.length > 0) continue;
-      if (lv.fieldCap > 0 && (o.id > b.id || o.id < b.id - lv.fieldCap)) continue;
-      const d = dist32(b.x, b.y, o.x, o.y);
-      if (d < bestD) {
-        bestD = d;
-        best = o.id;
-      }
+  let added = 0;
+  for (const id of order) {
+    if (added >= count) break;
+    const b = lv.bubbles[id];
+    if (b.chain > 0 || depended.has(id) || tl.land[id] === NEVER || tl.first[id] === NEVER) continue;
+    // 在它落下时已经在场、还没破的气泡
+    const alive = lv.bubbles.filter((o) => o.id !== id && o.ice.length === 0 && tl.land[o.id] <= tl.land[id] && tl.pop[o.id] >= tl.land[id] && (lv.fieldCap === 0 || o.id < id));
+    const early = alive.filter((o) => tl.pop[o.id] < tl.first[id]);
+    if (early.length === 0) continue;
+    const near = (list: BubbleData[]) => list.slice().sort((x, y) => dist32(b.x, b.y, x.x, x.y) - dist32(b.x, b.y, y.x, y.y) || x.id - y.id);
+    const first = tl.land[id] === 0 ? near(early)[0] : rng.pick(early);
+    const deps = [first.id];
+    if (rng.rangeI(0, 2) === 0) {
+      const rest = alive.filter((o) => o.id !== first.id);
+      if (rest.length > 0) deps.push((tl.land[id] === 0 ? near(rest)[0] : rng.pick(rest)).id);
     }
-    if (best >= 0) {
-      b.ice.push(best);
-      depended.add(best);
-    }
+    b.ice = deps.sort((x, y) => x - y);
+    for (const d of deps) depended.add(d);
+    added += 1;
+  }
+}
+
+/**
+ * 迷雾泡：按比例挑气泡，计数取 [最少, 最多] 里的随机数，但不超过它落下之后参考解里还会破掉的别的气泡数
+ * （不然永远数不到 0）。锁链泡、冰封泡不蒙雾。迷雾不改变规则，参考解不受影响
+ */
+function addFog(rng: Rng, lv: LevelData, tl: Timeline, share: number, count: readonly number[]): void {
+  if (share <= 0.0) return;
+  for (const b of lv.bubbles) {
+    if (rng.randf() >= share || tl.land[b.id] === NEVER) continue;
+    // 一个气泡只带一样：已经锁着或冻着的不再蒙雾（又是冰又是雾，看不出该干什么）
+    if (b.chain > 0 || b.ice.length > 0) continue;
+    let later = 0;
+    for (const o of lv.bubbles) if (o.id !== b.id && tl.pop[o.id] !== NEVER && tl.pop[o.id] >= tl.land[b.id]) later += 1;
+    if (later <= 0) continue;
+    b.fog = Math.min(rng.rangeI(count[0], count[1]), later);
   }
 }
 
@@ -235,16 +302,37 @@ function addPairs(rng: Rng, lv: LevelData, count: number): void {
   }
 }
 
-function addTimers(rng: Rng, lv: LevelData, count: number): void {
+/**
+ * 限时缸：秒数 = 该缸从上架到装满的点击数 × 每次点击的秒数 × 宽松系数 + 途中别的缸满缸的演出时间，
+ * 夹在 [min, max] 里、取整到 step（docs/02 第 4 节第 5 步、docs/01 第 4 节）。头两个缸和参考解里拖得太久的缸不限时。
+ *
+ * 点击数不能只看 2 缸位的参考解：多开一个缸位，后面的订单会提前上架、倒计时提前开始，可它要的鱼还没掉下来
+ * （实测第 31 关 2 缸胜率 85%，开第 3 缸掉到 45%）。所以再让机器人开 3、4 个缸位各打几局，取在架最久的那一次来定秒数；
+ * 这样算出来超过上限的缸不限时
+ */
+function addTimers(rng: Rng, lv: LevelData, p: GenParams): void {
+  const count = p.timer ?? 0;
   if (count <= 0) return;
-  const steps = replay(lv).steps;
+  const rule = p.timerRule ?? { loose: 2, min: 45, max: 90, step: 5, maxSteps: 20 };
+  const clock = p.clock ?? DEFAULT_CLOCK;
+  const rep = replay(lv);
+  const plays = [rep];
+  for (const slots of [3, 4]) for (const taps of wins(lv, slots, TIMER_SAMPLES, TIMER_SAMPLES * 4)) plays.push(replay(lv, taps, slots));
+  const seconds = (o: number) => {
+    let worst = 0;
+    for (const r of plays) {
+      const steps = r.steps.get(o);
+      if (steps !== undefined) worst = Math.max(worst, steps * clock.tapSec * rule.loose + (r.bowls.get(o) ?? 0) * clock.bowlSec);
+    }
+    return worst;
+  };
   const cands: number[] = [];
   for (let i = 2; i < lv.orders.length; i++) {
-    if ((steps.get(i) ?? 99) <= 20) cands.push(i);
+    if ((rep.steps.get(i) ?? 99) <= rule.maxSteps && seconds(i) <= rule.max) cands.push(i);
   }
   rng.shuffle(cands);
   for (let i = 0; i < Math.min(count, cands.length); i++) {
     const o = cands[i];
-    lv.orders[o].timer = clampi((steps.get(o) as number) * 3 + 15, 45, 90);
+    lv.orders[o].timer = clampi(Math.ceil(seconds(o) / rule.step) * rule.step, rule.min, rule.max);
   }
 }

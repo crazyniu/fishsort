@@ -21,7 +21,8 @@ export class Bubble {
   chain = 0;
   ice: number[] = [];
   frozen = false;
-  fog = false;
+  /** 迷雾还差几次显形（在场后每破一个别的气泡减 1），0 = 看得见 */
+  fog = 0;
   pairs: number[][] = [];
   /** 已在场上。掉落关里还在候场队列的气泡为 false */
   onField = true;
@@ -101,6 +102,7 @@ export class GameState {
       b.under = d.under.slice();
       b.chain = d.chain;
       b.ice = d.ice.slice();
+      // 候场的冰封泡落下时再按依赖泡的情况定（Rules.drop）
       b.frozen = b.ice.length > 0;
       b.fog = d.fog;
       b.pairs = d.pairs.map((p) => p.slice());

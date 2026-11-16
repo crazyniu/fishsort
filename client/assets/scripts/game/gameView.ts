@@ -544,6 +544,9 @@ export class GamePage extends Page {
         case 'chain_tick':
         case 'chain_open':
         case 'ice_melt':
+        case 'fog_tick':
+        case 'fog_clear':
+          // 这几样的画面跟着状态走（Field.sync）
           break;
         case 'blow': {
           this.blowBuffer(t);
@@ -1191,6 +1194,8 @@ export class GamePage extends Page {
   private showHint(): void {
     const t = Bots.nextTap(this.s, this.rng);
     if (!t) return;
+    // 提示不指向没显形的迷雾鱼（机器人只有没别的可点时才会盲点它）
+    if (t[0] !== RETURN_BUBBLE && this.s.bubbles[t[0]].fog > 0) return;
     if (t[0] === RETURN_BUBBLE) {
       const b = this.returnNodes[t[1]];
       if (b) {

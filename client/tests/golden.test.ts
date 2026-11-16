@@ -1,10 +1,15 @@
-// 与 Godot 版逐项对比：rng、难度曲线、生成器、全部关卡的校验与机器人胜率、局内随机操作序列、
-// 局外 60 天模拟。黄金数据由 Godot 版 ./run.sh golden 导出（docs/09 第 8 节）。
+// 与 Godot 版逐项对比：rng、生成器、关卡的校验与机器人胜率、局内随机操作序列、局外 60 天模拟。
+// 黄金数据是迁移时由 Godot 版导出的（docs/09 第 8 节），Godot 工程已删，不能再重新导出。
 // 用的是导出时 Godot 版的配置（golden/economy 等），不是 client 的新配置：这里只证明「逻辑一样」。
+//
+// 2026-11-16 关卡设计复查（#61）有意改了一部分规则，对应的黄金数据不再比（docs/04 第 3 节的约定），改由 rules / gen 单测按文档守着：
+// - 难度曲线（解锁关、挑战关降幅、障碍节奏）：整项去掉，见 gen.test.ts
+// - 生成器：障碍改成照着参考解叠加，带障碍的参数生成结果不同；只比不带障碍的参数
+// - 机器人：计时（限时缸会超时）、看不见迷雾；带限时或迷雾的关卡不比胜率
+// - 迷雾改成计数显形（多了 fog_tick / fog_clear 事件）；洗牌不拆结伴鱼：这两类对局不比
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { AdsConfig, CurveConfig, EconomyConfig, Species } from '../assets/scripts/core/config';
-import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
+import type { AdsConfig, EconomyConfig, Species } from '../assets/scripts/core/config';
 import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { GameState } from '../assets/scripts/core/model/gameState';
@@ -38,6 +43,15 @@ function same(want: unknown, got: unknown, what: string, skip: readonly string[]
   assert.equal(d, null, `${what}: ${d}`);
 }
 
+const OBSTACLES = ['chain', 'timer', 'fog', 'ice', 'big', 'pairs'] as const;
+
+/** 黄金数据里的关卡 fog 是布尔（旧格式），现在是计数；不带迷雾的关卡 false 对应 0 */
+function oldFog(level: Record<string, unknown> | null): Record<string, unknown> | null {
+  if (level === null) return null;
+  const bubbles = (level.bubbles as Record<string, unknown>[]).map((b) => ({ ...b, fog: b.fog === true ? 1 : b.fog === false ? 0 : b.fog }));
+  return { ...level, bubbles };
+}
+
 const skip = !hasGolden() && '没有黄金数据（./run.sh golden 导出后放进 client/tests/golden/）';
 
 describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
@@ -53,21 +67,11 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
     }
   });
 
-  it('难度曲线：生成参数与目标胜率', () => {
-    const c = golden<CurveConfig>('level_curve');
-    const g = golden<{
-      params: { id: number; ease: number; p: GenParams }[];
-      targets: { id: number; challenge: boolean; rate: number; span: number[] }[];
-    }>('curve');
-    for (const x of g.params) same(x.p, LevelCurve.params(c, x.id, x.ease), `params(${x.id}, ${x.ease})`);
-    for (const x of g.targets) {
-      assert.equal(LevelCurve.targetRate(c, x.id, x.challenge), x.rate, `target_rate(${x.id})`);
-      assert.deepEqual(LevelCurve.target(c, x.id, x.challenge), x.span, `target(${x.id})`);
-    }
-  });
-
   it('生成器：同参数同种子生成同一关', () => {
+    let compared = 0;
     for (const g of golden<{ p: GenParams; seed: number; level: Record<string, unknown> | null }[]>('gen')) {
+      if (OBSTACLES.some((m) => Number(g.p[m] ?? 0) > 0)) continue;
+      compared++;
       const lv = generate(g.p, g.seed);
       const raw =
         lv === null
@@ -85,8 +89,9 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
               ref: lv.ref,
               variants: lv.variants,
             };
-      same(g.level, raw, `generate(${JSON.stringify(g.p)}, ${g.seed})`);
+      same(oldFog(g.level), raw, `generate(${JSON.stringify(g.p)}, ${g.seed})`);
     }
+    assert.ok(compared >= 3, `不带障碍的生成用例 ${compared} 个`);
   });
 
   it('全部关卡：校验、参考解回放、机器人胜率', () => {
@@ -94,25 +99,36 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
     type Row = { name: string; errors: string[]; won: boolean; peak: number; steps: Record<string, number>; g2: number; g3: number; r2: number };
     const rows = golden<Row[]>('levels');
     assert.ok(rows.length >= 360, `关卡数 ${rows.length}`);
+    let compared = 0;
     for (const g of rows) {
       const lv = goldenLevel(g.name);
-      assert.deepEqual(LevelCheck.errors(lv), g.errors, `${g.name} errors`);
       const rep = LevelCheck.replay(lv);
       same({ won: g.won, peak: g.peak, steps: g.steps }, { won: rep.won, peak: rep.peak, steps: Object.fromEntries(rep.steps) }, `${g.name} replay`);
+      // 校验规则加了冰封的新约束，带冰封的旧关卡不比错误列表；机器人会超时、看不见迷雾，带这两样的不比胜率
+      if (!lv.bubbles.some((b) => b.ice.length > 0)) assert.deepEqual(LevelCheck.errors(lv), g.errors, `${g.name} errors`);
+      if (lv.orders.some((o) => o.timer > 0) || lv.bubbles.some((b) => b.fog > 0)) continue;
+      compared++;
       assert.equal(Bots.rate(lv, 'greedy', 2, runs), g.g2, `${g.name} 2 缸贪心胜率`);
       if (g.g3 >= 0) assert.equal(Bots.rate(lv, 'greedy', 3, runs), g.g3, `${g.name} 3 缸贪心胜率`);
       if (g.r2 >= 0) assert.equal(Bots.rate(lv, 'random', 2, runs), g.r2, `${g.name} 随机胜率`);
     }
+    assert.ok(compared >= 100, `比了胜率的关卡 ${compared} 个`);
   });
 
   it('局内：随机操作序列的事件流与终局', () => {
     type Play = { name: string; start: unknown[]; steps: { act: Action; ev: unknown[] }[]; final: unknown };
+    let compared = 0;
     for (const g of golden<Play[]>('play')) {
-      const s = GameState.fromLevel(goldenLevel(g.name));
+      const lv = goldenLevel(g.name);
+      if (lv.bubbles.some((b) => b.fog > 0)) continue;
+      if (lv.bubbles.some((b) => b.pairs.length > 0) && g.steps.some((x) => x.act.a === 'shuffle')) continue;
+      compared++;
+      const s = GameState.fromLevel(lv);
       same(g.start, start(s), `${g.name} 开局`);
       g.steps.forEach((step, i) => same(step.ev, apply(s, step.act), `${g.name} 第 ${i + 1} 步 ${JSON.stringify(step.act)}`));
       same(g.final, s.snapshot(), `${g.name} 终局`);
     }
+    assert.ok(compared >= 10, `比了事件流的对局 ${compared} 局`);
   });
 
   it('局外：60 天模拟逐次调用一致', () => {

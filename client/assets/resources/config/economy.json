@@ -70,13 +70,14 @@
     }
   },
   "mechanicIntro": {
-    "3": "TIP_LAYER",
-    "16": "TIP_CHAIN",
-    "25": "TIP_TIMER",
-    "40": "TIP_FOG",
-    "60": "TIP_ICE",
-    "80": "TIP_BIG",
-    "110": "TIP_PAIR"
+    "layer": "TIP_LAYER",
+    "chain": "TIP_CHAIN",
+    "drop": "TIP_DROP",
+    "timer": "TIP_TIMER",
+    "fog": "TIP_FOG",
+    "ice": "TIP_ICE",
+    "big": "TIP_BIG",
+    "pairs": "TIP_PAIR"
   },
   "rarities": [
     "common",

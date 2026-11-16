@@ -1,4 +1,4 @@
-// 「按解构造」：一边模拟一条合法打法，一边决定每条鱼的种类。对应 Godot 版 src/core/gen/constructor.gd。
+// 「按解构造」：一边模拟一条合法打法，一边决定每条鱼的种类。
 // 直接调用 Rules 推进，所以锁链、冰封等障碍自动被考虑在内。
 import { Bowl, GameState, RETURN_BUBBLE, REMOVED, Status, UNASSIGNED } from '../model/gameState';
 import { Tap } from '../model/levelData';
@@ -48,6 +48,25 @@ export function construct(base: GameState, rng: Rng, slack: number): ConstructRe
       bub.fish[k] = sp;
       assign.set(key(b, k), sp);
     }
+    // 结伴鱼（只有洗牌时会遇到，生成关卡时结伴鱼是最后才系上的）：另一条还没定种类时，
+    // 先当两条普通的鱼一条一条走，第一条落定后再给第二条挑种类，保证两条都有地方去
+    const partner = bub.partnerOf(k);
+    if (partner >= 0 && bub.fish[partner] === UNASSIGNED) {
+      const saved = bub.pairs;
+      bub.pairs = [];
+      tap(s, b, k);
+      taps.push([b, k]);
+      if (s.status === Status.PLAYING) {
+        const sp2 = activeSpecies(s, rng);
+        if (sp2 < 0) return fail;
+        bub.fish[partner] = sp2;
+        assign.set(key(b, partner), sp2);
+        tap(s, b, partner);
+        taps.push([b, partner]);
+      }
+      bub.pairs = saved;
+      continue;
+    }
     tap(s, b, k);
     taps.push([b, k]);
   }
@@ -95,7 +114,8 @@ function futureSpecies(s: GameState, rng: Rng): number {
 export function reshuffle(s: GameState, rng: Rng): boolean {
   const blank = s.clone();
   for (const bub of blank.bubbles) {
-    bub.pairs = [];
+    // 结伴鱼不拆：两条都还在的那一对留着，位置不动，只是换了种类（docs/01 5.2）
+    bub.pairs = bub.pairs.filter((p) => bub.fish[p[0]] !== REMOVED && bub.fish[p[1]] !== REMOVED);
     for (let k = 0; k < bub.fish.length; k++) {
       if (bub.fish[k] !== REMOVED) bub.fish[k] = UNASSIGNED;
     }
@@ -105,7 +125,7 @@ export function reshuffle(s: GameState, rng: Rng): boolean {
     if (res.ok) {
       for (let b = 0; b < s.bubbles.length; b++) {
         const bub = s.bubbles[b];
-        bub.pairs = [];
+        bub.pairs = blank.bubbles[b].pairs;
         for (let k = 0; k < bub.fish.length; k++) {
           if (bub.fish[k] !== REMOVED) bub.fish[k] = res.assign.get(key(b, k)) as number;
         }

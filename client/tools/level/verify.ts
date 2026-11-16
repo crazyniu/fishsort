@@ -1,5 +1,7 @@
-// 校验关卡并输出难度报告（docs/02 第 5 节）。对应 Godot 版 tools/level/verify.gd。
+// 校验关卡并输出难度报告（docs/02 第 5 节）。
 // 用法：./run.sh level-verify [--runs=N] [文件...]   不给文件 = 全部，报告写到 tools/level/report.csv
+// 默认用验收那一组机器人种子跑 400 局（level_curve.json 的 gen.verifyRuns / verifySeedBase），和生成器复测用的是同一组，
+// 所以报告里的胜率就是生成时判的胜率。
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -11,7 +13,9 @@ import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
 
-let runs = 40;
+const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
+const gen = curve.gen;
+let runs = gen.verifyRuns;
 const files: string[] = [];
 for (const a of process.argv.slice(2)) {
   if (a.startsWith('--runs=')) runs = Number(a.slice(7));
@@ -20,11 +24,24 @@ for (const a of process.argv.slice(2)) {
 const all = files.length === 0;
 if (all) for (const n of readdirSync(DIR).sort()) if (n.endsWith('.json')) files.push(join(DIR, n));
 
-const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
-const gen = curve.gen;
-const rows = ['level,species,fish,bubbles,challenge,peak,greedy2,greedy3,random2,flag'];
+const rate = (lv: LevelData, kind: Bots.BotKind, slots: number) => Bots.rate(lv, kind, slots, runs, gen.verifySeedBase, curve.bot);
+
+/** 这一关实际带了哪几种障碍 */
+function obstacles(lv: LevelData): string[] {
+  const out: string[] = [];
+  if (lv.bubbles.some((b) => b.chain > 0)) out.push('chain');
+  if (lv.orders.some((o) => o.timer > 0)) out.push('timer');
+  if (lv.bubbles.some((b) => b.fog > 0)) out.push('fog');
+  if (lv.bubbles.some((b) => b.ice.length > 0)) out.push('ice');
+  if (lv.orders.some((o) => o.cap > 3)) out.push('big');
+  if (lv.bubbles.some((b) => b.pairs.length > 0)) out.push('pairs');
+  return out;
+}
+
+const rows = ['level,species,fish,bubbles,challenge,peak,greedy2,greedy3,random2,obstacles,flag'];
 let bad = 0;
 let off = 0;
+let off3 = 0;
 // 单调检查：上一个普通关 / 挑战关的 2 缸胜率；变体检查：本体的 2 缸胜率
 const last = new Map<boolean, number>([
   [false, -1],
@@ -40,15 +57,29 @@ for (const path of files) {
     continue;
   }
   const errs = LevelCheck.errors(lv);
+  const isVariant = name.includes('_e');
+  const obs = obstacles(lv);
+  // 新机制首发（docs/02 第 2.2、5 节）：解锁关是挑战关的下一关、只带这一个障碍；没解锁的障碍不能提前出现
+  if (!isVariant) {
+    const fresh = LevelCurve.unlockedAt(curve, lv.id);
+    if (fresh !== '' && fresh !== 'layer') {
+      if (LevelCurve.isChallenge(curve, lv.id) || !LevelCurve.isChallenge(curve, lv.id - 1)) errs.push(`新机制 ${fresh} 的解锁关不是挑战关的下一关`);
+      const allowed = fresh === 'drop' ? [] : [fresh];
+      const extra = obs.filter((m) => allowed.indexOf(m) < 0);
+      if (extra.length > 0) errs.push(`解锁关除了新机制 ${fresh} 还带了 ${extra.join('+')}`);
+      if (fresh === 'drop' && lv.fieldCap <= 0) errs.push('掉落的解锁关不是掉落关');
+      if (fresh !== 'drop' && obs.indexOf(fresh) < 0) errs.push(`解锁关没带新机制 ${fresh}`);
+    }
+  }
+  for (const m of LevelCurve.MECHANICS) if (obs.indexOf(m) >= 0 && lv.id < curve.unlock[m]) errs.push(`障碍 ${m} 第 ${curve.unlock[m]} 关才解锁`);
   if (errs.length > 0) {
     bad++;
     for (const e of errs) console.error(`✗ ${name}: ${e}`);
     continue;
   }
-  const isVariant = name.includes('_e');
-  const g2 = Bots.rate(lv, 'greedy', 2, runs);
-  const g3 = isVariant ? -1 : Bots.rate(lv, 'greedy', 3, runs);
-  const r2 = isVariant ? -1 : Bots.rate(lv, 'random', 2, runs);
+  const g2 = rate(lv, 'greedy', 2);
+  const g3 = isVariant ? -1 : rate(lv, 'greedy', 3);
+  const r2 = isVariant ? -1 : rate(lv, 'random', 2);
   const fish = lv.bubbles.reduce((n, b) => n + b.fish.length, 0);
   // 以下偏离只提示、计入统计，不算校验失败（docs/02 第 5 节）
   const flags: string[] = [];
@@ -60,15 +91,21 @@ for (const path of files) {
     if (LevelCurve.miss(span, g2) > 0) flags.push(g2 < span[0] ? '偏难' : '偏易');
     const prev = last.get(lv.challenge) as number;
     if (prev >= 0 && g2 > prev + gen.monotoneMargin) flags.push('比上一关易');
-    if (g3 < g2 - gen.bot3Margin) flags.push('开第3缸更难');
     last.set(lv.challenge, g2);
   }
   if (!isVariant) baseRate.set(lv.id, g2);
   if (flags.length > 0) off++;
+  // 第 3 缸要明显有用但不保证过关：目前只警告，单独计数
+  if (!isVariant && lv.id > curve.targets.tutorialUntil) {
+    const s3 = LevelCurve.bowl3Span(curve, lv.id, g2);
+    if (g3 < s3[0]) flags.push('第3缸帮助小');
+    else if (g3 > s3[1]) flags.push('第3缸等于过关');
+    if (LevelCurve.miss(s3, g3) > 0) off3++;
+  }
   const peak = LevelCheck.replay(lv).peak;
-  rows.push([name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', peak, g2, g3, r2, flags.join('|')].join(','));
+  rows.push([name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', peak, g2, g3, r2, obs.join('+'), flags.join('|')].join(','));
 }
 if (all) writeFileSync(join(CLIENT, 'tools/level/report.csv'), rows.join('\n') + '\n');
 else console.log(rows.join('\n'));
-console.log(`校验 ${files.length} 个关卡：不合格 ${bad}，难度偏离目标 ${off}`);
+console.log(`校验 ${files.length} 个关卡（每关 ${runs} 局）：不合格 ${bad}，2 缸胜率偏离目标或不单调 ${off}，第 3 缸不在区间 ${off3}`);
 process.exit(bad > 0 ? 1 : 0);

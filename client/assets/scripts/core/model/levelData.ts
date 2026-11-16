@@ -18,7 +18,8 @@ export interface BubbleData {
   fish: number[];
   under: number[];
   chain: number;
-  fog: boolean;
+  /** 迷雾计数：落到场上后再破几个别的气泡才显形，0 = 没有迷雾（旧文件里的 true 读成 1） */
+  fog: number;
   ice: number[];
   pairs: number[][];
 }
@@ -88,7 +89,7 @@ export class LevelData {
         fish: ints(b.fish),
         under: ints(b.under),
         chain: int(b.chain),
-        fog: Boolean(b.fog ?? false),
+        fog: int(b.fog),
         ice: ints(b.ice),
         pairs: list<unknown>(b.pairs).map(ints),
       });

@@ -1,6 +1,7 @@
 // 局内流程：开局提示、第一步、技能、开缸位、暂停 / 离开、复活 / 失败、过关结算（docs/01 第 2–5 节）。
 // 界面只调这里，这里调 core；存档在关键节点立即写（docs/04 第 6 节）。
 import { Node, UITransform, Vec3, tween } from 'cc';
+import * as LevelCurve from '../core/gen/levelCurve';
 import * as Album from '../core/meta/album';
 import * as Cards from '../core/meta/cards';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
@@ -58,7 +59,8 @@ export function onLevelStart(g: GamePage): void {
   if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
-  const mech = App.config.eco.mechanicIntro[String(lvl)];
+  // 机制说明跟着难度曲线的解锁关走（level_curve.json），不另写死关号
+  const mech = App.config.eco.mechanicIntro[LevelCurve.unlockedAt(App.config.curve, lvl)];
   if (mech) tips.push(mech);
   const extra = App.config.ui.tips[String(lvl)];
   if (extra) tips.push(extra);
