@@ -132,11 +132,13 @@ web_serve() {
   url="$(web_url "${1:-}")"
   need_file "$dir/index.html" "先跑 ./run.sh web-build"
   echo "→ ${url}（Ctrl+C 停止）"
-  # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏
+  # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏。
+  # 后三个参数：窗口被别的窗口挡住时也照常跑（不然远程截图、连拍时画面是停的）
   local chrome=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome
   if [ -x "$chrome" ]; then
     (sleep 1; "$chrome" --user-data-dir="${TMPDIR:-/tmp}/fishsort-chrome" --no-first-run --remote-debugging-port=9333 \
-      --no-default-browser-check --app="$url" --window-size=450,832 >/dev/null 2>&1) &
+      --no-default-browser-check --app="$url" --window-size=450,832 \
+      --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling >/dev/null 2>&1) &
   elif command -v open >/dev/null; then
     (sleep 1; open "$url") &
   fi
