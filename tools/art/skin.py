@@ -208,6 +208,8 @@ def main() -> None:
     # 按钮：一张绿色母版转出整套语义色（docs/03 第 2 节：绿主行动、蓝次行动、琥珀广告与奖励、红危险、灰不可用）
     (btn,) = cut(raw / 'btn.png')
     g, border = three(btn, 300, 0.62)
+    # 2026-11-16 换成薄一版的母版（用户：原来的看着太厚重）：细描边、下沿只有一道薄厚度、没有硬高光。母版偏淡，提一点饱和度
+    g = recolor(g, 105, 105, 0.0, 1.22, 0.96)
     save('j_btn_green', g, border)
     save('j_btn_blue', recolor(g, 105, 216, 0.6, 1.0, 1.0), border)
     save('j_btn_amber', recolor(g, 105, 40, -0.55, 1.0, 1.06, 0.85), border)

@@ -6,7 +6,8 @@ client/assets/scripts 里出现的汉字，再加 ASCII 可打印字符、常用
 （3755 个，保证玩家昵称常见字能显示）。
 
 用法: ./run.sh font-subset [--src 原字体.ttf] [--out 输出.ttf]
-不带 --src 时，从 git 提交 22617f8 取未裁剪的完整原字体作为输入，所以可以重复执行、随时加字。
+字重用 Bold（用户 2026-11-16：原来的 Heavy 看着太粗太重）。不带 --src 时用 art/raw/fonts/ResourceHanRoundedCN-Bold.ttf
+（不进仓库；没有就从 https://github.com/CyanoHao/Resource-Han-Rounded/releases 的 RHR-CN-0.990.7z 里解出来放过去，OFL 许可）。
 需要 fonttools 与 brotli：pip install fonttools brotli（Linux 上建议装进虚拟环境）。
 """
 import argparse
@@ -18,10 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CLIENT = ROOT / "client"
 FONT = CLIENT / "assets/resources/fonts/round.ttf"
-# 完整原字体在仓库历史里的路径（Godot 版时期提交的）
-FULL_FONT_PATH = "assets/fonts/ResourceHanRoundedCN-Heavy.ttf"
+# 未裁剪的完整原字体（13 MB，不进仓库）
+FULL_FONT = ROOT / "art/raw/fonts/ResourceHanRoundedCN-Bold.ttf"
+FULL_FONT_URL = "https://github.com/CyanoHao/Resource-Han-Rounded/releases/tag/v0.990"
 CJK = re.compile(r"[　-〿一-鿿＀-￯ -⁯]")
-FULL_FONT_COMMIT = "22617f8"
 PUNCT = "，。！？、；：“”‘’（）《》〈〉【】「」『』—…·～￥％＋－＝×÷℃°•★☆♥♡→←↑↓✓✕−∞"
 
 
@@ -52,13 +53,10 @@ def main() -> int:
     ap.add_argument("--out", default=str(FONT))
     args = ap.parse_args()
     if not args.src:
-        src = ROOT / ".font_full_src.ttf"
-        blob = subprocess.run(
-            ["git", "show", f"{FULL_FONT_COMMIT}:{FULL_FONT_PATH}"],
-            cwd=ROOT, check=True, capture_output=True,
-        ).stdout
-        src.write_bytes(blob)
-        args.src = str(src)
+        if not FULL_FONT.exists():
+            print(f"缺原字体 {FULL_FONT}：从 {FULL_FONT_URL} 下载 RHR-CN 包，解出 {FULL_FONT.name} 放到这个位置", file=sys.stderr)
+            return 1
+        args.src = str(FULL_FONT)
     text = used_chars()
     gb = gb2312_level1()
     ascii_chars = "".join(chr(c) for c in range(0x20, 0x7F))
@@ -77,7 +75,6 @@ def main() -> int:
         )
     finally:
         tmp.unlink(missing_ok=True)
-        (ROOT / ".font_full_src.ttf").unlink(missing_ok=True)
     print(f"游戏用字 {len(text)}，GB2312 一级 {len(gb)}，输出 {Path(args.out).stat().st_size} 字节")
     return 0
 

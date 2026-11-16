@@ -14,7 +14,7 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, fit, hex, iconButton, img, lazyImg, pageTitle, slice, text } from '../ui/kit';
+import { at, box, fit, hex, iconButton, img, lazyImg, pageTitle, slice, text, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Page, ui } from '../ui/shell';
 
@@ -72,8 +72,11 @@ export class LevelsPage extends Page {
     // 标题区垫一条和海面同色的底，往下淡出：路线上的关卡滚到这里就被盖住，不和标题、重玩条叠在一起
     const yTop = Screen.H / 2 - (top - 110);
     const yBot = -170;
-    const band = img(head, 'kit/fade_white', Screen.W, yTop - yBot, 'band');
-    at(band, 0, (yTop + yBot) / 2);
+    // 重玩条以上是实底，重玩条下面才开始淡出（原来从顶上就开始淡，关卡节点会从重玩条后面透出来）
+    const ySolid = -78;
+    at(tint(head, Screen.W, yTop - ySolid, hex('#3A9CEB'), 'bandTop'), 0, (yTop + ySolid) / 2);
+    const band = img(head, 'kit/fade_white', Screen.W, ySolid - yBot, 'band');
+    at(band, 0, (ySolid + yBot) / 2);
     (band.getComponent(Sprite) as Sprite).color = hex('#3A9CEB');
     const back = iconButton(head, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
     at(back, -Screen.W / 2 + 70, 40);
