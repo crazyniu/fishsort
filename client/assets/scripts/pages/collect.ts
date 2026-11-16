@@ -14,7 +14,7 @@ import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
-import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup } from '../ui/popups';
+import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
 import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
@@ -283,7 +283,7 @@ export class CollectPage extends Page {
     at(plate, 0, -58);
     if (owned > 0) {
       (plate.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
-      text(plate, sp.name, 30, { color: owned > 0 ? COLOR.white : COLOR.gray });
+      text(plate, speciesName(sp.id), 30, { color: owned > 0 ? COLOR.white : COLOR.gray });
       fx.wiggle(fish, 4, 2 + Math.random());
       const ring = RARITY_GLOW[sp.rarity];
       if (ring && sp.rarity !== 'common') {

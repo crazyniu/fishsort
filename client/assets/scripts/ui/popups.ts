@@ -48,6 +48,11 @@ export interface PrizeItem {
   rarity?: string;
 }
 
+/** 生物名走多语言（species.json 里的 name 只是中文备注） */
+export function speciesName(id: string): string {
+  return tr(`SPECIES_${id.toUpperCase()}`);
+}
+
 export function skillName(id: string): string {
   return tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`);
 }
@@ -414,7 +419,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   const art = img(front, `fish/${c.id}`, 250, 250, 'art');
   at(art, 0, 50);
   const sp = App.config.speciesById.get(c.id);
-  const name = text(front, sp ? sp.name : c.id, 44, { color: COLOR.white });
+  const name = text(front, sp ? speciesName(sp.id) : c.id, 44, { color: COLOR.white });
   at(name.node, 0, -150);
   const rar = text(front, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 30, { color: RARITY_GLOW[c.rarity] });
   at(rar.node, 0, -200);
