@@ -73,6 +73,9 @@ const BOWL_H = 139;
 const SHELF_H = 46;
 const BOWL_SINK = 5;
 
+/** 背景冒泡循环的 tween 标签（换关时只停这个，不碰别的） */
+const AMBIENT_TAG = 9201;
+
 export class GamePage extends Page {
   readonly tab = null;
   // 一局的状态
@@ -221,6 +224,9 @@ export class GamePage extends Page {
     const sea = eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore';
     const bgH = Math.max(Screen.H, Screen.W * 1.5);
     lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
+    // 换关重建版式时先停掉上一关的冒泡循环，不然一关一关叠上去
+    Tween.stopAllByTag(AMBIENT_TAG, this.under);
+    this.ambientBubbles();
 
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
@@ -733,6 +739,7 @@ export class GamePage extends Page {
       const tag = text(node, '×6', 26, { color: COLOR.yellow });
       at(tag.node, -s / 2 + 22, s / 2 - 22);
     }
+    this.bowlBubbles(node, s, h);
     const view: BowlView = { node, fish, count, badge, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
     onTap(node, () => this.tapBowl(slot), { press: 0 });
@@ -942,6 +949,60 @@ export class GamePage extends Page {
   }
 
   /** 冒一个光点：从屏幕底下往上飘。大多垫在玩法后面；少数在最前面，只走屏幕两侧，不挡中间的鱼 */
+  /**
+   * 常驻的小气泡（用户 2026-11-16）：背景里从下往上冒（在气泡场后面），每个鱼缸里从缸底往水面冒。
+   * 用的是同一张小气泡图，大小、速度、左右摆动都随机；节点自己销毁，页面没了就停
+   */
+  private ambientBubbles(): void {
+    const loop = () => {
+      if (!this.under.isValid) return;
+      const size = 8 + Math.random() * 16;
+      // 外层往上走，里层左右摆：两个动画各管一个节点，不互相覆盖
+      const holder = box('ambient', this.under, size, size);
+      const n = img(holder, 'kit/bubble_small', size, size, 'bubble');
+      const x = (Math.random() - 0.5) * (Screen.W - 40);
+      const y0 = Screen.bottom + 40 + Math.random() * 200;
+      const y1 = Screen.top - 120 - Math.random() * 220;
+      const dur = (y1 - y0) / (70 + Math.random() * 60);
+      at(holder, x, y0);
+      const op = opacity(holder);
+      op.opacity = 0;
+      tween(op).to(0.4, { opacity: 120 + Math.random() * 80 }).delay(Math.max(0, dur - 1.4)).to(1, { opacity: 0 }).start();
+      tween(holder).to(dur, { position: new Vec3(x, y1, 0) }).call(() => holder.destroy()).start();
+      const sway = 10 + Math.random() * 16;
+      const half = 0.9 + Math.random() * 0.8;
+      tween(n)
+        .repeatForever(tween(n).by(half, { position: new Vec3(sway, 0, 0) }, { easing: 'sineInOut' }).by(half, { position: new Vec3(-sway, 0, 0) }, { easing: 'sineInOut' }))
+        .start();
+      tween(this.under).tag(AMBIENT_TAG).delay(0.22 + Math.random() * 0.4).call(loop).start();
+    };
+    loop();
+  }
+
+  /** 鱼缸里的小气泡：从缸底附近冒出来，升到水面附近淡掉 */
+  private bowlBubbles(node: Node, s: number, h: number): void {
+    const loop = () => {
+      if (!node.isValid) return;
+      const size = 6 + Math.random() * 8;
+      const b = img(node, 'kit/bubble_small', size, size, 'fizz');
+      b.setSiblingIndex(0);
+      const x = (Math.random() - 0.5) * s * 0.5;
+      const y0 = -h * 0.32;
+      const y1 = h * 0.12 + Math.random() * h * 0.06;
+      const dur = 0.9 + Math.random() * 0.7;
+      at(b, x, y0);
+      const op = opacity(b);
+      op.opacity = 0;
+      tween(op).to(0.15, { opacity: 200 }).delay(dur - 0.4).to(0.25, { opacity: 0 }).start();
+      tween(b)
+        .to(dur, { position: new Vec3(x + (Math.random() - 0.5) * 14, y1, 0) }, { easing: 'sineOut' })
+        .call(() => b.destroy())
+        .start();
+      tween(node).delay(0.35 + Math.random() * 0.6).call(loop).start();
+    };
+    tween(node).delay(Math.random() * 0.5).call(loop).start();
+  }
+
   private spawnRise(): void {
     const tier = Math.max(0, this.comboTier);
     const front = Math.random() < 0.3;
