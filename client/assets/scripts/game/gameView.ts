@@ -35,10 +35,10 @@ interface BowlView {
   node: Node;
   /** 缸里已经进来的鱼（空缸是空的） */
   inside: Node;
-  /** 缸前面叠着的订单卡：还差几条就有几张，进一条揭掉最前面那张 */
-  cards: Node[];
-  /** 订单卡之间的横向间距 */
-  cardStep: number;
+  /** 木架正面挂的目标牌：要的那种鱼 +「进了几条 / 要几条」 */
+  tag: Node;
+  tagLabel: Label;
+  got: number;
   sp: number;
   timer: Node | null;
   timerLabel: Label | null;
@@ -86,10 +86,9 @@ const SKILL_S = 128;
 /** 技能数量角标的最小宽、高 */
 const BADGE_W = 48;
 const BADGE_H = 40;
-/** 订单卡的高宽比（skin/j_order 是 200×257） */
-const ORDER_RATIO = 257 / 200;
-/** 订单卡的中心比缸底高出卡高的几分之几（卡的下半截垂到木架前面） */
-const CARD_LIFT = 0.2;
+/** 鱼缸的目标牌（挂在木架正面）多大 */
+const TAG_W = 124;
+const TAG_H = 62;
 
 export class GamePage extends Page {
   // 一局的状态
@@ -261,7 +260,7 @@ export class GamePage extends Page {
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
     // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
     // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
-    this.comboY = top - 330;
+    this.comboY = top - 342;
     this.comboRow = box('combo', this.fly, 420, 120);
     at(this.comboRow, this.comboX, this.comboY);
     this.comboBadge = box('badge', this.comboRow, 420, 120);
@@ -312,7 +311,7 @@ export class GamePage extends Page {
     }
 
     // 暂存槽
-    this.bufferY = top - 330;
+    this.bufferY = top - 342;
     const cap = this.s.bufferCap;
     const sw = Math.min(124, (Screen.W - 60) / cap - 10);
     for (let i = 0; i < cap; i++) {
@@ -725,7 +724,7 @@ export class GamePage extends Page {
     if (!view) return;
     view.incoming--;
     view.shown++;
-    this.peelCard(view);
+    this.bumpTag(view);
     this.settleInside(view);
     // 满缸正在飘走的不再压（它的缩放归飘走动画管）
     if (!view.leaving) fx.squash(view.node, 0.88);
@@ -746,22 +745,15 @@ export class GamePage extends Page {
     const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
     at(node, this.bowlX[slot], restY);
     // 空缸里什么都不放（用户 2026-11-16：缸里画着目标鱼，会让人以为已经有一条了）。
-    // 要什么、还差几条，看缸前面叠着的订单卡：一张卡一条鱼，进一条揭掉一张
+    // 要什么、进了几条，看木架正面挂的那块目标牌：白色小牌，左边是要的那种鱼，右边「0/3」；进一条数字加一、牌弹一下。
+    // （先后试过摊成扇形的订单卡、一叠卡、横着叠的卡，用户都说看不清，2026-11-16 定成一块牌）
     const inside = box('inside', node, s, h);
-    const cards: Node[] = [];
-    // 用户 2026-11-16：卡大一号、每张都要看得到——后一张压住前一张的右半边，最右边那张完整露着，不再摆成歪的扇形
-    const cw = big ? 68 : 80;
-    const ch = cw * ORDER_RATIO;
-    const step = cap > 1 ? Math.min(cw * 0.46, (s - cw) / (cap - 1)) : 0;
-    for (let i = 0; i < cap; i++) {
-      const k = i - (cap - 1) / 2;
-      const card = img(node, 'skin/f_order', cw, ch, `card${i}`);
-      at(card, k * step, -h / 2 + ch * CARD_LIFT);
-      // 鱼画在纸面中间偏上一点，不压住卡边的手绘描线和左下角的小浪花
-      const fish = img(card, this.field.spriteFor(sp), cw * 0.8, cw * 0.8, 'fish');
-      at(fish, 0, ch * 0.04);
-      cards.push(card);
-    }
+    const tag = slice(node, 'skin/f_tag', TAG_W, TAG_H, 'tag');
+    at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H / 2 - 6);
+    const tagFish = img(tag, this.field.spriteFor(sp), 52, 52, 'fish');
+    at(tagFish, -TAG_W / 2 + 34, 4);
+    const tagLabel = text(tag, `0/${cap}`, 30);
+    at(tagLabel.node, 26, 5);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {
@@ -770,7 +762,7 @@ export class GamePage extends Page {
       timerLabel = text(timerNode, String(Math.ceil(timer)), 28);
     }
     this.bowlBubbles(node, s, h);
-    const view: BowlView = { node, inside, cards, cardStep: step, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
+    const view: BowlView = { node, inside, tag, tagLabel, got: 0, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
     onTap(node, () => this.tapBowl(slot), { press: 0 });
     // 新缸从上方落下
@@ -786,29 +778,11 @@ export class GamePage extends Page {
     if (plus) plus.active = false;
   }
 
-  /** 揭掉最前面那张订单卡：往上一弹、转着淡掉，剩下的卡往中间收一点 */
-  private peelCard(view: BowlView): void {
-    const card = view.cards.pop();
-    if (!card) return;
-    Tween.stopAllByTarget(card);
-    const p = card.position;
-    tween(card)
-      .to(0.12, { position: new Vec3(p.x, p.y + 26, 0), scale: new Vec3(1.18, 1.18, 1) }, { easing: 'quadOut' })
-      .to(0.2, { position: new Vec3(p.x + (p.x >= 0 ? 30 : -30), p.y + 40, 0), scale: new Vec3(0.4, 0.4, 1), angle: card.angle + (p.x >= 0 ? -40 : 40) }, { easing: 'quadIn' })
-      .call(() => card.destroy())
-      .start();
-    tween(opacity(card)).delay(0.12).to(0.2, { opacity: 0 }).start();
-    const n = view.cards.length;
-    if (n === 0) return;
-    const ch = (view.cards[0].getComponent(UITransform) as UITransform).height;
-    const step = view.cardStep;
-    view.cards.forEach((c, i) => {
-      const k = i - (n - 1) / 2;
-      Tween.stopAllByTarget(c);
-      tween(c)
-        .to(0.18, { position: new Vec3(k * step, -view.h / 2 + ch * CARD_LIFT, 0) }, { easing: 'quadOut' })
-        .start();
-    });
+  /** 进了一条：目标牌上的数字加一，牌弹一下 */
+  private bumpTag(view: BowlView): void {
+    view.got = Math.min(view.cap, view.got + 1);
+    view.tagLabel.string = `${view.got}/${view.cap}`;
+    fx.punch(view.tag, 1.18, 0.22);
   }
 
   /** 缸里进来的鱼：按进来的先后摆在水里（3 条摆成三角、6 条摆两排），各自轻轻游 */
