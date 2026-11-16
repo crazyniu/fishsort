@@ -35,7 +35,7 @@ interface BowlView {
   node: Node;
   /** 缸里已经进来的鱼（空缸是空的） */
   inside: Node;
-  /** 木架正面挂的目标牌：要的那种鱼 +「进了几条 / 要几条」 */
+  /** 木架下面钉着的目标卡：要的那种鱼 +「进了几条 / 要几条」 */
   tag: Node;
   tagLabel: Label;
   got: number;
@@ -86,9 +86,10 @@ const SKILL_S = 128;
 /** 技能数量角标的最小宽、高 */
 const BADGE_W = 48;
 const BADGE_H = 40;
-/** 鱼缸的目标牌（挂在木架正面）多大 */
-const TAG_W = 124;
-const TAG_H = 62;
+/** 鱼缸的目标卡（钉在木架下面）多大；顶上的图钉往上压进木架多少 */
+const GOAL_W = 150;
+const GOAL_H = 131;
+const GOAL_PIN = 16;
 
 export class GamePage extends Page {
   // 一局的状态
@@ -260,7 +261,7 @@ export class GamePage extends Page {
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
     // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
     // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
-    this.comboY = top - 342;
+    this.comboY = top - 172 - BOWL_H / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H - 10 - 46;
     this.comboRow = box('combo', this.fly, 420, 120);
     at(this.comboRow, this.comboX, this.comboY);
     this.comboBadge = box('badge', this.comboRow, 420, 120);
@@ -311,7 +312,8 @@ export class GamePage extends Page {
     }
 
     // 暂存槽
-    this.bufferY = top - 342;
+    // 暂存槽在目标卡下面
+    this.bufferY = this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H - 10 - 46;
     const cap = this.s.bufferCap;
     const sw = Math.min(124, (Screen.W - 60) / cap - 10);
     for (let i = 0; i < cap; i++) {
@@ -745,15 +747,16 @@ export class GamePage extends Page {
     const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
     at(node, this.bowlX[slot], restY);
     // 空缸里什么都不放（用户 2026-11-16：缸里画着目标鱼，会让人以为已经有一条了）。
-    // 要什么、进了几条，看木架正面挂的那块目标牌：白色小牌，左边是要的那种鱼，右边「0/3」；进一条数字加一、牌弹一下。
-    // （先后试过摊成扇形的订单卡、一叠卡、横着叠的卡，用户都说看不清，2026-11-16 定成一块牌）
+    // 要什么、进了几条，看木架下面钉着的目标卡（用户 2026-11-16 定的样子）：一叠白边相片，上面是要的那种鱼（画得大，看得清），
+    // 右下角「0/3」；进一条数字加一、卡弹一下。卡的底图是 Codex 画的（art/briefs/redesign/goal_card.txt）
     const inside = box('inside', node, s, h);
-    const tag = slice(node, 'skin/f_tag', TAG_W, TAG_H, 'tag');
-    at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H / 2 - 6);
-    const tagFish = img(tag, this.field.spriteFor(sp), 52, 52, 'fish');
-    at(tagFish, -TAG_W / 2 + 34, 4);
-    const tagLabel = text(tag, `0/${cap}`, 30);
-    at(tagLabel.node, 26, 5);
+    const tag = img(node, 'skin/j_goal', GOAL_W, GOAL_H, 'tag');
+    // 卡顶上的图钉压在木架正面
+    at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
+    const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.7, GOAL_H * 0.7, 'fish');
+    at(tagFish, -GOAL_W * 0.12, -GOAL_H * 0.04);
+    const tagLabel = text(tag, `0/${cap}`, 34, { outline: COLOR.navy, outlineWidth: 4 });
+    at(tagLabel.node, GOAL_W * 0.2, -GOAL_H * 0.22);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {

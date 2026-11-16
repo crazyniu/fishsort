@@ -84,7 +84,6 @@ const PART_INK: Record<string, Ink> = {
   'skin/f_card_s': ON_LIGHT,
   'skin/f_popup': ON_LIGHT,
   'skin/f_inset': ON_LIGHT,
-  'skin/f_tag': ON_LIGHT,
   'skin/f_block': ON_FLAT_BLUE,
   'skin/f_block_s': ON_FLAT_BLUE,
   'skin/f_block_gold': ON_GOLD,

@@ -15,7 +15,6 @@
   f_bar_*      进度条：两种槽（深色底用 track、白色容器里用 track_light）和四色填充（三宫格）
   f_slot(_warn) 局内暂存格：半透明白格子，快满时换成红的（九宫格）
   f_shelf      局内放鱼缸的木架（三宫格）
-  f_tag        局内鱼缸的目标牌（九宫格）
   f_toggle_on/off 开关
   f_node_*     选关路线上的关卡圆牌
   f_ribbon     结算页的横幅（三宫格）
@@ -360,8 +359,6 @@ def main() -> None:
     save('f_slot', flat_px(216, 216, (255, 255, 255, 76), 60), nine=100)
     save('f_slot_warn', flat_px(216, 216, (255, 90, 78, 150), 60), nine=100)
     save('f_shelf', raised(w3, H, *SHELF, 0.34, 0.22), True)
-    # 鱼缸的目标牌（挂在木架正面）：白色小牌，下面压一道浅蓝灰的边
-    save('f_tag', raised_px(180, 180, '#FFFFFF', '#BFD0E6', 54, 21), nine=76, bottom=92)
     save('f_toggle_on', toggle(True))
     save('f_toggle_off', toggle(False))
     for name, (face, edge) in NODES.items():
