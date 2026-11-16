@@ -38,7 +38,9 @@ export class PlatformDebug extends PlatformBase {
   }
 
   override showBanner(placement: string): void {
-    if (this.adsOn) this.view?.banner(placement);
+    if (!this.adsOn) return;
+    this.shown[placement] = (this.shown[placement] ?? 0) + 1;
+    this.view?.banner(placement);
   }
 
   override hideBanner(): void {

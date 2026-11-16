@@ -16,6 +16,9 @@ import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
 import * as Flow from './flow';
 
+/** 底部 Banner 广告的高度（设计单位） */
+const BANNER_H = 120;
+
 export class ResultPage extends Page {
   readonly tab = null;
   private d!: Flow.WinData;
@@ -33,7 +36,12 @@ export class ResultPage extends Page {
     return false;
   }
 
+  override hide(): void {
+    App.platform.hideBanner();
+  }
+
   override show(arg?: unknown): void {
+    App.platform.showBanner('bn_result');
     this.d = arg as Flow.WinData;
     this.content.destroyAllChildren();
     const d = this.d;
@@ -42,36 +50,43 @@ export class ResultPage extends Page {
     const cfg = App.config.ui.win;
     const at0 = (k: string) => Number(cfg[k] ?? 0);
     const top = Screen.top;
+    // 从下往上排：底部给 Banner 留位（docs/01 7.1），返回主页 → 下一关 → 翻倍 / 分享 → 奖励条 → 宝箱；横幅和星星贴顶
+    const homeY = Screen.bottom + BANNER_H + 64;
+    const nextY = homeY + 140;
+    const btnY = nextY + 150;
+    const rowY = btnY + 160;
+    const ribbonY = top - 270;
+    const chestY = (ribbonY - 100 + rowY + 85) / 2;
+    const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
 
     // 横幅与星星
     const ribbon = img(c, 'kit/ribbon_blue', 700, 219, 'ribbon');
-    at(ribbon, 0, top - 300);
+    at(ribbon, 0, ribbonY);
     const title = text(ribbon, tr('WIN_TITLE'), 88, { color: COLOR.yellow, outline: hex('#B4500A'), outlineWidth: 8 });
     at(title.node, 0, 14);
     const stars: Node[] = [];
     for (let i = 0; i < 3; i++) {
       const st = img(c, 'icon/star', i === 1 ? 150 : 120, i === 1 ? 150 : 120, 'star');
-      at(st, (i - 1) * 170, top - 150 + (i === 1 ? 30 : 0));
+      at(st, (i - 1) * 170, top - 130 + (i === 1 ? 30 : 0));
       (st.getComponent(Sprite) as Sprite).grayscale = true;
       stars.push(st);
     }
     // 两条开心的鱼 + 宝箱
     const left = img(c, 'fish/c01', 210, 210, 'fishL');
-    at(left, -240, top - 560);
+    at(left, -240, chestY);
     const right = img(c, 'fish/c02', 190, 190, 'fishR');
-    at(right, 240, top - 540);
+    at(right, 240, chestY + 20);
     right.setScale(-1, 1, 1);
     fx.bob(left, 10, 1.8);
     fx.bob(right, 10, 2.1, 0.4);
     const rays = fx.rays(c, 420);
-    at(rays, 0, top - 560);
+    at(rays, 0, chestY);
     opacity(rays).opacity = 0;
     const chestIcon = d.chest ? 'icon/chest' : 'icon/chest_open';
-    const chest = img(c, chestIcon, 260, 260, 'chest');
-    at(chest, 0, top - 560);
+    const chest = img(c, chestIcon, chestS, chestS, 'chest');
+    at(chest, 0, chestY);
 
     // 奖励一排：金币总数、技能、收藏卡、家园星星、首胜（docs/01 3.3：图标 + 数字，不写明细）
-    const rowY = top - 790;
     const pill = slice(c, 'kit/panel_glass', 660, 170, 'rewards');
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
@@ -111,7 +126,6 @@ export class ResultPage extends Page {
     if (!r.rewarded) coinLabel.string = tr('UI_REPLAY_NO_REWARD');
 
     // 按钮
-    const btnY = top - 980;
     const s = App.save.data;
     const eco = App.config.eco;
     let dbl: Btn | null = null;
@@ -156,9 +170,9 @@ export class ResultPage extends Page {
       at(share.node, dbl ? 180 : 0, btnY);
     }
     const next = button(c, { color: 'green', w: 540, h: 130, label: tr('UI_NEXT_LEVEL'), fontSize: 64, onTap: () => void Flow.afterResult(d, true) });
-    at(next.node, 0, btnY - 160);
+    at(next.node, 0, nextY);
     const home = button(c, { color: 'blue', w: 340, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
-    at(home.node, 0, btnY - 300);
+    at(home.node, 0, homeY);
     const buttons = [dbl?.node, share?.node, next.node, home.node].filter((n): n is Node => !!n);
     for (const b of buttons) b.active = false;
 
@@ -169,9 +183,9 @@ export class ResultPage extends Page {
         Tween.stopAllByTarget(n);
         n.setScale(n === right ? -1 : 1, 1, 1);
       }
-      at(ribbon, 0, top - 300);
+      at(ribbon, 0, ribbonY);
       stars.forEach((st) => ((st.getComponent(Sprite) as Sprite).grayscale = false));
-      if (d.chest) setImg(chest, 'icon/chest_open', 260, 260);
+      if (d.chest) setImg(chest, 'icon/chest_open', chestS, chestS);
       opacity(rays).opacity = 255;
       coinLabel.string = r.rewarded ? `+${r.coins}` : tr('UI_REPLAY_NO_REWARD');
       for (const e of extras) e.active = true;
@@ -183,8 +197,8 @@ export class ResultPage extends Page {
     this.skipTo = finalState;
     // 横幅砸下
     at(ribbon, 0, top + 200);
-    tween(ribbon).to(0.3, { position: new Vec3(0, top - 300, 0) }, { easing: 'backOut' }).start();
-    fx.confetti(c, 0, top - 300, 50, 400);
+    tween(ribbon).to(0.3, { position: new Vec3(0, ribbonY, 0) }, { easing: 'backOut' }).start();
+    fx.confetti(c, 0, ribbonY, 50, 400);
     sfx('win');
     // 星星依次点亮
     stars.forEach((st, i) => {
@@ -208,9 +222,9 @@ export class ResultPage extends Page {
       .to(0.08, { angle: 0 })
       .call(() => {
         if (!this.skipTo) return;
-        if (d.chest) setImg(chest, 'icon/chest_open', 260, 260);
+        if (d.chest) setImg(chest, 'icon/chest_open', chestS, chestS);
         tween(opacity(rays)).to(0.25, { opacity: 255 }).start();
-        fx.sparkle(c, 0, top - 560, 14, 200, COLOR.yellow, 40);
+        fx.sparkle(c, 0, chestY, 14, 200, COLOR.yellow, 40);
         sfx('chest');
         extras.forEach((e, i) => {
           e.active = true;

@@ -262,8 +262,13 @@ export function unlockSlot(g: GamePage): void {
 export function pause(g: GamePage): void {
   if (g.ended) return;
   g.paused = true;
+  // 暂停弹窗底部放 Banner（docs/01 7.1 bn_result：结算、暂停弹窗底部）
+  App.platform.showBanner('bn_result');
   settingsPopup('pause', {
-    onClose: () => (g.paused = false),
+    onClose: () => {
+      g.paused = false;
+      App.platform.hideBanner();
+    },
     onHome: () => leave(g, () => ui.go(g.arg.daily ? 'daily' : 'home')),
     onRetry: () => leave(g, () => restart(g)),
   });
