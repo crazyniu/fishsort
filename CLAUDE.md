@@ -52,7 +52,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 
 ```bash
 # Mac 上（需要 Cocos Creator）
-./run.sh                       # 构建 web-mobile、起本地服务，用独立 Chrome 窗口打开（试玩模式：金币、生命、技能加满）
+./run.sh                       # 先拉当前分支的最新代码，再构建 web-mobile、起本地服务，用独立 Chrome 窗口打开（试玩模式：金币、生命、技能加满）
 ./run.sh level 65              # 同上，直接进第 65 关
 ./run.sh auto                  # 机器人代打，过关自动下一关、输了重打，一直打到最后一关；auto 12 = 从第 12 关打起，auto 12 30 = 打到第 30 关
 ./run.sh page shop             # 启动后直接打开某一页
@@ -78,5 +78,5 @@ Cocos Creator 由 `run.sh` 自动查找（`COCOS_CREATOR` 环境变量 → `/App
 ## 测试环境分工（硬性）
 
 12. **Linux 开发机只写代码，不跑 Cocos / Blender**：构建、试玩、截图、界面验收、Blender 出图或导出，一律去用户的 Mac 上做（Node 的检查、单测、关卡校验可以在 Linux 上跑）。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Cocos Creator 3.8.8 在 `/Applications/Cocos/Creator/3.8.8/`），不需要用户手动操作。
-13. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
+13. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
 14. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
