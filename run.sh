@@ -135,6 +135,8 @@ ios_build() {
   node tools/native/apply.mjs
   ios_sdk
   cocos_build ios
+  # Cocos 构建时用它模板里的启动图盖掉我们的（tools/native/icons.py 生成的），换回来
+  git checkout -- "$CLIENT"/native/engine/ios/LaunchScreenBackground*.png 2>/dev/null || true
   proj="$(ios_project)"
   scheme="$(basename "$proj" .xcodeproj)-mobile"
   team="$(node -e 'console.log(require("./game.json").ios.team || "")')"

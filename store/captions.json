@@ -1,0 +1,11 @@
+{
+  "_comment": "上架图的标题（tools/store/compose.py），一张图一条；改了重跑合成。只写游戏里真有的东西",
+  "name": { "en": "Pop Pop Rescue", "zh_CN": "啵啵救援队" },
+  "shots": [
+    { "en": "Rescue the fish in bubbles!", "zh_CN": "把气泡里的小鱼救回家" },
+    { "en": "Three of a kind fill a tank", "zh_CN": "三条一样，装满一缸" },
+    { "en": "Plan your moves", "zh_CN": "想好顺序再出手", "en_sub": "Only the front fish can come out", "zh_CN_sub": "排队的鱼只有最前面那条能出来" },
+    { "en": "Explore 18 seas", "zh_CN": "探索 18 片海域", "en_sub": "360 levels to play", "zh_CN_sub": "360 关等你来闯" },
+    { "en": "Collect 705 sea creatures", "zh_CN": "收集 705 种海洋生物" }
+  ]
+}

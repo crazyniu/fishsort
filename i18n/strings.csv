@@ -18,6 +18,7 @@ UI_CLAIM,领取,Claim
 UI_CLAIM_DOUBLE,双倍,2x
 UI_CLAIMED,已领取,Claimed
 UI_AD_TEST,广告测试,Ad test
+UI_PRIVACY_OPTIONS,隐私选项,Privacy Options
 UI_TAB_SHOP,商店,Shop
 UI_TAB_COLLECTION,收藏,Album
 UI_OWNED,已有 %d,Owned %d

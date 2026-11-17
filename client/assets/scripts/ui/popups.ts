@@ -391,7 +391,8 @@ export function livesPopup(onChange?: () => void): void {
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const h = mode === 'pause' ? 528 : 512 + (App.platform.hasCapability('ad_test') ? 112 : 0);
+  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0);
+  const h = mode === 'pause' ? 528 : 512 + extra;
   const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
     ['kit/ic_music', 'H_MUSIC', 'music'],
@@ -454,6 +455,12 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
       place();
     });
     y -= 96 + 16;
+    // 广告的隐私选项（欧洲等地要能随时改同意，docs/10 第 5 节）
+    if (App.platform.hasCapability('privacy_options')) {
+      const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_PRIVACY_OPTIONS'), fontSize: 32, onTap: () => App.platform.openPrivacyOptions() });
+      at(b.node, 0, y - 8);
+      y -= 112;
+    }
     if (App.platform.hasCapability('ad_test')) {
       const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_AD_TEST'), fontSize: 32, onTap: () => (p.close(), ui.go('adtest')) });
       at(b.node, 0, y - 8);
