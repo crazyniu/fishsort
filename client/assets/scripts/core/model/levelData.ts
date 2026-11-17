@@ -22,6 +22,8 @@ export interface BubbleData {
   fog: number;
   ice: number[];
   pairs: number[][];
+  /** 排队泡：只有排头（还在的鱼里下标最大的那条）能点。没有这一项 = 不是 */
+  queue?: boolean;
 }
 
 /** [气泡, 鱼下标] */
@@ -92,6 +94,7 @@ export class LevelData {
         fog: int(b.fog),
         ice: ints(b.ice),
         pairs: list<unknown>(b.pairs).map(ints),
+        queue: int(b.queue) > 0 || b.queue === true,
       });
     }
     for (const t of list<unknown>(d.ref)) {
@@ -124,19 +127,24 @@ export class LevelData {
       fieldCap: this.fieldCap,
       palette: this.palette,
       orders: this.orders.map((o) => ({ s: o.s, cap: o.cap, timer: o.timer })),
-      bubbles: this.bubbles.map((b) => ({
-        id: b.id,
-        x: short(b.x),
-        y: short(b.y),
-        r: short(b.r),
-        layer: b.layer,
-        fish: b.fish,
-        under: b.under,
-        chain: b.chain,
-        fog: b.fog,
-        ice: b.ice,
-        pairs: b.pairs,
-      })),
+      bubbles: this.bubbles.map((b) => {
+        const o: Raw = {
+          id: b.id,
+          x: short(b.x),
+          y: short(b.y),
+          r: short(b.r),
+          layer: b.layer,
+          fish: b.fish,
+          under: b.under,
+          chain: b.chain,
+          fog: b.fog,
+          ice: b.ice,
+          pairs: b.pairs,
+        };
+        // 只有排队泡才写这一项：旧关卡文件的内容不变
+        if (b.queue === true) o.queue = 1;
+        return o;
+      }),
       ref: this.ref,
       variants: this.variants,
     };

@@ -130,7 +130,7 @@ export function tap(s: GameState, b: number, k: number): GameEvent[] {
   } else {
     if (b < 0 || b >= s.bubbles.length || !isOpen(s, b)) return ev;
     const bub = s.bubbles[b];
-    if (k < 0 || k >= bub.fish.length || bub.fish[k] < 0) return ev;
+    if (!bub.canTake(k)) return ev;
     const partner = bub.partnerOf(k);
     take(s, b, k, ev);
     // 结伴鱼：第二条紧跟着结算，和普通的鱼一样（有缸进缸，否则进暂存槽；暂存槽放不下才失败）
@@ -253,7 +253,7 @@ function currentTarget(s: GameState, served: Set<number>): [number, number] | nu
     const bub = s.bubbles[b];
     for (let k = 0; k < bub.fish.length; k++) {
       const sp = bub.fish[k];
-      if (sp < 0 || servedSlot(s, sp, served) < 0) continue;
+      if (!bub.canTake(k) || servedSlot(s, sp, served) < 0) continue;
       const partner = bub.partnerOf(k);
       if (partner >= 0 && bub.fish[partner] >= 0 && !pairFits(s, bub.fish[k], bub.fish[partner])) continue;
       return [b, k];
@@ -306,10 +306,10 @@ export function noTarget(s: GameState): boolean {
   for (const b of openBubbles(s)) {
     const bub = s.bubbles[b];
     if (bub.fog > 0) continue;
-    for (const sp of bub.fish) {
-      if (sp < 0) continue;
+    for (let k = 0; k < bub.fish.length; k++) {
+      if (!bub.canTake(k)) continue;
       any = true;
-      if (findSlot(s, sp) >= 0) return false;
+      if (findSlot(s, bub.fish[k]) >= 0) return false;
     }
   }
   return any;

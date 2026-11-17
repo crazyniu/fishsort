@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { construct } from '../assets/scripts/core/gen/constructor';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { Bowl, GameState, LoseReason, RETURN_BUBBLE, Status } from '../assets/scripts/core/model/gameState';
+import { LevelData } from '../assets/scripts/core/model/levelData';
 import { Rng } from '../assets/scripts/core/rng/rng';
 import * as AutoFinish from '../assets/scripts/core/rules/autoFinish';
 import * as Rules from '../assets/scripts/core/rules/rules';
@@ -424,5 +425,59 @@ describe('限时关（docs/01 第 4 节）', () => {
     const s = play(level([0], [{ fish: [0, 0, 0] }]));
     Rules.tick(s, 999);
     assert.equal(s.status, Status.PLAYING);
+  });
+});
+
+describe('排队泡', () => {
+  // 一个排队泡 [0, 1, 0]（排头是下标 2），一个普通泡 [1, 1]；订单要 1、1、1 再要 0、0（暂存槽 5 格）
+  const queueLevel = (): LevelData => {
+    const lv = new LevelData();
+    lv.palette = 2;
+    lv.orders = [
+      { s: 1, cap: 3, timer: 0 },
+      { s: 0, cap: 2, timer: 0 },
+    ];
+    const bubble = (id: number, fish: number[], queue: boolean) => ({ id, x: 0.3 + id * 0.3, y: 0.5, r: 0.1, layer: 1, fish, under: [], chain: 0, fog: 0, ice: [], pairs: [], queue });
+    lv.bubbles = [bubble(0, [0, 1, 0], true), bubble(1, [1, 1], false)];
+    return lv;
+  };
+
+  it('只有排头能点，取走以后轮到下一条', () => {
+    const s = GameState.fromLevel(queueLevel());
+    Rules.start(s);
+    assert.equal(s.bubbles[0].front(), 2);
+    assert.equal(Rules.tap(s, 0, 0).length, 0, '排在后面的点不动');
+    assert.equal(Rules.tap(s, 0, 1).length, 0);
+    assert.ok(Rules.tap(s, 0, 2).length > 0, '排头能点');
+    assert.equal(s.bubbles[0].front(), 1);
+    assert.ok(Rules.tap(s, 0, 1).length > 0);
+    assert.equal(s.bubbles[0].front(), 0);
+  });
+
+  it('洋流、收尾和机器人都只碰排头', () => {
+    const s = GameState.fromLevel(queueLevel());
+    Rules.start(s);
+    // 架上的两个缸要 1 和 0：洋流先送排头的 0，再轮到后面的 1、0，连普通泡里的 1 一起清完
+    Rules.useCurrent(s);
+    assert.equal(s.status, Status.WON);
+    const t = GameState.fromLevel(queueLevel());
+    Rules.start(t);
+    const taps = [];
+    for (let i = 0; i < 10 && t.status === Status.PLAYING; i++) {
+      const next = Bots.nextTap(t, new Rng(1));
+      if (!next) break;
+      taps.push(next);
+      assert.ok(Rules.tap(t, next[0], next[1]).length > 0, '机器人不点排在后面的鱼');
+    }
+    assert.equal(t.status, Status.WON);
+  });
+
+  it('关卡文件：排队泡才写 queue，读回来不丢', () => {
+    const lv = queueLevel();
+    const back = LevelData.fromJson(lv.toJson()) as LevelData;
+    assert.equal(back.bubbles[0].queue, true);
+    assert.equal(back.bubbles[1].queue, false);
+    assert.ok(!lv.toJson().includes('"queue":0'));
+    assert.equal((JSON.parse(lv.toJson()).bubbles[1] as { queue?: number }).queue, undefined);
   });
 });

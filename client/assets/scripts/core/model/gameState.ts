@@ -25,6 +25,8 @@ export class Bubble {
   /** 迷雾还差几次显形（在场后每破一个别的气泡减 1），0 = 看得见 */
   fog = 0;
   pairs: number[][] = [];
+  /** 排队泡：里面的鱼排着队，只有排头（还在的鱼里下标最大的那条）能点，后面的看得见、点不到（docs/01 第 4 节） */
+  queue = false;
   /** 已在场上。掉落关里还在候场队列的气泡为 false */
   onField = true;
 
@@ -32,6 +34,18 @@ export class Bubble {
     let n = 0;
     for (const f of this.fish) if (f !== REMOVED) n++;
     return n;
+  }
+
+  /** 排头：还在的鱼里下标最大的那条，空泡返回 -1 */
+  front(): number {
+    for (let k = this.fish.length - 1; k >= 0; k--) if (this.fish[k] !== REMOVED) return k;
+    return -1;
+  }
+
+  /** 第 k 条现在能不能点（不管气泡本身开不开放）：鱼还在；排队泡只有排头能点 */
+  canTake(k: number): boolean {
+    if (k < 0 || k >= this.fish.length || this.fish[k] === REMOVED) return false;
+    return !this.queue || k === this.front();
   }
 
   partnerOf(k: number): number {
@@ -51,6 +65,7 @@ export class Bubble {
     b.frozen = this.frozen;
     b.fog = this.fog;
     b.pairs = this.pairs.slice();
+    b.queue = this.queue;
     b.onField = this.onField;
     return b;
   }
@@ -109,6 +124,7 @@ export class GameState {
       b.frozen = b.ice.length > 0;
       b.fog = d.fog;
       b.pairs = d.pairs.map((p) => p.slice());
+      b.queue = d.queue === true;
       b.onField = cap <= 0 || s.bubbles.length < cap;
       s.bubbles.push(b);
     }

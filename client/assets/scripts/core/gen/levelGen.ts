@@ -41,6 +41,10 @@ function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
   lv.orders = makeOrders(rng, ns, total, p.big ?? 0);
   lv.fieldCap = Math.trunc(p.cap ?? 0);
   lv.bubbles = makeBubbles(rng, total, p.layers, lv.fieldCap, p.per_min ?? 1, p.per_max ?? 5, p.per_avg ?? 3.0);
+  // 排队泡：先定下哪些气泡要排队，参考解再照着这个规则构造（构造时每个气泡本来就是从下标最大的取起）
+  if ((p.queue ?? 0) > 0) {
+    for (const b of lv.bubbles) if (b.fish.length >= 2 && rng.randf() < (p.queue as number)) b.queue = true;
+  }
 
   const s = GameState.fromLevel(lv);
   start(s);

@@ -19,6 +19,8 @@ export interface GenParams {
   per_max?: number;
   /** 平均一个气泡几条鱼（不给 = 3）。生成器加难度时往下调：同时在场的气泡数不变，看得见的鱼变少 */
   per_avg?: number;
+  /** 多大比例的气泡是排队泡（0–1，只有 2 条鱼以上的才算） */
+  queue?: number;
   chain?: number;
   timer?: number;
   /** 迷雾泡占气泡总数的比例 */

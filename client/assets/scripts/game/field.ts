@@ -48,6 +48,8 @@ const WHITE = new Color(255, 255, 255, 255);
 /** 下层（被压住、还不能点）的气泡和鱼 */
 const UNDER_BUBBLE = new Color(70, 105, 180, 255);
 const UNDER_FISH = new Color(120, 135, 170, 255);
+/** 排队泡里还没轮到的鱼：压暗一点，和排头分开 */
+const WAIT_FISH = new Color(150, 165, 195, 255);
 const FROST = new Color(225, 247, 255, 255);
 /** 泡膜上转动的那层流光的颜色 */
 const SHEEN = new Color(255, 200, 240, 255);
@@ -447,7 +449,9 @@ export class Field {
       .start();
     const n = d.fish.length;
     const fs = this.fishSize(n, r);
-    const offs = this.offsets(n, r);
+    const queue = d.queue === true && n > 1;
+    // 排队泡：鱼从左上到右下叠成一串，下标最大的（排头）在最右下、画在最上面；后面的被前面的压住一点，看得出先后
+    const offs: [number, number][] = queue ? Array.from({ length: n }, (_, k) => [((k / (n - 1)) * 2 - 1) * r * (n === 2 ? 0.26 : 0.38), -((k / (n - 1)) * 2 - 1) * r * (n === 2 ? 0.2 : 0.3)]) : this.offsets(n, r);
     const fish: (Node | null)[] = [];
     for (let k = 0; k < n; k++) {
       const sp = s.bubbles[i].fish[k];
@@ -457,7 +461,7 @@ export class Field {
       }
       const f = img(body, this.spriteFor(sp), fs, fs, `fish${k}`);
       at(f, offs[k][0], offs[k][1]);
-      f.setScale(k % 2 === 0 ? 1 : -1, 1, 1);
+      f.setScale(queue || k % 2 === 0 ? 1 : -1, 1, 1);
       // 按轮廓类的小动作（一直在动：鱼摆尾、螃蟹摇着摇着夹两下、水母一缩一伸……），都会眨眼（ui/alive.ts）
       const id = this.species[sp] ?? this.species[0];
       Alive.idle(f, Alive.shapeOf(id), k);
@@ -673,10 +677,11 @@ export class Field {
       const sheen = v.skin.parent?.getChildByName('sheen');
       if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
       opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
-      for (const f of v.fish) {
-        if (!f) continue;
-        (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : WHITE;
-      }
+      const front = b.queue ? b.front() : -1;
+      v.fish.forEach((f, k) => {
+        if (!f) return;
+        (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : front >= 0 && k !== front ? WAIT_FISH : WHITE;
+      });
       if (v.chain) {
         if (b.chain > 0) {
           if (v.chainLabel) v.chainLabel.string = String(b.chain);
@@ -959,6 +964,8 @@ export class Field {
       }
     });
     if (best < 0) return;
+    // 排队泡：点在哪条上都算点排头（能取的只有它）
+    if (this.lv.bubbles[i].queue === true) for (let k = v.fish.length - 1; k >= 0; k--) if (v.fish[k]) { best = k; break; }
     this.onTapFish(i, best);
     void this.onBlocked;
   }

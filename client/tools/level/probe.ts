@@ -43,7 +43,7 @@ function options(s: GameState, rule: Rule): Opt[] {
     const bub = s.bubbles[b];
     const left = bub.count();
     for (let k = bub.fish.length - 1; k >= 0; k--) {
-      if (bub.fish[k] < 0) continue;
+      if (!bub.canTake(k)) continue;
       out.push([b, k, bub.fish[k], left]);
       if (rule === 'front' || (rule === 'half' && b % 2 === 0)) break;
     }

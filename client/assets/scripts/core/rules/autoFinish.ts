@@ -44,7 +44,7 @@ function pick(s: GameState): AutoTap | null {
     const bub = s.bubbles[b];
     for (let k = 0; k < bub.fish.length; k++) {
       const sp = bub.fish[k];
-      if (sp < 0 || Rules.findSlot(s, sp) < 0) continue;
+      if (!bub.canTake(k) || Rules.findSlot(s, sp) < 0) continue;
       // 结伴鱼：搭档也得有缸收，不然搭档会进暂存槽
       const p = bub.partnerOf(k);
       if (p >= 0 && bub.fish[p] >= 0 && p !== k) {
