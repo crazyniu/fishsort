@@ -34,7 +34,15 @@ export function pick(eco: EconomyConfig, day: number, level: number): string[] {
   const out = open.filter((t) => c.fixed.includes(t.id)).map((t) => t.id);
   const rest = open.filter((t) => !c.fixed.includes(t.id)).map((t) => t.id);
   new Rng(day * 2654435761 + 97).shuffle(rest);
-  return out.concat(rest.slice(0, c.random));
+  if (c.count === undefined) return out.concat(rest.slice(0, c.random));
+  const all = out.concat(rest.slice(0, Math.max(0, c.count - out.length)));
+  // 一页两列排，凑不满的时候也保持偶数
+  return all.slice(0, all.length - (all.length % 2));
+}
+
+/** 每天几项 */
+function wanted(c: TasksConfig): number {
+  return c.count ?? c.fixed.length + c.random;
 }
 
 /** 跨天换一批任务、清进度。所有任务功能进来先调它 */
@@ -47,12 +55,14 @@ export function sync(save: SaveData, eco: EconomyConfig, day: number): void {
     return;
   }
   // 当天定表时开放的功能少、不够数（新玩家第一天）：之后开放了新功能就补上，补满为止；已有的任务和进度不动（docs/01 5.9）
-  const want = c.fixed.length + c.random;
+  const want = wanted(c);
   if (save.tasks.ids.length >= want) return;
-  for (const id of pick(eco, day, save.level)) {
-    if (save.tasks.ids.length >= want) break;
-    if (!save.tasks.ids.includes(id)) save.tasks.ids.push(id);
-  }
+  const before = save.tasks.ids.length;
+  const more = pick(eco, day, save.level).filter((id) => !save.tasks.ids.includes(id));
+  let room = want - before;
+  // 补的时候也保持偶数：只差一项又只有一项可补，也照补（补完是偶数）；凑不成偶数就先不补
+  if (c.count !== undefined) room = Math.min(room, more.length - ((before + Math.min(room, more.length)) % 2));
+  for (let i = 0; i < room && i < more.length; i++) save.tasks.ids.push(more[i]);
 }
 
 /** 今天的任务（按任务表的顺序） */

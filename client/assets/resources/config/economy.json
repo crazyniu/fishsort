@@ -1129,6 +1129,7 @@
       "ad"
     ],
     "random": 3,
+    "count": 6,
     "dayMax": 100,
     "pool": [
       {
@@ -1144,13 +1145,24 @@
       {
         "id": "ad",
         "goal": 1,
-        "points": 20
+        "points": 20,
+        "cap": "ads"
       },
       {
         "id": "combo",
         "goal": 6,
         "points": 20,
         "mode": "max"
+      },
+      {
+        "id": "bowls",
+        "goal": 20,
+        "points": 20
+      },
+      {
+        "id": "play",
+        "goal": 5,
+        "points": 20
       },
       {
         "id": "skill",

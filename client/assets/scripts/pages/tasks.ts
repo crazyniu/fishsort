@@ -34,6 +34,8 @@ const TASK_ICON: Record<string, string> = {
   daily: 'icon/entry_daily',
   wheel: 'icon/entry_wheel',
   share: 'icon/task_share',
+  bowls: 'skin/j_bowl',
+  play: 'icon/entry_levels',
 };
 const TASK_PAGE: Record<string, string> = { ad: 'shop', daily: 'daily', wheel: 'wheel' };
 
