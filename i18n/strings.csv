@@ -95,7 +95,7 @@ UI_MINUTES,%d 分钟,%d min
 UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life"
 TIP_DROP,后面还会掉下新气泡,More bubbles will drop in
-TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，卡住时记得用道具,Challenge levels are timed now: rescue every fish before time runs out. Use boosters when stuck
+TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time
 TIP_TOOLS3,从这里起关卡更难了，每种道具每关能用 3 次,Levels get harder from here. Each booster can be used 3 times per level
 TIP_BUFFER4,从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具,Only 4 holding slots from here on. They fill up fast — use boosters when stuck
 REVIVE_CLOCK,时间 +30 秒,+30s on the clock
@@ -128,6 +128,10 @@ DAILY_RETRY,重试,Retry
 H_PRIZE_FRAME,头像框,Avatar frame
 UI_CARD_OWNED,重复卡，换成,Duplicate →
 REVIVE_TITLE,继续闯关？,Continue?
+RESCUE_TITLE,槽位满了,Slots Full
+RESCUE_LINE,用吹泡清空槽位，接着玩,Use Blow to clear the slots and keep going
+RESCUE_USE,用吹泡,Use Blow
+RESCUE_SKIP,不用,No Thanks
 REVIVE_BUFFER,清空槽位,Clear the slots
 REVIVE_TIMEOUT,限时缸 +30 秒,+30s on the timer tank
 REVIVE_STUCK,解开锁链和冰冻,Break the chains and ice

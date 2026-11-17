@@ -57,6 +57,8 @@
  "buffer": {
   "warnFree": 1,
   "skillNudgeFree": 2,
+  "nudgeWhenStuck": true,
+  "nudgeHand": {"full": ["blow", "shuffle", "current", "net"], "stuck": ["shuffle", "net", "blow"]},
   "rescueSkills": [
    "blow",
    "shuffle",

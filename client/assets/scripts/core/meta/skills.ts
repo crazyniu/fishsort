@@ -70,6 +70,14 @@ export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
   return late && levelId >= late.from ? late.max : eco.toolMaxPerLevel;
 }
 
+/** 这个技能现在用得了吗（不扣库存、不记任务，界面层提醒用道具时先问一下）：'' = 能用，其余同 tryUse 的 reason */
+export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, levelId = 0): UseResult['reason'] {
+  if (!isUnlocked(eco, id, save.level)) return 'locked';
+  if (usedThisLevel >= maxPerLevel(eco, levelId)) return 'limit';
+  if (!freeAvailable(save, id) && count(save, id) <= 0) return 'empty';
+  return '';
+}
+
 export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number, levelId = 0): UseResult {
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };

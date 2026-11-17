@@ -254,9 +254,9 @@ export interface CurveConfig {
   /**
    * 限时关（docs/01 第 4 节）：challengeFrom 关起的挑战关整关限时，普通关不限时（2026-11-17 定：每关都限时考的是手速，只留给挑战关）。
    * 时间 = （鱼数 × bot.tapSec + 缸数 × bot.bowlSec）× 系数，按 step 秒取整；系数从 challengeFrom 关的 factor[0] 线性降到 total 关的 factor[1]。
-   * 没有这一项就都不限时
+   * comboSeconds：连击起算后每命中一次加几秒，按连击档位查（时间给得短，靠连击挣回来）。没有这一项就都不限时
    */
-  clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number };
+  clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number; comboSeconds?: number[] };
   /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
   buffer?: [number, number][];
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
@@ -284,7 +284,8 @@ export interface GameUiConfig {
   autoFinish: { delay: number; interval: number; maxLeft: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */
   clock: { warn: number };
-  buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };
+  /** nudgeWhenStuck：场上没有能进缸的鱼时也提醒用道具；nudgeHand：小手指哪个道具，按顺序挑第一个用得了的（full = 暂存槽快满，stuck = 卡住） */
+  buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[]; nudgeWhenStuck?: boolean; nudgeHand?: { full: string[]; stuck: string[] } };
   current: { lead: number; stagger: number };
   tips: Record<string, string>;
   tutorial: { delay: number; blowMinBuffer: number; tipGap: number };

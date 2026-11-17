@@ -380,6 +380,30 @@ describe('收尾自动入缸（docs/01 第 2 节）', () => {
   });
 });
 
+describe('用道具救场（docs/01 5.2）', () => {
+  it('没有能进缸的鱼算卡住；有一条能进就不算；没显形的迷雾鱼不算', () => {
+    const s = play(level([0, 1, 2], [{ fish: [2, 2, 2] }, { fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));
+    assert.equal(Rules.noTarget(s), false, '开局有缸要的鱼');
+    const t = play(level([0, 1, 2], [{ fish: [2, 2, 2] }, { fish: [0, 0, 0], fog: 3 }, { fish: [1, 1, 1], fog: 3 }]));
+    assert.equal(Rules.noTarget(t), true, '要的鱼都在没显形的迷雾泡里');
+  });
+
+  it('暂存槽满了判输：用吹泡接着玩，暂存槽清空、鱼去回流位，不占复活', () => {
+    const s = play(level([0, 1, 2, 3], [{ fish: [2, 2, 2] }, { fish: [3, 3, 3] }, { fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));
+    s.bufferCap = 3;
+    for (let k = 0; k < 3; k++) Rules.tap(s, 0, k);
+    assert.equal(s.status, Status.LOST);
+    assert.equal(s.loseReason, LoseReason.BUFFER_FULL);
+    const ev = Rules.rescueBlow(s);
+    assert.ok(ev.length > 0);
+    assert.equal(s.status, Status.PLAYING);
+    assert.equal(s.buffer.length, 0);
+    assert.equal(s.returnFish.length, 3);
+    assert.equal(s.revived, false);
+    assert.equal(Rules.rescueBlow(s).length, 0, '没输的时候不起作用');
+  });
+});
+
 describe('限时关（docs/01 第 4 节）', () => {
   it('整关倒计时：走完算输（时间到了）；复活再给 30 秒', () => {
     const s = play(level([0, 1], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));

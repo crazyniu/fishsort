@@ -716,4 +716,15 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 3, 5, 125).reason, 'limit');
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 100).reason, 'limit', '第 100 关还是 2 次');
   });
+
+  it('canUse 只问不扣：能用返回空串，原因和 tryUse 一样', () => {
+    const [save, eco] = setup(130);
+    save.tools.blow = 1;
+    save.daily.toolFree.blow = true;
+    assert.equal(Skills.canUse(save, eco, 'blow', 0, 125), '');
+    assert.equal(save.tools.blow, 1, '不扣库存');
+    assert.equal(Skills.canUse(save, eco, 'blow', 3, 125), 'limit');
+    save.tools.blow = 0;
+    assert.equal(Skills.canUse(save, eco, 'blow', 0, 125), 'empty');
+  });
 });
