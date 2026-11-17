@@ -11,6 +11,7 @@ import { mockAdView } from './ui/mockAd';
 import { CollectPage } from './pages/collect';
 import { DailyPage } from './pages/daily';
 import { LevelsPage } from './pages/levels';
+import { MapPage } from './pages/map';
 import { profilePopup } from './pages/profile';
 import { RankPage } from './pages/rank';
 import { TasksPage } from './pages/tasks';
@@ -77,6 +78,7 @@ export class Boot extends Component {
     // 好友周榜：先隐藏，没有入口，等接平台好友榜时再放出来（用户 2026-11-16）；调试时 ./run.sh page rank 能看
     ui.register('rank', () => new RankPage());
     ui.register('levels', () => new LevelsPage());
+    ui.register('map', () => new MapPage());
     ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new WheelPage());
     ui.register('adtest', () => new AdTestPage());

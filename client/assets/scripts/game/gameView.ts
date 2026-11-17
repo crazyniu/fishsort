@@ -104,6 +104,12 @@ const SLOT_GAP = 8;
 /** 鱼缸的上沿离屏幕顶多远（上面是顶栏那一行） */
 const BOWL_TOP = 92;
 
+/** 秒数写成 m:ss */
+function mmss(sec: number): string {
+  const t = Math.max(0, Math.ceil(sec));
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+}
+
 export class GamePage extends Page {
   // 一局的状态
   lv!: LevelData;
@@ -129,6 +135,9 @@ export class GamePage extends Page {
   private field!: Field;
   private progress!: Capsule;
   private levelCap!: Capsule;
+  /** 限时关的倒计时条（顶栏正中）；不限时的关没有 */
+  private clockCap: Capsule | null = null;
+  private clockWarn = false;
   private comboRow!: Node;
   private comboBadge!: Node;
   private comboNum!: Node;
@@ -222,6 +231,8 @@ export class GamePage extends Page {
       ui.busy(false);
     }
     this.s = GameState.fromLevel(this.lv);
+    // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
+    this.s.clock = this.arg.daily ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
@@ -283,6 +294,13 @@ export class GamePage extends Page {
     this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30, 'skin/f_hud');
     at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
+    // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
+    this.clockCap = null;
+    this.clockWarn = false;
+    if (this.s.clock !== NO_TIMER) {
+      this.clockCap = capsule(this.stage, 120, 66, null, mmss(this.s.clock), 34, 'skin/f_hud');
+      at(this.clockCap.node, -22, hudY);
+    }
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
     at(gear, Screen.W / 2 - 24 - 37, hudY);
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
@@ -477,7 +495,7 @@ export class GamePage extends Page {
   }
 
   private tapFish(b: number, k: number): void {
-    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing || this.field.spinning) return;
     if (this.netMode) {
       ui.toast(tr('UI_NET_HINT'));
       return;
@@ -524,8 +542,7 @@ export class GamePage extends Page {
 
   tapBowl(slot: number): void {
     if (!this.netMode) return;
-    this.netMode = false;
-    this.shelf.getChildByName('netHint')?.destroy();
+    this.exitNetMode();
     Flow.finishNet(this, slot);
   }
 
@@ -535,6 +552,21 @@ export class GamePage extends Page {
     for (let i = 0; i < this.s.openSlots; i++) {
       const v = this.bowls[i];
       if (v) fx.breathe(v.node, 0.06, 0.6);
+    }
+  }
+
+  /**
+   * 选好缸（或不选了）：缸停下呼吸、缩放复原。原来选完缸没停，缸一直在跳，装满了也跳（用户 2026-11-17 报的 bug）。
+   * 只停正坐在架上、没在落下或飘走的缸，别的缸的动画不打断
+   */
+  private exitNetMode(): void {
+    this.netMode = false;
+    this.shelf.getChildByName('netHint')?.destroy();
+    for (const v of this.bowls) {
+      if (!v || v.leaving || !v.node.isValid) continue;
+      Tween.stopAllByTarget(v.node);
+      v.node.setScale(1, 1, 1);
+      v.node.setPosition(v.node.position.x, v.restY, 0);
     }
   }
 
@@ -1361,10 +1393,11 @@ export class GamePage extends Page {
         this.spawnRise();
       }
     }
-    // 限时缸
+    // 限时缸、限时关
     if (this.s.status === Status.PLAYING && this.moved) {
       const ev = Rules.tick(this.s, dt);
       if (ev.length) this.play(ev, false);
+      this.syncClock();
       for (let i = 0; i < MAX_SLOTS; i++) {
         const b: Bowl | null = this.s.slots[i];
         const v = this.bowls[i];
@@ -1489,6 +1522,24 @@ export class GamePage extends Page {
       .call(() => n.destroy())
       .start();
     ui.toast(tr('GUEST_SAVED', speciesName(g.id)));
+  }
+
+  /** 限时关的倒计时：剩 clockWarn 秒以内变红、一跳一跳的（时间在 game_ui.json 的 clock.warn） */
+  private syncClock(): void {
+    const cap = this.clockCap;
+    if (!cap || this.s.clock === NO_TIMER) return;
+    cap.set(mmss(this.s.clock));
+    const warn = this.s.clock <= App.config.ui.clock.warn;
+    if (warn !== this.clockWarn) {
+      this.clockWarn = warn;
+      cap.label.color = warn ? COLOR.yellow : COLOR.white;
+      Tween.stopAllByTarget(cap.node);
+      cap.node.setScale(1, 1, 1);
+      if (warn) {
+        fx.breathe(cap.node, 0.08, 0.5);
+        sfx('tick');
+      }
+    }
   }
 
   private lastHit(): number {

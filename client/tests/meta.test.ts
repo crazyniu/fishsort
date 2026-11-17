@@ -586,7 +586,7 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
     }
   });
 
-  it('领册子大奖与终极大奖（5000 + 每种技能 3 + 3 小时 + 头像框）', () => {
+  it('领册子大奖与终极大奖（10000 + 每种技能 3 + 3 小时 + 头像框）', () => {
     const [save, eco, species] = setup(6);
     assert.deepEqual(Album.claim(save, eco, 0, 0), []);
     for (const id of Album.books(eco)[0].cards) save.cards[id] = 1;
@@ -600,7 +600,7 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
     const fin = Album.claimFinal(save, eco, 100);
     assert.deepEqual(fin[fin.length - 1], { kind: 'frame', amount: 1 });
     assert.ok(Album.hasFrame(save));
-    assert.equal(save.coins, 6000);
+    assert.equal(save.coins, 11000);
     assert.equal(save.tools.net, 4);
     assert.equal(Lives.unlimitedLeft(save, 100), 10800);
     assert.ok(!Album.canClaimFinal(save, eco));
@@ -703,5 +703,17 @@ describe('过关宝箱的卡藏在关卡里当稀客（docs/01 3.4）', () => {
     assert.equal(p.kind, 'card');
     assert.ok(p.pity);
     assert.ok(!(p.cardId in save.cards));
+  });
+});
+
+describe('限时关起技能能多用（docs/01 5.2）', () => {
+  it('第 121 关起每种技能每关能用 3 次，之前 2 次', () => {
+    const [save, eco] = setup(130);
+    save.tools.shuffle = 9;
+    assert.equal(Skills.maxPerLevel(eco, 120), 2);
+    assert.equal(Skills.maxPerLevel(eco, 121), 3);
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 2, 5, 125).ok, '第 125 关第 3 次能用');
+    assert.equal(Skills.tryUse(save, eco, 'shuffle', 3, 5, 125).reason, 'limit');
+    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 100).reason, 'limit', '第 100 关还是 2 次');
   });
 });

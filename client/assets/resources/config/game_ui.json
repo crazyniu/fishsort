@@ -41,6 +41,9 @@
   "stagger": 0.06,
   "maxHeight": 0.97
  },
+ "clock": {
+   "warn": 15
+ },
  "autoFinish": {
    "delay": 0.5,
    "interval": 0.2
@@ -66,7 +69,9 @@
   "stagger": 0.13
  },
  "tips": {
-  "6": "TIP_LIVES"
+  "6": "TIP_LIVES",
+    "65": "TIP_CLOCK",
+    "121": "TIP_CLOCK_ALL"
  },
  "unlockGuide": {
   "delay": 0.5,

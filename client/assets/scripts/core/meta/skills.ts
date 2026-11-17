@@ -64,10 +64,16 @@ export interface UseResult {
  * 使用前调用。usedThisLevel 是本关已用次数（界面层记）。
  * ok 时已经扣了库存（或记了免费次），界面层随后去调 Rules。
  */
-export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number): UseResult {
+/** 第 levelId 关每种技能最多用几次 */
+export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
+  const late = eco.toolMaxLate;
+  return late && levelId >= late.from ? late.max : eco.toolMaxPerLevel;
+}
+
+export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number, levelId = 0): UseResult {
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };
-  if (usedThisLevel >= eco.toolMaxPerLevel) return { ok: false, free: false, reason: 'limit' };
+  if (usedThisLevel >= maxPerLevel(eco, levelId)) return { ok: false, free: false, reason: 'limit' };
   if (!freeAvailable(save, id) && count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
   Tasks.add(save, eco, day, 'skill');
   if (freeAvailable(save, id)) {

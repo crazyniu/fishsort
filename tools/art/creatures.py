@@ -142,8 +142,10 @@ def strays(im: Image.Image) -> Image.Image:
                             q.append((ny, nx))
                 parts.append((len(pts), edge, pts))
     total = sum(p[0] for p in parts)
+    biggest = max((p[0] for p in parts), default=0)
+    # 挨着框边、又比主体小得多的块：是旁边那只伸进来的（2026-11-17：火山神蟹左边带进了邻居的鳍和钳子）
     for n, edge, pts in parts:
-        if edge and n < total * 0.01:
+        if edge and (n < total * 0.01 or n < biggest * 0.15):
             for y, x in pts:
                 arr[y, x, 3] = 0
     return Image.fromarray(arr, 'RGBA')

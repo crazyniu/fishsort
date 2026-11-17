@@ -27,6 +27,13 @@ const HEAD_ROW = 48;
 /** 手指横着划过这么远就翻页 */
 const SWIPE = 70;
 
+/** show 的参数里的 sea（从海图点进来时有）；Cocos 的 Babel 不认 as X | Y，用函数收窄 */
+function seaArg(arg: unknown): number | undefined {
+  if (typeof arg !== 'object' || arg === null) return undefined;
+  const v = (arg as Record<string, unknown>).sea;
+  return typeof v === 'number' ? v : undefined;
+}
+
 export class LevelsPage extends Page {
   private bg!: Node;
   private sea = '';
@@ -46,13 +53,18 @@ export class LevelsPage extends Page {
     });
   }
 
-  /** 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有） */
+  /** 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有），不超过总关数 */
   private get pages(): number {
-    return Math.floor((App.save.data.level - 1) / PER_PAGE) + 2;
+    const all = Math.ceil(App.config.levelCount / PER_PAGE);
+    return Math.min(all, Math.floor((App.save.data.level - 1) / PER_PAGE) + 2);
   }
 
-  override show(): void {
-    this.pageNo = Math.floor((App.save.data.level - 1) / PER_PAGE);
+  /** arg.sea：从海图点进来的那个海域，停在它那一页；不给就停在当前关那一页 */
+  override show(arg?: unknown): void {
+    const sea = seaArg(arg);
+    const from = sea !== undefined ? App.config.eco.seas?.[sea]?.levelFrom : undefined;
+    this.pageNo = from !== undefined ? Math.floor((from - 1) / PER_PAGE) : Math.floor((App.save.data.level - 1) / PER_PAGE);
+    this.pageNo = Math.min(this.pageNo, this.pages - 1);
     this.render(0);
   }
 

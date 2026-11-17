@@ -120,6 +120,8 @@ export interface EconomyConfig {
   toolStart: Record<string, number>;
   toolPrice: Record<string, number>;
   toolMaxPerLevel: number;
+  /** 限时关起每关每种技能能多用几次（docs/01 5.2，2026-11-17）：from 关起上限改成 max；没有就一直是 toolMaxPerLevel */
+  toolMaxLate?: { from: number; max: number };
   bowlSlotCoinPrice: number;
   freeBowlSlotAfterFails: number;
   dupeCoins: Record<Rarity, number>;
@@ -239,6 +241,8 @@ export interface CurveConfig {
     /** 挑战关比普通关低多少：[第一个挑战关, challengeDropUntil 那一关起] 之间线性变化 */
     challengeDrop: [number, number];
     challengeDropUntil: number;
+    /** 第 last 关以后的目标：从 end 线性降到 tail.end（第 tail.to 关）；没有就不往后延 */
+    tail?: { to: number; end: number };
     challengeFloor: number;
     /** 第 3 缸胜率的区间：下限 2 缸 + plus（2 缸 ≥ easyFrom 时只要不低于 2 缸）；capFrom 关起上限 min(2 缸 + capPlus, cap) */
     bowl3: { plus: number; easyFrom: number; capFrom: number; capPlus: number; cap: number };
@@ -247,6 +251,12 @@ export interface CurveConfig {
   };
   /** 机器人计时：每点一次、每满一缸各算几秒（限时缸会超时） */
   bot: { tapSec: number; bowlSec: number };
+  /**
+   * 限时关（docs/01 第 4 节）：challengeFrom 关起的挑战关、allFrom 关起的每一关整关限时。
+   * 时间 = （鱼数 × bot.tapSec + 缸数 × bot.bowlSec）× 系数，按 step 秒取整；系数从 allFrom 关的 factor[0] 线性降到 total 关的 factor[1]，
+   * 挑战关再乘 challengeMul。没有这一项就都不限时
+   */
+  clock?: { challengeFrom: number; allFrom: number; factor: [number, number]; challengeMul: number; step: number; min: number };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;
@@ -270,6 +280,8 @@ export interface GameUiConfig {
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number };
+  /** 限时关的倒计时：剩几秒以内变色、跳动 */
+  clock: { warn: number };
   buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };
   current: { lead: number; stagger: number };
   tips: Record<string, string>;
