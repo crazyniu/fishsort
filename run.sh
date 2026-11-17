@@ -90,7 +90,7 @@ cocos_build() {
       code=1
     fi
   done
-  [ "$code" -eq 36 ] || die "Cocos 构建 $platform 失败（退出码 $code）"
+  [ "$code" -eq 36 ] || die "Cocos 构建 ${platform} 失败（退出码 ${code}）"
   echo "✓ 已构建 $platform → client/build/$platform"
   # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
   if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
@@ -159,7 +159,7 @@ pull_latest() {
   branch="$(git symbolic-ref --short -q HEAD)" || { echo "（不在分支上，不拉取）"; return 0; }
   git rev-parse -q --verify '@{u}' >/dev/null 2>&1 || { echo "（$branch 没有对应的远程分支，不拉取）"; return 0; }
   before="$(git rev-parse HEAD)"
-  echo "→ 拉取最新代码（$branch）"
+  echo "→ 拉取最新代码（${branch}）"
   if [ "$(uname)" = "Darwin" ] && [ -n "$(git status --porcelain --untracked-files=no -- client)" ]; then
     echo "  先还原 client/ 下编辑器写的改动："
     git status --porcelain --untracked-files=no -- client | head -5 | sed 's/^/    /'
@@ -228,6 +228,10 @@ case "$cmd" in
     # Cocos 的 Babel（松散模式）把 [...迭代器] 编成 [].concat(迭代器)：Map / Set 展开出来是错的，用 Array.from
     if grep -rnE '\[\.\.\.(new (Set|Map)|[A-Za-z_.]*\.(values|keys|entries)\(\))' client/assets/scripts --include='*.ts'; then
       die "上面几处展开了 Map / Set / 迭代器，Cocos 构建后结果不对，换成 Array.from(...)"
+    fi
+    # macOS 自带的 bash 3.2 会把紧跟在 $变量 后面的中文（全角括号、冒号）当成变量名的一部分，报 unbound variable；要写成 ${变量}
+    if git ls-files -z '*.sh' | xargs -0 env LC_ALL=C grep -nE '[$][A-Za-z_][A-Za-z0-9_]*[^ -~[:space:]]'; then
+      die "上面几处 \$变量 后面直接跟了中文，Mac 上的 bash 3.2 会报错，写成 \${变量}"
     fi
     (cd client && npx tsc -p tsconfig.core.json && npx tsc -p tsconfig.tools.json)
     # 用到 cc 的脚本要 Cocos 的类型声明（client/.cc-types，从 Mac 的 Cocos 取，不进仓库）；没有就跳过
