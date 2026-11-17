@@ -1247,6 +1247,13 @@
    "shape": "special"
   },
   {
+   "id": "u91",
+   "name": "宫殿蟹",
+   "rarity": "uncommon",
+   "group": "special-u91",
+   "shape": "special"
+  },
+  {
    "id": "r01",
    "name": "珠卷卷",
    "rarity": "rare",
@@ -1588,6 +1595,48 @@
    "name": "萤管管",
    "rarity": "rare",
    "group": "special-r48",
+   "shape": "special"
+  },
+  {
+   "id": "r49",
+   "name": "飞飞鱼",
+   "rarity": "rare",
+   "group": "special-r49",
+   "shape": "special"
+  },
+  {
+   "id": "r50",
+   "name": "海苹果",
+   "rarity": "rare",
+   "group": "special-r50",
+   "shape": "special"
+  },
+  {
+   "id": "r51",
+   "name": "冠海胆",
+   "rarity": "rare",
+   "group": "special-r51",
+   "shape": "special"
+  },
+  {
+   "id": "r52",
+   "name": "铜铃母",
+   "rarity": "rare",
+   "group": "special-r52",
+   "shape": "special"
+  },
+  {
+   "id": "r53",
+   "name": "霜马马",
+   "rarity": "rare",
+   "group": "special-r53",
+   "shape": "special"
+  },
+  {
+   "id": "r54",
+   "name": "银锦锦",
+   "rarity": "rare",
+   "group": "special-r54",
    "shape": "special"
   },
   {

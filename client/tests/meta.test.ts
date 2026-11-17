@@ -571,11 +571,11 @@ describe('每日挑战（docs/01 5.11）', () => {
 });
 
 describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
-  it('第 6 关只出第一册，开放一册多 38 张（最后一册 40 张）', () => {
-    assert.equal(Album.pool(ECO, SPECIES, 6).length, 38);
-    assert.equal(Album.pool(ECO, SPECIES, 1).length, 38, '开放前按第一册算');
-    assert.equal(Album.pool(ECO, SPECIES, 21).length, 76);
-    assert.equal(Album.pool(ECO, SPECIES, 101).length, 230);
+  it('第 6 关只出第一册，开放一册多 39 张（最后一册 42 张）', () => {
+    assert.equal(Album.pool(ECO, SPECIES, 6).length, 39);
+    assert.equal(Album.pool(ECO, SPECIES, 1).length, 39, '开放前按第一册算');
+    assert.equal(Album.pool(ECO, SPECIES, 21).length, 78);
+    assert.equal(Album.pool(ECO, SPECIES, 101).length, 237);
   });
 
   it('前期抽到传说给史诗（传说只在海底宫殿）', () => {
