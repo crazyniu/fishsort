@@ -9,17 +9,17 @@
     "current": 0
   },
   "toolPrice": {
-    "shuffle": 150,
-    "blow": 180,
-    "net": 240,
-    "current": 300
+    "shuffle": 240,
+    "blow": 280,
+    "net": 360,
+    "current": 480
   },
   "toolMaxPerLevel": 2,
   "toolMaxLate": {
     "from": 121,
     "max": 3
   },
-  "bowlSlotCoinPrice": 180,
+  "bowlSlotCoinPrice": 300,
   "freeBowlSlotAfterFails": 4,
   "dupeCoins": {
     "common": 10,
@@ -779,22 +779,21 @@
       300
     ],
     "coins": [
+      5,
       10,
-      20,
-      60
+      30
     ]
   },
   "dailyChallenge": {
     "levelStep": 5,
     "retryCoins": 60,
     "reward": {
-      "coins": 60,
-      "skills": 1
+      "coins": 40
     },
     "streakDays": 7,
     "streakReward": {
       "coins": 300,
-      "tools": 1,
+      "skills": 1,
       "unlimited": 3600
     }
   },
@@ -900,7 +899,7 @@
         "points": 550,
         "reward": {
           "coins": 80,
-          "tools": 1,
+          "skills": 1,
           "unlimited": 1800
         },
         "card": {
@@ -924,8 +923,8 @@
   },
   "chest": {
     "normal": {
-      "coins": 35,
-      "skill": 12,
+      "coins": 44,
+      "skill": 3,
       "card": 53,
       "coinMin": 6,
       "coinMax": 16
@@ -956,26 +955,26 @@
       {
         "id": "coin200",
         "kind": "coins",
-        "amount": 40,
+        "amount": 30,
         "weight": 24
       },
       {
         "id": "coin500",
         "kind": "coins",
-        "amount": 100,
+        "amount": 60,
         "weight": 14
       },
       {
         "id": "coin2000",
         "kind": "coins",
-        "amount": 400,
+        "amount": 200,
         "weight": 3
       },
       {
         "id": "skill",
         "kind": "skill",
         "amount": 1,
-        "weight": 15
+        "weight": 5
       },
       {
         "id": "life15",
@@ -987,7 +986,7 @@
         "id": "card_common",
         "kind": "card",
         "rarity": "common",
-        "weight": 16.2
+        "weight": 26.2
       },
       {
         "id": "card_uncommon",
@@ -1065,7 +1064,7 @@
       }
     },
     "help": {
-      "daily": 3,
+      "daily": 1,
       "reward": {
         "skill": 1
       }

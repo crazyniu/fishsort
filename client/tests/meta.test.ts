@@ -226,10 +226,10 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 6).reason, 'empty');
     assert.ok(!Skills.freeAvailable(save, 'net', eco));
     assert.ok(Skills.freeAvailable(save, 'net', eco) === false && Skills.tryUse(save, eco, 'blow', 0, 7).free, '第三天又有一次');
-    save.coins = 300;
+    save.coins = 480;
     assert.ok(Skills.buy(save, eco, 'current'));
     assert.equal(save.coins, 0);
-    for (const [id, p] of [['shuffle', 150], ['blow', 180], ['net', 240], ['current', 300]] as const) {
+    for (const [id, p] of [['shuffle', 240], ['blow', 280], ['net', 360], ['current', 480]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
@@ -302,7 +302,7 @@ describe('结算（docs/01 3.3）', () => {
 });
 
 describe('过关宝箱（docs/01 3.4）', () => {
-  it('普通关：金币 35% / 技能 12% / 卡 53%，卡的稀有度按表', () => {
+  it('普通关：金币 44% / 技能 3% / 卡 53%，卡的稀有度按表', () => {
     const rng = new Rng(11);
     const n = 6000;
     const kinds = { coins: 0, skill: 0, card: 0 };
@@ -323,8 +323,8 @@ describe('过关宝箱（docs/01 3.4）', () => {
         rar[r.card.rarity] = (rar[r.card.rarity] ?? 0) + 1;
       }
     }
-    assert.ok(Math.abs(kinds.coins / n - 0.35) < 0.03, JSON.stringify(kinds));
-    assert.ok(Math.abs(kinds.skill / n - 0.12) < 0.025, JSON.stringify(kinds));
+    assert.ok(Math.abs(kinds.coins / n - 0.44) < 0.03, JSON.stringify(kinds));
+    assert.ok(Math.abs(kinds.skill / n - 0.03) < 0.015, JSON.stringify(kinds));
     assert.ok(Math.abs(kinds.card / n - 0.53) < 0.03, JSON.stringify(kinds));
     assert.ok(cmin >= 6 && cmax <= 16);
     assert.ok(Math.abs(rar.common / cards - 0.55) < 0.04, JSON.stringify(rar));
@@ -392,7 +392,7 @@ describe('抽奖（docs/01 5.5）', () => {
     const by = Object.fromEntries(Wheel.odds(ECO).map((o) => [o.id, o.percent]));
     const total = Object.values(by).reduce((a, b) => a + b, 0);
     assert.ok(Math.abs(total - 100) < 1e-4);
-    const want: Record<string, number> = { coin200: 24, coin500: 14, coin2000: 3, skill: 15, life15: 3, card_common: 16.2, card_uncommon: 15, card_rare: 7, card_epic: 2.5, card_legend: 0.3 };
+    const want: Record<string, number> = { coin200: 24, coin500: 14, coin2000: 3, skill: 5, life15: 3, card_common: 26.2, card_uncommon: 15, card_rare: 7, card_epic: 2.5, card_legend: 0.3 };
     for (const [id, p] of Object.entries(want)) assert.ok(Math.abs(by[id] - p) < 1e-3, `${id} ${by[id]}`);
   });
 
@@ -531,7 +531,7 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(ECO.dailyChallenge.levelStep, curve().cycle);
   });
 
-  it('进场、每日宝箱 60 金币 + 随机技能 1 个 + 卡、七日大宝箱', () => {
+  it('进场、每日宝箱 40 金币 + 卡、七日大宝箱（300 金币 + 随机技能 1 个 + 1 小时无限生命）', () => {
     const [save, eco, species] = setup(20);
     assert.ok(DailyChallenge.enter(save, eco, 100, 'free'));
     assert.ok(!DailyChallenge.enter(save, eco, 100, 'free'));
@@ -541,9 +541,10 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(save.coins, 0);
     const toolsBefore = Object.values(save.tools).reduce((a, b) => a + b, 0);
     const r = DailyChallenge.win(save, eco, species, 100, 0, new Rng(1));
-    assert.equal(save.coins, 60);
-    assert.equal(r.prizes.filter((p) => p.kind === 'skill').length, 1, '随机技能 1 个');
-    assert.equal(Object.values(save.tools).reduce((a, b) => a + b, 0), toolsBefore + 1);
+    assert.equal(save.coins, 40);
+    // 每日宝箱原来送一个随机技能：免费技能太多、不用花金币买，2026-11-18 撤掉（docs/01 6.3）
+    assert.equal(r.prizes.filter((p) => p.kind === 'skill').length, 0);
+    assert.equal(Object.values(save.tools).reduce((a, b) => a + b, 0), toolsBefore);
     assert.equal(r.prizes[r.prizes.length - 1].kind, 'card');
     assert.ok(!r.big);
     assert.deepEqual(DailyChallenge.win(save, eco, species, 100, 0, new Rng(1)).prizes, []);
@@ -553,7 +554,8 @@ describe('每日挑战（docs/01 5.11）', () => {
     const coins = save.coins;
     const big = DailyChallenge.win(save, eco, species, 106, 0, new Rng(7));
     assert.ok(big.big);
-    assert.equal(save.coins - coins, 60 + 300 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
+    assert.equal(big.prizes.filter((p) => p.kind === 'skill').length, 1, '七日大宝箱：随机技能 1 个');
+    assert.equal(save.coins - coins, 40 + 300 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
     assert.ok(Lives.isUnlimited(save, 3599) && !Lives.isUnlimited(save, 3600 + 600), '七日大宝箱 1 小时无限生命');
     assert.equal(DailyChallenge.streak(save, 106), 0);
     DailyChallenge.win(save, eco, species, 107, 0, new Rng(8));
@@ -609,18 +611,18 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
     assert.ok(!Album.canClaimFinal(save, eco));
   });
 
-  it('救援记录：30 / 100 / 300 只各领 10 / 20 / 60', () => {
+  it('救援记录：30 / 100 / 300 只各领 5 / 10 / 30', () => {
     const [save, eco] = setup();
     Dex.record(save, { c01: 29 });
     assert.ok(!Dex.canClaim(save, eco, 'c01'));
     Dex.record(save, { c01: 80, c02: 3 });
     assert.equal(Dex.count(save, 'c01'), 109);
     assert.equal(Dex.claimable(save, eco), 1);
+    assert.equal(Dex.claim(save, eco, 'c01'), 5);
     assert.equal(Dex.claim(save, eco, 'c01'), 10);
-    assert.equal(Dex.claim(save, eco, 'c01'), 20);
     assert.equal(Dex.claim(save, eco, 'c01'), 0);
     assert.equal(Dex.nextNeed(save, eco, 'c01'), 300);
-    assert.equal(save.coins, 30);
+    assert.equal(save.coins, 15);
   });
 
   it('只算首次通关和每日挑战', () => {
@@ -677,7 +679,7 @@ describe('过关宝箱的卡藏在关卡里当稀客（docs/01 3.4）', () => {
     }
     assert.equal(JSON.stringify(save), before, '开局定结果不动存档');
     assert.ok(Math.abs(kinds.card / n - 0.53) < 0.03, JSON.stringify(kinds));
-    assert.ok(Math.abs(kinds.coins / n - 0.35) < 0.03, JSON.stringify(kinds));
+    assert.ok(Math.abs(kinds.coins / n - 0.44) < 0.03, JSON.stringify(kinds));
     assert.ok(Math.abs((rar.common ?? 0) / kinds.card - 0.55) < 0.04, JSON.stringify(rar));
   });
 

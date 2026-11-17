@@ -203,7 +203,7 @@ describe('任务中心（docs/01 5.9）', () => {
     assert.ok(Cards.rank(ECO, p350[0].rarity as string) >= 1, '精良以上');
     const p550 = Tasks.claim(save, ECO, SPECIES, 'week', 2, MON + 5, NOW, new Rng(3));
     assert.deepEqual(p550[0], { kind: 'coin', amount: 80 });
-    assert.equal(p550.filter((p) => p.kind === 'skill').length, 4, '每种技能 1 个');
+    assert.equal(p550.filter((p) => p.kind === 'skill').length, 1, '随机技能 1 个（原来每种 1 个，2026-11-18 减）');
     assert.deepEqual(p550.find((p) => p.kind === 'inf_life'), { kind: 'inf_life', amount: 30 });
     const card = p550[p550.length - 1];
     assert.ok(card.kind === 'card' && Cards.rank(ECO, card.rarity as string) >= 2 && card.is_new, '稀有以上，优先没有的');
@@ -292,8 +292,8 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(ECO.lives.buyOneCoins, 80);
     assert.equal(ECO.lives.refillCoins, 300);
     assert.equal(ECO.lives.adDaily, 5);
-    assert.deepEqual(ECO.toolPrice, { shuffle: 150, blow: 180, net: 240, current: 300 });
-    assert.equal(ECO.bowlSlotCoinPrice, 180);
+    assert.deepEqual(ECO.toolPrice, { shuffle: 240, blow: 280, net: 360, current: 480 });
+    assert.equal(ECO.bowlSlotCoinPrice, 300);
     assert.equal(ECO.skills.freeDaily, 1, '每天免费技能不分种类一共 1 次');
     assert.equal(ECO.dailyChallenge.retryCoins, 60);
     assert.deepEqual(ECO.dupeCoins, { common: 10, uncommon: 25, rare: 60, epic: 150, legend: 500 });
@@ -301,20 +301,20 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(ECO.wheel.tenCost, 1800);
   });
 
-  it('一次性奖励合计：收藏 7940 + 2000，救援记录 8460（名义）', () => {
+  it('一次性奖励合计：收藏 7940 + 2000，救援记录 4230（名义）', () => {
     assert.equal(Album.books(ECO).reduce((s, b) => s + (b.reward.coins ?? 0), 0), 7940);
     assert.equal(ECO.album.final.coins, 2000);
     const dex = ECO.dex.coins.reduce((a, b) => a + b, 0) * SPECIES.filter((s) => s.inLevel).length;
-    assert.equal(dex, 8460);
+    assert.equal(dex, 4230);
   });
 
-  it('一关的收入不超过 40，一条命至少值两关，一个技能至少值四关（第 6.3 节守住的几条）', () => {
+  it('一关的收入不超过 40，一条命至少值两关，一个技能至少值六关（第 6.3 节守住的几条）', () => {
     const levelMax = ECO.challengeCoins; // 挑战关 40 是过关部分的上限；连击另算，见下
     assert.ok(ECO.levelCoins + ECO.combo.maxCoinsPerLevel + ECO.combo.bestBonus.max <= 40, '普通关最多 40');
     assert.ok(levelMax <= 40);
     assert.ok(ECO.lives.buyOneCoins >= 2 * 34, '一条命 ≥ 两关收入（一关约 34）');
-    for (const p of Object.values(ECO.toolPrice)) assert.ok(p >= 4 * 34, '最便宜的技能也要四关的收入：挣的不够买，才会缺金币');
-    assert.ok(ECO.bowlSlotCoinPrice >= 4 * 34);
+    for (const p of Object.values(ECO.toolPrice)) assert.ok(p >= 6 * 34, '最便宜的技能也要六关的收入：挣的不够买，才会缺金币');
+    assert.ok(ECO.bowlSlotCoinPrice >= 6 * 34);
   });
 });
 
