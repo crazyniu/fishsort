@@ -41,6 +41,7 @@ function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
   lv.orders = makeOrders(rng, ns, total, p.big ?? 0);
   lv.fieldCap = Math.trunc(p.cap ?? 0);
   lv.bubbles = makeBubbles(rng, total, p.layers, lv.fieldCap, p.per_min ?? 1, p.per_max ?? 5, p.per_avg ?? 3.0);
+  if (lv.fieldCap > 0 && (p.cover ?? 0) > 0) addCovers(rng, lv, p.cover as number, p.coverMax ?? 2);
 
   const s = GameState.fromLevel(lv);
   start(s);
@@ -214,6 +215,34 @@ function makeBubbles(
     });
   }
   return out;
+}
+
+/**
+ * 掉落关的「压住」：一部分气泡落下来时压在刚落下的另一个气泡上（docs/02 第 1 节）。
+ * - 压的只有一个（under 只有一项），而且是它前面 COVER_NEAR 个里的：刚落下的在堆的最上面，后一个落下来正好压住它，画面摆得出来
+ * - 被压的要等压着它的都破了才能点；一个气泡上面最多压 COVER_ON 个；压人的自己也可以再被压，一摞最多 depthMax 层
+ */
+const COVER_NEAR = 3;
+const COVER_ON = 2;
+
+function addCovers(rng: Rng, lv: LevelData, share: number, depthMax: number): void {
+  const n = lv.bubbles.length;
+  const depth: number[] = [];
+  const on: number[] = [];
+  for (let i = 0; i < n; i++) {
+    depth.push(0);
+    on.push(0);
+    if (i === 0 || rng.randf() >= share) continue;
+    const pool: number[] = [];
+    // 开局那一批和后面掉下来的分开：后面掉下来的不去压开局就在场上的
+    const lo = Math.max(i < lv.fieldCap ? 0 : lv.fieldCap, i - COVER_NEAR);
+    for (let j = lo; j < i; j++) if (depth[j] < depthMax && on[j] < COVER_ON) pool.push(j);
+    if (pool.length === 0) continue;
+    const j = rng.pick(pool);
+    lv.bubbles[i].under = [j];
+    depth[i] = depth[j] + 1;
+    on[j] += 1;
+  }
 }
 
 /**

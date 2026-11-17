@@ -14,7 +14,7 @@ import * as Alive from '../ui/alive';
 import { CARD_ASPECT, miniCard } from '../ui/popups';
 import { bob, ring, sparkle } from '../ui/fx';
 import { at, box, img, opacity, setImg, text } from '../ui/kit';
-import { Pile } from './pile';
+import { Pile, type PileLink } from './pile';
 
 interface View {
   node: Node;
@@ -87,6 +87,8 @@ export class Field {
 
   /** 这关有叠层：上层气泡垫磨砂底 */
   private layered = false;
+  /** 掉落关里有气泡压着别的气泡 */
+  private stacked = false;
   /** 冰晶连线画在所有气泡上面的一层 */
   private linkLayer!: Node;
   /** 重力模拟 */
@@ -117,6 +119,9 @@ export class Field {
       centers.push([(d.x - 0.5) * fw, (FIELD_H / 2 - d.y) * fw]);
       covered = covered || d.under.length > 0;
     }
+    // 掉落关里也有「压住」（后落下的压住先落下的，docs/02 第 1 节）：照掉落关摆，压着的一对用带子连着
+    this.stacked = covered && this.lv.fieldCap > 0;
+    covered = covered && !this.stacked;
     this.layered = covered;
     if (!covered) {
       // 掉落关：气泡大小的差别压小一半（1 条鱼的泡不那么小、5 条鱼的不那么大）。气泡的大小是按「最大的那几个同时在场」
@@ -153,7 +158,8 @@ export class Field {
       this.run();
     } else {
       // 没遮挡：开局在场的气泡先藏在场地上沿（只露出一点，不盖住上面的鱼缸），从低到高一个接一个放下来
-      const first = this.views.map((_, i) => i).filter((i) => !this.views[i].queued).sort((a, b) => this.views[a].home[1] - this.views[b].home[1]);
+      // 有压住的关按编号放：被压的先落、压它的后落
+      const first = this.views.map((_, i) => i).filter((i) => !this.views[i].queued).sort((a, b) => (this.stacked ? a - b : this.views[a].home[1] - this.views[b].home[1]));
       first.forEach((i, k) => {
         const v = this.views[i];
         at(v.node, v.home[0], this.h / 2 + v.r * 0.3);
@@ -194,6 +200,9 @@ export class Field {
     const v = this.views[i];
     if (v.gone) return;
     const m = v.r + App.config.ui.field.gap;
+    // 要压住别人的：对着被压的那个落下去（稍微偏一点，不正正盖在上面）
+    const under = this.stacked ? this.lv.bubbles[i].under.map((u) => this.pile.pos(u)).filter((q) => q !== null)[0] : null;
+    if (under) x = under[0] + (i % 2 === 0 ? 0.35 : -0.35) * v.r;
     const px = Math.min(Math.max(x, -this.w / 2 + m), this.w / 2 - m);
     v.node.active = true;
     at(v.node, px, this.h / 2 + v.r * 0.3);
@@ -202,16 +211,27 @@ export class Field {
     op.opacity = 0;
     tween(op).to(0.12, { opacity: 255 }).start();
     this.pile.add(i, px, this.h / 2 + v.r * 0.3, v.r);
+    if (this.stacked) this.regroup();
     this.run();
   }
 
   /** 互相压着的气泡（关卡数据里的 under）绑成一组；破掉的不算 */
   private regroup(): void {
-    const links: [number, number][] = [];
+    const links: PileLink[] = [];
     this.lv.bubbles.forEach((d, i) => {
-      for (const u of d.under) if (!this.views[i].gone && !this.views[u].gone) links.push([i, u]);
+      for (const u of d.under) {
+        if (this.views[i].gone || this.views[u].gone) continue;
+        links.push(this.stacked ? this.coverLink(i, u, this.views[i].r, this.views[u].r) : [i, u]);
+      }
     });
     this.pile.regroup(links);
+  }
+
+  /** 掉落关里 i 压着 u：两个圆心隔着「半径和 × coverDist」，压住的那个盖掉下面的一部分，下面的鱼还看得见 */
+  private coverLink(i: number, u: number, ri: number, ru: number): PileLink {
+    const f = App.config.ui.field;
+    const rest = (ri + ru) * (f.coverDist ?? 0.8);
+    return [i, u, rest, rest * (f.coverMin ?? 0.92)];
   }
 
   /** 模拟醒着的时候每帧推进一步，把气泡节点摆到算出来的位置；停稳了就停 */
@@ -312,10 +332,13 @@ export class Field {
     const cap = Math.min(cfg.field.maxRadius, this.w * 0.24) / biggest;
     let lo = 0.5;
     let hi = Math.max(lo, cap);
-    if (this.settledTop(centers, radii, n, covered, hi) > limit) {
+    // 有压住的掉落关也按「最大的 n 个互不相叠」算：压着的一对只叠掉一成左右的面积（coverDist 0.8），堆只矮半成，
+    // 而按实际叠着的算会把气泡定大，打到中途堆会高出场地
+    const top = (f: number) => this.settledTop(centers, radii, n, covered, f);
+    if (top(hi) > limit) {
       for (let k = 0; k < 7; k++) {
         const mid = (lo + hi) / 2;
-        if (this.settledTop(centers, radii, n, covered, mid) > limit) hi = mid;
+        if (top(mid) > limit) hi = mid;
         else lo = mid;
       }
       hi = lo;
@@ -672,7 +695,9 @@ export class Field {
       // 被压住的不带流光，和能点的一眼分开
       const sheen = v.skin.parent?.getChildByName('sheen');
       if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
-      opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
+      // 磨砂底：叠层关能点的都垫；掉落关只给正压着别人的垫（不让下面的鱼透上来和自己的鱼混在一起）
+      const onTop = this.stacked && this.lv.bubbles[i].under.some((u) => s.bubbles[u].onField && s.bubbles[u].count() > 0);
+      opacity(v.fill).opacity = !dimmed && (this.layered || onTop) ? 150 : 0;
       for (const f of v.fish) {
         if (!f) continue;
         (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : WHITE;

@@ -54,7 +54,13 @@ interface Link {
   b: Body;
   min: number;
   max: number;
+  /** max 最后要收到多少（刚连上时两个离得远，带子按 separate 的速度慢慢收短，不一下子拽过去） */
+  rest: number;
+  key: string;
 }
+
+/** 一对遮挡：[压人的, 被压的, 设计距离, 最近距离]。后两项不填 = 第一次见到时的距离、它的 linkMin 倍 */
+export type PileLink = [number, number, number?, number?];
 
 const pairKey = (a: number, b: number) => (a < b ? `${a}_${b}` : `${b}_${a}`);
 
@@ -65,6 +71,8 @@ export class Pile {
   private linked = new Set<string>();
   /** 每一对遮挡第一次见到时的距离（设计距离），之后重新连带都按它 */
   private rest = new Map<string, number>();
+  /** 每条带子现在放到多长（还没收到设计距离的） */
+  private reach = new Map<string, number>();
   private calm = 0;
   /** 成对的宽限：键是「小 id_大 id」，值是还允许叠多少 */
   private slack = new Map<string, number>();
@@ -115,16 +123,19 @@ export class Pile {
    * 按遮挡关系连弹性带：links 里每一对 [a, b] 表示这两个气泡一个压着另一个。
    * 第一次见到的一对按现在的距离记成设计距离；破掉的气泡连着的带自然没了，上面的就往下落
    */
-  regroup(links: [number, number][]): void {
+  regroup(links: PileLink[]): void {
+    for (const l of this.links) this.reach.set(l.key, l.max);
+    const reach = this.reach;
+    this.reach = new Map();
     this.links = [];
     this.linked.clear();
-    for (const [ia, ib] of links) {
+    for (const [ia, ib, want, least] of links) {
       const a = this.bodies.get(ia);
       const b = this.bodies.get(ib);
       if (!a || !b) continue;
       const key = pairKey(ia, ib);
       if (this.linked.has(key)) continue;
-      let d = this.rest.get(key);
+      let d = want ?? this.rest.get(key);
       if (d === undefined) {
         // 设计上几乎同心的一对也留一点距离，不然方向不定
         d = Math.max(Math.hypot(b.x - a.x, b.y - a.y), Math.min(a.r, b.r) * 0.2);
@@ -132,7 +143,9 @@ export class Pile {
       }
       this.linked.add(key);
       this.slack.delete(key);
-      this.links.push({ a, b, min: d * this.cfg.linkMin, max: d });
+      // 给了设计距离的（掉落关里后落下的压住先落下的）：带子从现在的距离起慢慢收短
+      const max = want === undefined ? d : Math.max(d, reach.get(key) ?? Math.hypot(b.x - a.x, b.y - a.y));
+      this.links.push({ a, b, min: least ?? d * this.cfg.linkMin, max, rest: d, key });
     }
     this.forgive();
     this.wake();
@@ -165,6 +178,7 @@ export class Pile {
         else this.slack.set(key, left);
       }
     }
+    for (const l of this.links) if (l.max > l.rest) l.max = Math.max(l.rest, l.max - c.separate * Math.min(dt, 1 / 30));
     for (let s = 0; s < n; s++) {
       const k = Math.max(0, 1 - c.damping * h);
       for (const b of list) {

@@ -73,12 +73,15 @@ export function errors(lv: LevelData): string[] {
       have.set(f, (have.get(f) ?? 0) + 1);
     }
     if (lv.fieldCap > 0) {
-      if (b.under.length > 0) out.push(`掉落关的气泡 ${idx} 不能压住别的气泡`);
+      // 掉落关：后落下的可以压住一个先落下的（编号比它小），层数都是 1
+      if (b.under.length > 1) out.push(`掉落关的气泡 ${idx} 压住了 ${b.under.length} 个气泡，最多 1 个`);
       if (b.layer !== 1) out.push(`掉落关的气泡 ${idx} layer 必须为 1`);
     }
     chainSum += b.chain;
     for (const u of b.under) {
-      if (!layer.has(u) || (layer.get(u) as number) >= b.layer) out.push(`气泡 ${idx} 压住了不比它低的气泡 ${u}`);
+      if (lv.fieldCap > 0) {
+        if (!layer.has(u) || u >= idx) out.push(`掉落关的气泡 ${idx} 压住了不比它早落下的气泡 ${u}`);
+      } else if (!layer.has(u) || (layer.get(u) as number) >= b.layer) out.push(`气泡 ${idx} 压住了不比它低的气泡 ${u}`);
     }
     if (b.fog < 0) out.push(`气泡 ${idx} 的迷雾计数 ${b.fog} 不能是负数`);
     if (b.ice.length > 2) out.push(`气泡 ${idx} 的冰封依赖有 ${b.ice.length} 个，最多 2 个`);

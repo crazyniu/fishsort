@@ -107,7 +107,9 @@
   "fishMax": 160,
   "maxRadius": 150,
   "layerBoost": 1.15,
-  "radiusSpread": 0.25
+  "radiusSpread": 0.25,
+  "coverDist": 0.8,
+  "coverMin": 0.92
  },
  "badgeCap": 99,
  "homeDeco": {

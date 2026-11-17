@@ -294,7 +294,7 @@ export interface GameUiConfig {
   unlockGuide: { delay: number; lockSeconds: number; sparks: number };
   win: Record<string, number | string>;
   /** 场地：…maxRadius 是气泡半径的上限（气泡少的关卡放大到它为止） */
-  field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; radiusSpread?: number; maxRadius: number };
+  field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; radiusSpread?: number; coverDist?: number; coverMin?: number; maxRadius: number };
   badgeCap: number;
   homeDeco: { school: [string, number, number, number][] };
 }
