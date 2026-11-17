@@ -103,7 +103,9 @@ export function signInPopup(changed: () => void): void {
     });
     at(d.node, 160, -215);
   } else {
-    const t = text(p.body, tr('UI_CLAIMED'), 36);
-    at(t.node, 0, -215);
+    // 今天领过了：同一个位置放一个灰色、点不了的按钮（用户 2026-11-17：原来只有一行字，看着像空着）
+    const done = button(p.body, { color: 'gray', w: 400, h: 100, label: tr('UI_CLAIMED') });
+    done.setEnabled(false);
+    at(done.node, 0, -215);
   }
 }
