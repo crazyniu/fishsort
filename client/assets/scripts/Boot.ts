@@ -40,7 +40,7 @@ const DESIGN_HEIGHT = 1334;
 @ccclass('Boot')
 export class Boot extends Component {
   protected override onLoad(): void {
-    view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_WIDTH);
+    view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, Screen.wide() ? ResolutionPolicy.FIXED_HEIGHT : ResolutionPolicy.FIXED_WIDTH);
     Screen.init();
     profiler.hideStats();
     const canvas = this.createCanvas();
@@ -56,6 +56,7 @@ export class Boot extends Component {
 
   private async boot(canvas: Node): Promise<void> {
     await App.start();
+    Screen.applyPlatform(App.platform);
     await Promise.all([loadStrings(App.save.data.settings.lang ?? 'zh_CN'), preload(), initAudio(this.node)]);
     setTapSound((n) => sfx(n));
     startMusic();

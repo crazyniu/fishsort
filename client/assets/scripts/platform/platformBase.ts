@@ -20,6 +20,16 @@ export type Capability = 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';
 
+/** 屏幕上的一块区域，单位是平台的窗口坐标（微信是逻辑像素），附窗口宽高，界面层自己换算成设计单位 */
+export interface WindowRect {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  windowWidth: number;
+  windowHeight: number;
+}
+
 export abstract class PlatformBase {
   abstract readonly id: string;
 
@@ -70,6 +80,21 @@ export abstract class PlatformBase {
 
   hasCapability(_cap: Capability): boolean {
     return false;
+  }
+
+  /**
+   * 右上角平台自带的按钮（微信小游戏的「胶囊」：··· 和关闭），游戏的顶栏要让开它。没有返回 null
+   */
+  menuButton(): WindowRect | null {
+    return null;
+  }
+
+  /**
+   * 安全区（刘海、灵动岛、状态栏、底部手势条之外的区域）。返回 null = 用引擎的 sys.getSafeAreaRect()。
+   * 调试平台用它模拟刘海屏
+   */
+  safeArea(): WindowRect | null {
+    return null;
   }
 
   /** 启动参数：网页是地址栏的 ?level=65&autoplay=1，小游戏是启动 query */
