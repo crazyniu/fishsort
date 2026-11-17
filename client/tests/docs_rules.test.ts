@@ -94,6 +94,18 @@ describe('任务中心（docs/01 5.9）', () => {
     assert.equal(sum, 130, '能拿到的一共 130 分');
   });
 
+  it('新玩家第一天定表时不够 6 项：之后开放了新功能就补上，已有的和进度不动', () => {
+    const save = fresh(1);
+    const first = Tasks.list(save, ECO, MON).map((t) => t.id);
+    assert.ok(first.length < 6, '第 1 关时技能、抽奖、每日挑战都没开');
+    Tasks.add(save, ECO, MON, 'win', 2);
+    save.level = 25;
+    const later = Tasks.list(save, ECO, MON).map((t) => t.id);
+    assert.equal(later.length, 6);
+    assert.deepEqual(later.slice(0, first.length), first);
+    assert.equal(Tasks.progress(save, ECO, 'win', MON), 2);
+  });
+
   it('做完自动记积分，每日封顶 100，同时累计成本周积分', () => {
     const save = fresh(30);
     win(save, save.level, MON);

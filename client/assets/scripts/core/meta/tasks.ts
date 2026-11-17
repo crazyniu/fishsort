@@ -40,8 +40,19 @@ export function pick(eco: EconomyConfig, day: number, level: number): string[] {
 /** 跨天换一批任务、清进度。所有任务功能进来先调它 */
 export function sync(save: SaveData, eco: EconomyConfig, day: number): void {
   Daily.roll(save, day);
-  if (cfg(eco) === null || save.tasks.day === day) return;
-  save.tasks = { day, ids: pick(eco, day, save.level), prog: {}, claimed: [] };
+  const c = cfg(eco);
+  if (c === null) return;
+  if (save.tasks.day !== day) {
+    save.tasks = { day, ids: pick(eco, day, save.level), prog: {}, claimed: [] };
+    return;
+  }
+  // 当天定表时开放的功能少、不够数（新玩家第一天）：之后开放了新功能就补上，补满为止；已有的任务和进度不动（docs/01 5.9）
+  const want = c.fixed.length + c.random;
+  if (save.tasks.ids.length >= want) return;
+  for (const id of pick(eco, day, save.level)) {
+    if (save.tasks.ids.length >= want) break;
+    if (!save.tasks.ids.includes(id)) save.tasks.ids.push(id);
+  }
 }
 
 /** 今天的任务（按任务表的顺序） */
