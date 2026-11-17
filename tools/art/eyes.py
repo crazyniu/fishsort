@@ -17,6 +17,15 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 REPO = Path(__file__).resolve().parents[2]
+# 自动找不到的（瞳孔不是深色的：青色、灰蓝色），手量的眼睛外接框，图上的像素坐标 (x0, y0, x1, y1)。重跑时照样写进去
+MANUAL = {
+    'e16': [(49, 59, 73, 85)],  # 极光母：青色大眼睛（眼睛上方是星空花纹，眼皮颜色另取，见 LID）
+    'u69': [(42, 94, 64, 118)],  # 睡鲨鲨：灰蓝色眼睛
+}
+# 眼睛上方不是皮肤（花纹、头饰）时，手取的眼皮颜色
+LID = {
+    'e16': '#B58AFA',  # 眼睛旁边的淡紫色皮肤
+}
 SRC = REPO / 'client/assets/resources/fish'
 OUT = REPO / 'client/assets/resources/config/fish_eyes.json'
 
@@ -84,8 +93,15 @@ def find(path: Path):
             # 两只眼睛高度差不多
             if abs((c[2] + c[4]) / 2 - (eyes[0][2] + eyes[0][4]) / 2) < 30:
                 eyes.append(c)
+    return describe(a, [(x0, y0, x1, y1) for _n, x0, y0, x1, y1 in eyes])
+
+
+def describe(a: np.ndarray, boxes) -> list:
+    """每只眼睛：中心（图中心为原点、y 向上）、宽高、眼皮颜色"""
+    rgb, al = a[..., :3], a[..., 3]
+    h, w = al.shape
     res = []
-    for _n, x0, y0, x1, y1 in eyes:
+    for x0, y0, x1, y1 in boxes:
         # 眼皮颜色：眼睛正上方 3–8 像素那一圈、不透明也不深的像素取中位数
         ys0, ys1 = max(0, y0 - 9), max(0, y0 - 2)
         patch = a[ys0:ys1, x0:x1 + 1].reshape(-1, 4)
@@ -99,6 +115,13 @@ def find(path: Path):
 def main() -> None:
     out = {}
     for p in sorted(SRC.glob('*.png')):
+        if p.stem in MANUAL:
+            a = np.asarray(Image.open(p).convert('RGBA')).astype(np.float32) / 255.0
+            out[p.stem] = describe(a, MANUAL[p.stem])
+            if p.stem in LID:
+                for e in out[p.stem]:
+                    e['lid'] = LID[p.stem]
+            continue
         e = find(p)
         if e:
             out[p.stem] = e
