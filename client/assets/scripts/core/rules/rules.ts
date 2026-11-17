@@ -282,6 +282,39 @@ export function useBlow(s: GameState): GameEvent[] {
   return ev;
 }
 
+/**
+ * 暂存槽满了判输以后，用一个吹泡接着玩（docs/01 5.2，用户 2026-11-17：让玩家养成用道具的习惯——
+ * 快输的时候先让用道具，不直接进复活 / 失败）。只管「暂存槽满」这一种输法；不占每关一次的复活
+ */
+export function rescueBlow(s: GameState): GameEvent[] {
+  const ev: GameEvent[] = [];
+  if (s.status !== Status.LOST || s.loseReason !== LoseReason.BUFFER_FULL) return ev;
+  s.status = Status.PLAYING;
+  s.loseReason = LoseReason.NONE;
+  blow(s, ev);
+  return ev;
+}
+
+/**
+ * 卡住了没有：场上看得见、点得到的鱼（含回流位）没有一条能直接进缸——再点只能进暂存槽。
+ * 没显形的迷雾鱼不算（玩家不知道是什么）。界面用它提醒用道具（docs/01 5.2）
+ */
+export function noTarget(s: GameState): boolean {
+  if (s.status !== Status.PLAYING) return false;
+  for (const sp of s.returnFish) if (findSlot(s, sp) >= 0) return false;
+  let any = s.returnFish.length > 0;
+  for (const b of openBubbles(s)) {
+    const bub = s.bubbles[b];
+    if (bub.fog > 0) continue;
+    for (const sp of bub.fish) {
+      if (sp < 0) continue;
+      any = true;
+      if (findSlot(s, sp) >= 0) return false;
+    }
+  }
+  return any;
+}
+
 /** 洗牌：按当前局面重新构造一个可解的分布（各鱼种数量不变） */
 export function useShuffle(s: GameState, seed: number): GameEvent[] {
   const ev: GameEvent[] = [];

@@ -364,7 +364,7 @@ describe('局内生物分得清（docs/03 4.1）', () => {
 });
 
 describe('限时关（docs/01 第 4 节）', () => {
-  it('第 61 关起只有挑战关限时，普通关不限时；时间比机器人点完要的长', () => {
+  it('第 61 关起只有挑战关限时，普通关不限时；时间按真人手速定', () => {
     const curve = loadCurve();
     for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
@@ -374,9 +374,22 @@ describe('限时关（docs/01 第 4 节）', () => {
         let fish = 0;
         for (const b of lv.bubbles) fish += b.fish.length;
         const bot = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
-        assert.ok(t >= bot * 1.4, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
+        // 时间按真人手速定（约 1 秒一条鱼），比机器人的 1.5 秒一条短；至少够 0.8 秒一条
+        assert.ok(t >= fish * 0.8 && t < bot, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
       } else assert.equal(t, NO_TIMER, `第 ${id} 关不该限时`);
     }
+  });
+
+  it('限时关里连击加时间：没到起算不加，档位越高加得越多', () => {
+    const curve = loadCurve();
+    assert.equal(LevelCurve.comboSeconds(curve, -1), 0);
+    let prev = 0;
+    for (let tier = 0; tier < 4; tier++) {
+      const add = LevelCurve.comboSeconds(curve, tier);
+      assert.ok(add >= 1 && add >= prev, `第 ${tier} 档加 ${add} 秒`);
+      prev = add;
+    }
+    assert.equal(LevelCurve.comboSeconds(curve, 9), prev, '超出的档位按最高档');
   });
 
   it('暂存槽：前 180 关 5 格，第 181 关起 4 格；第 26 关起同时在场至少 14 个气泡', () => {

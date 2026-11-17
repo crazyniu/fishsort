@@ -28,7 +28,7 @@
   "ease": {"species": 1, "fish": 3, "cap": 1, "slack": 1},
   "targets": {"start": 97, "end": 55, "first": 3, "last": 120, "tol": 6, "easyFrom": 90, "tutorialUntil": 2, "challengeDrop": [10, 25], "challengeFloor": 15, "challengeDropUntil": 50, "tail": {"to": 240, "end": 35}, "bowl3": {"plus": 10, "easyFrom": 90, "capFrom": 26, "capPlus": 30, "cap": 95}, "segmentOffset": {"layered": 0, "drop": 0}},
   "bot": {"tapSec": 1.5, "bowlSec": 1.5},
-  "clock": {"challengeFrom": 61, "factor": [1.6, 1.4], "step": 5, "min": 60},
+  "clock": {"challengeFrom": 61, "factor": [0.55, 0.5], "step": 5, "min": 60, "comboSeconds": [1, 1, 1, 2]},
   "buffer": [[1, 5], [181, 4]],
   "timer": {"loose": 2, "min": 45, "max": 90, "step": 5, "maxSteps": 20},
   "gen": {"seeds": 40, "seedsMore": 40, "probes": 6, "probesFine": 4, "band": 0.1, "knobMax": 1.6, "close": 3, "variantSeeds": 45, "capMin": 14, "perAvgMin": 2.0, "fishNudge": 3, "monotoneMargin": 3, "variantMargin": 4, "runs": 40, "verifyRuns": 400, "verifySeedBase": 1000, "tol40": 12, "giveUpSeeds": 10, "bowl3Seeds": 8}

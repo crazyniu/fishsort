@@ -157,6 +157,16 @@ function challenge(curve: CurveConfig, id: number, p: GenParams): void {
   else p.cap = Math.max(c.capMin, (p.cap as number) - c.capMinus);
 }
 
+/**
+ * 限时关里连击加时间（docs/01 第 4 节，用户 2026-11-17：时间给短一点，用连击把时间挣回来）：
+ * 连击起算以后每命中一次加几秒，按连击档位（economy.json 的 combo.tiers 的下标）查 clock.comboSeconds；没配或没到起算是 0
+ */
+export function comboSeconds(curve: CurveConfig, tier: number): number {
+  const t = curve.clock?.comboSeconds;
+  if (!t || tier < 0 || t.length === 0) return 0;
+  return t[Math.min(tier, t.length - 1)];
+}
+
 /** 第 id 关暂存槽几格：level_curve.json 的 buffer 是 [从第几关起, 几格] 的表，没配就是 5 格 */
 export function bufferFor(curve: CurveConfig, id: number): number {
   let n = 5;

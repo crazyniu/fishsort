@@ -65,6 +65,8 @@ type SkillId = (typeof SKILLS)[number];
 
 /** 连击四档的颜色（docs/01 3.2：蓝、金、红、紫） */
 const COMBO_COLORS = [new Color(110, 215, 255), new Color(255, 214, 64), new Color(255, 110, 80), new Color(214, 130, 255)];
+/** 限时关连击加时间飘的「+N」的颜色 */
+const CLOCK_PLUS = new Color(130, 245, 140);
 /** 升档夸奖词的字色：压在蓝色飘带上要看得清，比档位色更亮 */
 const PRAISE_FILL = [new Color(150, 240, 255), new Color(255, 222, 70), new Color(255, 150, 120), new Color(235, 170, 255)];
 /** 连击「满屏」的强度，按档位（docs/01 3.2）：四边光框的亮度、背景放射光的亮度和转一圈的秒数、每秒冒几个光点 */
@@ -187,6 +189,8 @@ export class GamePage extends Page {
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
   private nudged = new Set<string>();
+  /** 小手现在指着哪个道具 */
+  private pointed: SkillId | null = null;
   private fieldTop = 0;
   private fieldBottom = 0;
   private total = 0;
@@ -272,6 +276,7 @@ export class GamePage extends Page {
     this.bufferSlots = [];
     this.warned.clear();
     this.nudged.clear();
+    this.pointed = null;
     this.plusNodes = [];
     this.skillNodes.clear();
     this.hintNode = null;
@@ -470,10 +475,16 @@ export class GamePage extends Page {
         tween(op).repeatForever(tween(op).to(0.3, { opacity: 140 }).to(0.3, { opacity: 255 })).start();
       } else this.warned.delete(sl);
     });
-    // 暂存槽只剩 2 格时，能救场的技能键发光跳动（docs/01 5.2）
-    const nudge = free <= App.config.ui.buffer.skillNudgeFree && this.s.status === Status.PLAYING;
+    // 暂存槽只剩 2 格、或者场上没有一条鱼能直接进缸（再点只能进暂存槽）时，能救场的技能键发光跳动，
+    // 其中最对症的那个再放一只小手指着（docs/01 5.2，用户 2026-11-17：让玩家养成用道具的习惯）
+    const cfg = App.config.ui.buffer;
+    const playing = this.s.status === Status.PLAYING && !this.finishing && this.moved;
+    const tight = free <= cfg.skillNudgeFree && this.s.status === Status.PLAYING;
+    const stuck = playing && cfg.nudgeWhenStuck === true && Rules.noTarget(this.s);
+    const nudge = tight || stuck;
+    this.pointSkill(nudge && playing ? this.handSkill(tight ? cfg.nudgeHand?.full : cfg.nudgeHand?.stuck) : null);
     for (const [id, v] of this.skillNodes) {
-      const can = !v.lock.active && App.config.ui.buffer.rescueSkills.includes(id);
+      const can = !v.lock.active && cfg.rescueSkills.includes(id);
       const on = nudge && can;
       const glowing = this.nudged.has(id);
       if (on && !glowing) {
@@ -484,6 +495,30 @@ export class GamePage extends Page {
         Tween.stopAllByTarget(v.icon);
         v.icon.setScale(1, 1, 1);
       }
+    }
+  }
+
+  /** 小手该指哪个道具：按顺序挑第一个解锁了、本关没用完的（库存是 0 也指：点了去买或看广告） */
+  private handSkill(order: string[] | undefined): SkillId | null {
+    if (!order) return null;
+    const s = App.save.data;
+    for (const id of order) {
+      const v = this.skillNodes.get(id as SkillId);
+      if (!v || v.lock.active) continue;
+      const why = Skills.canUse(s, App.config.eco, id, this.used[id] ?? 0, this.arg.daily ? 0 : this.arg.level);
+      if (why === '' || why === 'empty') return id as SkillId;
+    }
+    return null;
+  }
+
+  /** 把小手放到 id 这个道具键上（null = 收起来） */
+  private pointSkill(id: SkillId | null): void {
+    if (this.pointed === id) return;
+    if (this.pointed) this.skillNodes.get(this.pointed)?.node.getChildByName('finger')?.destroy();
+    this.pointed = id;
+    if (id) {
+      const v = this.skillNodes.get(id);
+      if (v) addFinger(v.node);
     }
   }
 
@@ -1009,6 +1044,7 @@ export class GamePage extends Page {
       if (r.count >= 2) this.hitPop(`×${r.count}`, 30 + r.count * 4);
       return;
     }
+    this.comboClock(r.tier);
     const col = COMBO_COLORS[r.tier] ?? COLOR.white;
     const was = this.comboRow.active && !this.comboBreaking;
     this.comboBreaking = false;
@@ -1522,6 +1558,19 @@ export class GamePage extends Page {
       .call(() => n.destroy())
       .start();
     ui.toast(tr('GUEST_SAVED', speciesName(g.id)));
+  }
+
+  /** 限时关里连击加时间（docs/01 第 4 节）：倒计时条弹一下，下面飘一个绿色的「+N」 */
+  private comboClock(tier: number): void {
+    const cap = this.clockCap;
+    if (!cap || this.s.clock === NO_TIMER || this.s.status !== Status.PLAYING) return;
+    const add = LevelCurve.comboSeconds(App.config.curve, tier);
+    if (add <= 0) return;
+    this.s.clock += add;
+    this.syncClock();
+    const l = text(null, `+${add}`, 34, { color: CLOCK_PLUS, outline: COLOR.navy, outlineWidth: 4 });
+    fx.floatUp(this.fly, l.node, cap.node.position.x, cap.node.position.y - 44, 30, 0.7);
+    if (!this.clockWarn) fx.punch(cap.node, 1.12, 0.18);
   }
 
   /** 限时关的倒计时：剩 clockWarn 秒以内变红、一跳一跳的（时间在 game_ui.json 的 clock.warn） */

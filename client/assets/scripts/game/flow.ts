@@ -408,8 +408,72 @@ export function lose(g: GamePage): void {
     autoRetry(g);
     return;
   }
+  // 暂存槽满了、手里还有能用的吹泡：先让用道具接着玩，不直接进复活 / 失败（docs/01 5.2）
+  if (g.s.loseReason === LoseReason.BUFFER_FULL && !g.arg.daily && canRescue(g)) rescuePopup(g);
+  else afterRescue(g);
+}
+
+function afterRescue(g: GamePage): void {
   if (!g.s.revived && App.platform.adsAvailable()) revivePopup(g);
   else failPopup(g);
+}
+
+/** 救场用哪个道具（暂存槽满 → 吹泡） */
+const RESCUE_SKILL = 'blow';
+
+function canRescue(g: GamePage): boolean {
+  return Skills.canUse(App.save.data, App.config.eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, g.arg.level) === '';
+}
+
+/**
+ * 「暂存槽满了」：大大的吹泡图标 + 还有几个（今天的免费次写「免费」），主按钮「用吹泡」——扣一个、清空暂存槽、接着玩；
+ * 「不用」走原来的复活 / 失败。不看广告、不占每关一次的复活，算本关用了一次吹泡
+ */
+function rescuePopup(g: GamePage): void {
+  g.paused = true;
+  const s = App.save.data;
+  const eco = App.config.eco;
+  const p = openPopup({ w: 640, h: 760, title: tr('RESCUE_TITLE'), noClose: true, mascot: null });
+  const icon = img(p.body, `icon/skill_${RESCUE_SKILL}`, 240, 240, 'skill');
+  at(icon, 0, 140);
+  fx.breathe(icon, 0.06, 0.8);
+  const free = Skills.freeAvailable(s, RESCUE_SKILL);
+  const tag = slice(icon, 'kit/tag_red', free ? 120 : 96, 56, 'count');
+  at(tag, 100, 90);
+  at(text(tag, free ? tr('UI_SKILL_FREE') : `×${Skills.count(s, RESCUE_SKILL)}`, 30).node, 0, 2);
+  const line = text(p.body, tr('RESCUE_LINE'), 34, { width: 540 });
+  at(line.node, 0, -60);
+  const use = button(p.body, {
+    color: 'green',
+    w: 500,
+    h: 110,
+    label: tr('RESCUE_USE'),
+    onTap: () => {
+      const r = Skills.tryUse(s, eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, today(), g.arg.level);
+      if (!r.ok) return;
+      g.used[RESCUE_SKILL] = (g.used[RESCUE_SKILL] ?? 0) + 1;
+      App.save.write();
+      p.close();
+      g.paused = false;
+      sfx(RESCUE_SKILL);
+      const ev = Rules.rescueBlow(g.s);
+      g.resync();
+      g.play(ev, false);
+      g.refreshSkills();
+    },
+  });
+  at(use.node, 0, -190);
+  const skip = button(p.body, {
+    color: 'blue',
+    w: 460,
+    h: 92,
+    label: tr('RESCUE_SKIP'),
+    onTap: () => {
+      p.close();
+      afterRescue(g);
+    },
+  });
+  at(skip.node, 0, -300);
 }
 
 /** 复活（定版图 14）：按失败原因写效果，每关一次，看广告 */
