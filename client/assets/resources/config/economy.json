@@ -1,6 +1,6 @@
 {
-  "levelCoins": 100,
-  "challengeCoins": 200,
+  "levelCoins": 20,
+  "challengeCoins": 40,
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
@@ -9,27 +9,27 @@
     "current": 0
   },
   "toolPrice": {
-    "shuffle": 500,
-    "blow": 600,
-    "net": 900,
-    "current": 1200
+    "shuffle": 150,
+    "blow": 180,
+    "net": 240,
+    "current": 300
   },
   "toolMaxPerLevel": 2,
   "toolMaxLate": {
     "from": 121,
     "max": 3
   },
-  "bowlSlotCoinPrice": 650,
+  "bowlSlotCoinPrice": 180,
   "freeBowlSlotAfterFails": 4,
   "dupeCoins": {
-    "common": 50,
-    "uncommon": 125,
-    "rare": 300,
-    "epic": 750,
-    "legend": 2500
+    "common": 10,
+    "uncommon": 25,
+    "rare": 60,
+    "epic": 150,
+    "legend": 500
   },
   "freeCoin": {
-    "amount": 300,
+    "amount": 60,
     "daily": 5
   },
   "easeAfterFails": [
@@ -39,7 +39,7 @@
   "combo": {
     "windowSeconds": 2.0,
     "startAt": 4,
-    "maxCoinsPerLevel": 60,
+    "maxCoinsPerLevel": 12,
     "tiers": [
       {
         "at": 4,
@@ -48,17 +48,17 @@
       },
       {
         "at": 7,
-        "coins": 2,
+        "coins": 1,
         "key": "UI_COMBO_T2"
       },
       {
         "at": 10,
-        "coins": 3,
+        "coins": 1,
         "key": "UI_COMBO_T3"
       },
       {
         "at": 15,
-        "coins": 5,
+        "coins": 2,
         "key": "UI_COMBO_T4"
       }
     ],
@@ -69,8 +69,8 @@
     },
     "bestBonus": {
       "minCombo": 6,
-      "coinsPerCombo": 2,
-      "max": 40
+      "coinsPerCombo": 1,
+      "max": 8
     }
   },
   "mechanicIntro": {
@@ -94,8 +94,8 @@
     "max": 5,
     "regenSeconds": 1200,
     "freeUntilLevel": 5,
-    "buyOneCoins": 400,
-    "refillCoins": 1500,
+    "buyOneCoins": 80,
+    "refillCoins": 300,
     "firstWinUnlimitedSeconds": 600,
     "adDaily": 5
   },
@@ -107,7 +107,8 @@
       "current"
     ],
     "grantOnUnlock": 2,
-    "freePerDay": 1
+    "freePerDay": 1,
+    "freeDaily": 1
   },
   "seas": [
     {
@@ -207,7 +208,7 @@
           "e09"
         ],
         "reward": {
-          "coins": 1000,
+          "coins": 200,
           "tools": 1
         }
       },
@@ -257,7 +258,7 @@
           "e13"
         ],
         "reward": {
-          "coins": 1200,
+          "coins": 240,
           "tools": 1
         }
       },
@@ -307,7 +308,7 @@
           "e18"
         ],
         "reward": {
-          "coins": 1500,
+          "coins": 300,
           "tools": 1
         }
       },
@@ -357,7 +358,7 @@
           "e21"
         ],
         "reward": {
-          "coins": 2000,
+          "coins": 400,
           "tools": 1
         }
       },
@@ -407,7 +408,7 @@
           "e25"
         ],
         "reward": {
-          "coins": 2500,
+          "coins": 500,
           "tools": 1
         }
       },
@@ -460,7 +461,7 @@
           "l02"
         ],
         "reward": {
-          "coins": 3000,
+          "coins": 600,
           "tools": 1
         }
       },
@@ -510,7 +511,7 @@
           "e35"
         ],
         "reward": {
-          "coins": 3500,
+          "coins": 700,
           "tools": 1
         }
       },
@@ -560,7 +561,7 @@
           "e40"
         ],
         "reward": {
-          "coins": 4000,
+          "coins": 800,
           "tools": 1
         }
       },
@@ -610,7 +611,7 @@
           "e45"
         ],
         "reward": {
-          "coins": 4500,
+          "coins": 900,
           "tools": 1
         }
       },
@@ -660,7 +661,7 @@
           "e50"
         ],
         "reward": {
-          "coins": 5000,
+          "coins": 1000,
           "tools": 1
         }
       },
@@ -710,7 +711,7 @@
           "e55"
         ],
         "reward": {
-          "coins": 5500,
+          "coins": 1100,
           "tools": 1
         }
       },
@@ -760,13 +761,13 @@
           "e60"
         ],
         "reward": {
-          "coins": 6000,
+          "coins": 1200,
           "tools": 1
         }
       }
     ],
     "final": {
-      "coins": 10000,
+      "coins": 2000,
       "tools": 3,
       "unlimited": 10800
     }
@@ -778,21 +779,21 @@
       300
     ],
     "coins": [
-      50,
-      100,
-      300
+      10,
+      20,
+      60
     ]
   },
   "dailyChallenge": {
     "levelStep": 5,
-    "retryCoins": 300,
+    "retryCoins": 60,
     "reward": {
-      "coins": 300,
+      "coins": 60,
       "skills": 1
     },
     "streakDays": 7,
     "streakReward": {
-      "coins": 1500,
+      "coins": 300,
       "tools": 1,
       "unlimited": 3600
     }
@@ -856,19 +857,19 @@
       {
         "points": 20,
         "reward": {
-          "coins": 80
+          "coins": 16
         }
       },
       {
         "points": 50,
         "reward": {
-          "skills": 1
+          "coins": 20
         }
       },
       {
         "points": 80,
         "reward": {
-          "coins": 120
+          "coins": 24
         }
       },
       {
@@ -885,7 +886,7 @@
       {
         "points": 150,
         "reward": {
-          "coins": 300,
+          "coins": 60,
           "skills": 1
         }
       },
@@ -898,7 +899,7 @@
       {
         "points": 550,
         "reward": {
-          "coins": 400,
+          "coins": 80,
           "tools": 1,
           "unlimited": 1800
         },
@@ -926,8 +927,8 @@
       "coins": 35,
       "skill": 12,
       "card": 53,
-      "coinMin": 30,
-      "coinMax": 80
+      "coinMin": 6,
+      "coinMax": 16
     },
     "challengeRareBoost": 2,
     "cardRates": {
@@ -944,8 +945,8 @@
     "firstWinSpins": 1,
     "shareSpins": 1,
     "adPerDay": 3,
-    "coinCost": 1000,
-    "tenCost": 9000,
+    "coinCost": 200,
+    "tenCost": 1800,
     "tenCount": 10,
     "tenMinRarity": "rare",
     "pityAfter": 30,
@@ -955,19 +956,19 @@
       {
         "id": "coin200",
         "kind": "coins",
-        "amount": 200,
+        "amount": 40,
         "weight": 24
       },
       {
         "id": "coin500",
         "kind": "coins",
-        "amount": 500,
+        "amount": 100,
         "weight": 14
       },
       {
         "id": "coin2000",
         "kind": "coins",
-        "amount": 2000,
+        "amount": 400,
         "weight": 3
       },
       {
@@ -1016,10 +1017,10 @@
   },
   "signInDays": [
     {
-      "coins": 200
+      "coins": 40
     },
     {
-      "coins": 300
+      "coins": 60
     },
     {
       "chest": {
@@ -1028,7 +1029,7 @@
       }
     },
     {
-      "coins": 500
+      "coins": 100
     },
     {
       "wheel": 1
@@ -1039,7 +1040,7 @@
     {
       "bigChest": {
         "minRarity": "rare",
-        "coins": 1000,
+        "coins": 200,
         "unlimitedSeconds": 1800
       }
     }
@@ -1060,7 +1061,7 @@
     "card": {
       "daily": 3,
       "reward": {
-        "coins": 200
+        "coins": 40
       }
     },
     "help": {

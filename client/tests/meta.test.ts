@@ -85,21 +85,21 @@ describe('生命（docs/01 5.1）', () => {
     assert.equal(Lives.unlimitedLeft(save, T0 + 800), 1700, '窗口顺延叠加');
   });
 
-  it('金币买命：400 一条，1500 补满', () => {
+  it('金币买命：80 一条，300 补满', () => {
     const [save, eco] = setup();
     save.coins = 5000;
     assert.ok(!Lives.buyOne(save, eco, T0), '满命不能买');
     for (let i = 0; i < 3; i++) Lives.lose(save, eco, 10, true, T0);
     assert.ok(Lives.buyOne(save, eco, T0));
-    assert.equal(save.coins, 4600);
+    assert.equal(save.coins, 4920);
     assert.equal(Lives.count(save, eco, T0), 3);
     assert.ok(Lives.buyRefill(save, eco, T0));
-    assert.equal(save.coins, 3100);
+    assert.equal(save.coins, 4620);
     assert.equal(Lives.count(save, eco, T0), 5);
-    save.coins = 100;
+    save.coins = 50;
     Lives.lose(save, eco, 10, true, T0);
     assert.ok(!Lives.buyOne(save, eco, T0));
-    assert.equal(save.coins, 100);
+    assert.equal(save.coins, 50);
   });
 
   it('看广告得 1 条，每天 5 次，满命不给', () => {
@@ -149,11 +149,11 @@ describe('连败、广告频控、免费金币', () => {
     assert.ok(!Meta.shouldShowInterstitial(save, a, 10, 2000.0), '刚看完激励视频则跳过');
   });
 
-  it('商店看广告领金币：300，每天 5 次', () => {
+  it('商店看广告领金币：60，每天 5 次', () => {
     const [save, eco] = setup();
     for (let i = 0; i < 5; i++) assert.ok(Meta.takeFreeCoin(save, eco, 9));
     assert.ok(!Meta.takeFreeCoin(save, eco, 9));
-    assert.equal(save.coins, 1500);
+    assert.equal(save.coins, 300);
     assert.equal(Meta.freeCoinLeft(save, eco, 10), 5);
   });
 
@@ -172,7 +172,7 @@ describe('连败、广告频控、免费金币', () => {
 });
 
 describe('连击（docs/01 3.2）', () => {
-  it('4 连起算（4 / 7 / 10 / 15 四档），每次 1/2/3/5 金币，封顶 60，最高连击奖 ×2 封顶 40', () => {
+  it('4 连起算（4 / 7 / 10 / 15 四档），每次 1/1/1/2 金币，封顶 12，最高连击奖 ×1 封顶 8', () => {
     const cfg = ECO.combo;
     const combo = new Combo();
     const rng = new Rng(1);
@@ -181,16 +181,17 @@ describe('连击（docs/01 3.2）', () => {
       last = combo.hit(i * 0.5, cfg, rng);
       if (i === 2) assert.equal(last.tier, -1, '3 连还不算连击');
       if (i === 3) assert.ok(last.tier_up && last.coins === 1, '4 连进第一档');
-      if (i === 6) assert.ok(last.tier_up && last.coins === 2, '7 连进第二档');
+      if (i === 6) assert.ok(last.tier_up && last.coins === 1, '7 连进第二档');
     }
     assert.equal(last.tier, 3);
     assert.ok(combo.cardWon, '20 连必送收藏卡');
-    assert.equal(combo.coins, 3 * 1 + 3 * 2 + 5 * 3 + 6 * 5);
-    assert.equal(combo.bestBonus(cfg), 40);
+    // 3 × 1 + 3 × 1 + 5 × 1 + 6 × 2 = 23，超过每关上限 12
+    assert.equal(combo.coins, 12);
+    assert.equal(combo.bestBonus(cfg), 8);
     assert.equal(combo.hit(100.0, cfg, rng).count, 1, '超时后重新计数');
     const many = new Combo();
     for (let i = 0; i < 60; i++) many.hit(i * 0.5, cfg, rng);
-    assert.equal(many.coins, 60, '每关连击金币上限 60');
+    assert.equal(many.coins, 12, '每关连击金币上限 12');
   });
 
   it('收藏没开放不送卡', () => {
@@ -202,7 +203,7 @@ describe('连击（docs/01 3.2）', () => {
 });
 
 describe('技能与功能开放（docs/01 5.2、5.3）', () => {
-  it('解锁送 2 个、每天第一次免费、每关最多 2 次', () => {
+  it('解锁送 2 个、每天免费 1 次（不分种类）、每关最多 2 次', () => {
     const [save, eco] = setup(1);
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 0, 5).reason, 'locked');
     save.level = 4;
@@ -220,13 +221,15 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.count(save, 'shuffle'), 1);
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5).reason, 'limit');
     assert.ok(Skills.tryUse(save, eco, 'shuffle', 0, 6).free, '第二天免费次刷新');
+    // 今天的免费次已经被洗牌用掉了：别的技能没有库存就用不了（原来每种各免费一次）
     save.tools.blow = 0;
-    Skills.tryUse(save, eco, 'blow', 0, 6);
-    assert.equal(Skills.tryUse(save, eco, 'blow', 1, 6).reason, 'empty');
-    save.coins = 1200;
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 6).reason, 'empty');
+    assert.ok(!Skills.freeAvailable(save, 'net', eco));
+    assert.ok(Skills.freeAvailable(save, 'net', eco) === false && Skills.tryUse(save, eco, 'blow', 0, 7).free, '第三天又有一次');
+    save.coins = 300;
     assert.ok(Skills.buy(save, eco, 'current'));
     assert.equal(save.coins, 0);
-    for (const [id, p] of [['shuffle', 500], ['blow', 600], ['net', 900], ['current', 1200]] as const) {
+    for (const [id, p] of [['shuffle', 150], ['blow', 180], ['net', 240], ['current', 300]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
@@ -258,10 +261,10 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
 describe('结算（docs/01 3.3）', () => {
   it('金币、进度、首胜', () => {
     const [save, eco] = setup(3);
-    let r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW, combo_coins: 45, best_combo: 15 });
-    assert.equal(r.coins_base, 100);
-    assert.equal(r.coins_best, 30, '最高连击奖 15 × 2');
-    assert.equal(r.coins, 100 + 45 + 30);
+    let r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW, combo_coins: 9, best_combo: 7 });
+    assert.equal(r.coins_base, 20);
+    assert.equal(r.coins_best, 7, '最高连击奖 7 × 1');
+    assert.equal(r.coins, 20 + 9 + 7);
     assert.equal(save.coins, r.coins);
     assert.equal(save.level, 4);
     assert.ok(r.first_win && r.wheel_spin);
@@ -270,8 +273,8 @@ describe('结算（docs/01 3.3）', () => {
     assert.deepEqual(r.new_features, ['skill_shuffle']);
     assert.deepEqual(r.new_skills, ['shuffle']);
     r = Settle.win(save, eco, { level: 4, challenge: true, day: 7, now: NOW, best_combo: 40 });
-    assert.equal(r.coins_base, 200);
-    assert.equal(r.coins_best, 40, '最高连击奖封顶 40');
+    assert.equal(r.coins_base, 40);
+    assert.equal(r.coins_best, 8, '最高连击奖封顶 8');
     assert.ok(!r.first_win);
     assert.equal(save.week.cleared, 2);
   });
@@ -281,7 +284,7 @@ describe('结算（docs/01 3.3）', () => {
     for (let i = 0; i < 5; i++) {
       const r = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
       assert.ok(r.replay && r.rewarded && r.chest_ok);
-      assert.equal(r.coins_base, 100);
+      assert.equal(r.coins_base, 20);
     }
     const r6 = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
     assert.ok(!r6.rewarded && !r6.chest_ok && r6.coins === 0);
@@ -293,8 +296,8 @@ describe('结算（docs/01 3.3）', () => {
   it('看广告翻倍', () => {
     const [save, eco] = setup(3);
     const r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW });
-    assert.equal(Settle.doubleCoins(save, eco, r), 100);
-    assert.equal(save.coins, 200);
+    assert.equal(Settle.doubleCoins(save, eco, r), 20);
+    assert.equal(save.coins, 40);
   });
 });
 
@@ -323,7 +326,7 @@ describe('过关宝箱（docs/01 3.4）', () => {
     assert.ok(Math.abs(kinds.coins / n - 0.35) < 0.03, JSON.stringify(kinds));
     assert.ok(Math.abs(kinds.skill / n - 0.12) < 0.025, JSON.stringify(kinds));
     assert.ok(Math.abs(kinds.card / n - 0.53) < 0.03, JSON.stringify(kinds));
-    assert.ok(cmin >= 30 && cmax <= 80);
+    assert.ok(cmin >= 6 && cmax <= 16);
     assert.ok(Math.abs(rar.common / cards - 0.55) < 0.04, JSON.stringify(rar));
     assert.ok(Math.abs(rar.uncommon / cards - 0.3) < 0.04, JSON.stringify(rar));
   });
@@ -428,14 +431,14 @@ describe('抽奖（docs/01 5.5）', () => {
     assert.equal(save.wheel.dry, 0);
   });
 
-  it('十连 9000，至少一张稀有以上', () => {
+  it('十连 1800，至少一张稀有以上', () => {
     const rng = new Rng(8);
     const [poor, eco, species] = setup(30);
-    poor.coins = 8999;
+    poor.coins = 1799;
     assert.equal(Wheel.tenPull(poor, eco, species, rng, 5, NOW), null);
     for (let i = 0; i < 300; i++) {
       const [save] = setup(30);
-      save.coins = 9000;
+      save.coins = 1800;
       const r = Wheel.tenPull(save, eco, species, rng, 5, NOW);
       assert.ok(r !== null && r.results.length === 10 && save.coins >= 0);
       assert.ok(r.results.some((x) => x.card !== null && Cards.rank(eco, x.card.rarity) >= 2));
@@ -452,37 +455,37 @@ describe('分享、签到、每日计数（docs/01 5.6、5.8）', () => {
     assert.equal(Share.claim(save, eco, 'life', 9, NOW, rng), null);
     assert.equal(Lives.count(save, eco, NOW), 3);
     assert.equal(Share.remaining(save, eco, 'life', 10), 3);
-    assert.equal(Share.claim(save, eco, 'card', 9, NOW, rng)?.coins, 200);
+    assert.equal(Share.claim(save, eco, 'card', 9, NOW, rng)?.coins, 40);
     assert.notEqual(Share.claim(save, eco, 'help', 9, NOW, rng)?.skill, '');
   });
 
   it('七日签到', () => {
     const [save, eco, species] = setup(30);
     const rng = new Rng(4);
-    assert.equal(SignIn.claim(save, eco, species, rng, 100, NOW)?.coins, 200);
+    assert.equal(SignIn.claim(save, eco, species, rng, 100, NOW)?.coins, 40);
     assert.equal(SignIn.claim(save, eco, species, rng, 100, NOW), null);
-    assert.equal(SignIn.claim(save, eco, species, rng, 101, NOW)?.coins, 300);
+    assert.equal(SignIn.claim(save, eco, species, rng, 101, NOW)?.coins, 60);
     const d3 = SignIn.claim(save, eco, species, rng, 102, NOW) as SignIn.SignInResult;
     assert.equal(d3.skills.length + d3.cards.length, 1);
-    assert.equal(SignIn.claim(save, eco, species, rng, 103, NOW)?.coins, 500);
+    assert.equal(SignIn.claim(save, eco, species, rng, 103, NOW)?.coins, 100);
     assert.equal(SignIn.claim(save, eco, species, rng, 104, NOW)?.wheel, 1);
     assert.equal(SignIn.claim(save, eco, species, rng, 105, NOW)?.skills.length, 1);
     const before = save.coins;
     const d7 = SignIn.claim(save, eco, species, rng, 110, NOW) as SignIn.SignInResult;
     assert.equal(d7.index, 6, '断签不清零');
-    assert.equal(save.coins - before, 1000);
+    assert.equal(save.coins - before, 200);
     assert.ok(Cards.rank(eco, d7.cards[0].rarity) >= 2);
     assert.equal(Lives.unlimitedLeft(save, NOW), 1800);
-    assert.equal(SignIn.claim(save, eco, species, rng, 111, NOW)?.coins, 200, '7 天一轮');
+    assert.equal(SignIn.claim(save, eco, species, rng, 111, NOW)?.coins, 40, '7 天一轮');
   });
 
   it('签到看广告翻倍', () => {
     const [save, eco, species] = setup(30);
     const rng = new Rng(4);
-    assert.equal(SignIn.claim(save, eco, species, rng, 100, NOW, true)?.coins, 400);
+    assert.equal(SignIn.claim(save, eco, species, rng, 100, NOW, true)?.coins, 80);
     const r2 = SignIn.claim(save, eco, species, rng, 101, NOW);
-    assert.equal(SignIn.doubleToday(save, eco, species, rng, 101, NOW, r2)?.coins, 600);
-    assert.equal(save.coins, 1000);
+    assert.equal(SignIn.doubleToday(save, eco, species, rng, 101, NOW, r2)?.coins, 120);
+    assert.equal(save.coins, 200);
     assert.equal(SignIn.doubleToday(save, eco, species, rng, 101, NOW, r2), null);
   });
 
@@ -491,7 +494,7 @@ describe('分享、签到、每日计数（docs/01 5.6、5.8）', () => {
     save.signin.count = 6;
     const r = SignIn.claim(save, eco, species, new Rng(8), 50, NOW) as SignIn.SignInResult;
     assert.equal(r.cards.length, 0);
-    assert.ok(r.coins - 1000 >= eco.dupeCoins.rare);
+    assert.ok(r.coins - 200 >= eco.dupeCoins.rare);
     assert.equal(Object.keys(save.cards).length, 0);
   });
 
@@ -528,17 +531,17 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(ECO.dailyChallenge.levelStep, curve().cycle);
   });
 
-  it('进场、每日宝箱 300 金币 + 随机技能 1 个 + 卡、七日大宝箱', () => {
+  it('进场、每日宝箱 60 金币 + 随机技能 1 个 + 卡、七日大宝箱', () => {
     const [save, eco, species] = setup(20);
     assert.ok(DailyChallenge.enter(save, eco, 100, 'free'));
     assert.ok(!DailyChallenge.enter(save, eco, 100, 'free'));
     assert.ok(!DailyChallenge.enter(save, eco, 100, 'coins'));
-    save.coins = 300;
+    save.coins = 60;
     assert.ok(DailyChallenge.enter(save, eco, 100, 'coins'));
     assert.equal(save.coins, 0);
     const toolsBefore = Object.values(save.tools).reduce((a, b) => a + b, 0);
     const r = DailyChallenge.win(save, eco, species, 100, 0, new Rng(1));
-    assert.equal(save.coins, 300);
+    assert.equal(save.coins, 60);
     assert.equal(r.prizes.filter((p) => p.kind === 'skill').length, 1, '随机技能 1 个');
     assert.equal(Object.values(save.tools).reduce((a, b) => a + b, 0), toolsBefore + 1);
     assert.equal(r.prizes[r.prizes.length - 1].kind, 'card');
@@ -550,7 +553,7 @@ describe('每日挑战（docs/01 5.11）', () => {
     const coins = save.coins;
     const big = DailyChallenge.win(save, eco, species, 106, 0, new Rng(7));
     assert.ok(big.big);
-    assert.equal(save.coins - coins, 300 + 1500 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
+    assert.equal(save.coins - coins, 60 + 300 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
     assert.ok(Lives.isUnlimited(save, 3599) && !Lives.isUnlimited(save, 3600 + 600), '七日大宝箱 1 小时无限生命');
     assert.equal(DailyChallenge.streak(save, 106), 0);
     DailyChallenge.win(save, eco, species, 107, 0, new Rng(8));
@@ -586,13 +589,13 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
     }
   });
 
-  it('领册子大奖与终极大奖（10000 + 每种技能 3 + 3 小时 + 头像框）', () => {
+  it('领册子大奖与终极大奖（2000 + 每种技能 3 + 3 小时 + 头像框）', () => {
     const [save, eco, species] = setup(6);
     assert.deepEqual(Album.claim(save, eco, 0, 0), []);
     for (const id of Album.books(eco)[0].cards) save.cards[id] = 1;
     assert.equal(Album.claimable(save, eco), 1);
     const got = Album.claim(save, eco, 0, 0);
-    assert.deepEqual(got[0], { kind: 'coin', amount: 1000 });
+    assert.deepEqual(got[0], { kind: 'coin', amount: 200 });
     assert.equal(save.tools.net, 1);
     assert.deepEqual(Album.claim(save, eco, 0, 0), []);
     for (const sp of species) save.cards[sp.id] = 1;
@@ -600,24 +603,24 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
     const fin = Album.claimFinal(save, eco, 100);
     assert.deepEqual(fin[fin.length - 1], { kind: 'frame', amount: 1 });
     assert.ok(Album.hasFrame(save));
-    assert.equal(save.coins, 11000);
+    assert.equal(save.coins, 2200);
     assert.equal(save.tools.net, 4);
     assert.equal(Lives.unlimitedLeft(save, 100), 10800);
     assert.ok(!Album.canClaimFinal(save, eco));
   });
 
-  it('救援记录：30 / 100 / 300 只各领 50 / 100 / 300', () => {
+  it('救援记录：30 / 100 / 300 只各领 10 / 20 / 60', () => {
     const [save, eco] = setup();
     Dex.record(save, { c01: 29 });
     assert.ok(!Dex.canClaim(save, eco, 'c01'));
     Dex.record(save, { c01: 80, c02: 3 });
     assert.equal(Dex.count(save, 'c01'), 109);
     assert.equal(Dex.claimable(save, eco), 1);
-    assert.equal(Dex.claim(save, eco, 'c01'), 50);
-    assert.equal(Dex.claim(save, eco, 'c01'), 100);
+    assert.equal(Dex.claim(save, eco, 'c01'), 10);
+    assert.equal(Dex.claim(save, eco, 'c01'), 20);
     assert.equal(Dex.claim(save, eco, 'c01'), 0);
     assert.equal(Dex.nextNeed(save, eco, 'c01'), 300);
-    assert.equal(save.coins, 150);
+    assert.equal(save.coins, 30);
   });
 
   it('只算首次通关和每日挑战', () => {

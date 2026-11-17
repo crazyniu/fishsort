@@ -447,7 +447,7 @@ export class GamePage extends Page {
       opacity(v.icon).opacity = unlocked ? 255 : 110;
       v.name.active = unlocked;
       const n = Skills.count(save, id);
-      const free = Skills.freeAvailable(save, id);
+      const free = Skills.freeAvailable(save, id, App.config.eco);
       v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
