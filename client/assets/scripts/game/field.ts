@@ -11,6 +11,7 @@ import * as Rules from '../core/rules/rules';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import * as Alive from '../ui/alive';
+import { CARD_ASPECT, miniCard } from '../ui/popups';
 import { bob, ring, sparkle } from '../ui/fx';
 import { at, box, img, opacity, setImg, text } from '../ui/kit';
 import { Pile } from './pile';
@@ -792,7 +793,7 @@ export class Field {
   addGuest(i: number, id: string, rarity: string, glow: Color): Node {
     const v = this.views[i];
     const w = Math.max(84, v.r * 0.74);
-    const h = w * (803 / 600);
+    const h = w * CARD_ASPECT;
     const holder = box('guest', this.node, w, h);
     const g = img(holder, 'kit/fx_glow', w * 2.1, w * 2.1, 'glow');
     (g.getComponent(Sprite) as Sprite).color = glow;
@@ -800,11 +801,9 @@ export class Field {
     tween(g)
       .repeatForever(tween(g).to(0.8, { scale: new Vec3(1.15, 1.15, 1) }, { easing: 'sineInOut' }).to(0.8, { scale: new Vec3(1, 1, 1) }, { easing: 'sineInOut' }))
       .start();
-    img(holder, `skin/f_card_${rarity}`, w, h, 'card');
-    const f = img(holder, `fish/${id}`, w * 0.78, w * 0.78, 'fish');
-    at(f, 0, h / 2 - h * 0.371);
-    Alive.blink(f, id, w * 0.78);
-    Alive.idle(f, Alive.shapeOf(id), 0);
+    // Codex 画的小卡框（和奖品格里的卡同一套），原点在卡的下沿
+    const card = miniCard(holder, id, rarity, w);
+    at(card, 0, -h / 2);
     holder.angle = -8;
     tween(holder)
       .repeatForever(tween(holder).to(1, { angle: 8 }, { easing: 'sineInOut' }).to(1, { angle: -8 }, { easing: 'sineInOut' }))

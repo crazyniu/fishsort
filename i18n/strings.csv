@@ -34,6 +34,7 @@ UI_COMBO_T3,太强了！,Awesome!
 UI_COMBO_T4,无敌！,Unstoppable!
 UI_COMBO_CARD,连击送卡！,Combo card!
 GUEST_SAVED,救出 %s！,Rescued %s!
+TIMED_SAVED,赶上了！,Just in time!
 TIP_LAYER,先点开压在上面的气泡,Pop the top bubbles first
 TIP_CHAIN,锁链泡：每装满一缸减 1，到 0 解开,Chains: each full tank counts down
 TIP_TIMER,限时缸：时间到之前装满它,Timer tank: fill it before time's up

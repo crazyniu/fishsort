@@ -84,34 +84,56 @@ export function cardItem(c: CardResult): PrizeItem {
 }
 
 /**
- * 一个奖品格：图标 + 数量。收藏卡是一张小卡（稀有度框）：上面的窗里是生物，下面的名字条里写名字（格子够大时），
- * 稀有度写在卡片下面、不压在卡上（用户 2026-11-17：名字条空着、「精良」压在卡的下沿）
+ * 收藏卡的小卡框（Codex 画的，tools/art/cards_icons.py 切出来）：只有一个大窗口，没有名字白条
+ * （用户 2026-11-17：奖品里的卡下面那条空白条不要）。aspect = 高 / 宽；win = 窗口的 左、上、右、下（占卡宽高的比例）。
+ * 越稀有框越华丽、顶上的装饰越高，所以各张的高不一样
+ */
+const CARD_FRAME: Record<string, { aspect: number; win: [number, number, number, number] }> = {
+  common: { aspect: 495 / 360, win: [0.069, 0.085, 0.928, 0.919] },
+  uncommon: { aspect: 531 / 360, win: [0.075, 0.164, 0.922, 0.925] },
+  rare: { aspect: 508 / 360, win: [0.083, 0.114, 0.919, 0.919] },
+  epic: { aspect: 559 / 360, win: [0.083, 0.199, 0.917, 0.928] },
+  legend: { aspect: 557 / 360, win: [0.078, 0.235, 0.919, 0.88] },
+};
+
+/**
+ * 一张小卡：卡框 + 窗口里的生物（会眨眼、按种类动）。返回卡的节点，原点在卡的**下沿中点**，
+ * 这样不同稀有度的卡排成一排时底边对齐（上面的装饰高低不同）
+ */
+export function miniCard(parent: Node, id: string, rarity: string, w: number, name = 'card'): Node {
+  const f = CARD_FRAME[rarity] ?? CARD_FRAME.common;
+  const h = w * f.aspect;
+  const n = box(name, parent, w, h);
+  const frame = img(n, `skin/j_card_${rarity in CARD_FRAME ? rarity : 'common'}`, w, h, 'frame');
+  at(frame, 0, h / 2);
+  const [l, t, r, b] = f.win;
+  const size = Math.min(w * (r - l), h * (b - t)) * 0.86;
+  const fish = img(n, `fish/${id}`, size, size, 'fish');
+  at(fish, w * ((l + r) / 2 - 0.5), h * (1 - (t + b) / 2));
+  Alive.idle(fish, Alive.shapeOf(id), 0);
+  Alive.blink(fish, id, size);
+  return n;
+}
+
+/** 普通卡的高 / 宽（排版按它留高度，更华丽的卡顶上的装饰可以略高出一点） */
+export const CARD_ASPECT = 495 / 360;
+
+/**
+ * 一个奖品格：图标 + 数量。收藏卡是一张 Codex 画的小卡（稀有度框，窗口里是生物，没有名字白条），
+ * 稀有度写在卡下面、不压在卡上（用户 2026-11-17）
  */
 export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
   if (it.rarity) {
-    // 卡框 600×803：生物窗在上 5%–69%，名字条在 74%–90%
     const fw = s * 0.82;
-    const fh = s * 1.1;
+    const fh = fw * CARD_ASPECT;
     const fs = Math.max(22, Math.round(s * 0.2));
     const n = box('prize', parent, s, fh + fs + 10);
-    const fy = (fs + 10) / 2;
-    const f = img(n, `skin/f_card_${it.rarity}`, fw, fh, 'frame');
-    at(f, 0, fy);
-    const top = fy + fh / 2;
-    const icon = img(n, it.icon, s * 0.64, s * 0.64, 'icon');
+    const bottom = -(fh + fs + 10) / 2 + fs + 10;
     const cid = it.icon.startsWith('fish/') ? it.icon.slice(5) : '';
-    if (cid) {
-      Alive.idle(icon, Alive.shapeOf(cid), 0);
-      Alive.blink(icon, cid, s * 0.64);
-    }
-    at(icon, 0, top - fh * 0.371);
-    if (it.name && s >= 140) {
-      const nm = text(n, it.name, Math.round(s * 0.11));
-      at(nm.node, 0, top - fh * 0.817);
-      fit(nm, fw * 0.78, Math.round(s * 0.11), 12);
-    }
+    const card = miniCard(n, cid, it.rarity, fw);
+    at(card, 0, bottom);
     const l = text(n, it.amount, fs);
-    at(l.node, 0, fy - fh / 2 - 6 - fs / 2);
+    at(l.node, 0, bottom - 6 - fs / 2);
     return n;
   }
   const n = box('prize', parent, s, s + 40);
