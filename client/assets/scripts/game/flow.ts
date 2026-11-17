@@ -576,7 +576,7 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
     App.save.write();
     await App.platform.showInterstitial('int_level_end');
   }
-  if (next && d.result.new_features.length === 0) startLevel(Math.min(d.level + 1, s.level));
+  if (next && d.result.new_features.length === 0) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));
   else ui.go('home', { unlocked: d.result.new_features });
 }
 

@@ -150,7 +150,7 @@
 - **踩过的坑**：Cocos 构建用的 Babel 不认 `as X | Y`（打包脚本失败，`./run.sh check` 已加检查）；它的松散模式把 `[...Map 或 Set 或迭代器]` 编成 `[].concat(...)`，结果不对，一律用 `Array.from`（`./run.sh check` 有检查）；`resources.load` 成功时回调的 `err` 是 `undefined` 不是 `null`；命令行构建偶发把资源全标成 `importer: "*"`、运行黑屏（编辑器插件重载和资源库启动抢跑），所以 `run.sh` 每次构建前清掉 `library`、`temp`，构建后查到 `importer "*"` 就还原 `.meta`、清缓存重建，最多三次。
 - **关卡工具**：`./run.sh level-verify`、`level-gen` 是 TS 版，读写 `client/assets/resources/config/levels`。现有关卡是 #53 分段并行、只挑更接近目标的关拼出来的，任何一次生成都复现不了原文件，所以不做逐字节对比；生成器和胜率已由黄金数据证明一致。
 - **平台**：`PlatformBase` 接口照搬 `docs/04` 第 5 节；本分支只做 `debug` 实现（模拟广告、假排行、本地存档），其余平台留空实现。构建验证：`web-mobile`（浏览器试玩、截图）和 `wechatgame` 能打出包即可；Android / iOS / Facebook 之后单独做。
-- **调试开关**：`FISHSORT_LEVEL`、`FISHSORT_AUTOPLAY` 改为网页地址参数 `?level=65&autoplay=1`，并保留「资源加满」的试玩模式与 `real` 模式。
+- **调试开关**：`FISHSORT_LEVEL`、`FISHSORT_AUTOPLAY` 改为网页地址参数 `?level=65&autoplay=1`，并保留「资源加满」的试玩模式与 `real` 模式（2026-11-17 起试玩模式所有关卡都能在海图、选关页点开，存档进度不变）。
 - **`run.sh`**：改成调用 Cocos 命令行（构建 web-mobile、起本地服务并打开浏览器、跑单测、构建微信包、关卡校验），命令名尽量保持现有的。
 - **Linux / Mac 分工不变**：Linux 只写代码和跑 Node 单测、画 SVG；构建、试玩、截图在 Mac 上（`docs/05` 第 9 节），截图用 `orca computer` 取浏览器窗口。
 

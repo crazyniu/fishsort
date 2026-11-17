@@ -56,7 +56,7 @@ export class LevelsPage extends Page {
   /** 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有），不超过总关数 */
   private get pages(): number {
     const all = Math.ceil(App.config.levelCount / PER_PAGE);
-    return Math.min(all, Math.floor((App.save.data.level - 1) / PER_PAGE) + 2);
+    return Math.min(all, Math.floor((App.reach() - 1) / PER_PAGE) + 2);
   }
 
   /** arg.sea：从海图点进来的那个海域，停在它那一页；不给就停在当前关那一页 */
@@ -152,10 +152,11 @@ export class LevelsPage extends Page {
     const hard = LevelCurve.isChallenge(App.config.curve, Meta.levelFile(n, App.config.levelCount));
     const done = n < s.level;
     const cur = n === s.level;
+    // 试玩模式下后面没打的关也能点开（App.reach）：和打过的一样上色，不打勾、不上锁
+    const open = n <= App.reach();
     const holder = box(`lv${n}`, parent, CELL, CELL);
-    const skin = cur ? 'skin/f_node_green' : !done ? 'skin/f_node_gray' : hard ? 'skin/f_node_purple' : 'skin/f_node_blue';
+    const skin = cur ? 'skin/f_node_green' : !open ? 'skin/f_node_gray' : hard ? 'skin/f_node_purple' : 'skin/f_node_blue';
     const ball = img(holder, skin, NODE, NODE, 'ball');
-    const open = done || cur;
     const num = text(ball, String(n), open ? 44 : 34);
     at(num.node, 0, open ? 8 : 24);
     fit(num, NODE - 30, open ? 44 : 34, 22);
@@ -172,7 +173,7 @@ export class LevelsPage extends Page {
       const l = text(tag, tr('LV_CURRENT'), 22);
       at(l.node, 0, 2);
       fit(l, 80, 22, 14);
-    } else {
+    } else if (!open) {
       at(img(ball, 'kit/ic_lock', 32, 32, 'lock'), 0, -14);
     }
     onTap(holder, () => this.open(n, ball), { sound: null });
@@ -180,7 +181,7 @@ export class LevelsPage extends Page {
   }
 
   private open(n: number, ball: Node): void {
-    if (n > App.save.data.level) {
+    if (n > App.reach()) {
       fx.shake(ball, 8);
       sfx('blocked');
       ui.toast(tr('LV_LOCKED'));

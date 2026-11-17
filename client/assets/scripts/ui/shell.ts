@@ -2,7 +2,6 @@
 // 没有底栏（用户 2026-11-16 定）：主页是总入口，别的页面都从主页点进去、左上角返回（docs/01 5.3）；顶栏按需显示：主页、商店。
 import { Label, Node, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
-import * as Features from '../core/meta/features';
 import * as PlayerData from '../core/meta/playerData';
 import * as Lives from '../core/meta/lives';
 import { App } from '../services/app';
@@ -224,7 +223,7 @@ export class Shell {
   private open(name: string, arg: unknown, push: boolean): void {
     // 没开放的功能：换成锁页（docs/01 5.3：入口是灰的带锁，但可以点进去看锁页）
     const f = PAGE_FEATURE[name];
-    if (f && !Features.isUnlocked(App.config.eco, f, App.save.data.level)) {
+    if (f && !App.featureOpen(f)) {
       name = 'lock';
       arg = { feature: f };
     }

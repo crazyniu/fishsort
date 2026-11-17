@@ -45,6 +45,7 @@ export class MapPage extends Page {
     pageHead(v, tr('MAP_TITLE'));
     const seas = Seas.list(App.config.eco);
     const level = App.save.data.level;
+    const reach = App.reach();
     const total = App.config.levelCount;
     const cur = Seas.forLevel(App.config.eco, Math.min(level, total));
     const y0 = Screen.top - HEAD_BOTTOM - 10;
@@ -55,7 +56,7 @@ export class MapPage extends Page {
     const cards = seas.map((sea, i) => {
       const from = sea.levelFrom;
       const to = (seas[i + 1]?.levelFrom ?? total + 1) - 1;
-      const c = this.card(sc.content, i, sea.id, from, to, level, i === cur);
+      const c = this.card(sc.content, i, sea.id, from, to, level, reach >= from, i === cur);
       at(c, (i % 2 === 0 ? -1 : 1) * (CARD_W + GAP_X) / 2, -CARD_H / 2 - Math.floor(i / 2) * rowH - 10);
       return c;
     });
@@ -66,8 +67,7 @@ export class MapPage extends Page {
   }
 
   /** 一张海域卡（竖版）：整张局内背景当画面，上面海域名牌，下面一条关卡范围 + 进度 */
-  private card(parent: Node, i: number, id: string, from: number, to: number, level: number, current: boolean): Node {
-    const open = level >= from;
+  private card(parent: Node, i: number, id: string, from: number, to: number, level: number, open: boolean, current: boolean): Node {
     const n = slice(parent, 'kit/panel_blue', CARD_W, CARD_H, `sea${i}`);
     // 画面：局内背景是 2:3 的竖图，差不多整张放得下，四边留出卡的边
     const pw = CARD_W - 22;
