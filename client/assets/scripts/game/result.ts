@@ -56,13 +56,12 @@ export class ResultPage extends Page {
     const cfg = App.config.ui.win;
     const at0 = (k: string) => Number(cfg[k] ?? 0);
     const top = Screen.top;
-    // 从下往上排：底部给 Banner 留位（docs/01 7.1），主页（+ 分享）→ 下一关 → 翻倍 → 奖励条 → 宝箱；横幅和星星贴顶。
-    // 没有翻倍（重玩奖励领完）时那一行不留空，奖励条直接接在「下一关」上面
+    // 从下往上排：底部给 Banner 留位（docs/01 7.1），最下面一行「主页」「分享」「翻倍」并排 → 下一关 → 奖励条 → 宝箱；
+    // 横幅和星星贴顶（用户 2026-11-17：翻倍和主页放一行）
     const hasDouble = r.rewarded && r.coins > 0;
     const homeY = Screen.bottom + BANNER_H + 64;
     const nextY = homeY + 140;
-    const btnY = nextY + 150;
-    const rowY = hasDouble ? btnY + 160 : nextY + 175;
+    const rowY = nextY + 175;
     const ribbonY = top - 270;
     const chestY = (ribbonY - 100 + rowY + 85) / 2;
     const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
@@ -151,11 +150,14 @@ export class ResultPage extends Page {
     let dbl: Btn | null = null;
     const bestCard = d.cards.reduce((m, cd) => Math.max(m, Cards.rank(eco, cd.rarity)), -1);
     const showShare = bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare')) && Share.remaining(s, eco, 'card', today()) > 0;
+    // 最下面一行：主页（蓝）· 分享（蓝，开出稀有以上的卡时才有）· 翻倍（黄，今天重玩奖励领完时没有），按个数等宽排开
+    const count = 1 + (showShare ? 1 : 0) + (hasDouble ? 1 : 0);
+    const bw = count >= 3 ? 214 : count === 2 ? 290 : 340;
     if (hasDouble) {
       dbl = button(c, {
         color: 'yellow',
-        w: 480,
-        h: 100,
+        w: bw,
+        h: 90,
         icon: 'kit/ic_video',
         label: tr('WIN_DOUBLE'),
         onTap: async () => {
@@ -168,13 +170,12 @@ export class ResultPage extends Page {
           sfx('coins');
         },
       });
-      at(dbl.node, 0, btnY);
     }
     let share: Btn | null = null;
     if (showShare) {
       share = button(c, {
         color: 'blue',
-        w: 260,
+        w: bw,
         h: 90,
         icon: 'kit/ic_share',
         label: tr('UI_SHARE_SHORT'),
@@ -187,13 +188,12 @@ export class ResultPage extends Page {
           sfx('coins');
         },
       });
-      // 分享和「主页」放在最下面一行（用户 2026-11-17）
-      at(share.node, 140, homeY);
     }
     const next = button(c, { color: 'green', w: 540, h: 130, label: tr('UI_NEXT_LEVEL'), fontSize: 64, onTap: () => void Flow.afterResult(d, true) });
     at(next.node, 0, nextY);
-    const home = button(c, { color: 'blue', w: share ? 260 : 340, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
-    at(home.node, share ? -140 : 0, homeY);
+    const home = button(c, { color: 'blue', w: bw, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
+    const row = [home, share, dbl].filter((b): b is Btn => b !== null);
+    row.forEach((b, i) => at(b.node, (i - (row.length - 1) / 2) * (bw + 16), homeY));
     const buttons = [dbl?.node, share?.node, next.node, home.node].filter((n): n is Node => !!n);
     for (const b of buttons) b.active = false;
     const btnHome = buttons.map((b) => b.position.y);

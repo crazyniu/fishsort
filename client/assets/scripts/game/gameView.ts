@@ -26,7 +26,7 @@ import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
-import { RARITY_GLOW, speciesName } from '../ui/popups';
+import { CARD_ASPECT, RARITY_GLOW, miniCard, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
@@ -876,8 +876,13 @@ export class GamePage extends Page {
     n.setScale(1, 1, 1);
     opacity(n).opacity = 255;
     const cfg = App.config.ui.bowlDone;
+    const timed = view.timer !== null;
     const glow = img(this.fly, 'kit/bowl_glow', 220, 220, 'glow');
     at(glow, n.position.x, n.position.y);
+    if (timed) {
+      (glow.getComponent(Sprite) as Sprite).color = COLOR.yellow;
+      this.timedSaved(view);
+    }
     tween(opacity(glow)).to(cfg.swell, { opacity: 255 }).to(0.3, { opacity: 0 }).call(() => glow.destroy()).start();
     tween(n)
       .to(0.06, { angle: 6 })
@@ -885,14 +890,45 @@ export class GamePage extends Page {
       .to(0.06, { angle: 0 })
       .to(cfg.swell, { scale: new Vec3(1.15, 1.15, 1) }, { easing: 'quadOut' })
       .call(() => {
-        fx.sparkle(this.fly, n.position.x, n.position.y, 14, 140, COLOR.yellow);
-        fx.ring(this.fly, n.position.x, n.position.y, 100, 300);
+        fx.sparkle(this.fly, n.position.x, n.position.y, timed ? 22 : 14, timed ? 170 : 140, COLOR.yellow);
+        fx.ring(this.fly, n.position.x, n.position.y, 100, 300, timed ? COLOR.yellow : undefined);
         sfx('bowlDone');
       })
       .to(0.3, { position: new Vec3(n.position.x, n.position.y + 180, 0), scale: new Vec3(0.6, 0.6, 1) }, { easing: 'quadIn' })
       .call(() => n.destroy())
       .start();
     tween(opacity(n)).delay(cfg.swell + 0.25).to(0.25, { opacity: 0 }).start();
+  }
+
+  /**
+   * 限时缸在倒计时归零前装满：和普通缸不一样的提示（用户 2026-11-17）——红色倒计时牌变成绿色对勾、弹一下，
+   * 缸上方升起金色的「赶上了！」，光和光环换成金色，多一声升档音
+   */
+  private timedSaved(view: BowlView): void {
+    const t = view.timer;
+    if (t && t.isValid) {
+      Tween.stopAllByTarget(t);
+      setImg(t, 'kit/round_green', 60, 60);
+      if (view.timerLabel) view.timerLabel.string = '';
+      const ok = img(t, 'kit/ic_check', 40, 40, 'ok');
+      fx.popIn(ok, 0, 0.2);
+      fx.punch(t, 1.35, 0.25);
+    }
+    const n = view.node;
+    const word = text(this.fly, tr('TIMED_SAVED'), 44, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 5 });
+    // 字压在缸身上往上飘一点（缸就在顶栏下面，往上升太多会压到顶栏）
+    const y0 = n.position.y - 6;
+    at(word.node, n.position.x, y0);
+    word.node.setScale(0.4, 0.4, 1);
+    tween(word.node)
+      .to(0.18, { scale: new Vec3(1.15, 1.15, 1) }, { easing: 'backOut' })
+      .to(0.1, { scale: new Vec3(1, 1, 1) })
+      .to(0.7, { position: new Vec3(n.position.x, y0 + 40, 0) }, { easing: 'quadOut' })
+      .call(() => word.node.destroy())
+      .start();
+    tween(opacity(word.node)).delay(0.6).to(0.38, { opacity: 0 }).start();
+    sfx('tier');
+    buzz('medium');
   }
 
   private blowBuffer(t: number): void {
@@ -1433,7 +1469,7 @@ export class GamePage extends Page {
     const rar = App.config.speciesById.get(g.id)?.rarity ?? 'common';
     const col = RARITY_GLOW[rar] ?? COLOR.white;
     g.node.destroy();
-    const n = box('guestFree', this.fly, 160, 214);
+    const n = box('guestFree', this.fly, 160, 160 * CARD_ASPECT);
     at(n, p.x, p.y);
     n.setScale(0.5, 0.5, 1);
     const ray = fx.rays(n, 360);
@@ -1441,10 +1477,7 @@ export class GamePage extends Page {
     opacity(ray).opacity = 150;
     const glow = img(n, 'kit/fx_glow', 300, 300, 'glow');
     (glow.getComponent(Sprite) as Sprite).color = col;
-    img(n, `skin/f_card_${rar}`, 160, 214, 'card');
-    const f = img(n, `fish/${g.id}`, 124, 124, 'fish');
-    at(f, 0, 107 - 214 * 0.371);
-    Alive.blink(f, g.id, 124);
+    at(miniCard(n, g.id, rar, 160), 0, -80 * CARD_ASPECT);
     sfx('card');
     buzz('light');
     fx.sparkle(this.fly, p.x, p.y, 10, 120);
