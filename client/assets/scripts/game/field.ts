@@ -450,9 +450,9 @@ export class Field {
       const f = img(body, this.spriteFor(sp), fs, fs, `fish${k}`);
       at(f, offs[k][0], offs[k][1]);
       f.setScale(k % 2 === 0 ? 1 : -1, 1, 1);
-      // 按轮廓类的小动作（螃蟹夹两下、水母一缩一伸……），没有专门动作的鱼摆尾；都会眨眼（ui/alive.ts）
+      // 按轮廓类的小动作（一直在动：鱼摆尾、螃蟹摇着摇着夹两下、水母一缩一伸……），都会眨眼（ui/alive.ts）
       const id = this.species[sp] ?? this.species[0];
-      if (!Alive.idle(f, Alive.shapeOf(id), k)) this.swim(f, k);
+      Alive.idle(f, Alive.shapeOf(id), k);
       Alive.blink(f, id, fs);
       fish.push(f);
     }
@@ -639,19 +639,6 @@ export class Field {
     }
   }
 
-  /** 鱼在气泡里摆尾、轻轻游（docs/03 第 5 节界面动画约定） */
-  private swim(f: Node, k: number): void {
-    const sx = f.scale.x;
-    tween(f)
-      .delay((k % 4) * 0.25)
-      .repeatForever(
-        tween(f)
-          .to(0.7, { scale: new Vec3(sx * 1.04, 0.96, 1), angle: 4 }, { easing: 'sineInOut' })
-          .to(0.7, { scale: new Vec3(sx, 1, 1), angle: -3 }, { easing: 'sineInOut' }),
-      )
-      .start();
-  }
-
   /** 状态变了以后同步：能不能点（被压住的压暗）、锁链数字、冰封与连线、迷雾计数 */
   sync(s: GameState, animate = true): void {
     const open = new Set(Rules.openBubbles(s));
@@ -817,6 +804,7 @@ export class Field {
     const f = img(holder, `fish/${id}`, w * 0.78, w * 0.78, 'fish');
     at(f, 0, h / 2 - h * 0.371);
     Alive.blink(f, id, w * 0.78);
+    Alive.idle(f, Alive.shapeOf(id), 0);
     holder.angle = -8;
     tween(holder)
       .repeatForever(tween(holder).to(1, { angle: 8 }, { easing: 'sineInOut' }).to(1, { angle: -8 }, { easing: 'sineInOut' }))
@@ -876,7 +864,7 @@ export class Field {
         f.setScale(flip, 1, 1);
         f.angle = 0;
         const id = this.species[sp] ?? this.species[0];
-        if (!Alive.idle(f, Alive.shapeOf(id), k)) this.swim(f, k);
+        Alive.idle(f, Alive.shapeOf(id), k);
         Alive.blink(f, id, fs);
       }
       this.drawLinks(v, s.bubbles[i].pairs);

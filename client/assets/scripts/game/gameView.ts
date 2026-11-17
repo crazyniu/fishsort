@@ -797,6 +797,7 @@ export class GamePage extends Page {
     const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
     at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
     Alive.blink(tagFish, this.field.idFor(sp), GOAL_H * 0.68);
+    Alive.idle(tagFish, Alive.shapeOf(this.field.idFor(sp)), slot);
     // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
     const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
     at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
@@ -852,7 +853,10 @@ export class GamePage extends Page {
     tween(f)
       .to(0.22, { scale: new Vec3(sx * 1.15, 1.15, 1) }, { easing: 'quadOut' })
       .to(0.16, { scale: new Vec3(sx, 1, 1) }, { easing: 'backOut' })
-      .call(() => fx.bob(f, 4, 1.6 + k * 0.2, k * 0.15))
+      .call(() => {
+        fx.bob(f, 4, 1.6 + k * 0.2, k * 0.15);
+        Alive.idle(f, Alive.shapeOf(this.field.idFor(view.sp)), k);
+      })
       .start();
   }
 
