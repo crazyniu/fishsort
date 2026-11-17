@@ -121,6 +121,11 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
     assert.equal(LevelCurve.challengeDrop(c, 50), 25);
     assert.equal(LevelCurve.challengeDrop(c, 100), 25);
     assert.equal(Math.round(LevelCurve.targetRate(c, 10, true)), 83);
+    // 普通关目标的折点（docs/02 第 2.1 节）：第 60 关 77、第 120 关 42、第 240 关 22；挑战关最低 8
+    assert.equal(Math.round(LevelCurve.targetRate(c, 60, false)), 77);
+    assert.equal(Math.round(LevelCurve.targetRate(c, 119, false)), 43);
+    assert.equal(Math.round(LevelCurve.targetRate(c, 239, false)), 22);
+    assert.equal(LevelCurve.targetRate(c, 240, true), 8);
   });
 
   it('第 3 缸：要明显有用，第 26 关起不保证过关', () => {

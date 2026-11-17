@@ -74,8 +74,8 @@
  "tips": {
   "6": "TIP_LIVES",
     "65": "TIP_CLOCK",
-    "121": "TIP_TOOLS3",
-    "181": "TIP_BUFFER4"
+    "121": "TIP_BUFFER4",
+    "123": "TIP_TOOLS3"
  },
  "unlockGuide": {
   "delay": 0.5,
@@ -107,7 +107,7 @@
   "fishMax": 160,
   "maxRadius": 150,
   "layerBoost": 1.15,
-  "radiusSpread": 0.5
+  "radiusSpread": 0.25
  },
  "badgeCap": 99,
  "homeDeco": {

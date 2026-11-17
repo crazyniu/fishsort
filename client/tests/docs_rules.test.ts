@@ -392,12 +392,12 @@ describe('限时关（docs/01 第 4 节）', () => {
     assert.equal(LevelCurve.comboSeconds(curve, 9), prev, '超出的档位按最高档');
   });
 
-  it('暂存槽：前 180 关 5 格，第 181 关起 4 格；第 26 关起同时在场至少 14 个气泡', () => {
+  it('暂存槽：前 120 关 5 格，第 121 关起 4 格；第 26 关起同时在场至少 17 个气泡', () => {
     const curve = loadCurve();
     for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
-      assert.equal(lv.buffer, id >= 181 ? 4 : 5, `第 ${id} 关暂存槽`);
-      if (id >= 26) assert.ok(lv.fieldCap >= 14, `第 ${id} 关同时在场 ${lv.fieldCap} 个`);
+      assert.equal(lv.buffer, id >= 121 ? 4 : 5, `第 ${id} 关暂存槽`);
+      if (id >= 26) assert.ok(lv.fieldCap >= 17, `第 ${id} 关同时在场 ${lv.fieldCap} 个`);
     }
   });
 });
