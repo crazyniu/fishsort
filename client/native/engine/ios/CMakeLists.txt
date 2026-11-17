@@ -20,9 +20,6 @@ list(APPEND CC_PROJ_SOURCES
     ${CC_PROJECT_DIR}/game/FsBridge.h
     ${CC_PROJECT_DIR}/game/FsBridge.mm
 )
-# 广告 SDK 带 Swift：放一个空的 Swift 文件，Xcode 才会链 Swift 运行时
-enable_language(Swift)
-list(APPEND CC_PROJ_SOURCES ${CC_PROJECT_DIR}/game/FsSwift.swift)
 
 cc_ios_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME} ${CC_ALL_SOURCES})
@@ -43,7 +40,6 @@ endif()
 
 # 只做 iPhone 版（docs/06 第 3 节），在 iPad 上按 iPhone 比例运行
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1")
-set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_SWIFT_VERSION "5.0")
 
 # Google Mobile Ads + UMP：./run.sh ios-build 下载到 sdk/（不进仓库）。CMake 3.24 不能直接链 xcframework，
 # 按真机 / 模拟器分别指到各自的切片目录。没下载时跳过，桥里按没有广告编译
@@ -63,7 +59,16 @@ if(EXISTS ${FS_SDK_DIR}/GoogleMobileAds.xcframework)
         XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*] "$(inherited) ${FS_DEVICE_PATHS}"
         XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*] "$(inherited) ${FS_SIM_PATHS}"
     )
+    # 广告 SDK 里有 Swift 代码：工程里没有 Swift 文件，Xcode 不会自动链 Swift 运行时，手动加搜索路径和三个兼容库
+    # （CMake 3.24 在 Xcode 27 下 enable_language(Swift) 找不到编译器，只能这样）
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+        XCODE_ATTRIBUTE_LIBRARY_SEARCH_PATHS "$(inherited) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)"
+        XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "$(inherited) /usr/lib/swift @executable_path/Frameworks"
+    )
     target_link_libraries(${EXECUTABLE_NAME}
+        "-lswiftCompatibility51"
+        "-lswiftCompatibility56"
+        "-lswiftCompatibilityConcurrency"
         "-ObjC"
         "-framework GoogleMobileAds"
         "-framework UserMessagingPlatform"
