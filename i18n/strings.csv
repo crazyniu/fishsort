@@ -153,7 +153,7 @@ DAILY_TITLE,每日挑战,Daily Challenge
 ADS_LEFT,剩 %d 次,%d left
 MECH_TITLE,新玩法,New!
 GOT_IT,知道了,Got it
-SLOT_LINE,多一个鱼缸，更好过关,One more tank for this level
+SLOT_LINE,多一个鱼缸，装满一缸就收走,One extra tank. It leaves when full
 LOCK_PREVIEW,解锁奖励,Unlock rewards
 H_FEAT_DAILY,每日挑战,Daily
 PRIZE_HOURS,%d 小时,%dh

@@ -1,6 +1,6 @@
 // 规则状态机，见 docs/01-玩法设计.md 第 2–4 节。
 // 所有函数就地修改 state，并返回供表现层播放的事件序列。
-import { reshuffle } from '../gen/constructor';
+import { rescueShuffle } from '../gen/constructor';
 import { Bowl, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVED, Status } from '../model/gameState';
 import { Rng } from '../rng/rng';
 
@@ -22,6 +22,7 @@ export type EventType =
   | 'bubble_pop'
   | 'bubble_drop'
   | 'slot_open'
+  | 'slot_close'
   | 'net_fish'
   | 'blow'
   | 'shuffle'
@@ -58,6 +59,7 @@ export type Action =
 /** 开局：把订单队列的前几个缸摆上架 */
 export function start(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
+  s.baseSlots = s.openSlots;
   settle(s, ev);
   return ev;
 }
@@ -167,7 +169,22 @@ export function tick(s: GameState, dt: number): GameEvent[] {
 
 export function unlockBowl(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
-  if (s.status !== Status.PLAYING || s.openSlots >= MAX_SLOTS) return ev;
+  if (s.status !== Status.PLAYING) return ev;
+  if (s.bowlOnce) {
+    // 加开的缸只装一缸：找第一个能用的加开位——还没开过的，或者开过、那一缸已经送走的
+    let slot = -1;
+    for (let i = s.baseSlots; i < MAX_SLOTS && slot < 0; i++) {
+      if (i >= s.openSlots || (s.slots[i] === null && s.extraFills[i] <= 0)) slot = i;
+    }
+    if (slot < 0) return ev;
+    if (slot >= s.openSlots) s.openSlots = slot + 1;
+    s.extraFills[slot] = 1;
+    ev.push({ t: 'slot_open', slot });
+    settle(s, ev);
+    finish(s, ev);
+    return ev;
+  }
+  if (s.openSlots >= MAX_SLOTS) return ev;
   s.openSlots += 1;
   ev.push({ t: 'slot_open', slot: s.openSlots - 1 });
   settle(s, ev);
@@ -315,11 +332,11 @@ export function noTarget(s: GameState): boolean {
   return any;
 }
 
-/** 洗牌：按当前局面重新构造一个可解的分布（各鱼种数量不变） */
+/** 洗牌：场上的鱼换位，架上的缸要的鱼换到点得到的地方（各鱼种数量不变，候场的不动） */
 export function useShuffle(s: GameState, seed: number): GameEvent[] {
   const ev: GameEvent[] = [];
   if (s.status !== Status.PLAYING) return ev;
-  if (reshuffle(s, new Rng(seed))) ev.push({ t: 'shuffle' });
+  if (rescueShuffle(s, new Rng(seed))) ev.push({ t: 'shuffle' });
   return ev;
 }
 
@@ -397,6 +414,8 @@ function settle(s: GameState, ev: GameEvent[]): void {
         s.slots[i] = null;
         s.bowlsDone += 1;
         ev.push({ t: 'bowl_done', slot: i, species: bowl.species, order: bowl.order });
+        // 加开的缸装满这一缸就收走，缸位空出来、不再上新订单
+        if (s.bowlOnce && i >= s.baseSlots) ev.push({ t: 'slot_close', slot: i });
         for (let bi = 0; bi < s.bubbles.length; bi++) {
           const bub = s.bubbles[bi];
           if (bub.chain > 0) {
@@ -409,6 +428,10 @@ function settle(s: GameState, ev: GameEvent[]): void {
     }
     for (let i = 0; i < s.openSlots; i++) {
       if (s.slots[i] === null && s.nextOrder < s.orders.length) {
+        if (s.bowlOnce && i >= s.baseSlots) {
+          if (s.extraFills[i] <= 0) continue;
+          s.extraFills[i] -= 1;
+        }
         const o = s.orders[s.nextOrder];
         const bowl = new Bowl();
         bowl.species = o.s;

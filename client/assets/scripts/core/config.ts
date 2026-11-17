@@ -123,6 +123,8 @@ export interface EconomyConfig {
   /** 限时关起每关每种技能能多用几次（docs/01 5.2，2026-11-17）：from 关起上限改成 max；没有就一直是 toolMaxPerLevel */
   toolMaxLate?: { from: number; max: number };
   bowlSlotCoinPrice: number;
+  /** 加开的缸只装一缸就收走（docs/01 2.4）；不配 = 开了整关有效 */
+  bowlSlotOnce?: boolean;
   freeBowlSlotAfterFails: number;
   dupeCoins: Record<Rarity, number>;
   freeCoin: { amount: number; daily: number };

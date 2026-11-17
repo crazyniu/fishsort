@@ -96,6 +96,15 @@ export class GameState {
   /** 长度固定为 MAX_SLOTS */
   slots: (Bowl | null)[] = [null, null, null, null];
   openSlots = 2;
+  /**
+   * 加开的缸只装一缸（docs/01 2.4，2026-11-18）：true 时，局内用 unlockBowl 加开的缸位装满一缸就收走，要再用得再开。
+   * 默认 false = 开了整关有效（Godot 版的规则，黄金数据按它录的）
+   */
+  bowlOnce = false;
+  /** 开局就开着的缸位数（默认的 2 个，加上连败送的）：这些一直有效。Rules.start 时记下 */
+  baseSlots = 2;
+  /** 加开的缸位还能再上几张订单（下标 = 缸位号） */
+  extraFills: number[] = [0, 0, 0, 0];
   buffer: number[] = [];
   bufferCap = 5;
   returnFish: number[] = [];
@@ -142,6 +151,9 @@ export class GameState {
       s.slots[i] = b !== null ? b.clone() : null;
     }
     s.openSlots = this.openSlots;
+    s.bowlOnce = this.bowlOnce;
+    s.baseSlots = this.baseSlots;
+    s.extraFills = this.extraFills.slice();
     s.buffer = this.buffer.slice();
     s.bufferCap = this.bufferCap;
     s.returnFish = this.returnFish.slice();

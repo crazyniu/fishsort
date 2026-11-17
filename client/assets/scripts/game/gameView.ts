@@ -238,6 +238,8 @@ export class GamePage extends Page {
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
     this.s.clock = this.arg.daily ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
+    // 加开的缸只装一缸就收走（docs/01 2.4）
+    this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
     const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
@@ -668,6 +670,12 @@ export class GamePage extends Page {
           opened.add(e.slot as number);
           const plus = this.plusNodes[e.slot as number];
           if (plus) plus.active = false;
+          break;
+        }
+        case 'slot_close': {
+          // 加开的缸装满送走以后，这个位置变回「＋」（等送走的演出播完）
+          const plus = this.plusNodes[e.slot as number];
+          if (plus) fx.delay(this.fly, t + cfg.bowlDone.dropAt, () => (plus.active = true));
           break;
         }
         case 'bubble_pop': {
