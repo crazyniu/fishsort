@@ -175,7 +175,7 @@ export function onFirstMove(g: GamePage): void {
 // ---------------------------------------------------------------- 技能
 
 /** 当前没有效果的技能不扣数量，局内给一句提示（docs/01 5.2） */
-function hasEffect(g: GamePage, id: string): string | null {
+export function hasEffect(g: GamePage, id: string): string | null {
   const s = g.s;
   if (id === 'blow' && s.buffer.length === 0) return 'UI_BLOW_EMPTY';
   if (id === 'current' && Rules.useCurrent(s.clone()).length === 0) return 'UI_CURRENT_EMPTY';

@@ -260,7 +260,7 @@ export interface CurveConfig {
    * 时间 = （鱼数 × bot.tapSec + 缸数 × bot.bowlSec）× 系数，按 step 秒取整；系数从 challengeFrom 关的 factor[0] 线性降到 total 关的 factor[1]。
    * comboSeconds：连击起算后每命中一次加几秒，按连击档位查（时间给得短，靠连击挣回来）。没有这一项就都不限时
    */
-  clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number; comboSeconds?: number[] };
+  clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number; queueExtra?: number; comboSeconds?: number[] };
   /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
   buffer?: [number, number][];
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */

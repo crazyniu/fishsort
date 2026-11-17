@@ -72,7 +72,11 @@ export class Pile {
   /** 落地回调：气泡 id、落地前的下落速度 */
   onLand: ((id: number, speed: number) => void) | null = null;
 
-  /** 场地：x ∈ [-w/2, w/2]，地面 y = -h/2，上面不封顶 */
+  /**
+   * 场地：x ∈ [-w/2, w/2]，地面 y = -h/2，顶 y = h/2。
+   * 顶也是一堵墙（2026-11-18）：原来上面不封顶，气泡堆里留了空当、某一列又堆得高的时候，最上面的气泡会搁在场地外面——
+   * 盖住暂存槽，而且点不到（用户试第 140 关遇到）。封顶以后它被压回场地里，顺着旁边的气泡滑进空当
+   */
   constructor(
     private readonly w: number,
     private readonly h: number,
@@ -208,6 +212,7 @@ export class Pile {
           if (b.x < -this.w / 2 + m) this.shift(b, -this.w / 2 + m - b.x, 0);
           else if (b.x > this.w / 2 - m) this.shift(b, this.w / 2 - m - b.x, 0);
           if (b.y < -this.h / 2 + m) this.shift(b, 0, -this.h / 2 + m - b.y);
+          else if (b.y > this.h / 2 - m) this.shift(b, 0, this.h / 2 - m - b.y);
         }
       }
       for (const b of list) {

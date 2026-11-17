@@ -189,8 +189,8 @@ export class GamePage extends Page {
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
   private nudged = new Set<string>();
-  /** 小手现在指着哪个道具 */
-  private pointed: SkillId | null = null;
+  /** 小手现在放在哪个节点上（某个道具键，或加鱼缸的「＋」） */
+  private pointedNode: Node | null = null;
   private fieldTop = 0;
   private fieldBottom = 0;
   private total = 0;
@@ -278,7 +278,7 @@ export class GamePage extends Page {
     this.bufferSlots = [];
     this.warned.clear();
     this.nudged.clear();
-    this.pointed = null;
+    this.pointedNode = null;
     this.plusNodes = [];
     this.skillNodes.clear();
     this.hintNode = null;
@@ -500,28 +500,34 @@ export class GamePage extends Page {
     }
   }
 
-  /** 小手该指哪个道具：按顺序挑第一个解锁了、本关没用完的（库存是 0 也指：点了去买或看广告） */
-  private handSkill(order: string[] | undefined): SkillId | null {
+  /**
+   * 小手该指哪个：按顺序挑第一个**现在用得上**的——解锁了、本关次数没用完、点了有效果（库存是 0 也指：点了去买或看广告）。
+   * 'bowl' 是加鱼缸的「＋」：还有空着的加开位才指。
+   * 用户 2026-11-18：洗牌本关的次数用完了，小手还指着它；应该指能用的技能或者鱼缸
+   */
+  private handSkill(order: string[] | undefined): string | null {
     if (!order) return null;
     const s = App.save.data;
     for (const id of order) {
+      if (id === 'bowl') {
+        if (this.plusNodes.some((p) => p.active)) return id;
+        continue;
+      }
       const v = this.skillNodes.get(id as SkillId);
       if (!v || v.lock.active) continue;
       const why = Skills.canUse(s, App.config.eco, id, this.used[id] ?? 0, this.arg.daily ? 0 : this.arg.level);
-      if (why === '' || why === 'empty') return id as SkillId;
+      if ((why === '' || why === 'empty') && Flow.hasEffect(this, id) === null) return id;
     }
     return null;
   }
 
-  /** 把小手放到 id 这个道具键上（null = 收起来） */
-  private pointSkill(id: SkillId | null): void {
-    if (this.pointed === id) return;
-    if (this.pointed) this.skillNodes.get(this.pointed)?.node.getChildByName('finger')?.destroy();
-    this.pointed = id;
-    if (id) {
-      const v = this.skillNodes.get(id);
-      if (v) addFinger(v.node);
-    }
+  /** 把小手放到 id 这个道具键（或加鱼缸的「＋」）上，null = 收起来 */
+  private pointSkill(id: string | null): void {
+    const node = id === null ? null : id === 'bowl' ? (this.plusNodes.find((p) => p.active) ?? null) : (this.skillNodes.get(id as SkillId)?.node ?? null);
+    if (this.pointedNode === node) return;
+    if (this.pointedNode && this.pointedNode.isValid) this.pointedNode.getChildByName('finger')?.destroy();
+    this.pointedNode = node;
+    if (node) addFinger(node);
   }
 
   // ---------------------------------------------------------------- 输入

@@ -273,6 +273,11 @@ export function clockFor(curve: CurveConfig, id: number, lv: LevelData): number 
   for (const b of lv.bubbles) fish += b.fish.length;
   const base = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
   const t = clampf((id - c.challengeFrom) / Math.max(1, curve.total - c.challengeFrom), 0, 1);
-  const k = lerpf(c.factor[0], c.factor[1], t);
+  let k = lerpf(c.factor[0], c.factor[1], t);
+  // 排队泡多的关卡要想清楚先取哪条，时间按排队泡占的比例加长（全是排队泡 = 再加 queueExtra 倍）。
+  // 用户 2026-11-18 试第 140 关：126 条鱼给 135 秒，一秒一条，来不及想
+  let queued = 0;
+  for (const b of lv.bubbles) if (b.queue === true) queued += 1;
+  if (queued > 0) k *= 1 + (c.queueExtra ?? 0) * (queued / Math.max(1, lv.bubbles.length));
   return Math.max(c.min, Math.ceil((base * k) / c.step) * c.step);
 }
