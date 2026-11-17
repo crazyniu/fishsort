@@ -1,6 +1,6 @@
 # 啵啵救援队（代号 fishsort）
 
-竖屏休闲消除手游：把困在气泡里的小鱼按种类送回鱼缸。目标平台：微信小游戏、抖音小游戏；v0 只做小游戏，Google Play（Android）放到之后，APP 才做的功能记在 `docs/07`。
+竖屏休闲消除手游：把困在气泡里的小鱼按种类送回鱼缸。目标平台（用户 2026-11-18 定）：微信小游戏（中国大陆）、Google Play 和 iOS（只上海外，不上中国大陆商店）。三端都要做，上架先后不固定（用户 2026-11-18：可能先上 App Store）。**三端一个仓库、一个主干，不为平台拆分支**，差异只在平台层和每个平台的覆盖配置里（`docs/04` 第 5 节）；上架图片和文案也在仓库里（`store/`，`docs/06`）。APP 才做的功能记在 `docs/07`。
 
 ## 文档索引（动手前先读对应文档）
 
@@ -29,14 +29,15 @@
 1. **原创**：本作只借鉴「气泡取鱼 + 三消装缸」这一品类玩法。名称、鱼的造型与名字、图标、界面布局、场景画面一律原创，不得照着任何现有游戏的截图临摹或让 Codex 以其为参考图。
 2. **引擎**：Cocos Creator 3.8.8 + TypeScript（严格模式），工程在 `client/`（2026-11-15 由 Godot 迁来，Godot 旧工程已于 2026-11-16 删除，见 `docs/09`）。
 3. **分层**：`client/assets/scripts/core/` 是纯逻辑，不 import `cc`，禁止碰节点、存储、时间、`Math.random`；规则与原 Godot 版逐位一致，由黄金数据测试（`client/tests/golden/`）守着。
-4. **平台隔离**：`wx` / `tt` 等平台调用只允许出现在 `client/assets/scripts/platform/`，其它代码走 `App.platform` 接口，按能力（`hasCapability`）而不是按平台 id 分支。
+4. **平台隔离**：`wx`、原生桥等平台调用只允许出现在 `client/assets/scripts/platform/`，其它代码走 `App.platform` 接口，按能力（`hasCapability`）而不是按平台 id 分支。
 5. **数值不进代码**：关卡、鱼种、经济、广告频控、界面手感全部放 `client/assets/resources/config/` 的 JSON。
 6. **文案不进代码**：所有玩家可见文字走 `tr()`，翻译在 `i18n/strings.csv`（`zh_CN`、`en`），生成 `client/assets/resources/i18n/strings.json`。
 7. **关卡必须可解**：进包的关卡都要过 `./run.sh level-verify`。
 8. **v1.0 无自建服务器**：存档本地 + 平台云存档，排行榜用平台能力。
-9. **国内小游戏 v1.0 只做广告变现**，不接内购（内购需要版号）。内购只在 Google Play 版本开启。
-10. **测试与 CI 从简**：只给 `core/` 的规则、生成器和存档写测试（`client/tests/`）；界面、服务、平台层不写单测。CI 只有一条 PR 流水线，三分钟内跑完，不加构建矩阵、覆盖率、界面自动化。细则见 `docs/05` 第 3、4 节，不要自行加码。
-11. **包体**：界面能用代码画的就不用图片（`docs/09` 第 11 节）；进包的 PNG 一律压成调色板（`./run.sh art-compress`，`check` 会查）。微信打包与真机验证用户定为先不管，平台专属功能等接平台时再做。
+9. **微信小游戏只做广告变现**，不接内购（内购需要版号；个人主体也开不了虚拟支付）。上线初期没开通流量主时没有广告，不另做备用方案（`docs/01` 7.1）。内购只在 Google Play、iOS 版开启。
+10. **语言只有简体中文和英文**（用户 2026-11-18：不做繁体，省时间）。微信版默认简体中文，App 版默认英文、附简体中文。
+11. **测试与 CI 从简**：只给 `core/` 的规则、生成器和存档写测试（`client/tests/`）；界面、服务、平台层不写单测。CI 只有一条 PR 流水线，三分钟内跑完，不加构建矩阵、覆盖率、界面自动化。细则见 `docs/05` 第 3、4 节，不要自行加码。
+12. **包体**：界面能用代码画的就不用图片（`docs/09` 第 11 节）；进包的 PNG 一律压成调色板（`./run.sh art-compress`，`check` 会查）。微信打包与真机验证用户定为先不管，平台专属功能等接平台时再做。
 
 ## 项目管理
 
@@ -79,6 +80,6 @@ Cocos Creator 由 `run.sh` 自动查找（`COCOS_CREATOR` 环境变量 → `/App
 
 ## 测试环境分工（硬性）
 
-12. **Linux 开发机只写代码，不跑 Cocos / Blender**：构建、试玩、截图、界面验收、Blender 出图或导出，一律去用户的 Mac 上做（Node 的检查、单测、关卡校验可以在 Linux 上跑）。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Cocos Creator 3.8.8 在 `/Applications/Cocos/Creator/3.8.8/`），不需要用户手动操作。
-13. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
-14. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
+13. **Linux 开发机只写代码，不跑 Cocos / Blender**：构建、试玩、截图、界面验收、Blender 出图或导出，一律去用户的 Mac 上做（Node 的检查、单测、关卡校验可以在 Linux 上跑）。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Cocos Creator 3.8.8 在 `/Applications/Cocos/Creator/3.8.8/`），不需要用户手动操作。
+14. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
+15. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
