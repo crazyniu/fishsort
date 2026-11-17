@@ -37,9 +37,10 @@ function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
   const total = p.fish;
   lv.palette = ns;
   lv.challenge = p.challenge ?? false;
+  lv.buffer = p.buffer ?? lv.buffer;
   lv.orders = makeOrders(rng, ns, total, p.big ?? 0);
   lv.fieldCap = Math.trunc(p.cap ?? 0);
-  lv.bubbles = makeBubbles(rng, total, p.layers, lv.fieldCap, p.per_min ?? 1, p.per_max ?? 5);
+  lv.bubbles = makeBubbles(rng, total, p.layers, lv.fieldCap, p.per_min ?? 1, p.per_max ?? 5, p.per_avg ?? 3.0);
 
   const s = GameState.fromLevel(lv);
   start(s);
@@ -161,8 +162,9 @@ function makeBubbles(
   fieldCap: number,
   perMin: number,
   perMax: number,
+  perAvg: number,
 ): BubbleData[] {
-  const nb = clampi(roundi(total / 3.0), Math.ceil(total / perMax), idiv(total, perMin));
+  const nb = clampi(roundi(total / perAvg), Math.ceil(total / perMax), idiv(total, perMin));
   const caps: number[] = [];
   for (let i = 0; i < nb; i++) caps.push(perMin);
   for (let i = 0; i < total - nb * perMin; i++) {

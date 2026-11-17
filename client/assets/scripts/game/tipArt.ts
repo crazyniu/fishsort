@@ -143,8 +143,30 @@ export function tipArt(parent: Node, key: string): Node {
       link.setSiblingIndex(b.children.length - 2);
       break;
     }
-    case 'TIP_CLOCK':
-    case 'TIP_CLOCK_ALL': {
+    case 'TIP_TOOLS3': {
+      // 每种道具每关能用 3 次：两个道具图标，角上挂「×3」
+      ['skill_shuffle', 'skill_net'].forEach((id, i) => {
+        const ic = img(n, `icon/${id}`, 150, 150, id);
+        at(ic, (i - 0.5) * 190, 0);
+        badge(ic, 62, 56, 68, '×3');
+        fx.breathe(ic, 0.04, 0.9 + i * 0.2);
+      });
+      break;
+    }
+    case 'TIP_BUFFER4': {
+      // 暂存槽只有 4 格：和局里一样的一排槽，前三格有鱼，最后一格闪
+      const w = 84;
+      // 槽是半透明白的，弹窗也是白底：垫一块和局内顶栏一样的深色底
+      at(plate(n, 'skin/f_hud', 4 * (w + 10) + 34, w + 40, 'back'), 0, 10);
+      for (let i = 0; i < 4; i++) {
+        const sl = slice(n, 'kit/slot', w, w, `slot${i}`);
+        at(sl, (i - 1.5) * (w + 10), 10);
+        if (i < 3) at(img(sl, `fish/${['c01', 'c02', 'c03'][i]}`, w * 0.8, w * 0.8, 'fish'), 0, 0);
+        else fx.breathe(sl, 0.08, 0.6);
+      }
+      break;
+    }
+    case 'TIP_CLOCK': {
       // 限时关：一块和局内顶栏一样的倒计时条，旁边一只气泡
       const pill = plate(n, 'skin/f_hud', 200, 96, 'clock');
       at(pill, -40, 20);

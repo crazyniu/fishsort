@@ -17,6 +17,8 @@ export interface GenParams {
   cap?: number;
   per_min?: number;
   per_max?: number;
+  /** 平均一个气泡几条鱼（不给 = 3）。生成器加难度时往下调：同时在场的气泡数不变，看得见的鱼变少 */
+  per_avg?: number;
   chain?: number;
   timer?: number;
   /** 迷雾泡占气泡总数的比例 */
@@ -31,6 +33,8 @@ export interface GenParams {
   /** 限时缸秒数的算法（level_curve.json 的 timer）与机器人的计时（bot） */
   timerRule?: { loose: number; min: number; max: number; step: number; maxSteps: number };
   clock?: { tapSec: number; bowlSec: number };
+  /** 暂存槽几格（level_curve.json 的 buffer，不给 = 5） */
+  buffer?: number;
 }
 
 export function isChallenge(curve: CurveConfig, id: number): boolean {
@@ -57,6 +61,7 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
     if ((p.cap ?? 0) > 0) p.cap = (p.cap as number) + ease * e.cap;
   }
   p.fish = Math.max(9, idiv(p.fish, 3) * 3);
+  p.buffer = bufferFor(curve, id);
   return p;
 }
 
@@ -152,6 +157,13 @@ function challenge(curve: CurveConfig, id: number, p: GenParams): void {
   else p.cap = Math.max(c.capMin, (p.cap as number) - c.capMinus);
 }
 
+/** 第 id 关暂存槽几格：level_curve.json 的 buffer 是 [从第几关起, 几格] 的表，没配就是 5 格 */
+export function bufferFor(curve: CurveConfig, id: number): number {
+  let n = 5;
+  for (const [from, slots] of curve.buffer ?? []) if (id >= from) n = slots;
+  return n;
+}
+
 function lerpI(span: readonly number[], t: number): number {
   return roundi(lerpf(span[0], span[1], t));
 }
@@ -227,13 +239,11 @@ export function miss(span: readonly number[], rate: number): number {
 export function clockFor(curve: CurveConfig, id: number, lv: LevelData): number {
   const c = curve.clock;
   if (!c) return NO_TIMER;
-  const chal = isChallenge(curve, id);
-  if (id < c.allFrom && !(chal && id >= c.challengeFrom)) return NO_TIMER;
+  if (!isChallenge(curve, id) || id < c.challengeFrom) return NO_TIMER;
   let fish = 0;
   for (const b of lv.bubbles) fish += b.fish.length;
   const base = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
-  const t = clampf((id - c.allFrom) / Math.max(1, curve.total - c.allFrom), 0, 1);
-  let k = lerpf(c.factor[0], c.factor[1], t);
-  if (chal) k *= c.challengeMul;
+  const t = clampf((id - c.challengeFrom) / Math.max(1, curve.total - c.challengeFrom), 0, 1);
+  const k = lerpf(c.factor[0], c.factor[1], t);
   return Math.max(c.min, Math.ceil((base * k) / c.step) * c.step);
 }
