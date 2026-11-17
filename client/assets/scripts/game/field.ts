@@ -10,6 +10,7 @@ import { LevelData } from '../core/model/levelData';
 import * as Rules from '../core/rules/rules';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
+import * as Alive from '../ui/alive';
 import { bob, ring, sparkle } from '../ui/fx';
 import { at, box, img, opacity, setImg, text } from '../ui/kit';
 import { Pile } from './pile';
@@ -94,6 +95,11 @@ export class Field {
 
   get isLayered(): boolean {
     return this.layered;
+  }
+
+  /** 第 sp 种鱼的生物 id */
+  idFor(sp: number): string {
+    return this.species[sp] ?? this.species[0];
   }
 
   spriteFor(sp: number): string {
@@ -444,7 +450,10 @@ export class Field {
       const f = img(body, this.spriteFor(sp), fs, fs, `fish${k}`);
       at(f, offs[k][0], offs[k][1]);
       f.setScale(k % 2 === 0 ? 1 : -1, 1, 1);
-      this.swim(f, k);
+      // 按轮廓类的小动作（螃蟹夹两下、水母一缩一伸……），没有专门动作的鱼摆尾；都会眨眼（ui/alive.ts）
+      const id = this.species[sp] ?? this.species[0];
+      if (!Alive.idle(f, Alive.shapeOf(id), k)) this.swim(f, k);
+      Alive.blink(f, id, fs);
       fish.push(f);
     }
     const v: View = {
@@ -822,6 +831,15 @@ export class Field {
         const f = v.fish[k];
         if (sp === REMOVED || !f) continue;
         setImg(f, this.spriteFor(sp), fs, fs);
+        // 换了鱼：眼皮和小动作也跟着换
+        const flip = f.scale.x < 0 ? -1 : 1;
+        Tween.stopAllByTarget(f);
+        for (const c of f.children.slice()) if (c.name === 'lid') { Tween.stopAllByTarget(c); c.destroy(); }
+        f.setScale(flip, 1, 1);
+        f.angle = 0;
+        const id = this.species[sp] ?? this.species[0];
+        if (!Alive.idle(f, Alive.shapeOf(id), k)) this.swim(f, k);
+        Alive.blink(f, id, fs);
       }
       this.drawLinks(v, s.bubbles[i].pairs);
     }

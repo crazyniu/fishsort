@@ -50,14 +50,15 @@ describe('海域（docs/01 5.0）', () => {
     Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 6 : Seas.list(ECO)[i].levelFrom));
   });
 
-  it('每册 15 张、普通 10 张；90 张各在一册；传说只在海底宫殿；局内 46 种，每册 7–9 种', () => {
+  it('每册普通 10、精良 15、稀有 8、史诗 5（传说 2 张只在海底宫殿）；230 张各在一册；局内 46 种，每册 7–9 种', () => {
     const rarity = Object.fromEntries(SPECIES.map((s) => [s.id, s.rarity]));
     const seen = new Set<string>();
     const inLevel = new Set(SPECIES.filter((s) => s.inLevel).map((s) => s.id));
     const stars = [8, 7, 7, 8, 7, 9];
     Album.books(ECO).forEach((b, i) => {
-      assert.equal(b.cards.length, 15);
-      assert.equal(b.cards.filter((c) => rarity[c] === 'common').length, 10);
+      const n = (r: string) => b.cards.filter((c) => rarity[c] === r).length;
+      assert.deepEqual([n('common'), n('uncommon'), n('rare'), n('epic')], [10, 15, 8, 5], b.sea);
+      assert.equal(b.cards.length, b.sea === 'palace' ? 40 : 38);
       assert.equal(b.cards.filter((c) => inLevel.has(c)).length, stars[i], `${b.sea} 的局内生物`);
       for (const c of b.cards) {
         assert.ok(!seen.has(c), `${c} 只在一册`);
@@ -65,7 +66,7 @@ describe('海域（docs/01 5.0）', () => {
         if (rarity[c] === 'legend') assert.equal(b.sea, 'palace');
       }
     });
-    assert.equal(seen.size, 90);
+    assert.equal(seen.size, 230);
     assert.equal(inLevel.size, 46);
   });
 });

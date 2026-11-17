@@ -613,5 +613,705 @@
   "art/source/fish/c60.png",
   64,
   "png"
+ ],
+ "fish/u16": [
+  "art/source/fish/u16.png",
+  64,
+  "png"
+ ],
+ "fish/u17": [
+  "art/source/fish/u17.png",
+  64,
+  "png"
+ ],
+ "fish/u18": [
+  "art/source/fish/u18.png",
+  64,
+  "png"
+ ],
+ "fish/u19": [
+  "art/source/fish/u19.png",
+  64,
+  "png"
+ ],
+ "fish/u20": [
+  "art/source/fish/u20.png",
+  64,
+  "png"
+ ],
+ "fish/u21": [
+  "art/source/fish/u21.png",
+  64,
+  "png"
+ ],
+ "fish/u22": [
+  "art/source/fish/u22.png",
+  64,
+  "png"
+ ],
+ "fish/u23": [
+  "art/source/fish/u23.png",
+  64,
+  "png"
+ ],
+ "fish/u24": [
+  "art/source/fish/u24.png",
+  64,
+  "png"
+ ],
+ "fish/u25": [
+  "art/source/fish/u25.png",
+  64,
+  "png"
+ ],
+ "fish/u26": [
+  "art/source/fish/u26.png",
+  64,
+  "png"
+ ],
+ "fish/u27": [
+  "art/source/fish/u27.png",
+  64,
+  "png"
+ ],
+ "fish/r09": [
+  "art/source/fish/r09.png",
+  64,
+  "png"
+ ],
+ "fish/r10": [
+  "art/source/fish/r10.png",
+  64,
+  "png"
+ ],
+ "fish/r11": [
+  "art/source/fish/r11.png",
+  64,
+  "png"
+ ],
+ "fish/r12": [
+  "art/source/fish/r12.png",
+  64,
+  "png"
+ ],
+ "fish/r13": [
+  "art/source/fish/r13.png",
+  64,
+  "png"
+ ],
+ "fish/r14": [
+  "art/source/fish/r14.png",
+  64,
+  "png"
+ ],
+ "fish/r15": [
+  "art/source/fish/r15.png",
+  64,
+  "png"
+ ],
+ "fish/e06": [
+  "art/source/fish/e06.png",
+  64,
+  "png"
+ ],
+ "fish/e07": [
+  "art/source/fish/e07.png",
+  64,
+  "png"
+ ],
+ "fish/e08": [
+  "art/source/fish/e08.png",
+  64,
+  "png"
+ ],
+ "fish/e09": [
+  "art/source/fish/e09.png",
+  64,
+  "png"
+ ],
+ "fish/u28": [
+  "art/source/fish/u28.png",
+  64,
+  "png"
+ ],
+ "fish/u29": [
+  "art/source/fish/u29.png",
+  64,
+  "png"
+ ],
+ "fish/u30": [
+  "art/source/fish/u30.png",
+  64,
+  "png"
+ ],
+ "fish/u31": [
+  "art/source/fish/u31.png",
+  64,
+  "png"
+ ],
+ "fish/u32": [
+  "art/source/fish/u32.png",
+  64,
+  "png"
+ ],
+ "fish/u33": [
+  "art/source/fish/u33.png",
+  64,
+  "png"
+ ],
+ "fish/u34": [
+  "art/source/fish/u34.png",
+  64,
+  "png"
+ ],
+ "fish/u35": [
+  "art/source/fish/u35.png",
+  64,
+  "png"
+ ],
+ "fish/u36": [
+  "art/source/fish/u36.png",
+  64,
+  "png"
+ ],
+ "fish/u37": [
+  "art/source/fish/u37.png",
+  64,
+  "png"
+ ],
+ "fish/u38": [
+  "art/source/fish/u38.png",
+  64,
+  "png"
+ ],
+ "fish/u39": [
+  "art/source/fish/u39.png",
+  64,
+  "png"
+ ],
+ "fish/r16": [
+  "art/source/fish/r16.png",
+  64,
+  "png"
+ ],
+ "fish/r17": [
+  "art/source/fish/r17.png",
+  64,
+  "png"
+ ],
+ "fish/r18": [
+  "art/source/fish/r18.png",
+  64,
+  "png"
+ ],
+ "fish/r19": [
+  "art/source/fish/r19.png",
+  64,
+  "png"
+ ],
+ "fish/r20": [
+  "art/source/fish/r20.png",
+  64,
+  "png"
+ ],
+ "fish/r21": [
+  "art/source/fish/r21.png",
+  64,
+  "png"
+ ],
+ "fish/r22": [
+  "art/source/fish/r22.png",
+  64,
+  "png"
+ ],
+ "fish/e10": [
+  "art/source/fish/e10.png",
+  64,
+  "png"
+ ],
+ "fish/e11": [
+  "art/source/fish/e11.png",
+  64,
+  "png"
+ ],
+ "fish/e12": [
+  "art/source/fish/e12.png",
+  64,
+  "png"
+ ],
+ "fish/e13": [
+  "art/source/fish/e13.png",
+  64,
+  "png"
+ ],
+ "fish/u40": [
+  "art/source/fish/u40.png",
+  64,
+  "png"
+ ],
+ "fish/u41": [
+  "art/source/fish/u41.png",
+  64,
+  "png"
+ ],
+ "fish/u42": [
+  "art/source/fish/u42.png",
+  64,
+  "png"
+ ],
+ "fish/u43": [
+  "art/source/fish/u43.png",
+  64,
+  "png"
+ ],
+ "fish/u44": [
+  "art/source/fish/u44.png",
+  64,
+  "png"
+ ],
+ "fish/u45": [
+  "art/source/fish/u45.png",
+  64,
+  "png"
+ ],
+ "fish/u46": [
+  "art/source/fish/u46.png",
+  64,
+  "png"
+ ],
+ "fish/u47": [
+  "art/source/fish/u47.png",
+  64,
+  "png"
+ ],
+ "fish/u48": [
+  "art/source/fish/u48.png",
+  64,
+  "png"
+ ],
+ "fish/u49": [
+  "art/source/fish/u49.png",
+  64,
+  "png"
+ ],
+ "fish/u50": [
+  "art/source/fish/u50.png",
+  64,
+  "png"
+ ],
+ "fish/u51": [
+  "art/source/fish/u51.png",
+  64,
+  "png"
+ ],
+ "fish/r23": [
+  "art/source/fish/r23.png",
+  64,
+  "png"
+ ],
+ "fish/r24": [
+  "art/source/fish/r24.png",
+  64,
+  "png"
+ ],
+ "fish/r25": [
+  "art/source/fish/r25.png",
+  64,
+  "png"
+ ],
+ "fish/r26": [
+  "art/source/fish/r26.png",
+  64,
+  "png"
+ ],
+ "fish/r27": [
+  "art/source/fish/r27.png",
+  64,
+  "png"
+ ],
+ "fish/r28": [
+  "art/source/fish/r28.png",
+  64,
+  "png"
+ ],
+ "fish/e14": [
+  "art/source/fish/e14.png",
+  64,
+  "png"
+ ],
+ "fish/e15": [
+  "art/source/fish/e15.png",
+  64,
+  "png"
+ ],
+ "fish/e16": [
+  "art/source/fish/e16.png",
+  64,
+  "png"
+ ],
+ "fish/e17": [
+  "art/source/fish/e17.png",
+  64,
+  "png"
+ ],
+ "fish/e18": [
+  "art/source/fish/e18.png",
+  64,
+  "png"
+ ],
+ "fish/u52": [
+  "art/source/fish/u52.png",
+  64,
+  "png"
+ ],
+ "fish/u53": [
+  "art/source/fish/u53.png",
+  64,
+  "png"
+ ],
+ "fish/u54": [
+  "art/source/fish/u54.png",
+  64,
+  "png"
+ ],
+ "fish/u55": [
+  "art/source/fish/u55.png",
+  64,
+  "png"
+ ],
+ "fish/u56": [
+  "art/source/fish/u56.png",
+  64,
+  "png"
+ ],
+ "fish/u57": [
+  "art/source/fish/u57.png",
+  64,
+  "png"
+ ],
+ "fish/u58": [
+  "art/source/fish/u58.png",
+  64,
+  "png"
+ ],
+ "fish/u59": [
+  "art/source/fish/u59.png",
+  64,
+  "png"
+ ],
+ "fish/u60": [
+  "art/source/fish/u60.png",
+  64,
+  "png"
+ ],
+ "fish/u61": [
+  "art/source/fish/u61.png",
+  64,
+  "png"
+ ],
+ "fish/u62": [
+  "art/source/fish/u62.png",
+  64,
+  "png"
+ ],
+ "fish/u63": [
+  "art/source/fish/u63.png",
+  64,
+  "png"
+ ],
+ "fish/u64": [
+  "art/source/fish/u64.png",
+  64,
+  "png"
+ ],
+ "fish/r29": [
+  "art/source/fish/r29.png",
+  64,
+  "png"
+ ],
+ "fish/r30": [
+  "art/source/fish/r30.png",
+  64,
+  "png"
+ ],
+ "fish/r31": [
+  "art/source/fish/r31.png",
+  64,
+  "png"
+ ],
+ "fish/r32": [
+  "art/source/fish/r32.png",
+  64,
+  "png"
+ ],
+ "fish/r33": [
+  "art/source/fish/r33.png",
+  64,
+  "png"
+ ],
+ "fish/r34": [
+  "art/source/fish/r34.png",
+  64,
+  "png"
+ ],
+ "fish/r35": [
+  "art/source/fish/r35.png",
+  64,
+  "png"
+ ],
+ "fish/e19": [
+  "art/source/fish/e19.png",
+  64,
+  "png"
+ ],
+ "fish/e20": [
+  "art/source/fish/e20.png",
+  64,
+  "png"
+ ],
+ "fish/e21": [
+  "art/source/fish/e21.png",
+  64,
+  "png"
+ ],
+ "fish/u65": [
+  "art/source/fish/u65.png",
+  64,
+  "png"
+ ],
+ "fish/u66": [
+  "art/source/fish/u66.png",
+  64,
+  "png"
+ ],
+ "fish/u67": [
+  "art/source/fish/u67.png",
+  64,
+  "png"
+ ],
+ "fish/u68": [
+  "art/source/fish/u68.png",
+  64,
+  "png"
+ ],
+ "fish/u69": [
+  "art/source/fish/u69.png",
+  64,
+  "png"
+ ],
+ "fish/u70": [
+  "art/source/fish/u70.png",
+  64,
+  "png"
+ ],
+ "fish/u71": [
+  "art/source/fish/u71.png",
+  64,
+  "png"
+ ],
+ "fish/u72": [
+  "art/source/fish/u72.png",
+  64,
+  "png"
+ ],
+ "fish/u73": [
+  "art/source/fish/u73.png",
+  64,
+  "png"
+ ],
+ "fish/u74": [
+  "art/source/fish/u74.png",
+  64,
+  "png"
+ ],
+ "fish/u75": [
+  "art/source/fish/u75.png",
+  64,
+  "png"
+ ],
+ "fish/u76": [
+  "art/source/fish/u76.png",
+  64,
+  "png"
+ ],
+ "fish/u77": [
+  "art/source/fish/u77.png",
+  64,
+  "png"
+ ],
+ "fish/r36": [
+  "art/source/fish/r36.png",
+  64,
+  "png"
+ ],
+ "fish/r37": [
+  "art/source/fish/r37.png",
+  64,
+  "png"
+ ],
+ "fish/r38": [
+  "art/source/fish/r38.png",
+  64,
+  "png"
+ ],
+ "fish/r39": [
+  "art/source/fish/r39.png",
+  64,
+  "png"
+ ],
+ "fish/r40": [
+  "art/source/fish/r40.png",
+  64,
+  "png"
+ ],
+ "fish/r41": [
+  "art/source/fish/r41.png",
+  64,
+  "png"
+ ],
+ "fish/e22": [
+  "art/source/fish/e22.png",
+  64,
+  "png"
+ ],
+ "fish/e23": [
+  "art/source/fish/e23.png",
+  64,
+  "png"
+ ],
+ "fish/e24": [
+  "art/source/fish/e24.png",
+  64,
+  "png"
+ ],
+ "fish/e25": [
+  "art/source/fish/e25.png",
+  64,
+  "png"
+ ],
+ "fish/u78": [
+  "art/source/fish/u78.png",
+  64,
+  "png"
+ ],
+ "fish/u79": [
+  "art/source/fish/u79.png",
+  64,
+  "png"
+ ],
+ "fish/u80": [
+  "art/source/fish/u80.png",
+  64,
+  "png"
+ ],
+ "fish/u81": [
+  "art/source/fish/u81.png",
+  64,
+  "png"
+ ],
+ "fish/u82": [
+  "art/source/fish/u82.png",
+  64,
+  "png"
+ ],
+ "fish/u83": [
+  "art/source/fish/u83.png",
+  64,
+  "png"
+ ],
+ "fish/u84": [
+  "art/source/fish/u84.png",
+  64,
+  "png"
+ ],
+ "fish/u85": [
+  "art/source/fish/u85.png",
+  64,
+  "png"
+ ],
+ "fish/u86": [
+  "art/source/fish/u86.png",
+  64,
+  "png"
+ ],
+ "fish/u87": [
+  "art/source/fish/u87.png",
+  64,
+  "png"
+ ],
+ "fish/u88": [
+  "art/source/fish/u88.png",
+  64,
+  "png"
+ ],
+ "fish/u89": [
+  "art/source/fish/u89.png",
+  64,
+  "png"
+ ],
+ "fish/u90": [
+  "art/source/fish/u90.png",
+  64,
+  "png"
+ ],
+ "fish/r42": [
+  "art/source/fish/r42.png",
+  64,
+  "png"
+ ],
+ "fish/r43": [
+  "art/source/fish/r43.png",
+  64,
+  "png"
+ ],
+ "fish/r44": [
+  "art/source/fish/r44.png",
+  64,
+  "png"
+ ],
+ "fish/r45": [
+  "art/source/fish/r45.png",
+  64,
+  "png"
+ ],
+ "fish/r46": [
+  "art/source/fish/r46.png",
+  64,
+  "png"
+ ],
+ "fish/r47": [
+  "art/source/fish/r47.png",
+  64,
+  "png"
+ ],
+ "fish/r48": [
+  "art/source/fish/r48.png",
+  64,
+  "png"
+ ],
+ "fish/e26": [
+  "art/source/fish/e26.png",
+  64,
+  "png"
+ ],
+ "fish/e27": [
+  "art/source/fish/e27.png",
+  64,
+  "png"
+ ],
+ "fish/e28": [
+  "art/source/fish/e28.png",
+  64,
+  "png"
+ ],
+ "fish/e29": [
+  "art/source/fish/e29.png",
+  64,
+  "png"
+ ],
+ "fish/e30": [
+  "art/source/fish/e30.png",
+  64,
+  "png"
  ]
 }

@@ -55,11 +55,13 @@ export class ResultPage extends Page {
     const cfg = App.config.ui.win;
     const at0 = (k: string) => Number(cfg[k] ?? 0);
     const top = Screen.top;
-    // 从下往上排：底部给 Banner 留位（docs/01 7.1），返回主页 → 下一关 → 翻倍 / 分享 → 奖励条 → 宝箱；横幅和星星贴顶
+    // 从下往上排：底部给 Banner 留位（docs/01 7.1），主页（+ 分享）→ 下一关 → 翻倍 → 奖励条 → 宝箱；横幅和星星贴顶。
+    // 没有翻倍（重玩奖励领完）时那一行不留空，奖励条直接接在「下一关」上面
+    const hasDouble = r.rewarded && r.coins > 0;
     const homeY = Screen.bottom + BANNER_H + 64;
     const nextY = homeY + 140;
     const btnY = nextY + 150;
-    const rowY = btnY + 160;
+    const rowY = hasDouble ? btnY + 160 : nextY + 175;
     const ribbonY = top - 270;
     const chestY = (ribbonY - 100 + rowY + 85) / 2;
     const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
@@ -118,8 +120,20 @@ export class ResultPage extends Page {
     }
     for (const card of d.cards) extras.push(prizeCell(pill, cardItem(card), 96));
     if (r.first_win) extras.push(prizeCell(pill, { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) }, 96));
-    const all = [coinCell, ...extras];
-    const widths = all.map((_n, i) => (i === 0 ? coinW + 20 : 128));
+    // 今天重玩的奖励领完了：金币那一格换成一句话；后面还有卡（连击送的）时，话放左边、卡排在右边，不叠在一起（用户 2026-11-17）
+    let first: Node = coinCell;
+    let firstW = coinW + 20;
+    if (!r.rewarded) {
+      coinCell.active = false;
+      const note = box('note', pill, 10, 150);
+      const maxW = extras.length > 0 ? 620 - extras.length * 128 : 600;
+      const l = text(note, tr('UI_REPLAY_NO_REWARD'), 34);
+      fit(l, maxW, 34, 22);
+      firstW = Math.min(maxW, textWidth(l)) + 24;
+      first = note;
+    }
+    const all = [first, ...extras];
+    const widths = all.map((_n, i) => (i === 0 ? firstW : 128));
     const total = widths.reduce((a, b) => a + b, 0);
     let x = -total / 2;
     all.forEach((n, i) => {
@@ -127,11 +141,6 @@ export class ResultPage extends Page {
       x += widths[i];
     });
     for (const e of extras) e.active = false;
-    if (!r.rewarded) {
-      // 今天重玩的奖励领完了：整条只写一句话，居中、放得下
-      coinCell.active = false;
-      at(text(pill, tr('UI_REPLAY_NO_REWARD'), 34, { width: 600 }).node, 0, 0);
-    }
 
     // 按钮
     const s = App.save.data;
@@ -139,10 +148,10 @@ export class ResultPage extends Page {
     let dbl: Btn | null = null;
     const bestCard = d.cards.reduce((m, cd) => Math.max(m, Cards.rank(eco, cd.rarity)), -1);
     const showShare = bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare')) && Share.remaining(s, eco, 'card', today()) > 0;
-    if (r.rewarded && r.coins > 0) {
+    if (hasDouble) {
       dbl = button(c, {
         color: 'yellow',
-        w: showShare ? 320 : 480,
+        w: 480,
         h: 100,
         icon: 'kit/ic_video',
         label: tr('WIN_DOUBLE'),
@@ -156,14 +165,14 @@ export class ResultPage extends Page {
           sfx('coins');
         },
       });
-      at(dbl.node, showShare ? -170 : 0, btnY);
+      at(dbl.node, 0, btnY);
     }
     let share: Btn | null = null;
     if (showShare) {
       share = button(c, {
         color: 'blue',
-        w: 300,
-        h: 100,
+        w: 260,
+        h: 90,
         icon: 'kit/ic_share',
         label: tr('UI_SHARE_SHORT'),
         onTap: async () => {
@@ -175,12 +184,13 @@ export class ResultPage extends Page {
           sfx('coins');
         },
       });
-      at(share.node, dbl ? 180 : 0, btnY);
+      // 分享和「主页」放在最下面一行（用户 2026-11-17）
+      at(share.node, 140, homeY);
     }
     const next = button(c, { color: 'green', w: 540, h: 130, label: tr('UI_NEXT_LEVEL'), fontSize: 64, onTap: () => void Flow.afterResult(d, true) });
     at(next.node, 0, nextY);
-    const home = button(c, { color: 'blue', w: 340, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
-    at(home.node, 0, homeY);
+    const home = button(c, { color: 'blue', w: share ? 260 : 340, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
+    at(home.node, share ? -140 : 0, homeY);
     const buttons = [dbl?.node, share?.node, next.node, home.node].filter((n): n is Node => !!n);
     for (const b of buttons) b.active = false;
     const btnHome = buttons.map((b) => b.position.y);

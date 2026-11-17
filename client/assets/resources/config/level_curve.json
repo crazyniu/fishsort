@@ -2,13 +2,13 @@
   "total": 120,
   "cycle": 5,
   "fixed": {
-    "1": {"species": 3, "fish": 9, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3},
-    "2": {"species": 3, "fish": 18, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3}
+    "1": {"species": 3, "fish": 12, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3},
+    "2": {"species": 3, "fish": 24, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3}
   },
   "segments": [
-    {"from": 3, "to": 10, "species": [3, 4], "fish": [21, 36], "cap": [0, 0], "layers": 2, "per": [2, 3], "slack": [0, 1]},
-    {"from": 11, "to": 15, "species": [4, 5], "fish": [42, 48], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
-    {"from": 16, "to": 25, "species": [5, 5], "fish": [48, 60], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
+    {"from": 3, "to": 10, "species": [3, 4], "fish": [36, 48], "cap": [0, 0], "layers": 2, "per": [2, 3], "slack": [0, 1]},
+    {"from": 11, "to": 15, "species": [4, 5], "fish": [48, 54], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
+    {"from": 16, "to": 25, "species": [5, 5], "fish": [54, 60], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
     {"from": 26, "to": 40, "species": [5, 6], "fish": [60, 69], "cap": [14, 13], "layers": 1, "per": [2, 4], "slack": [1, 2]},
     {"from": 41, "to": 60, "species": [6, 7], "fish": [69, 78], "cap": [13, 13], "layers": 1, "per": [2, 4], "slack": [1, 2]},
     {"from": 61, "to": 80, "species": [7, 7], "fish": [78, 84], "cap": [13, 12], "layers": 1, "per": [2, 5], "slack": [2, 2]},

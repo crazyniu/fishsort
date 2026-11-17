@@ -9,7 +9,8 @@
   "shake": 0.5,
   "swell": 0.3,
   "dropAt": 0.95,
-  "dropSeconds": 0.35
+  "dropSeconds": 0.35,
+  "unlockDropAt": 0.3
  },
  "praise": {
   "keys": [
@@ -39,6 +40,10 @@
   "linkMin": 0.6,
   "stagger": 0.06,
   "maxHeight": 0.97
+ },
+ "autoFinish": {
+   "delay": 0.5,
+   "interval": 0.2
  },
  "hint": {
   "tutorialLevels": 3,

@@ -11,6 +11,7 @@ import { pickSpecies } from '../core/model/speciesPick';
 import { Bowl, GameState, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, Status } from '../core/model/gameState';
 import { LevelData } from '../core/model/levelData';
 import { Rng } from '../core/rng/rng';
+import * as AutoFinish from '../core/rules/autoFinish';
 import * as Rules from '../core/rules/rules';
 import type { GameEvent } from '../core/rules/rules';
 import * as Bots from '../core/solver/bots';
@@ -18,6 +19,7 @@ import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
+import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
@@ -163,6 +165,10 @@ export class GamePage extends Page {
   private tutorNode: Node | null = null;
   private idle = 0;
   private autoplayT = 0;
+  /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点）；dirty = 局面变了要重算 */
+  private autoTaps: AutoFinish.AutoTap[] | null = null;
+  private autoDirty = false;
+  private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
   private nudged = new Set<string>();
@@ -220,6 +226,8 @@ export class GamePage extends Page {
     this.comboBreaking = false;
     this.clock = 0;
     this.moved = false;
+    this.autoTaps = null;
+    this.autoDirty = false;
     this.tallied = false;
     this.ended = false;
     this.paused = false;
@@ -261,7 +269,8 @@ export class GamePage extends Page {
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
     const hudY = top - 52;
-    this.progress = capsule(this.stage, 196, 66, `fish/${this.species[0]}`, '', 34);
+    // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标用通用的鱼缸，不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）
+    this.progress = capsule(this.stage, 196, 66, 'skin/j_bowl', '', 34);
     at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
     this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30);
     at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
@@ -454,8 +463,13 @@ export class GamePage extends Page {
 
   // ---------------------------------------------------------------- 输入
 
+  /** 收尾自动入缸中：玩家的点击、道具都不响应 */
+  get finishing(): boolean {
+    return this.autoTaps !== null;
+  }
+
   private tapFish(b: number, k: number): void {
-    if (this.ended || this.paused || this.s.status !== Status.PLAYING) return;
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
     if (this.netMode) {
       ui.toast(tr('UI_NET_HINT'));
       return;
@@ -477,7 +491,7 @@ export class GamePage extends Page {
   }
 
   tapReturn(k: number): void {
-    if (this.ended || this.paused || this.s.status !== Status.PLAYING) return;
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
     if (this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k)).length) sfx('bo');
   }
 
@@ -496,6 +510,7 @@ export class GamePage extends Page {
     }
     this.clearHint();
     this.play(ev, false);
+    this.autoDirty = true;
     return ev;
   }
 
@@ -523,6 +538,8 @@ export class GamePage extends Page {
     let t = intro ? cfg.intro.startDelay : 0;
     let flyIdx = 0;
     let lastPop = -1;
+    /** 这一批里刚开的缸位（新缸直接落下，不等满缸演出） */
+    const opened = new Set<number>();
     const hitAt: [number, number][] = [];
     for (const e of events) {
       switch (e.t) {
@@ -567,10 +584,13 @@ export class GamePage extends Page {
           break;
         }
         case 'bowl_in': {
-          this.bowlIn(e.slot as number, e.species as number, e.cap as number, e.timer as number, intro ? t + (e.slot as number) * 0.1 : t + cfg.bowlDone.dropAt);
+          // 新开的缸位不用等满缸送走的演出，直接落下（用户 2026-11-17：开缸位太慢，时间减半）
+          const wait = intro ? (e.slot as number) * 0.1 : opened.has(e.slot as number) ? cfg.bowlDone.unlockDropAt : cfg.bowlDone.dropAt;
+          this.bowlIn(e.slot as number, e.species as number, e.cap as number, e.timer as number, t + wait);
           break;
         }
         case 'slot_open': {
+          opened.add(e.slot as number);
           const plus = this.plusNodes[e.slot as number];
           if (plus) plus.active = false;
           break;
@@ -765,6 +785,7 @@ export class GamePage extends Page {
     at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
     const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
     at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
+    Alive.blink(tagFish, this.field.idFor(sp), GOAL_H * 0.68);
     // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
     const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
     at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
@@ -813,6 +834,7 @@ export class GamePage extends Page {
     const k = n - 1;
     if (k >= spots.length) return;
     const f = img(view.inside, this.field.spriteFor(view.sp), size, size, `in${k}`);
+    Alive.blink(f, this.field.idFor(view.sp), size);
     at(f, spots[k][0] * s, spots[k][1] * view.h);
     f.setScale(k % 2 === 0 ? 0.3 : -0.3, 0.3, 1);
     const sx = k % 2 === 0 ? 1 : -1;
@@ -1304,6 +1326,7 @@ export class GamePage extends Page {
     const wait = this.arg.level <= hint.tutorialLevels ? hint.tutorialSeconds : hint.seconds;
     if (!this.hintNode && !this.tutorNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
     if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
+    this.autoFinish(dt);
     // 机器人代打（调试，?autoplay=1）
     if (App.flags.autoplay && this.s.status === Status.PLAYING) {
       this.autoplayT += dt;
@@ -1312,6 +1335,45 @@ export class GamePage extends Page {
         const t = Bots.nextTap(this.s, this.rng);
         if (t) this.act(() => Rules.tap(this.s, t[0], t[1]));
       }
+    }
+  }
+
+  /**
+   * 收尾自动入缸（docs/01 第 2 节）：只剩「无脑点」的最后几个气泡时，自己一条条送进缸，玩家不用再点。
+   * 局面一变就重算一次（AutoFinish.plan，纯规则）；算出来以后等一小会儿（让上一步的动画走完）再按顺序点，每条之间隔一点
+   */
+  private autoFinish(dt: number): void {
+    if (App.flags.autoplay || this.s.status !== Status.PLAYING || !this.moved) return;
+    if (this.autoDirty && this.autoTaps === null) {
+      this.autoDirty = false;
+      this.autoTaps = AutoFinish.plan(this.s);
+      this.autoT = -App.config.ui.autoFinish.delay;
+      if (this.autoTaps) this.clearHint();
+    }
+    if (this.autoTaps === null) return;
+    this.autoT += dt;
+    if (this.autoT < App.config.ui.autoFinish.interval) return;
+    this.autoT = 0;
+    const t = this.autoTaps.shift();
+    if (!t) {
+      this.autoTaps = null;
+      return;
+    }
+    const isReturn = t.b === RETURN_BUBBLE;
+    const pos = isReturn ? null : this.field.fishPos(t.b, t.k);
+    const ev = this.act(() => Rules.tap(this.s, t.b, t.k));
+    // 万一和算的不一样（不该发生），停下来让玩家自己点
+    if (ev.length === 0) {
+      this.autoTaps = null;
+      return;
+    }
+    this.autoDirty = false;
+    if (this.autoTaps.length === 0) this.autoTaps = null;
+    sfx('bo');
+    if (!isReturn && pos) {
+      this.field.wobble(t.b);
+      const holder = this.field.node.parent as Node;
+      fx.ripple(this.fly, pos[0] + holder.position.x, pos[1] + holder.position.y, 120, [1, 1], 0.3, 0, 220);
     }
   }
 

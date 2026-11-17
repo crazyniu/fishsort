@@ -324,8 +324,8 @@ describe('过关宝箱（docs/01 3.4）', () => {
     assert.ok(Math.abs(kinds.skill / n - 0.12) < 0.025, JSON.stringify(kinds));
     assert.ok(Math.abs(kinds.card / n - 0.53) < 0.03, JSON.stringify(kinds));
     assert.ok(cmin >= 30 && cmax <= 80);
-    assert.ok(Math.abs(rar.common / cards - 0.7) < 0.04, JSON.stringify(rar));
-    assert.ok(Math.abs(rar.uncommon / cards - 0.22) < 0.04, JSON.stringify(rar));
+    assert.ok(Math.abs(rar.common / cards - 0.55) < 0.04, JSON.stringify(rar));
+    assert.ok(Math.abs(rar.uncommon / cards - 0.3) < 0.04, JSON.stringify(rar));
   });
 
   it('挑战关必出卡，稀有以上翻倍', () => {
@@ -338,8 +338,8 @@ describe('过关宝箱（docs/01 3.4）', () => {
       assert.equal(r.kind, 'card');
       if (Cards.rank(eco, (r.card as { rarity: string }).rarity) >= 2) rarePlus++;
     }
-    // 稀有以上 8% → 翻倍后权重 16 / 108 ≈ 14.8%
-    assert.ok(Math.abs(rarePlus / n - 0.148) < 0.025, String(rarePlus));
+    // 稀有以上 15% → 翻倍后权重 30 / 115 ≈ 26.1%
+    assert.ok(Math.abs(rarePlus / n - 0.261) < 0.03, String(rarePlus));
   });
 
   it('连续 4 关没出卡，第 5 关必出一张没有的', () => {
@@ -389,7 +389,7 @@ describe('抽奖（docs/01 5.5）', () => {
     const by = Object.fromEntries(Wheel.odds(ECO).map((o) => [o.id, o.percent]));
     const total = Object.values(by).reduce((a, b) => a + b, 0);
     assert.ok(Math.abs(total - 100) < 1e-4);
-    const want: Record<string, number> = { coin200: 28, coin500: 14, coin2000: 3, skill: 15, life15: 3, card_common: 20, card_uncommon: 11, card_rare: 4.5, card_epic: 1.3, card_legend: 0.2 };
+    const want: Record<string, number> = { coin200: 24, coin500: 14, coin2000: 3, skill: 15, life15: 3, card_common: 16.2, card_uncommon: 15, card_rare: 7, card_epic: 2.5, card_legend: 0.3 };
     for (const [id, p] of Object.entries(want)) assert.ok(Math.abs(by[id] - p) < 1e-3, `${id} ${by[id]}`);
   });
 
@@ -571,11 +571,11 @@ describe('每日挑战（docs/01 5.11）', () => {
 });
 
 describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
-  it('第 6 关只出第一册，开放一册多 15 张', () => {
-    assert.equal(Album.pool(ECO, SPECIES, 6).length, 15);
-    assert.equal(Album.pool(ECO, SPECIES, 1).length, 15, '开放前按第一册算');
-    assert.equal(Album.pool(ECO, SPECIES, 21).length, 30);
-    assert.equal(Album.pool(ECO, SPECIES, 101).length, 90);
+  it('第 6 关只出第一册，开放一册多 38 张（最后一册 40 张）', () => {
+    assert.equal(Album.pool(ECO, SPECIES, 6).length, 38);
+    assert.equal(Album.pool(ECO, SPECIES, 1).length, 38, '开放前按第一册算');
+    assert.equal(Album.pool(ECO, SPECIES, 21).length, 76);
+    assert.equal(Album.pool(ECO, SPECIES, 101).length, 230);
   });
 
   it('前期抽到传说给史诗（传说只在海底宫殿）', () => {

@@ -2,6 +2,7 @@
 import { JsonAsset, resources } from 'cc';
 import type { AdsConfig, CurveConfig, EconomyConfig, GameUiConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
+import type { Eye } from '../ui/alive';
 
 function describe(v: unknown): string {
   if (typeof v !== 'object' || v === null) return String(v);
@@ -30,6 +31,8 @@ export class Config {
   ui!: GameUiConfig;
   species: Species[] = [];
   speciesById = new Map<string, Species>();
+  /** 每只生物的眼睛在图上的位置（tools/art/eyes.py 生成，眨眼用）；读不到就不眨眼 */
+  eyes: Record<string, Eye[]> = {};
 
   async load(): Promise<void> {
     const [eco, ads, curve, species, ui] = await Promise.all([
@@ -45,6 +48,7 @@ export class Config {
     this.curve = curve;
     this.species = species.species;
     for (const sp of this.species) this.speciesById.set(sp.id, sp);
+    this.eyes = await loadJson<Record<string, Eye[]>>('config/fish_eyes').catch(() => ({}));
   }
 
   /** 关卡总数（第 121 关起在后半段循环，见 Meta.levelFile） */

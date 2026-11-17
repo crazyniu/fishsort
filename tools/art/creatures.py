@@ -1,7 +1,8 @@
-"""第二批局内生物（c31–c60）：把 Codex 出的六张品红底生物图切成一张一只，放到 art/source/fish/。
+"""把 Codex 出的品红底生物图切成一张一只，放到 art/source/fish/（第二批局内生物 c31–c60、第三批精良以上的卡）。
 
-用法：python tools/art/creatures.py [art/raw/creatures2]
-清单（每张图里从左到右、从上到下是哪几只）在 art/briefs/creatures2/list.json。
+用法：python tools/art/creatures.py [原图目录] [清单 list.json]（默认 art/raw/creatures2 与 art/briefs/creatures2/list.json）
+清单：{图名: [海域描述, [[id, 中文名, 英文名, 描述, 轮廓], …], …]}，每张图里从左到右、从上到下是哪几只。
+第三批（精良 / 稀有 / 史诗 140 张卡）：art/raw/cards3 与 art/briefs/cards3/list.json。
 
 抠图不按「品红度」算透明（粉色、半透明粉的生物里面会被抠穿），而是从图边泛洪：和底色接近、又连着图边的才是底；
 生物都有一圈深色描边，泛洪进不去。描边外侧一两像素按品红度算半透明，再把混进去的品红减掉。
@@ -172,17 +173,19 @@ def fit(im: Image.Image) -> Image.Image:
 
 def main() -> None:
     raw = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO / 'art/raw/creatures2'
-    lst = json.loads((REPO / 'art/briefs/creatures2/list.json').read_text())
+    lst_path = Path(sys.argv[2]) if len(sys.argv) > 2 else REPO / 'art/briefs/creatures2/list.json'
+    lst = json.loads(lst_path.read_text())
     OUT.mkdir(parents=True, exist_ok=True)
-    for sea, (_where, items) in lst.items():
-        sheet = key(Image.open(raw / f'{sea}.png'))
+    for sheet_name, entry in lst.items():
+        items = entry[1]
+        sheet = key(Image.open(raw / f'{sheet_name}.png'))
         bxs = blobs(sheet, len(items))
-        assert len(bxs) == len(items), f'{sea}: 找到 {len(bxs)} 只'
+        assert len(bxs) == len(items), f'{sheet_name}: 找到 {len(bxs)} 只'
         for (cid, *_rest), b in zip(items, bxs):
             pad = 6
             crop = sheet.crop((max(0, b[0] - pad), max(0, b[1] - pad), min(sheet.width, b[2] + pad), min(sheet.height, b[3] + pad)))
             fit(crop).save(OUT / f'{cid}.png')
-            print(cid, sea, b)
+            print(cid, sheet_name, b)
 
 
 if __name__ == '__main__':

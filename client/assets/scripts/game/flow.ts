@@ -144,7 +144,7 @@ function hasEffect(g: GamePage, id: string): string | null {
 }
 
 export function useSkill(g: GamePage, id: string): void {
-  if (g.ended || g.paused || g.s.status !== Status.PLAYING) return;
+  if (g.ended || g.paused || g.s.status !== Status.PLAYING || g.finishing) return;
   const s = App.save.data;
   const eco = App.config.eco;
   const lvl = g.arg.daily ? s.level : Math.max(s.level, g.arg.level);
