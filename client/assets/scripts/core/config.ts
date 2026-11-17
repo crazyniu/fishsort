@@ -279,7 +279,7 @@ export interface GameUiConfig {
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
-  autoFinish: { delay: number; interval: number };
+  autoFinish: { delay: number; interval: number; maxLeft: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */
   clock: { warn: number };
   buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };

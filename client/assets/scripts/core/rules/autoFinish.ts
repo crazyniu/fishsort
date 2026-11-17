@@ -2,7 +2,9 @@
 // 什么算无脑：
 // 1. 后面没有新缸了——还没完成的订单都已经摆在架子上（剩下的鱼正好装满架上的缸，每一条都有地方去）；
 // 2. 照规则模拟：每次挑一条能直接进缸的鱼点下去，一直点到赢，中间一条都不进暂存槽。
-//    被压住、锁链、冰封、掉落都按规则在模拟里自然解开，所以不另外排除。
+//    被压住、锁链、冰封、掉落都按规则在模拟里自然解开，所以不另外排除；
+// 3. 还没进缸的鱼（气泡里、回流泡里、暂存槽里）只剩 maxLeft 条以内（用户 2026-11-17：只有最后 3 条鱼才自动，
+//    game_ui.json 的 autoFinish.maxLeft）。
 // 满足就返回点的顺序；否则返回 null，玩家照常自己点。
 import { GameState, RETURN_BUBBLE, Status } from '../model/gameState';
 import * as Rules from './rules';
@@ -12,9 +14,10 @@ export interface AutoTap {
   k: number;
 }
 
-export function plan(s: GameState): AutoTap[] | null {
+export function plan(s: GameState, maxLeft: number): AutoTap[] | null {
   if (s.status !== Status.PLAYING) return null;
   if (s.nextOrder < s.orders.length) return null;
+  if (left(s) > maxLeft) return null;
   const sim = s.clone();
   const out: AutoTap[] = [];
   // 每一步至少走掉一条鱼，鱼的总数就是步数上限
@@ -27,6 +30,11 @@ export function plan(s: GameState): AutoTap[] | null {
     out.push(next);
   }
   return sim.status === Status.WON ? out : null;
+}
+
+/** 还没进缸的鱼有几条 */
+export function left(s: GameState): number {
+  return s.returnFish.length + s.buffer.length + s.bubbles.reduce((n, b) => n + b.count(), 0);
 }
 
 /** 下一条能直接进缸的鱼：回流泡里的先，再按气泡、鱼的顺序找 */

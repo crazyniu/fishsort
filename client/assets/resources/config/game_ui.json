@@ -46,7 +46,8 @@
  },
  "autoFinish": {
    "delay": 0.5,
-   "interval": 0.2
+   "interval": 0.2,
+   "maxLeft": 3
  },
  "hint": {
   "tutorialLevels": 3,

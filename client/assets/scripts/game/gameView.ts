@@ -1431,7 +1431,7 @@ export class GamePage extends Page {
     if (App.flags.autoplay || this.s.status !== Status.PLAYING || !this.moved) return;
     if (this.autoDirty && this.autoTaps === null) {
       this.autoDirty = false;
-      this.autoTaps = AutoFinish.plan(this.s);
+      this.autoTaps = AutoFinish.plan(this.s, App.config.ui.autoFinish.maxLeft);
       this.autoT = -App.config.ui.autoFinish.delay;
       if (this.autoTaps) this.clearHint();
     }
