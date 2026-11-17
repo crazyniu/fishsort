@@ -654,3 +654,54 @@ describe('头像换成收藏生物（docs/01 5.9）', () => {
     assert.equal(PlayerData.avatarOf(save), '');
   });
 });
+
+describe('过关宝箱的卡藏在关卡里当稀客（docs/01 3.4）', () => {
+  it('开局定的结果不改存档；概率和原来开箱一样', () => {
+    const rng = new Rng(21);
+    const n = 6000;
+    const kinds = { coins: 0, skill: 0, card: 0 };
+    const rar: Record<string, number> = {};
+    const [save, eco, species] = setup(20);
+    const before = JSON.stringify(save);
+    for (let i = 0; i < n; i++) {
+      const p = LevelChest.plan(save, eco, species, false, rng);
+      kinds[p.kind]++;
+      if (p.kind === 'card') {
+        const sp = species.find((s) => s.id === p.cardId);
+        assert.ok(sp, p.cardId);
+        rar[sp.rarity] = (rar[sp.rarity] ?? 0) + 1;
+      }
+    }
+    assert.equal(JSON.stringify(save), before, '开局定结果不动存档');
+    assert.ok(Math.abs(kinds.card / n - 0.53) < 0.03, JSON.stringify(kinds));
+    assert.ok(Math.abs(kinds.coins / n - 0.35) < 0.03, JSON.stringify(kinds));
+    assert.ok(Math.abs((rar.common ?? 0) / kinds.card - 0.55) < 0.04, JSON.stringify(rar));
+  });
+
+  it('过关按定好的入账：卡进收藏、保底计数清零；没出卡时计数加一', () => {
+    const [save, eco, species] = setup(20);
+    const rng = new Rng(4);
+    let p = LevelChest.plan(save, eco, species, true, rng);
+    assert.equal(p.kind, 'card', '挑战关必出卡');
+    save.chest.dry = 3;
+    const r = LevelChest.openPlanned(save, eco, species, 20, p);
+    assert.equal(r.card?.id, p.cardId);
+    assert.ok(p.cardId in save.cards);
+    assert.equal(save.chest.dry, 0);
+    do p = LevelChest.plan(save, eco, species, false, rng);
+    while (p.kind === 'card');
+    const coins = save.coins;
+    LevelChest.openPlanned(save, eco, species, 21, p);
+    assert.equal(save.chest.dry, 1);
+    if (p.kind === 'coins') assert.equal(save.coins, coins + p.coins);
+  });
+
+  it('连续没出卡到保底：定好的必是一张没有的卡', () => {
+    const [save, eco, species] = setup(20);
+    save.chest.dry = eco.chest.pityAfter;
+    const p = LevelChest.plan(save, eco, species, false, new Rng(8));
+    assert.equal(p.kind, 'card');
+    assert.ok(p.pity);
+    assert.ok(!(p.cardId in save.cards));
+  });
+});

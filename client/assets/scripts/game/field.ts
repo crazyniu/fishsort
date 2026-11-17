@@ -797,6 +797,44 @@ export class Field {
     tween(opacity(n)).delay(0.12).to(0.1, { opacity: 0 }).start();
   }
 
+  /**
+   * 稀客（docs/01 3.4）：这关宝箱要给的那张收藏卡，做成一张小卡（稀有度框 + 生物，身后一圈稀有度颜色的光）钉在第 i 个气泡的边上。
+   * 画在场地最上层（被压着的气泡也看得见这张卡），每帧跟着气泡走（guestFollow）。不放进气泡里和鱼挤在一起：
+   * 普通卡的生物本来就是局内的鱼，放进去分不出哪条是卡（2026-11-17 出图时发现）。气泡破了由 GameView 放它出来
+   */
+  addGuest(i: number, id: string, rarity: string, glow: Color): Node {
+    const v = this.views[i];
+    const w = Math.max(84, v.r * 0.74);
+    const h = w * (803 / 600);
+    const holder = box('guest', this.node, w, h);
+    const g = img(holder, 'kit/fx_glow', w * 2.1, w * 2.1, 'glow');
+    (g.getComponent(Sprite) as Sprite).color = glow;
+    opacity(g).opacity = 220;
+    tween(g)
+      .repeatForever(tween(g).to(0.8, { scale: new Vec3(1.15, 1.15, 1) }, { easing: 'sineInOut' }).to(0.8, { scale: new Vec3(1, 1, 1) }, { easing: 'sineInOut' }))
+      .start();
+    img(holder, `skin/f_card_${rarity}`, w, h, 'card');
+    const f = img(holder, `fish/${id}`, w * 0.78, w * 0.78, 'fish');
+    at(f, 0, h / 2 - h * 0.371);
+    Alive.blink(f, id, w * 0.78);
+    holder.angle = -8;
+    tween(holder)
+      .repeatForever(tween(holder).to(1, { angle: 8 }, { easing: 'sineInOut' }).to(1, { angle: -8 }, { easing: 'sineInOut' }))
+      .start();
+    this.guestFollow(holder, i);
+    return holder;
+  }
+
+  /** 稀客小卡跟着气泡：钉在气泡右上沿；气泡还在候场（没落到场上）时先藏起来 */
+  guestFollow(holder: Node, i: number): void {
+    const v = this.views[i];
+    if (!v || v.gone) return;
+    holder.active = v.node.active;
+    const p = v.node.position;
+    holder.setPosition(p.x + v.r * 0.62, p.y + v.r * 0.55, 0);
+    holder.setSiblingIndex(this.node.children.length - 1);
+  }
+
   /** 掉落关：候场队头从场地上沿落下来（落点在刚破的那个气泡上方附近），掉在堆上，沿着别的气泡滚到位 */
   dropIn(b: number, freed: number, delay: number): void {
     const v = this.views[b];

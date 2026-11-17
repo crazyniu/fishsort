@@ -2,6 +2,8 @@
 // 版式：顶栏（进度 · 连击 · 关卡号 · 设置）→ 木架鱼缸 → 暂存槽 → 场地（尽量大）→ 技能栏。
 import { Color, Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import { Combo } from '../core/meta/combo';
+import * as Daily from '../core/meta/daily';
+import * as LevelChest from '../core/meta/levelChest';
 import * as Features from '../core/meta/features';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
@@ -24,6 +26,7 @@ import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
+import { RARITY_GLOW, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
@@ -165,6 +168,9 @@ export class GamePage extends Page {
   private tutorNode: Node | null = null;
   private idle = 0;
   private autoplayT = 0;
+  /** 这关宝箱开局定好的结果（docs/01 3.4）；开出卡时那只生物困在 guest.bubble 号气泡里当稀客，过关时按它入账 */
+  chestPlan: LevelChest.ChestPlan | null = null;
+  private guest: { bubble: number; id: string; node: Node; saved: boolean } | null = null;
   /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点）；dirty = 局面变了要重算 */
   private autoTaps: AutoFinish.AutoTap[] | null = null;
   private autoDirty = false;
@@ -236,6 +242,7 @@ export class GamePage extends Page {
     this.idle = 0;
     this.total = this.s.fishLeft();
     this.layout(file);
+    this.planChest();
     const ev = Rules.start(this.s);
     this.play(ev, true);
     Flow.onLevelStart(this);
@@ -269,10 +276,11 @@ export class GamePage extends Page {
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
     const hudY = top - 52;
-    // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标用通用的鱼缸，不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）
-    this.progress = capsule(this.stage, 196, 66, 'skin/j_bowl', '', 34);
+    // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标是通用的小鱼（白色平面图标），不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）。
+    // 顶上两块信息条都是半透明深蓝 + 白字，和技能格子一样，不用白色卡片（用户 2026-11-17：白卡片显得廉价）
+    this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
     at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30);
+    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30, 'skin/f_hud');
     at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
@@ -598,7 +606,10 @@ export class GamePage extends Page {
         case 'bubble_pop': {
           lastPop = e.b as number;
           const b = e.b as number;
-          fx.delay(this.fly, t + 0.18, () => this.field.pop(b));
+          fx.delay(this.fly, t + 0.18, () => {
+            if (this.guest && this.guest.bubble === b) this.releaseGuest();
+            this.field.pop(b);
+          });
           fx.delay(this.fly, t + 0.18, () => sfx('pop'));
           break;
         }
@@ -1327,6 +1338,7 @@ export class GamePage extends Page {
     if (!this.hintNode && !this.tutorNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
     if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
     this.autoFinish(dt);
+    if (this.guest && !this.guest.saved && this.guest.node.isValid) this.field.guestFollow(this.guest.node, this.guest.bubble);
     // 机器人代打（调试，?autoplay=1）
     if (App.flags.autoplay && this.s.status === Status.PLAYING) {
       this.autoplayT += dt;
@@ -1375,6 +1387,71 @@ export class GamePage extends Page {
       const holder = this.field.node.parent as Node;
       fx.ripple(this.fly, pos[0] + holder.position.x, pos[1] + holder.position.y, 120, [1, 1], 0.3, 0, 220);
     }
+  }
+
+  /**
+   * 稀客（docs/01 3.4，用户 2026-11-17：收藏卡要在关卡里出现）：开局就定好这关宝箱开出什么；开出卡的话，
+   * 把这只生物困在一个一开始点不到的气泡里（被压着的或还在候场的，没有就随便一个）。
+   * 种子由关卡、保底计数、已有卡数（重玩时再加日期）定，重开这一关还是同一只，刷不出更好的卡。
+   * 每日挑战、今天重玩奖励领完的关没有宝箱，也就没有稀客
+   */
+  private planChest(): void {
+    this.chestPlan = null;
+    this.guest = null;
+    if (this.arg.daily) return;
+    const s = App.save.data;
+    const eco = App.config.eco;
+    Daily.roll(s, today());
+    const replay = this.arg.level < s.level;
+    if (replay && s.daily.replay >= eco.replay.rewardedPerDay) return;
+    const seed = (this.lv.levelSeed * 31 + s.chest.dry * 7919 + Object.keys(s.cards).length * 104729 + (replay ? today() : 0)) >>> 0;
+    const rng = new Rng(seed);
+    this.chestPlan = LevelChest.plan(s, eco, App.config.species, this.lv.challenge, rng);
+    if (this.chestPlan.kind !== 'card') return;
+    const open = new Set(Rules.openBubbles(this.s));
+    const all = this.s.bubbles.map((_, i) => i).filter((i) => this.s.bubbles[i].count() > 0);
+    const hidden = all.filter((i) => !open.has(i));
+    const pool = hidden.length > 0 ? hidden : all;
+    if (pool.length === 0) return;
+    const b = pool[rng.rangeI(0, pool.length - 1)];
+    const id = this.chestPlan.cardId;
+    const rar = App.config.speciesById.get(id)?.rarity ?? 'common';
+    this.guest = { bubble: b, id, saved: false, node: this.field.addGuest(b, id, rar, RARITY_GLOW[rar] ?? COLOR.white) };
+  }
+
+  /** 关着稀客的气泡破了：它游出来、放大亮个相、往上飞走（进收藏），提示一句；过关后在结算里翻卡 */
+  private releaseGuest(): void {
+    const g = this.guest;
+    if (!g || g.saved || !g.node.isValid) return;
+    g.saved = true;
+    const tf = this.fly.getComponent(UITransform) as UITransform;
+    const p = tf.convertToNodeSpaceAR(g.node.worldPosition.clone());
+    const rar = App.config.speciesById.get(g.id)?.rarity ?? 'common';
+    const col = RARITY_GLOW[rar] ?? COLOR.white;
+    g.node.destroy();
+    const n = box('guestFree', this.fly, 160, 214);
+    at(n, p.x, p.y);
+    n.setScale(0.5, 0.5, 1);
+    const ray = fx.rays(n, 360);
+    (ray.getComponent(Sprite) as Sprite).color = col;
+    opacity(ray).opacity = 150;
+    const glow = img(n, 'kit/fx_glow', 300, 300, 'glow');
+    (glow.getComponent(Sprite) as Sprite).color = col;
+    img(n, `skin/f_card_${rar}`, 160, 214, 'card');
+    const f = img(n, `fish/${g.id}`, 124, 124, 'fish');
+    at(f, 0, 107 - 214 * 0.371);
+    Alive.blink(f, g.id, 124);
+    sfx('card');
+    buzz('light');
+    fx.sparkle(this.fly, p.x, p.y, 10, 120);
+    const up = new Vec3(p.x * 0.5, p.y + 140, 0);
+    tween(n)
+      .to(0.32, { position: up, scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .delay(0.75)
+      .to(0.35, { position: new Vec3(0, Screen.top + 80, 0), scale: new Vec3(0.3, 0.3, 1) }, { easing: 'quadIn' })
+      .call(() => n.destroy())
+      .start();
+    ui.toast(tr('GUEST_SAVED', speciesName(g.id)));
   }
 
   private lastHit(): number {

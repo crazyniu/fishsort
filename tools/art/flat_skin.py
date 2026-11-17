@@ -23,9 +23,10 @@
   f_avatar(_gold) 头像框
   f_card_glass 入口图标后面垫的半透明白色方块
   f_skill      局内技能键的半透明深蓝格子
+  f_hud        局内顶上的信息条：半透明深蓝的圆头小条（三宫格）
   f_dot        红点
   f_check      完成的对勾（绿色圆片 + 白勾）
-  f_g_*        平面的白色图标（放在白色容器里时由界面染成蓝色）：加号、齿轮、返回箭头、叉、摄像机（看广告）、分享、音符、喇叭、震动、地球、秒表
+  f_g_*        平面的白色图标（放在白色容器里时由界面染成蓝色）：加号、齿轮、返回箭头、叉、摄像机（看广告）、分享、音符、喇叭、震动、地球、秒表、小鱼
 三宫格的边距写进 client/tools/art/slices_skin.json。用法：python3 tools/art/flat_skin.py [输出目录]
 """
 import json
@@ -241,6 +242,14 @@ def g_timer(d, S):
     stroke(d, [(S * 0.5, S * 0.36), (S * 0.5, S * 0.58), (S * 0.66, S * 0.66)], S * 0.09, 255)
 
 
+def g_fish(d, S):
+    # 通用的小鱼：椭圆的身子 + 三角尾巴 + 一只眼睛（挖空），朝左
+    d.ellipse((S * 0.06, S * 0.24, S * 0.7, S * 0.76), fill=255)
+    d.polygon([(S * 0.6, S * 0.5), (S * 0.95, S * 0.22), (S * 0.88, S * 0.5), (S * 0.95, S * 0.78)], fill=255)
+    r = S * 0.065
+    d.ellipse((S * 0.22 - r, S * 0.43 - r, S * 0.22 + r, S * 0.43 + r), fill=0)
+
+
 def check_badge(s: int) -> Image.Image:
     S = s * SS
     im = Image.new('RGBA', (S, S), (0, 0, 0, 0))
@@ -326,6 +335,8 @@ def main() -> None:
     save('f_plate_blue', raised(w3, H, *PLATE_BLUE, 0.3, 0.12), True)
     # 白色圆角小条（容器一律是白的，上面写深蓝字）
     save('f_dock', flat(w3, H, (255, 255, 255, 238), 0.3), True)
+    # 局内顶上的信息条（已救几条、第几关）：和技能格子同一种半透明深蓝，白字（用户 2026-11-17：顶部不要白色卡片）
+    save('f_hud', flat(w3, H, (16, 52, 128, 150), 0.5), True)
     for name, (face, edge) in KEYS.items():
         save(f'f_key_{name}', raised(256, 256, face, edge, 0.3))
     for name, (face, edge) in AVATAR.items():
@@ -337,7 +348,7 @@ def main() -> None:
     save('f_dot', dot(96, *DOT))
     save('f_g_plus', glyph_plus(192))
     save('f_g_gear', glyph_gear(192))
-    for name, fn in (('back', g_back), ('x', g_x), ('video', g_video), ('share', g_share), ('music', g_music), ('sound', g_sound), ('vibrate', g_vibrate), ('globe', g_globe), ('timer', g_timer)):
+    for name, fn in (('back', g_back), ('x', g_x), ('video', g_video), ('share', g_share), ('music', g_music), ('sound', g_sound), ('vibrate', g_vibrate), ('globe', g_globe), ('timer', g_timer), ('fish', g_fish)):
         save(f'f_g_{name}', glyph(192, fn))
     save('f_check', check_badge(192))
     # 容器（九宫格，图是 3 倍的：圆角 30 → 90 像素）

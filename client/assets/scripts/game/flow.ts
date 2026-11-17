@@ -500,7 +500,12 @@ export function win(g: GamePage): void {
     combo_coins: g.combo.coins,
     best_combo: g.combo.best,
   });
-  const chest = result.chest_ok ? LevelChest.open(s, eco, App.config.species, g.arg.level, g.lv.challenge, rng) : null;
+  // 宝箱按开局定好的结果入账（开出卡的话就是关卡里救下的那只稀客，docs/01 3.4）
+  const chest = result.chest_ok
+    ? g.chestPlan
+      ? LevelChest.openPlanned(s, eco, App.config.species, g.arg.level, g.chestPlan)
+      : LevelChest.open(s, eco, App.config.species, g.arg.level, g.lv.challenge, rng)
+    : null;
   App.save.write();
   const cards = [...pendingCards];
   pendingCards.length = 0;
