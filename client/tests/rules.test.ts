@@ -538,3 +538,25 @@ describe('加开的缸只装一缸、洗牌只换眼前要的鱼（docs/01 2.4�
     assert.equal(Rules.useShuffle(t, 5).length, 0);
   });
 });
+
+describe('玩家提示与开缸', () => {
+  it('暂存只剩一格且没有直接入缸的鱼，不提示填满暂存槽', () => {
+    const s = play(level([0, 1, 2], [{ fish: [2, 2, 2] }], 2));
+    Rules.tap(s, 0, 0);
+    assert.equal(Bots.hintTap(s, new Rng(1)), null);
+  });
+
+  it('结伴鱼的同伴会填满暂存槽时，提示另一条安全鱼', () => {
+    const s = play(level([0, 1, 2], [{ fish: [0, 2], pairs: [[0, 1]] }, { fish: [1, 2] }], 2));
+    Rules.tap(s, 1, 1);
+    assert.deepEqual(Bots.hintTap(s, new Rng(1)), [1, 0]);
+  });
+
+  it('最后两张订单已经上架时不再开缸', () => {
+    const s = play(level([0, 1], [{ fish: [0, 1] }]));
+    s.bowlOnce = true;
+    assert.equal(Rules.nextBowlSlot(s), -1);
+    assert.deepEqual(Rules.unlockBowl(s), []);
+    assert.equal(s.openSlots, 2);
+  });
+});
