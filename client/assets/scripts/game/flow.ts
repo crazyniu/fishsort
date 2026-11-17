@@ -1,12 +1,13 @@
 // 局内流程：开局提示、第一步、技能、开缸位、暂停 / 离开、复活 / 失败、过关结算（docs/01 第 2–5 节）。
 // 界面只调这里，这里调 core；存档在关键节点立即写（docs/04 第 6 节）。
-import { Node, UITransform, Vec3, tween } from 'cc';
+import { Mask, Node, UITransform, Vec3, tween } from 'cc';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Album from '../core/meta/album';
 import * as Cards from '../core/meta/cards';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Dex from '../core/meta/dex';
 import * as LevelChest from '../core/meta/levelChest';
+import * as Seas from '../core/meta/seas';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
 import * as PlayerData from '../core/meta/playerData';
@@ -23,7 +24,8 @@ import { mono, now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tipArt } from './tipArt';
 import { tr } from '../ui/i18n';
-import { COLOR, at, button, fmt, img, text } from '../ui/kit';
+import { COLOR, at, box, button, fit, fmt, img, lazyImg, slice, text } from '../ui/kit';
+import * as Alive from '../ui/alive';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
 import { confirmLeave, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
@@ -61,6 +63,10 @@ export function onLevelStart(g: GamePage): void {
   if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
+  // 到了一片新海域的第一关：先介绍这片海域（背景、名字、这里新出的鱼），第一片海域不弹（docs/01 5.0）
+  const seas = Seas.list(App.config.eco);
+  const seaIdx = seas.findIndex((x, i) => i > 0 && x.levelFrom === lvl);
+  if (seaIdx > 0) tips.push(`sea_${seas[seaIdx].id}`);
   // 机制说明跟着难度曲线的解锁关走（level_curve.json），不另写死关号
   const mech = App.config.eco.mechanicIntro[LevelCurve.unlockedAt(App.config.curve, lvl)];
   if (mech) tips.push(mech);
@@ -78,12 +84,47 @@ export function onLevelStart(g: GamePage): void {
     PlayerData.markTip(s, key);
     App.save.write();
     g.paused = true;
-    tipPopup(key, () => {
+    const popup = key.startsWith('sea_') ? seaPopup : tipPopup;
+    popup(key, () => {
       g.paused = false;
       show(i + 1);
     });
   };
   fx.delay(g.node, App.config.ui.tutorial.delay, () => show(0));
+}
+
+/** 新海域：这片海域的画面 + 名字，下面一排这里新出的鱼（会眨眼、会动），「出发」关掉 */
+function seaPopup(key: string, done: () => void): void {
+  const eco = App.config.eco;
+  const seas = Seas.list(eco);
+  const idx = seas.findIndex((x) => `sea_${x.id}` === key);
+  if (idx < 0) return done();
+  const sea = seas[idx];
+  const p = openPopup({ w: 620, h: 660, title: tr('SEA_NEW'), onClose: done });
+  const pw = 540;
+  const ph = 280;
+  const pic = box('pic', p.body, pw, ph);
+  at(pic, 0, 150);
+  pic.addComponent(Mask).type = Mask.Type.GRAPHICS_RECT;
+  at(lazyImg(pic, `bg/sea_${sea.id}`, pw, pw * 1.5), 0, pw * 0.45);
+  const plate = slice(pic, 'kit/title_plate', 300, 70, 'name');
+  at(plate, 0, -ph / 2 + 46);
+  fit(text(plate, tr(`ALBUM_BOOK_${idx + 1}`), 38), 270, 38, 24);
+  // 这片海域在局内出场的鱼（只列这片海域自己的）
+  const own = Seas.speciesPools(eco, idx)[0].filter((id) => App.config.speciesById.get(id)?.inLevel);
+  const line = text(p.body, tr('SEA_NEW_LINE', own.length), 32);
+  at(line.node, 0, -30);
+  const n = Math.min(own.length, 8);
+  const cell = Math.min(70, 560 / Math.max(1, n));
+  own.slice(0, n).forEach((id, i) => {
+    const f = img(p.body, `fish/${id}`, cell, cell, `f${i}`);
+    at(f, (i - (n - 1) / 2) * cell, -100);
+    Alive.idle(f, Alive.shapeOf(id), i);
+    Alive.blink(f, id, cell);
+    fx.popIn(f, 0.15 + i * 0.05, 0.25);
+  });
+  const ok = button(p.body, { color: 'green', w: 340, h: 96, label: tr('SEA_GO'), onTap: () => p.close() });
+  at(ok.node, 0, -220);
 }
 
 function tipPopup(key: string, done: () => void): void {
@@ -159,7 +200,7 @@ export function useSkill(g: GamePage, id: string): void {
     return;
   }
   const used = g.used[id] ?? 0;
-  const r = Skills.tryUse(s, eco, id, used, today());
+  const r = Skills.tryUse(s, eco, id, used, today(), g.arg.daily ? 0 : g.arg.level);
   if (!r.ok) {
     if (r.reason === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
     else if (r.reason === 'empty') buySkill(g, id);
@@ -350,11 +391,13 @@ export function comboCard(g: GamePage): void {
 const LOSE_KEY: Record<number, string> = {
   [LoseReason.BUFFER_FULL]: 'UI_LOSE_BUFFER',
   [LoseReason.TIMEOUT]: 'UI_LOSE_TIMEOUT',
+  [LoseReason.CLOCK]: 'UI_LOSE_TIMEOUT',
   [LoseReason.STUCK]: 'UI_LOSE_STUCK',
 };
 const REVIVE_KEY: Record<number, string> = {
   [LoseReason.BUFFER_FULL]: 'REVIVE_BUFFER',
   [LoseReason.TIMEOUT]: 'REVIVE_TIMEOUT',
+  [LoseReason.CLOCK]: 'REVIVE_CLOCK',
   [LoseReason.STUCK]: 'REVIVE_STUCK',
 };
 

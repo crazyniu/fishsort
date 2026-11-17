@@ -4,7 +4,8 @@ import { LevelData, OrderData } from './levelData';
 export const Status = { PLAYING: 0, WON: 1, LOST: 2 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 
-export const LoseReason = { NONE: 0, BUFFER_FULL: 1, TIMEOUT: 2, STUCK: 3 } as const;
+/** CLOCK：整关的倒计时用完（docs/01 第 4 节「限时关」，2026-11-17 加） */
+export const LoseReason = { NONE: 0, BUFFER_FULL: 1, TIMEOUT: 2, STUCK: 3, CLOCK: 4 } as const;
 export type LoseReason = (typeof LoseReason)[keyof typeof LoseReason];
 
 export const REMOVED = -1;
@@ -89,6 +90,8 @@ export class GameState {
   revived = false;
   /** 掉落关：下一个要落到场上的气泡下标（候场队列的队头）。不掉落时等于气泡总数 */
   nextDrop = 0;
+  /** 限时关：整关还剩几秒（NO_TIMER = 不限时）。由界面按 LevelCurve.clockFor 设，规则只负责倒数 */
+  clock = NO_TIMER;
 
   static fromLevel(level: LevelData): GameState {
     const s = new GameState();
@@ -131,6 +134,7 @@ export class GameState {
     s.bowlsDone = this.bowlsDone;
     s.revived = this.revived;
     s.nextDrop = this.nextDrop;
+    s.clock = this.clock;
     return s;
   }
 

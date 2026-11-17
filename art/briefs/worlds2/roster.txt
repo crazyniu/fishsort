@@ -1,0 +1,235 @@
+# 第 7–12 个海域的生物（2026-11-17，关卡加到 240 关）。格式：海域|稀有度|中文名|英文名|造型描述|（普通卡：主色|轮廓类|in=局内出场 / out=只在收藏）
+mangrove|common|射水鱼|Archer|an archerfish, sunny yellow with a few small dark spots|yellow|long|in
+mangrove|common|招潮蟹|Fiddler|a fiddler crab with one big claw and one small claw, bright red|red|claws|in
+mangrove|common|绿河豚|Greenpuff|a round spotted pufferfish, leaf green|green|round|in
+mangrove|common|鲎宝宝|Domey|a horseshoe crab with a smooth dome shell, dusty blue|blue|dome|in
+mangrove|common|紫螺螺|Perry|a periwinkle sea snail with a tall spiral shell, violet|purple|snail|in
+mangrove|common|倒水母|Flipjelly|an upside-down jellyfish lying on its bell with frilly arms on top, soft pink|pink|umbrella|in
+mangrove|common|四眼鱼|Peeper|a four-eyed fish with big bulging eyes on top of its head, bright orange|orange|snout|in
+mangrove|common|沙海葵|Anemo|a little sand anemone with soft cyan tentacles on a short stalk|cyan|tree|in
+mangrove|common|牡蛎宝|Oyster|an oyster with a rough grey shell slightly open|grey|shell|out
+mangrove|common|树蟹蟹|Rooty|a small brown mangrove tree crab|brown|claws|out
+mangrove|uncommon|叶帽鲎|Leafcap|a horseshoe crab wearing a little leaf cap
+mangrove|uncommon|水滴鱼宝|Droplet|an archerfish wearing a water-drop pendant
+mangrove|uncommon|儒艮宝|Dugie|a dugong calf with a seagrass scarf
+mangrove|uncommon|小鳄鳄|Crocky|a cute round baby crocodile with a closed smiling mouth (no teeth) and a flower behind its ear
+mangrove|uncommon|小桶蟹|Bucket|a mud crab carrying a tiny bucket
+mangrove|uncommon|叶伞虾|Leafbrella|a mangrove shrimp holding a leaf like an umbrella
+mangrove|uncommon|竹蛏蛏|Razor|a razor clam with a ribbon bow
+mangrove|uncommon|海鞘鞘|Squirty|a sea squirt tube creature with a bow
+mangrove|uncommon|斑斑蛇|Bandy|a cute banded sea snake with a knitted scarf
+mangrove|uncommon|椰壳蟹|Coco|a hermit crab living in a coconut shell
+mangrove|uncommon|贝链鳐|Spotty|a spotted stingray pup with a shell necklace
+mangrove|uncommon|花鳉鳉|Killy|a mangrove killifish wearing a flower petal hat
+mangrove|uncommon|豆荚龟|Podder|a baby sea turtle riding in a seed pod like a boat
+mangrove|uncommon|背包蟹|Packer|a mangrove crab wearing a leaf backpack
+mangrove|uncommon|草笛鱼|Fluty|a seagrass pipefish with a little bow
+mangrove|rare|花冠鳄|Crocrown|a cute baby crocodile with a closed smiling mouth wearing a flower crown, soft glow
+mangrove|rare|珠鲎鲎|Pearldome|a horseshoe crab wearing a pearl crown, soft glow
+mangrove|rare|萤林鱼|Glowfin|a mangrove fish with a pearl tiara and little firefly lights around it
+mangrove|rare|儒艮仙|Dugong Fairy|a dugong wearing a flower crown with a soft glow
+mangrove|rare|月光蟹|Moonclaw|a fiddler crab with a moon pearl crown, soft glow
+mangrove|rare|叶仙虾|Leaf Sprite|a glowing leaf-green shrimp with a pearl tiara
+mangrove|rare|珠螺仙|Pearl Snail|a periwinkle snail wearing a pearl crown, soft glow
+mangrove|rare|露珠母|Dewdrop|an upside-down jellyfish decorated with dew pearls, soft glow
+mangrove|rare|鹭羽鱼|Plume|a fish with feather-like fins and a pearl crown
+mangrove|epic|翡根龙|Rootdragon|a small dragon made of glowing mangrove roots studded with emeralds and a gold leaf crown
+mangrove|epic|金鳄王|Croc King|a cute baby crocodile king with a closed smiling mouth, a gold crown and gem-studded scales
+mangrove|epic|萤光鲎|Lantern Dome|a horseshoe crab whose crystal shell is full of glowing firefly lights, gold trim
+mangrove|epic|森灵儒艮|Grove Spirit|a dugong with an aurora glow and a golden leaf crown
+mangrove|epic|宝根蟹|Jewel Crab|a fiddler crab with one giant jeweled gold claw and a crown
+lagoon|common|鹦鹉宝|Dozy|a parrotfish, aqua green with soft scale pattern|green|long|in
+lagoon|common|月水母|Moonjelly|a moon jellyfish with four pale rings, soft lavender|purple|umbrella|in
+lagoon|common|沙鬼蟹|Sandghost|a ghost crab with tall eye stalks, pale cream|cream|claws|in
+lagoon|common|夜虾虾|Nightshrimp|a night shrimp, deep red|red|shrimp|in
+lagoon|common|蓝章章|Bluey|a small baby octopus, bright blue|blue|legs|in
+lagoon|common|金天竺|Cardi|a round cardinalfish, golden yellow|yellow|round|in
+lagoon|common|夜海星|Nightstar|a plump sea star, warm orange|orange|star|in
+lagoon|common|花扁扁|Ripple|a flatworm with ruffled edges, bright pink|pink|flat|in
+lagoon|common|海萤萤|Seafly|a tiny glowing bean-shaped ostracod, soft cyan glow|cyan|round|out
+lagoon|common|月螺螺|Moonsnail|a round moon snail with a cream shell|cream|snail|out
+lagoon|uncommon|睡帽章|Nightcap|an octopus wearing a striped nightcap
+lagoon|uncommon|星夹海星|Star Pin|a sea star with a little star hair clip
+lagoon|uncommon|提灯鱼|Lampy|a cardinalfish holding a tiny lantern
+lagoon|uncommon|弯月蟹|Crescent|a ghost crab holding a crescent moon
+lagoon|uncommon|星包虾|Starpack|a shrimp wearing a star-shaped backpack
+lagoon|uncommon|抱枕豹|Pillow|a baby seal hugging a little pillow
+lagoon|uncommon|睡衣鱼|Jammies|a fish wearing striped pajamas
+lagoon|uncommon|星夹母|Clippy|a jellyfish wearing star hair clips
+lagoon|uncommon|猫头鱼|Hooty|an owl-faced fish with a tiny bow tie
+lagoon|uncommon|小夜灯兔|Nitey|a sea hare carrying a tiny night light
+lagoon|uncommon|萤石蟹|Glowstone|a hermit crab living in a softly glowing stone
+lagoon|uncommon|围巾鳐|Scarfy|a little ray wearing a knitted scarf
+lagoon|uncommon|牛奶鱼|Milky|a milkfish holding a cup of milk
+lagoon|uncommon|梦泡豚|Dreamy|a pufferfish blowing a dream bubble
+lagoon|uncommon|月坠鳗|Lunar|an eel wearing a moon pendant
+lagoon|rare|月冠母|Moon Crown|a moon jellyfish wearing a pearl crescent crown, soft glow
+lagoon|rare|星冠章|Starcrown|an octopus wearing a starry pearl crown, soft glow
+lagoon|rare|夜明蟹|Night Pearl|a ghost crab holding a glowing night pearl, soft glow
+lagoon|rare|萤冠虾|Glow Crown|a shrimp wearing a glowing pearl crown
+lagoon|rare|月牙鱼|Crescentfin|a crescent-shaped fish with a pearl tiara, soft glow
+lagoon|rare|梦冠豚|Dream Crown|a pufferfish wearing a flower crown with tiny stars, soft glow
+lagoon|rare|星光鳐|Starray|a ray with star spots and a pearl tiara, soft glow
+lagoon|rare|夜露螺|Night Dew|a moon snail decorated with dew pearls, soft glow
+lagoon|rare|银月鹦|Silver Parrot|a silver parrotfish with a pearl crown, soft glow
+lagoon|epic|月华龙|Moon Dragon|a small silver dragon with a crescent moon and moonstone gems, glowing
+lagoon|epic|星河鳐|Milky Way Ray|a ray whose body shows a starry galaxy, with gold trim and a crown
+lagoon|epic|夜后章|Night Queen|an octopus queen with a moonstone crown and gold jewelry
+lagoon|epic|萤光凤|Firefly Phoenix|a fish with long phoenix-like fins made of firefly lights and gems
+lagoon|epic|月宫兔|Moon Rabbit|a sea hare with a jade moon palace crown and silver glow
+vent|common|管虫虫|Tubey|a giant tube worm with a bright red plume on a white tube|red|tree|in
+vent|common|热泉虾|Venty|a vent shrimp, bright orange|orange|shrimp|in
+vent|common|硫磺鱼|Sulfy|a slim fish, sulfur yellow|yellow|long|in
+vent|common|深蓝章|Deepy|a little octopus, deep cobalt blue|blue|legs|in
+vent|common|鳞足螺|Scaly|a snail with a spiral shell and a scaly foot, rose pink|pink|snail|in
+vent|common|紫海参|Plum|a plump sea cucumber, plum purple|purple|slug|in
+vent|common|盲蟹蟹|Blindy|a pale blind vent crab, light cyan|cyan|claws|in
+vent|common|绿岩鱼|Pebble|a round rockfish, moss green|green|round|in
+vent|common|烟囱宝|Smokey|a tiny cute black smoker chimney creature puffing a little smoke|grey|tree|out
+vent|common|火山贝|Magma Clam|a clam with a dark red shell|darkred|shell|out
+vent|uncommon|安全帽蟹|Hardhat|a crab wearing a yellow hard hat
+vent|uncommon|护目镜虾|Goggles|a shrimp wearing swimming goggles on its forehead
+vent|uncommon|手套蟹|Mitts|a crab wearing oven mitts on its claws
+vent|uncommon|温泉章|Spa Octo|an octopus with a towel folded on its head
+vent|uncommon|煮蛋鱼|Eggy|a fish holding a boiled egg
+vent|uncommon|火苗鱼|Flicker|a fish with a tiny flame-shaped pendant
+vent|uncommon|岩壳龟|Lava Turtle|a turtle with a lava-rock shell and a scarf
+vent|uncommon|晶坠豚|Crystal Puff|a pufferfish with a yellow crystal pendant
+vent|uncommon|礼帽虫|Tophat|a tube worm wearing a tiny top hat
+vent|uncommon|煤球鱼|Coaly|a round dark grey fish with a red bow
+vent|uncommon|蒸汽母|Steamy|a jellyfish with little steam puffs and a scarf
+vent|uncommon|螺栓螺|Bolty|a snail with an iron shell and a bolt pin
+vent|uncommon|小锅蟹|Pot Crab|a hermit crab living in a little cooking pot
+vent|uncommon|围巾鳗|Ember|an eel wearing an orange scarf
+vent|uncommon|温度鱼|Thermy|a fish holding a little thermometer
+vent|rare|熔晶蟹|Magma Crown|a crab with a crown of glowing orange crystals
+vent|rare|火冠虾|Flame Crown|a shrimp wearing a pearl crown with a warm glow
+vent|rare|炎珠章|Ember Pearl|an octopus holding a glowing ember pearl, pearl tiara
+vent|rare|红玉管虫|Ruby Plume|a tube worm with a ruby red plume and pearls, soft glow
+vent|rare|金硫鱼|Gold Sulfur|a golden fish with a pearl crown and warm glow
+vent|rare|熔光母|Lava Glow|a jellyfish with a warm orange glow and a pearl crown
+vent|rare|火山龟|Volcano Turtle|a turtle with a small volcano-shaped shell and a pearl crown
+vent|rare|炉石螺|Hearthstone|a snail with a glowing hearth-stone shell, soft glow
+vent|rare|焰尾鳐|Flametail|a ray with a flame-colored tail and pearl tiara
+vent|epic|熔岩龙|Lava Dragon|a small dragon made of obsidian with glowing ruby veins and a gold crown
+vent|epic|炎晶鲸|Magma Whale|a whale calf with glowing lava crystal veins and gold trim
+vent|epic|火山神蟹|Volcano Lord|a crab with an obsidian shell, a gold crown and fiery gems
+vent|epic|熔金章|Molten Gold|an octopus made of shining molten gold with ruby gems
+vent|epic|红宝管|Ruby Spire|a cluster of tube worms with jeweled ruby plumes and gold rings
+ruins|common|红鲷鲷|Snappy|a snapper fish, bright red|red|long|in
+ruins|common|花瓶绵|Vase|a vase-shaped sponge creature, warm orange|orange|tree|in
+ruins|common|黄嘴鱼|Beaky|a longnose butterflyfish with a long snout, bright yellow|yellow|snout|in
+ruins|common|苔藓龟|Mossy|a small turtle with a mossy green shell|green|shell|in
+ruins|common|青石鳐|Tilly|a little ray with a tile pattern, cyan|cyan|diamond|in
+ruins|common|蓝陶鱼|Pottery|a round fish patterned like blue pottery|blue|round|in
+ruins|common|古星星|Relic Star|a sea star, soft purple|purple|star|in
+ruins|common|粉蛙鱼|Blush|a lumpy frogfish, bubblegum pink|pink|round|in
+ruins|common|石像鱼|Statue|a fish that looks carved from grey stone|grey|long|out
+ruins|common|青铜蟹|Bronze|a bronze colored crab|bronze|claws|out
+ruins|uncommon|桂冠鱼|Laurel|a fish wearing a laurel wreath
+ruins|uncommon|卷轴虾|Scroll|a shrimp carrying a little scroll
+ruins|uncommon|陶罐章|Jarvo|an octopus peeking out of an ancient clay jar
+ruins|uncommon|火炬鱼|Torchy|a fish holding a tiny torch
+ruins|uncommon|头盔蟹|Helm|a crab wearing an ancient bronze helmet
+ruins|uncommon|地图鳐|Mapray|a little ray carrying an old map
+ruins|uncommon|石柱虫|Pillar|a tube worm living in a tiny broken stone pillar
+ruins|uncommon|古币豚|Drachma|a pufferfish holding an old coin
+ruins|uncommon|面具鱼|Masky|a fish with a tiny ancient mask pushed up on its head
+ruins|uncommon|马赛克星|Mosaic|a sea star covered in mosaic tiles
+ruins|uncommon|苔背蟹|Mossback|a crab with moss and a tiny flower on its back
+ruins|uncommon|石狮鱼|Guardian|a fish with a stone lion mane collar
+ruins|uncommon|月桂母|Bay|a jellyfish wearing a laurel wreath
+ruins|uncommon|书卷鳗|Scribe|an eel carrying a scroll
+ruins|uncommon|竖琴马|Lyre|a seahorse holding a tiny lyre
+ruins|rare|神殿蟹|Temple Crab|a crab wearing a temple-shaped pearl crown, soft glow
+ruins|rare|金桂鱼|Golden Laurel|a fish wearing a golden laurel crown, soft glow
+ruins|rare|石灵龟|Stone Spirit|a turtle with a glowing runed stone shell and pearl crown
+ruins|rare|圣杯母|Chalice|a jellyfish shaped like a little chalice with pearls, soft glow
+ruins|rare|王冠鳐|Crown Ray|a ray wearing a small pearl crown, soft glow
+ruins|rare|玉璧鱼|Jade Disc|a round disc-shaped fish with a jade ring and pearl tiara
+ruins|rare|宝瓶章|Treasure Jar|an octopus in a jeweled jar with a pearl crown
+ruins|rare|遗迹海马|Relic Seahorse|a seahorse with stone carvings and a pearl crown, soft glow
+ruins|rare|金币鳗|Coin Eel|an eel with gold coin spots and a pearl tiara
+ruins|epic|守护石龙|Guardian Dragon|a small dragon of carved stone with gold inlays and glowing gems
+ruins|epic|太阳神龟|Sun Turtle|a turtle with a golden sun disc shell and gems
+ruins|epic|黄金面具鱼|Golden Mask|a fish wearing an ornate golden mask crown with gems, glowing
+ruins|epic|圣杯水母|Grail Jelly|a jellyfish with a jeweled golden grail bell and pearls
+ruins|epic|水晶神鳐|Crystal Ray|a ray made of shimmering crystal with gold trim and a crown
+trench|common|红灯虾|Redlamp|a deep sea shrimp, deep red|red|shrimp|in
+trench|common|橙棘鲷|Roughy|a round orange roughy fish|orange|round|in
+trench|common|金海参|Goldcuke|a plump sea cucumber, golden yellow|yellow|slug|in
+trench|common|绿冠母|Atolla|a crown jellyfish with a ring of soft green lights|green|umbrella|in
+trench|common|吞吞鳗|Gulpy|a gulper eel with a big friendly mouth, cyan|cyan|long|in
+trench|common|长腿蛛|Leggy|a cute sea spider with long legs, bright blue|blue|legs|in
+trench|common|三脚鱼|Tripod|a tripod fish standing on three long fin rays, purple|purple|tall|in
+trench|common|粉深葵|Deepbloom|a deep sea anemone, rose pink|pink|tree|in
+trench|common|灯眼鱼|Lampeye|a dark navy fish with a glowing eye spot|navy|round|out
+trench|common|雪花参|Snowcuke|a translucent white sea cucumber|white|slug|out
+trench|uncommon|头灯鱼|Headlamp|a fish wearing a headlamp
+trench|uncommon|潜水盔章|Diver|an octopus wearing a round brass diving helmet with a clear glass window
+trench|uncommon|荧光棒虾|Glowstick|a shrimp holding a glowstick
+trench|uncommon|探照鳗|Searchlight|an eel carrying a little searchlight
+trench|uncommon|潜艇豚|Subby|a pufferfish sitting in a tiny yellow submarine
+trench|uncommon|泡盔母|Bubblehelm|a jellyfish wearing a bubble helmet
+trench|uncommon|星帽蛛|Starhat|a sea spider wearing a star hat
+trench|uncommon|背包参|Hiker|a sea cucumber wearing a backpack
+trench|uncommon|夜视鱼|Goggly|a fish wearing night vision goggles on its forehead
+trench|uncommon|光带鱼|Ribbonlight|a fish trailing a glowing ribbon
+trench|uncommon|铃铛蟹|Jingle|a crab wearing a little bell
+trench|uncommon|心灯鱼|Lovelure|an anglerfish with a heart-shaped lure
+trench|uncommon|火箭鱿|Rocket|a squid with a little rocket backpack
+trench|uncommon|围巾章|Snuggle|an octopus wrapped in a cozy scarf
+trench|uncommon|帽帽滴|Droppy|a water-drop shaped creature wearing a beanie
+trench|rare|深渊冠母|Abyss Crown|a deep sea jellyfish wearing a glowing pearl crown
+trench|rare|光圈鱼|Haloed|a fish with a glowing halo ring and pearl tiara
+trench|rare|星灯鮟鱇|Star Angler|an anglerfish with a star-shaped glowing lure and pearl crown
+trench|rare|荧珠虾|Glow Pearl|a shrimp holding a glowing pearl, soft glow
+trench|rare|暗月章|Dark Moon|an octopus with a crescent pearl crown and soft glow
+trench|rare|珠光鳗|Pearl Eel|an eel with pearly spots and a pearl tiara
+trench|rare|晶眼鱼|Crystal Eye|a fish with a crystal crown and soft glow
+trench|rare|夜光参|Night Cuke|a glowing sea cucumber with pearls
+trench|rare|银冠蛛|Silver Spider|a sea spider wearing a silver pearl crown, soft glow
+trench|epic|深渊龙|Abyss Dragon|a small dark dragon with neon glowing gems and a silver crown
+trench|epic|鮟鱇王|Angler King|an anglerfish king with a gold crown and a galaxy lure
+trench|epic|幽光鲸|Ghost Whale|a translucent whale calf with a glowing galaxy core and gold trim
+trench|epic|极光鱿|Aurora Squid|a squid with shimmering aurora colors and jeweled fins
+trench|epic|虹光管母|Rainbow Siphon|a siphonophore chain of jewel-like glowing bells with gold links
+starsea|common|红星鱼|Twinkle|a round fish with little star spots, bright red|red|round|in
+starsea|common|彗星鱼|Comet|a fish with long comet-tail fins, bright orange|orange|long|in
+starsea|common|小金星|Sparkle|a plump sea star, sunny yellow|yellow|star|in
+starsea|common|云雾兔|Misty|a sea slug with misty frills, mint green|green|slug|in
+starsea|common|青云母|Nebby|a jellyfish with cloud-like frills, cyan|cyan|umbrella|in
+starsea|common|星鲸鲸|Starwhale|a small whale calf with star freckles, royal blue|blue|whale|in
+starsea|common|月牙鳐|Lunaray|a crescent-winged ray, soft purple|purple|diamond|in
+starsea|common|梦梦鱼|Dreamfin|a tall disc fish with star-shaped fins, pink|pink|disc|in
+starsea|common|流星螺|Meteor|a snail with a meteor-shaped shell|grey|snail|out
+starsea|common|星尘虾|Shimmer|a shrimp with sparkly specks|white|shrimp|out
+starsea|uncommon|宇航鱼|Astro|a fish wearing a bubble space helmet
+starsea|uncommon|星杖马|Wand|a seahorse holding a little star wand
+starsea|uncommon|土星豚|Saturn|a pufferfish with a planet ring around it
+starsea|uncommon|望远镜蟹|Scope|a crab looking through a tiny telescope
+starsea|uncommon|火箭章|Blastoff|an octopus with a rocket backpack
+starsea|uncommon|月帽鳐|Moonhat|a little ray wearing a crescent moon hat
+starsea|uncommon|风筝鱼|Kite|a fish flying a little star kite
+starsea|uncommon|彗尾星|Trail|a sea star with a comet trail scarf
+starsea|uncommon|天线母|Antenna|a jellyfish with a little satellite antenna
+starsea|uncommon|星座龟|Zodiac|a turtle with a constellation shell and a scarf
+starsea|uncommon|星球螺|Planet|a snail with a little planet as its shell
+starsea|uncommon|太空虾|Spacey|a shrimp in a tiny space suit
+starsea|uncommon|星带鳗|Starband|an eel with a star ribbon
+starsea|uncommon|外星兔|Alien|a sea hare wearing an alien antenna headband
+starsea|uncommon|光环鱼|Ringlet|a fish with a little halo ring above its head
+starsea|rare|星冠鲸|Star Crown|a whale calf wearing a star pearl crown, soft glow
+starsea|rare|银河马|Galaxy Seahorse|a seahorse with a galaxy pattern and pearl tiara
+starsea|rare|月冠鳐|Moon Crown Ray|a ray wearing a crescent pearl crown, soft glow
+starsea|rare|星钻蟹|Star Diamond|a crab with a star diamond crown, soft glow
+starsea|rare|彗星章|Comet Crown|an octopus with a comet pearl crown, soft glow
+starsea|rare|极光鱼|Aurora Fish|a fish with aurora colored fins and a pearl tiara
+starsea|rare|星珠母|Star Pearl|a jellyfish holding star pearls, soft glow
+starsea|rare|星梦豚|Star Dream|a pufferfish with a starry flower crown, soft glow
+starsea|rare|星鹅鱼|Swanfin|a swan-like fish with a star tiara, soft glow
+starsea|epic|星河龙|Galaxy Dragon|a small dragon with a cosmic galaxy body and golden horns, glowing
+starsea|epic|宇宙鲸王|Cosmos Whale|a whale king with a nebula body, gold crown and gems
+starsea|epic|太阳鳐|Solar Ray|a ray made of shining gold sunlight with jewels
+starsea|epic|星环章|Ring Lord|an octopus with planet rings, gems and a gold crown
+starsea|epic|极光天马|Aurora Pegasus|a winged seahorse with aurora wings and a jeweled crown

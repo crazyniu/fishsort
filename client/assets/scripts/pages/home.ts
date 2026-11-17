@@ -193,7 +193,7 @@ export class HomePage extends Page {
 
   /** 选关键：和「开始」一样高的蓝色按钮，图标 + 小字；红点、锁、解锁引导和别的入口一样 */
   private levelsKey(root: Node, x: number, y: number): void {
-    const def: EntryDef = { id: 'levelSelect', feature: 'levelSelect', icon: 'icon/entry_levels', name: 'H_FEAT_LEVELS', open: () => ui.go('levels') };
+    const def: EntryDef = { id: 'levelSelect', feature: 'levelSelect', icon: 'icon/entry_levels', name: 'H_FEAT_LEVELS', open: () => ui.go('map') };
     const b = button(root, { color: 'blue', w: LEVELS_W, h: START_H });
     at(b.node, x, y);
     const row = b.node.getChildByName('row') as Node;

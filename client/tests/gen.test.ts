@@ -139,9 +139,9 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
     .map((n) => n.slice(0, -5))
     .sort();
 
-  it('120 关，每关本体加两个易化变体', () => {
-    assert.equal(names.length, 360);
-    for (let id = 1; id <= 120; id++) {
+  it('240 关，每关本体加两个易化变体', () => {
+    assert.equal(names.length, 720);
+    for (let id = 1; id <= 240; id++) {
       const base = `level_${String(id).padStart(4, '0')}`;
       for (const n of [base, `${base}_e1`, `${base}_e2`]) assert.ok(names.includes(n), n);
     }

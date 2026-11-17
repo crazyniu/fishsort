@@ -368,3 +368,26 @@ describe('收尾自动入缸（docs/01 第 2 节）', () => {
     assert.equal(AutoFinish.plan(t), null, '第三个缸还没上架');
   });
 });
+
+describe('限时关（docs/01 第 4 节）', () => {
+  it('整关倒计时：走完算输（时间到了）；复活再给 30 秒', () => {
+    const s = play(level([0, 1], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));
+    s.clock = 10;
+    Rules.tick(s, 4);
+    assert.equal(s.status, Status.PLAYING);
+    assert.equal(s.clock, 6);
+    const ev = Rules.tick(s, 7);
+    assert.equal(s.status, Status.LOST);
+    assert.equal(s.loseReason, LoseReason.CLOCK);
+    assert.ok(types(ev).includes('lose'));
+    Rules.revive(s);
+    assert.equal(s.status, Status.PLAYING);
+    assert.equal(s.clock, Rules.REVIVE_CLOCK_SECONDS);
+  });
+
+  it('不限时的关 clock 不动', () => {
+    const s = play(level([0], [{ fish: [0, 0, 0] }]));
+    Rules.tick(s, 999);
+    assert.equal(s.status, Status.PLAYING);
+  });
+});

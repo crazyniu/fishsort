@@ -1,6 +1,8 @@
 // 把 level_curve.json 的难度曲线换算成某一关的生成参数与目标胜率，见 docs/02-关卡设计.md 第 2 节。
 // 参数随关卡号连续插值，不按段跳变。障碍搭配、挑战关降幅、第 3 缸区间是 2026-11-16 关卡设计复查后的规则。
 import type { CurveConfig } from '../config';
+import { NO_TIMER } from '../model/gameState';
+import type { LevelData } from '../model/levelData';
 import { clampf, idiv, lerpf, roundi } from '../util';
 
 export const MECHANICS = ['chain', 'timer', 'fog', 'ice', 'big', 'pairs'] as const;
@@ -179,7 +181,13 @@ export function targetRate(curve: CurveConfig, id: number, isChal: boolean): num
   if (id <= t.tutorialUntil) return 100.0;
   const drop = firstDrop(curve);
   const offset = drop > 0 && id >= drop ? t.segmentOffset.drop : t.segmentOffset.layered;
-  const normal = t.start - ((id - t.first) * (t.start - t.end)) / (t.last - t.first) + offset;
+  // 第 last 关以后（2026-11-17 关卡从 120 加到 240）：第 1–last 关的目标不动，之后从 end 再缓缓降到 tail.end
+  const tail = t.tail;
+  const base =
+    tail && id > t.last
+      ? t.end - ((Math.min(id, tail.to) - t.last) * (t.end - tail.end)) / (tail.to - t.last)
+      : t.start - ((id - t.first) * (t.start - t.end)) / (t.last - t.first);
+  const normal = base + offset;
   if (isChal) return Math.max(normal - challengeDrop(curve, id), t.challengeFloor);
   return normal;
 }
@@ -209,4 +217,23 @@ export function target(curve: CurveConfig, id: number, isChal: boolean): [number
 /** 胜率离目标区间多远，0 = 落在区间内 */
 export function miss(span: readonly number[], rate: number): number {
   return Math.max(0, Math.max(span[0] - rate, rate - span[1]));
+}
+
+/**
+ * 限时关（docs/01 第 4 节，用户 2026-11-17：细心慢慢玩都能过，后面的关加上时间）：这一关整关有几秒，不限时返回 NO_TIMER。
+ * 按机器人的点击节奏算出「不犹豫地点完要多久」，再乘一个越往后越紧的系数；挑战关更紧。
+ * 机器人每次点击 bot.tapSec 秒，系数都大于 1，所以机器人不会超时，关卡的胜率目标不受影响——这个时间是给真人的压力
+ */
+export function clockFor(curve: CurveConfig, id: number, lv: LevelData): number {
+  const c = curve.clock;
+  if (!c) return NO_TIMER;
+  const chal = isChallenge(curve, id);
+  if (id < c.allFrom && !(chal && id >= c.challengeFrom)) return NO_TIMER;
+  let fish = 0;
+  for (const b of lv.bubbles) fish += b.fish.length;
+  const base = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
+  const t = clampf((id - c.allFrom) / Math.max(1, curve.total - c.allFrom), 0, 1);
+  let k = lerpf(c.factor[0], c.factor[1], t);
+  if (chal) k *= c.challengeMul;
+  return Math.max(c.min, Math.ceil((base * k) / c.step) * c.step);
 }

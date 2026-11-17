@@ -16,11 +16,11 @@ import soundfile as sf
 SR = 22050
 OUT = Path(__file__).resolve().parents[2] / "assets" / "resources" / "audio"
 
-# 游戏里的音效名 → (包内文件名, 音量)
+# 游戏里的音效名 → (包内文件名, 音量[, 最长几秒])。给了最长秒数的截到这么长，最后 0.15 秒淡出（和动画一样长，动画停了声音也停）
 PICK = {
     "error": ("error_004.ogg", 0.7),  # 点了没用 / 金币不够
     "card": ("card-slide-1.ogg", 0.85),
-    "shuffle": ("card-shuffle.ogg", 0.8),
+    "shuffle": ("card-shuffle.ogg", 0.8, 1.0),  # 洗牌动画约 1 秒（2026-11-17：原来 3 秒，动画停了还在响）
     "warn": ("question_001.ogg", 0.7),
     "tick": ("tick_002.ogg", 0.6),
     "swell": ("maximize_009.ogg", 0.7),
@@ -47,6 +47,17 @@ def pitch(x: np.ndarray, semis: float) -> np.ndarray:
     return np.interp(np.arange(n) * k, np.arange(len(x)), x)
 
 
+def trim(x: np.ndarray, sec: float) -> np.ndarray:
+    """截到 sec 秒，最后 0.15 秒淡出"""
+    nz = np.flatnonzero(np.abs(x) > 1e-3)
+    if len(nz):
+        x = x[nz[0]:]
+    x = x[: int(SR * sec)].copy()
+    f = min(len(x), int(SR * 0.15))
+    x[-f:] *= np.linspace(1, 0, f)
+    return x
+
+
 def save(name: str, x: np.ndarray, gain: float) -> None:
     # 去掉首尾静音，头尾 3 毫秒淡入淡出，峰值归一到 gain
     nz = np.flatnonzero(np.abs(x) > 1e-3)
@@ -63,8 +74,11 @@ def save(name: str, x: np.ndarray, gain: float) -> None:
 
 def main() -> None:
     root = Path(sys.argv[1])
-    for name, (src, gain) in PICK.items():
-        save(name, load(root, src), gain)
+    for name, (src, gain, *rest) in PICK.items():
+        x = load(root, src)
+        if rest:
+            x = trim(x, rest[0])
+        save(name, x, gain)
     print(f"✓ {len(PICK)} 个音效 → {OUT}")
 
 

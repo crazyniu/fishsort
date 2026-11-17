@@ -15,7 +15,7 @@ import { Screen } from './screen';
 /** 根页面：回到这里返回历史就清空 */
 const HOME = 'home';
 /** 按关开放的页面对应的功能开放项；没开放时点进去是锁页（docs/01 5.3） */
-const PAGE_FEATURE: Record<string, string> = { collect: 'album', tasks: 'tasks' };
+const PAGE_FEATURE: Record<string, string> = { collect: 'album', tasks: 'tasks', map: 'levelSelect' };
 /** 页面最底下留的空（再加上机型的安全区，Screen.bottom 已经算进去了） */
 export const PAGE_BOTTOM = 24;
 

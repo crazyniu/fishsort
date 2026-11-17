@@ -844,31 +844,67 @@ export class Field {
   }
 
   /** 洗牌：所有气泡转一圈，鱼换成新分布 */
+  /** 洗牌动画中：气泡在转，鱼正在换，先不收点击 */
+  spinning = false;
+
+  /**
+   * 洗牌（用户 2026-11-17：气泡疯狂旋转，然后停止）：所有气泡一起越转越快（约 0.35 秒转一圈半），
+   * 转到最快时把鱼换成洗好的，再越转越慢、过头一点晃回来停住，一共约 1 秒；音效也截成 1 秒（tools/audio/kenney.py）
+   */
   reshuffle(s: GameState): void {
-    for (let i = 0; i < this.views.length; i++) {
-      const v = this.views[i];
-      if (v.gone) continue;
-      tween(v.body).by(0.5, { angle: 360 }, { easing: 'quadInOut' }).start();
-      const n = v.fish.length;
-      const fs = this.fishSize(n, v.r);
-      for (let k = 0; k < n; k++) {
-        const sp = s.bubbles[i].fish[k];
-        const f = v.fish[k];
-        if (sp === REMOVED || !f) continue;
-        setImg(f, this.spriteFor(sp), fs, fs);
-        // 换了鱼：眼皮和小动作也跟着换
-        const flip = f.scale.x < 0 ? -1 : 1;
-        Tween.stopAllByTarget(f);
-        for (const c of f.children.slice()) if (c.name === 'lid') { Tween.stopAllByTarget(c); c.destroy(); }
-        f.setScale(flip, 1, 1);
-        f.angle = 0;
-        const id = this.species[sp] ?? this.species[0];
-        Alive.idle(f, Alive.shapeOf(id), k);
-        Alive.blink(f, id, fs);
-      }
-      this.drawLinks(v, s.bubbles[i].pairs);
+    const live = this.views.map((v, i) => [v, i] as const).filter(([v]) => v && !v.gone);
+    this.spinning = true;
+    for (const [v] of live) {
+      Tween.stopAllByTarget(v.body);
+      v.body.angle = 0;
+      v.body.setPosition(0, 0, 0);
+      bob(v.body, 1.5, 2.6, 0);
     }
-    this.sync(s);
+    const swap = () => {
+      for (const [v, i] of live) {
+        const n = v.fish.length;
+        const fs = this.fishSize(n, v.r);
+        for (let k = 0; k < n; k++) {
+          const sp = s.bubbles[i].fish[k];
+          const f = v.fish[k];
+          if (sp === REMOVED || !f) continue;
+          setImg(f, this.spriteFor(sp), fs, fs);
+          // 换了鱼：眼皮和小动作也跟着换
+          const flip = f.scale.x < 0 ? -1 : 1;
+          Tween.stopAllByTarget(f);
+          for (const c of f.children.slice()) if (c.name === 'lid') { Tween.stopAllByTarget(c); c.destroy(); }
+          f.setScale(flip, 1, 1);
+          f.angle = 0;
+          const id = this.species[sp] ?? this.species[0];
+          Alive.idle(f, Alive.shapeOf(id), k);
+          Alive.blink(f, id, fs);
+        }
+        this.drawLinks(v, s.bubbles[i].pairs);
+      }
+      this.sync(s);
+    };
+    live.forEach(([v], j) => {
+      const dir = j % 2 === 0 ? 1 : -1;
+      // 用一个代理对象转角度，不和气泡身上别的动画（浮动）抢
+      const spin = { a: 0 };
+      tween(spin)
+        .to(0.35, { a: 540 * dir }, { easing: 'quadIn', onUpdate: () => (v.body.angle = spin.a) })
+        .call(() => {
+          if (j === 0) swap();
+        })
+        .to(0.45, { a: 1080 * dir + 14 * dir }, { easing: 'quadOut', onUpdate: () => (v.body.angle = spin.a) })
+        .to(0.12, { a: 1080 * dir - 6 * dir }, { easing: 'sineInOut', onUpdate: () => (v.body.angle = spin.a) })
+        .to(0.1, { a: 1080 * dir }, { easing: 'sineOut', onUpdate: () => (v.body.angle = spin.a) })
+        .call(() => {
+          v.body.angle = 0;
+          if (j === 0) this.spinning = false;
+        })
+        .start();
+    });
+    if (live.length === 0) {
+      swap();
+      this.spinning = false;
+    }
   }
 
   /** 提示：给一条鱼套光圈 */

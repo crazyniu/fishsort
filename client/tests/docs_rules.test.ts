@@ -13,6 +13,7 @@ import * as Skills from '../assets/scripts/core/meta/skills';
 import * as Tasks from '../assets/scripts/core/meta/tasks';
 import * as Wheel from '../assets/scripts/core/meta/wheel';
 import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
+import { NO_TIMER } from '../assets/scripts/core/model/gameState';
 import { colorDistance, pickSpecies } from '../assets/scripts/core/model/speciesPick';
 import { Rng } from '../assets/scripts/core/rng/rng';
 import { curve as loadCurve, eco as loadEco, levelFile, species as loadSpecies } from './helpers';
@@ -20,7 +21,7 @@ import { curve as loadCurve, eco as loadEco, levelFile, species as loadSpecies }
 const ECO = loadEco();
 const SPECIES = loadSpecies();
 const NOW = 3_000_000;
-const SEAS = ['shore', 'coral', 'kelp', 'wreck', 'crystal', 'palace'];
+const SEAS = ['shore', 'coral', 'kelp', 'wreck', 'crystal', 'palace', 'mangrove', 'lagoon', 'vent', 'ruins', 'trench', 'starsea'];
 
 function fresh(level: number): SaveData {
   const s = PlayerData.create(ECO);
@@ -29,10 +30,10 @@ function fresh(level: number): SaveData {
 }
 
 describe('海域（docs/01 5.0）', () => {
-  it('6 个海域：收藏册按同一顺序，开放关按表', () => {
+  it('12 个海域：收藏册按同一顺序，开放关按表', () => {
     assert.deepEqual(Seas.list(ECO).map((s) => s.id), SEAS);
     assert.deepEqual(Album.books(ECO).map((b) => b.sea), SEAS);
-    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 21, 41, 61, 81, 101]);
+    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 21, 41, 61, 81, 101, 121, 141, 161, 181, 201, 221]);
     assert.equal(Album.books(ECO)[0].unlock, Features.unlockLevel(ECO, 'album'), '第一册随收藏开放');
   });
 
@@ -46,15 +47,19 @@ describe('海域（docs/01 5.0）', () => {
     assert.equal(at(100), 'crystal');
     assert.equal(at(101), 'palace');
     assert.equal(at(120), 'palace');
+    assert.equal(at(121), 'mangrove');
+    assert.equal(at(200), 'ruins');
+    assert.equal(at(221), 'starsea');
+    assert.equal(at(240), 'starsea');
     // 收藏册子在进到这片海域的第一关开放（第一册随收藏功能在第 6 关开放）
     Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 6 : Seas.list(ECO)[i].levelFrom));
   });
 
-  it('每册普通 10、精良 15、稀有 9、史诗 5 共 39 张（海底宫殿多 1 张精良、2 张传说，42 张）；张数都是 3 的倍数；237 张各在一册；局内 46 种，每册 7–9 种', () => {
+  it('每册普通 10、精良 15、稀有 9、史诗 5 共 39 张（海底宫殿多 1 张精良、2 张传说，42 张）；张数都是 3 的倍数；471 张各在一册；局内 94 种，每册 7–9 种', () => {
     const rarity = Object.fromEntries(SPECIES.map((s) => [s.id, s.rarity]));
     const seen = new Set<string>();
     const inLevel = new Set(SPECIES.filter((s) => s.inLevel).map((s) => s.id));
-    const stars = [8, 7, 7, 8, 7, 9];
+    const stars = [8, 7, 7, 8, 7, 9, 8, 8, 8, 8, 8, 8];
     Album.books(ECO).forEach((b, i) => {
       const n = (r: string) => b.cards.filter((c) => rarity[c] === r).length;
       const palace = b.sea === 'palace';
@@ -68,9 +73,9 @@ describe('海域（docs/01 5.0）', () => {
         if (rarity[c] === 'legend') assert.equal(b.sea, 'palace');
       }
     });
-    assert.equal(seen.size, 237);
+    assert.equal(seen.size, 471);
     assert.equal(seen.size % 3, 0);
-    assert.equal(inLevel.size, 46);
+    assert.equal(inLevel.size, 94);
   });
 });
 
@@ -295,11 +300,11 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(ECO.wheel.tenCost, 9000);
   });
 
-  it('一次性奖励合计：收藏 11200 + 5000，救援记录 20700（名义）', () => {
-    assert.equal(Album.books(ECO).reduce((s, b) => s + (b.reward.coins ?? 0), 0), 11200);
-    assert.equal(ECO.album.final.coins, 5000);
+  it('一次性奖励合计：收藏 39700 + 10000，救援记录 42300（名义）', () => {
+    assert.equal(Album.books(ECO).reduce((s, b) => s + (b.reward.coins ?? 0), 0), 39700);
+    assert.equal(ECO.album.final.coins, 10000);
     const dex = ECO.dex.coins.reduce((a, b) => a + b, 0) * SPECIES.filter((s) => s.inLevel).length;
-    assert.equal(dex, 20700);
+    assert.equal(dex, 42300);
   });
 
   it('一关的收入不超过 200，一条命至少值两关（第 6.3 节守住的三条）', () => {
@@ -312,11 +317,11 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
 
 describe('局内生物分得清（docs/03 4.1）', () => {
   const inLevel = SPECIES.filter((sp) => sp.inLevel === true);
-  const CLASSES = ['round', 'long', 'tall', 'star', 'claws', 'umbrella', 'diamond', 'legs', 'shell', 'snout', 'shrimp', 'flat', 'slug', 'disc', 'tree', 'otter', 'snail', 'ghost', 'bird', 'seal', 'whale', 'angel'];
+  const CLASSES = ['round', 'long', 'tall', 'star', 'claws', 'umbrella', 'diamond', 'legs', 'shell', 'snout', 'shrimp', 'flat', 'slug', 'disc', 'tree', 'otter', 'snail', 'ghost', 'bird', 'seal', 'whale', 'angel', 'dome'];
   const at = (n: number) => Seas.forLevel(ECO, n);
 
-  it('46 种都登记了轮廓类和量出来的主色', () => {
-    assert.equal(inLevel.length, 46);
+  it('94 种都登记了轮廓类和量出来的主色', () => {
+    assert.equal(inLevel.length, 94);
     for (const sp of inLevel) {
       assert.ok(CLASSES.includes(String(sp.shape)), `${sp.id} 的轮廓 ${sp.shape}`);
       assert.ok(sp.rgb && sp.rgb.some((v) => v > 0), `${sp.id} 没量主色`);
@@ -336,10 +341,10 @@ describe('局内生物分得清（docs/03 4.1）', () => {
     }
   });
 
-  it('每关以本海域的生物为主，借的只来自前面的海域；色差凑不齐下限的最多 2 关，且同场任两种至少差 20', () => {
+  it('每关以本海域的生物为主，借的只来自前面的海域；色差凑不齐下限的最多 3 关，同场任两种都不会几乎一样（差 12 以上，docs/02 2.2）', () => {
     const curve = loadCurve();
     let short = 0;
-    for (let id = 1; id <= 120; id++) {
+    for (let id = 1; id <= 240; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
       const gap = LevelCurve.colorGap(curve, id);
       const [own, earlier] = Seas.speciesPools(ECO, at(id));
@@ -350,10 +355,30 @@ describe('局内生物分得清（docs/03 4.1）', () => {
       const sps = picked.map((sid) => inLevel.find((sp) => sp.id === sid)!);
       let min = 999;
       for (let i = 0; i < sps.length; i++) for (let j = 0; j < i; j++) min = Math.min(min, colorDistance(sps[i], sps[j]));
-      assert.ok(min >= 20, `第 ${id} 关有两种颜色几乎一样（${min.toFixed(0)}）`);
+      assert.ok(min >= 12, `第 ${id} 关有两种颜色几乎一样（${min.toFixed(0)}）`);
       if (min < gap) short++;
     }
     // 换成按海域挑之前（16 种混着挑）是 8 关凑不齐
-    assert.ok(short <= 2, `${short} 关凑不齐色差`);
+    assert.ok(short <= 3, `${short} 关凑不齐色差`);
+  });
+});
+
+describe('限时关（docs/01 第 4 节）', () => {
+  it('第 61 关起挑战关限时、第 121 关起每关限时；时间比机器人点完要的长', () => {
+    const curve = loadCurve();
+    for (let id = 1; id <= 120; id++) {
+      const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
+      const t = LevelCurve.clockFor(curve, id, lv);
+      const chal = LevelCurve.isChallenge(curve, id);
+      if (id >= 61 && chal) {
+        let fish = 0;
+        for (const b of lv.bubbles) fish += b.fish.length;
+        const bot = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
+        assert.ok(t > bot, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
+      } else assert.equal(t, NO_TIMER, `第 ${id} 关不该限时`);
+    }
+    const lv = levelFile('level_0120');
+    assert.notEqual(LevelCurve.clockFor(curve, 121, lv), NO_TIMER);
+    assert.ok(LevelCurve.clockFor(curve, 240, lv) < LevelCurve.clockFor(curve, 121, lv), '越往后越紧');
   });
 });

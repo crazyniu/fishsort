@@ -2,7 +2,7 @@
 // 让人一眼对上局里看到的东西（用户 2026-11-17：弹窗中间空一大块、只有一行字）。只是示意，不接逻辑。
 import { Color, Node, Sprite, Vec3, tween } from 'cc';
 import * as fx from '../ui/fx';
-import { COLOR, at, box, fit, hex, img, opacity, slice, text } from '../ui/kit';
+import { COLOR, at, box, fit, hex, img, opacity, plate, slice, text } from '../ui/kit';
 
 const PINK = new Color(255, 120, 190, 230);
 /** 木架多厚（和局里一样） */
@@ -141,6 +141,17 @@ export function tipArt(parent: Node, key: string): Node {
       at(link, 0, -d * 0.01);
       // 和局里一样画在鱼上面、泡膜下面
       link.setSiblingIndex(b.children.length - 2);
+      break;
+    }
+    case 'TIP_CLOCK':
+    case 'TIP_CLOCK_ALL': {
+      // 限时关：一块和局内顶栏一样的倒计时条，旁边一只气泡
+      const pill = plate(n, 'skin/f_hud', 200, 96, 'clock');
+      at(pill, -40, 20);
+      const t = text(pill, '1:30', 52);
+      at(t.node, 0, 0);
+      fx.breathe(pill, 0.05, 0.8);
+      bubble(n, 140, -40, 130, ['c01']);
       break;
     }
     case 'TIP_LIVES': {

@@ -5,6 +5,8 @@ import { Bowl, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVE
 import { Rng } from '../rng/rng';
 
 export const REVIVE_EXTRA_SECONDS = 30.0;
+/** 限时关时间用完复活：整关再给几秒 */
+export const REVIVE_CLOCK_SECONDS = 30.0;
 
 export type EventType =
   | 'fish_to_bowl'
@@ -142,6 +144,14 @@ export function tap(s: GameState, b: number, k: number): GameEvent[] {
 export function tick(s: GameState, dt: number): GameEvent[] {
   const ev: GameEvent[] = [];
   if (s.status !== Status.PLAYING) return ev;
+  // 限时关：整关的倒计时
+  if (s.clock !== NO_TIMER) {
+    s.clock = Math.max(s.clock - dt, 0.0);
+    if (s.clock <= 0.0) {
+      lose(s, LoseReason.CLOCK, ev);
+      return ev;
+    }
+  }
   for (let i = 0; i < s.openSlots; i++) {
     const bowl = s.slots[i];
     if (bowl !== null && bowl.timer !== NO_TIMER) {
@@ -295,6 +305,8 @@ export function revive(s: GameState): GameEvent[] {
       const bowl = s.slots[i];
       if (bowl !== null && bowl.timer !== NO_TIMER && bowl.timer <= 0.0) bowl.timer = REVIVE_EXTRA_SECONDS;
     }
+  } else if (reason === LoseReason.CLOCK) {
+    s.clock = REVIVE_CLOCK_SECONDS;
   } else if (reason === LoseReason.STUCK) {
     for (let i = 0; i < s.bubbles.length; i++) {
       const bub = s.bubbles[i];

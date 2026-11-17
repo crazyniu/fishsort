@@ -1,0 +1,1928 @@
+{
+ "mangrove_common_1": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "c61",
+    "射水鱼",
+    "Archer",
+    "an archerfish, sunny yellow with a few small dark spots",
+    "long"
+   ],
+   [
+    "c62",
+    "招潮蟹",
+    "Fiddler",
+    "a fiddler crab with one big claw and one small claw, bright red",
+    "claws"
+   ],
+   [
+    "c63",
+    "绿河豚",
+    "Greenpuff",
+    "a round spotted pufferfish, leaf green",
+    "round"
+   ],
+   [
+    "c64",
+    "鲎宝宝",
+    "Domey",
+    "a horseshoe crab with a smooth dome shell, dusty blue",
+    "dome"
+   ],
+   [
+    "c65",
+    "紫螺螺",
+    "Perry",
+    "a periwinkle sea snail with a tall spiral shell, violet",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "mangrove_common_2": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "c66",
+    "倒水母",
+    "Flipjelly",
+    "an upside-down jellyfish lying on its bell with frilly arms on top, soft pink",
+    "umbrella"
+   ],
+   [
+    "c67",
+    "四眼鱼",
+    "Peeper",
+    "a four-eyed fish with big bulging eyes on top of its head, bright orange",
+    "snout"
+   ],
+   [
+    "c68",
+    "沙海葵",
+    "Anemo",
+    "a little sand anemone with soft cyan tentacles on a short stalk",
+    "tree"
+   ],
+   [
+    "c69",
+    "牡蛎宝",
+    "Oyster",
+    "an oyster with a rough grey shell slightly open",
+    "shell"
+   ],
+   [
+    "c70",
+    "树蟹蟹",
+    "Rooty",
+    "a small brown mangrove tree crab",
+    "claws"
+   ]
+  ],
+  "common"
+ ],
+ "mangrove_uncommon_1": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "u92",
+    "叶帽鲎",
+    "Leafcap",
+    "a horseshoe crab wearing a little leaf cap",
+    "special"
+   ],
+   [
+    "u93",
+    "水滴鱼宝",
+    "Droplet",
+    "an archerfish wearing a water-drop pendant",
+    "special"
+   ],
+   [
+    "u94",
+    "儒艮宝",
+    "Dugie",
+    "a dugong calf with a seagrass scarf",
+    "special"
+   ],
+   [
+    "u95",
+    "小鳄鳄",
+    "Crocky",
+    "a cute round baby crocodile with a closed smiling mouth (no teeth) and a flower behind its ear",
+    "special"
+   ],
+   [
+    "u96",
+    "小桶蟹",
+    "Bucket",
+    "a mud crab carrying a tiny bucket",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "mangrove_uncommon_2": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "u97",
+    "叶伞虾",
+    "Leafbrella",
+    "a mangrove shrimp holding a leaf like an umbrella",
+    "special"
+   ],
+   [
+    "u98",
+    "竹蛏蛏",
+    "Razor",
+    "a razor clam with a ribbon bow",
+    "special"
+   ],
+   [
+    "u99",
+    "海鞘鞘",
+    "Squirty",
+    "a sea squirt tube creature with a bow",
+    "special"
+   ],
+   [
+    "u100",
+    "斑斑蛇",
+    "Bandy",
+    "a cute banded sea snake with a knitted scarf",
+    "special"
+   ],
+   [
+    "u101",
+    "椰壳蟹",
+    "Coco",
+    "a hermit crab living in a coconut shell",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "mangrove_uncommon_3": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "u102",
+    "贝链鳐",
+    "Spotty",
+    "a spotted stingray pup with a shell necklace",
+    "special"
+   ],
+   [
+    "u103",
+    "花鳉鳉",
+    "Killy",
+    "a mangrove killifish wearing a flower petal hat",
+    "special"
+   ],
+   [
+    "u104",
+    "豆荚龟",
+    "Podder",
+    "a baby sea turtle riding in a seed pod like a boat",
+    "special"
+   ],
+   [
+    "u105",
+    "背包蟹",
+    "Packer",
+    "a mangrove crab wearing a leaf backpack",
+    "special"
+   ],
+   [
+    "u106",
+    "草笛鱼",
+    "Fluty",
+    "a seagrass pipefish with a little bow",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "mangrove_rare_1": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "r55",
+    "花冠鳄",
+    "Crocrown",
+    "a cute baby crocodile with a closed smiling mouth wearing a flower crown, soft glow",
+    "special"
+   ],
+   [
+    "r56",
+    "珠鲎鲎",
+    "Pearldome",
+    "a horseshoe crab wearing a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r57",
+    "萤林鱼",
+    "Glowfin",
+    "a mangrove fish with a pearl tiara and little firefly lights around it",
+    "special"
+   ],
+   [
+    "r58",
+    "儒艮仙",
+    "Dugong Fairy",
+    "a dugong wearing a flower crown with a soft glow",
+    "special"
+   ],
+   [
+    "r59",
+    "月光蟹",
+    "Moonclaw",
+    "a fiddler crab with a moon pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "mangrove_rare_2": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "r60",
+    "叶仙虾",
+    "Leaf Sprite",
+    "a glowing leaf-green shrimp with a pearl tiara",
+    "special"
+   ],
+   [
+    "r61",
+    "珠螺仙",
+    "Pearl Snail",
+    "a periwinkle snail wearing a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r62",
+    "露珠母",
+    "Dewdrop",
+    "an upside-down jellyfish decorated with dew pearls, soft glow",
+    "special"
+   ],
+   [
+    "r63",
+    "鹭羽鱼",
+    "Plume",
+    "a fish with feather-like fins and a pearl crown",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "mangrove_epic_1": [
+  "a mangrove forest with tangled roots in warm brackish water",
+  [
+   [
+    "e31",
+    "翡根龙",
+    "Rootdragon",
+    "a small dragon made of glowing mangrove roots studded with emeralds and a gold leaf crown",
+    "special"
+   ],
+   [
+    "e32",
+    "金鳄王",
+    "Croc King",
+    "a cute baby crocodile king with a closed smiling mouth, a gold crown and gem-studded scales",
+    "special"
+   ],
+   [
+    "e33",
+    "萤光鲎",
+    "Lantern Dome",
+    "a horseshoe crab whose crystal shell is full of glowing firefly lights, gold trim",
+    "special"
+   ],
+   [
+    "e34",
+    "森灵儒艮",
+    "Grove Spirit",
+    "a dugong with an aurora glow and a golden leaf crown",
+    "special"
+   ],
+   [
+    "e35",
+    "宝根蟹",
+    "Jewel Crab",
+    "a fiddler crab with one giant jeweled gold claw and a crown",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "lagoon_common_1": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "c71",
+    "鹦鹉宝",
+    "Dozy",
+    "a parrotfish, aqua green with soft scale pattern",
+    "long"
+   ],
+   [
+    "c72",
+    "月水母",
+    "Moonjelly",
+    "a moon jellyfish with four pale rings, soft lavender",
+    "umbrella"
+   ],
+   [
+    "c73",
+    "沙鬼蟹",
+    "Sandghost",
+    "a ghost crab with tall eye stalks, pale cream",
+    "claws"
+   ],
+   [
+    "c74",
+    "夜虾虾",
+    "Nightshrimp",
+    "a night shrimp, deep red",
+    "shrimp"
+   ],
+   [
+    "c75",
+    "蓝章章",
+    "Bluey",
+    "a small baby octopus, bright blue",
+    "legs"
+   ]
+  ],
+  "common"
+ ],
+ "lagoon_common_2": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "c76",
+    "金天竺",
+    "Cardi",
+    "a round cardinalfish, golden yellow",
+    "round"
+   ],
+   [
+    "c77",
+    "夜海星",
+    "Nightstar",
+    "a plump sea star, warm orange",
+    "star"
+   ],
+   [
+    "c78",
+    "花扁扁",
+    "Ripple",
+    "a flatworm with ruffled edges, bright pink",
+    "flat"
+   ],
+   [
+    "c79",
+    "海萤萤",
+    "Seafly",
+    "a tiny glowing bean-shaped ostracod, soft cyan glow",
+    "round"
+   ],
+   [
+    "c80",
+    "月螺螺",
+    "Moonsnail",
+    "a round moon snail with a cream shell",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "lagoon_uncommon_1": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "u107",
+    "睡帽章",
+    "Nightcap",
+    "an octopus wearing a striped nightcap",
+    "special"
+   ],
+   [
+    "u108",
+    "星夹海星",
+    "Star Pin",
+    "a sea star with a little star hair clip",
+    "special"
+   ],
+   [
+    "u109",
+    "提灯鱼",
+    "Lampy",
+    "a cardinalfish holding a tiny lantern",
+    "special"
+   ],
+   [
+    "u110",
+    "弯月蟹",
+    "Crescent",
+    "a ghost crab holding a crescent moon",
+    "special"
+   ],
+   [
+    "u111",
+    "星包虾",
+    "Starpack",
+    "a shrimp wearing a star-shaped backpack",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "lagoon_uncommon_2": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "u112",
+    "抱枕豹",
+    "Pillow",
+    "a baby seal hugging a little pillow",
+    "special"
+   ],
+   [
+    "u113",
+    "睡衣鱼",
+    "Jammies",
+    "a fish wearing striped pajamas",
+    "special"
+   ],
+   [
+    "u114",
+    "星夹母",
+    "Clippy",
+    "a jellyfish wearing star hair clips",
+    "special"
+   ],
+   [
+    "u115",
+    "猫头鱼",
+    "Hooty",
+    "an owl-faced fish with a tiny bow tie",
+    "special"
+   ],
+   [
+    "u116",
+    "小夜灯兔",
+    "Nitey",
+    "a sea hare carrying a tiny night light",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "lagoon_uncommon_3": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "u117",
+    "萤石蟹",
+    "Glowstone",
+    "a hermit crab living in a softly glowing stone",
+    "special"
+   ],
+   [
+    "u118",
+    "围巾鳐",
+    "Scarfy",
+    "a little ray wearing a knitted scarf",
+    "special"
+   ],
+   [
+    "u119",
+    "牛奶鱼",
+    "Milky",
+    "a milkfish holding a cup of milk",
+    "special"
+   ],
+   [
+    "u120",
+    "梦泡豚",
+    "Dreamy",
+    "a pufferfish blowing a dream bubble",
+    "special"
+   ],
+   [
+    "u121",
+    "月坠鳗",
+    "Lunar",
+    "an eel wearing a moon pendant",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "lagoon_rare_1": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "r64",
+    "月冠母",
+    "Moon Crown",
+    "a moon jellyfish wearing a pearl crescent crown, soft glow",
+    "special"
+   ],
+   [
+    "r65",
+    "星冠章",
+    "Starcrown",
+    "an octopus wearing a starry pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r66",
+    "夜明蟹",
+    "Night Pearl",
+    "a ghost crab holding a glowing night pearl, soft glow",
+    "special"
+   ],
+   [
+    "r67",
+    "萤冠虾",
+    "Glow Crown",
+    "a shrimp wearing a glowing pearl crown",
+    "special"
+   ],
+   [
+    "r68",
+    "月牙鱼",
+    "Crescentfin",
+    "a crescent-shaped fish with a pearl tiara, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "lagoon_rare_2": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "r69",
+    "梦冠豚",
+    "Dream Crown",
+    "a pufferfish wearing a flower crown with tiny stars, soft glow",
+    "special"
+   ],
+   [
+    "r70",
+    "星光鳐",
+    "Starray",
+    "a ray with star spots and a pearl tiara, soft glow",
+    "special"
+   ],
+   [
+    "r71",
+    "夜露螺",
+    "Night Dew",
+    "a moon snail decorated with dew pearls, soft glow",
+    "special"
+   ],
+   [
+    "r72",
+    "银月鹦",
+    "Silver Parrot",
+    "a silver parrotfish with a pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "lagoon_epic_1": [
+  "a calm moonlit night lagoon with softly glowing plankton",
+  [
+   [
+    "e36",
+    "月华龙",
+    "Moon Dragon",
+    "a small silver dragon with a crescent moon and moonstone gems, glowing",
+    "special"
+   ],
+   [
+    "e37",
+    "星河鳐",
+    "Milky Way Ray",
+    "a ray whose body shows a starry galaxy, with gold trim and a crown",
+    "special"
+   ],
+   [
+    "e38",
+    "夜后章",
+    "Night Queen",
+    "an octopus queen with a moonstone crown and gold jewelry",
+    "special"
+   ],
+   [
+    "e39",
+    "萤光凤",
+    "Firefly Phoenix",
+    "a fish with long phoenix-like fins made of firefly lights and gems",
+    "special"
+   ],
+   [
+    "e40",
+    "月宫兔",
+    "Moon Rabbit",
+    "a sea hare with a jade moon palace crown and silver glow",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "vent_common_1": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "c81",
+    "管虫虫",
+    "Tubey",
+    "a giant tube worm with a bright red plume on a white tube",
+    "tree"
+   ],
+   [
+    "c82",
+    "热泉虾",
+    "Venty",
+    "a vent shrimp, bright orange",
+    "shrimp"
+   ],
+   [
+    "c83",
+    "硫磺鱼",
+    "Sulfy",
+    "a slim fish, sulfur yellow",
+    "long"
+   ],
+   [
+    "c84",
+    "深蓝章",
+    "Deepy",
+    "a little octopus, deep cobalt blue",
+    "legs"
+   ],
+   [
+    "c85",
+    "鳞足螺",
+    "Scaly",
+    "a snail with a spiral shell and a scaly foot, rose pink",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "vent_common_2": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "c86",
+    "紫海参",
+    "Plum",
+    "a plump sea cucumber, plum purple",
+    "slug"
+   ],
+   [
+    "c87",
+    "盲蟹蟹",
+    "Blindy",
+    "a pale blind vent crab, light cyan",
+    "claws"
+   ],
+   [
+    "c88",
+    "绿岩鱼",
+    "Pebble",
+    "a round rockfish, moss green",
+    "round"
+   ],
+   [
+    "c89",
+    "烟囱宝",
+    "Smokey",
+    "a tiny cute black smoker chimney creature puffing a little smoke",
+    "tree"
+   ],
+   [
+    "c90",
+    "火山贝",
+    "Magma Clam",
+    "a clam with a dark red shell",
+    "shell"
+   ]
+  ],
+  "common"
+ ],
+ "vent_uncommon_1": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "u122",
+    "安全帽蟹",
+    "Hardhat",
+    "a crab wearing a yellow hard hat",
+    "special"
+   ],
+   [
+    "u123",
+    "护目镜虾",
+    "Goggles",
+    "a shrimp wearing swimming goggles on its forehead",
+    "special"
+   ],
+   [
+    "u124",
+    "手套蟹",
+    "Mitts",
+    "a crab wearing oven mitts on its claws",
+    "special"
+   ],
+   [
+    "u125",
+    "温泉章",
+    "Spa Octo",
+    "an octopus with a towel folded on its head",
+    "special"
+   ],
+   [
+    "u126",
+    "煮蛋鱼",
+    "Eggy",
+    "a fish holding a boiled egg",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "vent_uncommon_2": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "u127",
+    "火苗鱼",
+    "Flicker",
+    "a fish with a tiny flame-shaped pendant",
+    "special"
+   ],
+   [
+    "u128",
+    "岩壳龟",
+    "Lava Turtle",
+    "a turtle with a lava-rock shell and a scarf",
+    "special"
+   ],
+   [
+    "u129",
+    "晶坠豚",
+    "Crystal Puff",
+    "a pufferfish with a yellow crystal pendant",
+    "special"
+   ],
+   [
+    "u130",
+    "礼帽虫",
+    "Tophat",
+    "a tube worm wearing a tiny top hat",
+    "special"
+   ],
+   [
+    "u131",
+    "煤球鱼",
+    "Coaly",
+    "a round dark grey fish with a red bow",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "vent_uncommon_3": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "u132",
+    "蒸汽母",
+    "Steamy",
+    "a jellyfish with little steam puffs and a scarf",
+    "special"
+   ],
+   [
+    "u133",
+    "螺栓螺",
+    "Bolty",
+    "a snail with an iron shell and a bolt pin",
+    "special"
+   ],
+   [
+    "u134",
+    "小锅蟹",
+    "Pot Crab",
+    "a hermit crab living in a little cooking pot",
+    "special"
+   ],
+   [
+    "u135",
+    "围巾鳗",
+    "Ember",
+    "an eel wearing an orange scarf",
+    "special"
+   ],
+   [
+    "u136",
+    "温度鱼",
+    "Thermy",
+    "a fish holding a little thermometer",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "vent_rare_1": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "r73",
+    "熔晶蟹",
+    "Magma Crown",
+    "a crab with a crown of glowing orange crystals",
+    "special"
+   ],
+   [
+    "r74",
+    "火冠虾",
+    "Flame Crown",
+    "a shrimp wearing a pearl crown with a warm glow",
+    "special"
+   ],
+   [
+    "r75",
+    "炎珠章",
+    "Ember Pearl",
+    "an octopus holding a glowing ember pearl, pearl tiara",
+    "special"
+   ],
+   [
+    "r76",
+    "红玉管虫",
+    "Ruby Plume",
+    "a tube worm with a ruby red plume and pearls, soft glow",
+    "special"
+   ],
+   [
+    "r77",
+    "金硫鱼",
+    "Gold Sulfur",
+    "a golden fish with a pearl crown and warm glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "vent_rare_2": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "r78",
+    "熔光母",
+    "Lava Glow",
+    "a jellyfish with a warm orange glow and a pearl crown",
+    "special"
+   ],
+   [
+    "r79",
+    "火山龟",
+    "Volcano Turtle",
+    "a turtle with a small volcano-shaped shell and a pearl crown",
+    "special"
+   ],
+   [
+    "r80",
+    "炉石螺",
+    "Hearthstone",
+    "a snail with a glowing hearth-stone shell, soft glow",
+    "special"
+   ],
+   [
+    "r81",
+    "焰尾鳐",
+    "Flametail",
+    "a ray with a flame-colored tail and pearl tiara",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "vent_epic_1": [
+  "warm volcanic hydrothermal vents on the deep sea floor",
+  [
+   [
+    "e41",
+    "熔岩龙",
+    "Lava Dragon",
+    "a small dragon made of obsidian with glowing ruby veins and a gold crown",
+    "special"
+   ],
+   [
+    "e42",
+    "炎晶鲸",
+    "Magma Whale",
+    "a whale calf with glowing lava crystal veins and gold trim",
+    "special"
+   ],
+   [
+    "e43",
+    "火山神蟹",
+    "Volcano Lord",
+    "a crab with an obsidian shell, a gold crown and fiery gems",
+    "special"
+   ],
+   [
+    "e44",
+    "熔金章",
+    "Molten Gold",
+    "an octopus made of shining molten gold with ruby gems",
+    "special"
+   ],
+   [
+    "e45",
+    "红宝管",
+    "Ruby Spire",
+    "a cluster of tube worms with jeweled ruby plumes and gold rings",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "ruins_common_1": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "c91",
+    "红鲷鲷",
+    "Snappy",
+    "a snapper fish, bright red",
+    "long"
+   ],
+   [
+    "c92",
+    "花瓶绵",
+    "Vase",
+    "a vase-shaped sponge creature, warm orange",
+    "tree"
+   ],
+   [
+    "c93",
+    "黄嘴鱼",
+    "Beaky",
+    "a longnose butterflyfish with a long snout, bright yellow",
+    "snout"
+   ],
+   [
+    "c94",
+    "苔藓龟",
+    "Mossy",
+    "a small turtle with a mossy green shell",
+    "shell"
+   ],
+   [
+    "c95",
+    "青石鳐",
+    "Tilly",
+    "a little ray with a tile pattern, cyan",
+    "diamond"
+   ]
+  ],
+  "common"
+ ],
+ "ruins_common_2": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "c96",
+    "蓝陶鱼",
+    "Pottery",
+    "a round fish patterned like blue pottery",
+    "round"
+   ],
+   [
+    "c97",
+    "古星星",
+    "Relic Star",
+    "a sea star, soft purple",
+    "star"
+   ],
+   [
+    "c98",
+    "粉蛙鱼",
+    "Blush",
+    "a lumpy frogfish, bubblegum pink",
+    "round"
+   ],
+   [
+    "c99",
+    "石像鱼",
+    "Statue",
+    "a fish that looks carved from grey stone",
+    "long"
+   ],
+   [
+    "c100",
+    "青铜蟹",
+    "Bronze",
+    "a bronze colored crab",
+    "claws"
+   ]
+  ],
+  "common"
+ ],
+ "ruins_uncommon_1": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "u137",
+    "桂冠鱼",
+    "Laurel",
+    "a fish wearing a laurel wreath",
+    "special"
+   ],
+   [
+    "u138",
+    "卷轴虾",
+    "Scroll",
+    "a shrimp carrying a little scroll",
+    "special"
+   ],
+   [
+    "u139",
+    "陶罐章",
+    "Jarvo",
+    "an octopus peeking out of an ancient clay jar",
+    "special"
+   ],
+   [
+    "u140",
+    "火炬鱼",
+    "Torchy",
+    "a fish holding a tiny torch",
+    "special"
+   ],
+   [
+    "u141",
+    "头盔蟹",
+    "Helm",
+    "a crab wearing an ancient bronze helmet",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "ruins_uncommon_2": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "u142",
+    "地图鳐",
+    "Mapray",
+    "a little ray carrying an old map",
+    "special"
+   ],
+   [
+    "u143",
+    "石柱虫",
+    "Pillar",
+    "a tube worm living in a tiny broken stone pillar",
+    "special"
+   ],
+   [
+    "u144",
+    "古币豚",
+    "Drachma",
+    "a pufferfish holding an old coin",
+    "special"
+   ],
+   [
+    "u145",
+    "面具鱼",
+    "Masky",
+    "a fish with a tiny ancient mask pushed up on its head",
+    "special"
+   ],
+   [
+    "u146",
+    "马赛克星",
+    "Mosaic",
+    "a sea star covered in mosaic tiles",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "ruins_uncommon_3": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "u147",
+    "苔背蟹",
+    "Mossback",
+    "a crab with moss and a tiny flower on its back",
+    "special"
+   ],
+   [
+    "u148",
+    "石狮鱼",
+    "Guardian",
+    "a fish with a stone lion mane collar",
+    "special"
+   ],
+   [
+    "u149",
+    "月桂母",
+    "Bay",
+    "a jellyfish wearing a laurel wreath",
+    "special"
+   ],
+   [
+    "u150",
+    "书卷鳗",
+    "Scribe",
+    "an eel carrying a scroll",
+    "special"
+   ],
+   [
+    "u151",
+    "竖琴马",
+    "Lyre",
+    "a seahorse holding a tiny lyre",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "ruins_rare_1": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "r82",
+    "神殿蟹",
+    "Temple Crab",
+    "a crab wearing a temple-shaped pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r83",
+    "金桂鱼",
+    "Golden Laurel",
+    "a fish wearing a golden laurel crown, soft glow",
+    "special"
+   ],
+   [
+    "r84",
+    "石灵龟",
+    "Stone Spirit",
+    "a turtle with a glowing runed stone shell and pearl crown",
+    "special"
+   ],
+   [
+    "r85",
+    "圣杯母",
+    "Chalice",
+    "a jellyfish shaped like a little chalice with pearls, soft glow",
+    "special"
+   ],
+   [
+    "r86",
+    "王冠鳐",
+    "Crown Ray",
+    "a ray wearing a small pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "ruins_rare_2": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "r87",
+    "玉璧鱼",
+    "Jade Disc",
+    "a round disc-shaped fish with a jade ring and pearl tiara",
+    "special"
+   ],
+   [
+    "r88",
+    "宝瓶章",
+    "Treasure Jar",
+    "an octopus in a jeweled jar with a pearl crown",
+    "special"
+   ],
+   [
+    "r89",
+    "遗迹海马",
+    "Relic Seahorse",
+    "a seahorse with stone carvings and a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r90",
+    "金币鳗",
+    "Coin Eel",
+    "an eel with gold coin spots and a pearl tiara",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "ruins_epic_1": [
+  "sunken ancient temple ruins with mossy stone pillars",
+  [
+   [
+    "e46",
+    "守护石龙",
+    "Guardian Dragon",
+    "a small dragon of carved stone with gold inlays and glowing gems",
+    "special"
+   ],
+   [
+    "e47",
+    "太阳神龟",
+    "Sun Turtle",
+    "a turtle with a golden sun disc shell and gems",
+    "special"
+   ],
+   [
+    "e48",
+    "黄金面具鱼",
+    "Golden Mask",
+    "a fish wearing an ornate golden mask crown with gems, glowing",
+    "special"
+   ],
+   [
+    "e49",
+    "圣杯水母",
+    "Grail Jelly",
+    "a jellyfish with a jeweled golden grail bell and pearls",
+    "special"
+   ],
+   [
+    "e50",
+    "水晶神鳐",
+    "Crystal Ray",
+    "a ray made of shimmering crystal with gold trim and a crown",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "trench_common_1": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "c101",
+    "红灯虾",
+    "Redlamp",
+    "a deep sea shrimp, deep red",
+    "shrimp"
+   ],
+   [
+    "c102",
+    "橙棘鲷",
+    "Roughy",
+    "a round orange roughy fish",
+    "round"
+   ],
+   [
+    "c103",
+    "金海参",
+    "Goldcuke",
+    "a plump sea cucumber, golden yellow",
+    "slug"
+   ],
+   [
+    "c104",
+    "绿冠母",
+    "Atolla",
+    "a crown jellyfish with a ring of soft green lights",
+    "umbrella"
+   ],
+   [
+    "c105",
+    "吞吞鳗",
+    "Gulpy",
+    "a gulper eel with a big friendly mouth, cyan",
+    "long"
+   ]
+  ],
+  "common"
+ ],
+ "trench_common_2": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "c106",
+    "长腿蛛",
+    "Leggy",
+    "a cute sea spider with long legs, bright blue",
+    "legs"
+   ],
+   [
+    "c107",
+    "三脚鱼",
+    "Tripod",
+    "a tripod fish standing on three long fin rays, purple",
+    "tall"
+   ],
+   [
+    "c108",
+    "粉深葵",
+    "Deepbloom",
+    "a deep sea anemone, rose pink",
+    "tree"
+   ],
+   [
+    "c109",
+    "灯眼鱼",
+    "Lampeye",
+    "a dark navy fish with a glowing eye spot",
+    "round"
+   ],
+   [
+    "c110",
+    "雪花参",
+    "Snowcuke",
+    "a translucent white sea cucumber",
+    "slug"
+   ]
+  ],
+  "common"
+ ],
+ "trench_uncommon_1": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "u152",
+    "头灯鱼",
+    "Headlamp",
+    "a fish wearing a headlamp",
+    "special"
+   ],
+   [
+    "u153",
+    "潜水盔章",
+    "Diver",
+    "an octopus wearing a round brass diving helmet with a clear glass window",
+    "special"
+   ],
+   [
+    "u154",
+    "荧光棒虾",
+    "Glowstick",
+    "a shrimp holding a glowstick",
+    "special"
+   ],
+   [
+    "u155",
+    "探照鳗",
+    "Searchlight",
+    "an eel carrying a little searchlight",
+    "special"
+   ],
+   [
+    "u156",
+    "潜艇豚",
+    "Subby",
+    "a pufferfish sitting in a tiny yellow submarine",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "trench_uncommon_2": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "u157",
+    "泡盔母",
+    "Bubblehelm",
+    "a jellyfish wearing a bubble helmet",
+    "special"
+   ],
+   [
+    "u158",
+    "星帽蛛",
+    "Starhat",
+    "a sea spider wearing a star hat",
+    "special"
+   ],
+   [
+    "u159",
+    "背包参",
+    "Hiker",
+    "a sea cucumber wearing a backpack",
+    "special"
+   ],
+   [
+    "u160",
+    "夜视鱼",
+    "Goggly",
+    "a fish wearing night vision goggles on its forehead",
+    "special"
+   ],
+   [
+    "u161",
+    "光带鱼",
+    "Ribbonlight",
+    "a fish trailing a glowing ribbon",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "trench_uncommon_3": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "u162",
+    "铃铛蟹",
+    "Jingle",
+    "a crab wearing a little bell",
+    "special"
+   ],
+   [
+    "u163",
+    "心灯鱼",
+    "Lovelure",
+    "an anglerfish with a heart-shaped lure",
+    "special"
+   ],
+   [
+    "u164",
+    "火箭鱿",
+    "Rocket",
+    "a squid with a little rocket backpack",
+    "special"
+   ],
+   [
+    "u165",
+    "围巾章",
+    "Snuggle",
+    "an octopus wrapped in a cozy scarf",
+    "special"
+   ],
+   [
+    "u166",
+    "帽帽滴",
+    "Droppy",
+    "a water-drop shaped creature wearing a beanie",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "trench_rare_1": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "r91",
+    "深渊冠母",
+    "Abyss Crown",
+    "a deep sea jellyfish wearing a glowing pearl crown",
+    "special"
+   ],
+   [
+    "r92",
+    "光圈鱼",
+    "Haloed",
+    "a fish with a glowing halo ring and pearl tiara",
+    "special"
+   ],
+   [
+    "r93",
+    "星灯鮟鱇",
+    "Star Angler",
+    "an anglerfish with a star-shaped glowing lure and pearl crown",
+    "special"
+   ],
+   [
+    "r94",
+    "荧珠虾",
+    "Glow Pearl",
+    "a shrimp holding a glowing pearl, soft glow",
+    "special"
+   ],
+   [
+    "r95",
+    "暗月章",
+    "Dark Moon",
+    "an octopus with a crescent pearl crown and soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "trench_rare_2": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "r96",
+    "珠光鳗",
+    "Pearl Eel",
+    "an eel with pearly spots and a pearl tiara",
+    "special"
+   ],
+   [
+    "r97",
+    "晶眼鱼",
+    "Crystal Eye",
+    "a fish with a crystal crown and soft glow",
+    "special"
+   ],
+   [
+    "r98",
+    "夜光参",
+    "Night Cuke",
+    "a glowing sea cucumber with pearls",
+    "special"
+   ],
+   [
+    "r99",
+    "银冠蛛",
+    "Silver Spider",
+    "a sea spider wearing a silver pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "trench_epic_1": [
+  "a dark deep sea trench lit by glowing creatures",
+  [
+   [
+    "e51",
+    "深渊龙",
+    "Abyss Dragon",
+    "a small dark dragon with neon glowing gems and a silver crown",
+    "special"
+   ],
+   [
+    "e52",
+    "鮟鱇王",
+    "Angler King",
+    "an anglerfish king with a gold crown and a galaxy lure",
+    "special"
+   ],
+   [
+    "e53",
+    "幽光鲸",
+    "Ghost Whale",
+    "a translucent whale calf with a glowing galaxy core and gold trim",
+    "special"
+   ],
+   [
+    "e54",
+    "极光鱿",
+    "Aurora Squid",
+    "a squid with shimmering aurora colors and jeweled fins",
+    "special"
+   ],
+   [
+    "e55",
+    "虹光管母",
+    "Rainbow Siphon",
+    "a siphonophore chain of jewel-like glowing bells with gold links",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "starsea_common_1": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "c111",
+    "红星鱼",
+    "Twinkle",
+    "a round fish with little star spots, bright red",
+    "round"
+   ],
+   [
+    "c112",
+    "彗星鱼",
+    "Comet",
+    "a fish with long comet-tail fins, bright orange",
+    "long"
+   ],
+   [
+    "c113",
+    "小金星",
+    "Sparkle",
+    "a plump sea star, sunny yellow",
+    "star"
+   ],
+   [
+    "c114",
+    "云雾兔",
+    "Misty",
+    "a sea slug with misty frills, mint green",
+    "slug"
+   ],
+   [
+    "c115",
+    "青云母",
+    "Nebby",
+    "a jellyfish with cloud-like frills, cyan",
+    "umbrella"
+   ]
+  ],
+  "common"
+ ],
+ "starsea_common_2": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "c116",
+    "星鲸鲸",
+    "Starwhale",
+    "a small whale calf with star freckles, royal blue",
+    "whale"
+   ],
+   [
+    "c117",
+    "月牙鳐",
+    "Lunaray",
+    "a crescent-winged ray, soft purple",
+    "diamond"
+   ],
+   [
+    "c118",
+    "梦梦鱼",
+    "Dreamfin",
+    "a tall disc fish with star-shaped fins, pink",
+    "disc"
+   ],
+   [
+    "c119",
+    "流星螺",
+    "Meteor",
+    "a snail with a meteor-shaped shell",
+    "snail"
+   ],
+   [
+    "c120",
+    "星尘虾",
+    "Shimmer",
+    "a shrimp with sparkly specks",
+    "shrimp"
+   ]
+  ],
+  "common"
+ ],
+ "starsea_uncommon_1": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "u167",
+    "宇航鱼",
+    "Astro",
+    "a fish wearing a bubble space helmet",
+    "special"
+   ],
+   [
+    "u168",
+    "星杖马",
+    "Wand",
+    "a seahorse holding a little star wand",
+    "special"
+   ],
+   [
+    "u169",
+    "土星豚",
+    "Saturn",
+    "a pufferfish with a planet ring around it",
+    "special"
+   ],
+   [
+    "u170",
+    "望远镜蟹",
+    "Scope",
+    "a crab looking through a tiny telescope",
+    "special"
+   ],
+   [
+    "u171",
+    "火箭章",
+    "Blastoff",
+    "an octopus with a rocket backpack",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "starsea_uncommon_2": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "u172",
+    "月帽鳐",
+    "Moonhat",
+    "a little ray wearing a crescent moon hat",
+    "special"
+   ],
+   [
+    "u173",
+    "风筝鱼",
+    "Kite",
+    "a fish flying a little star kite",
+    "special"
+   ],
+   [
+    "u174",
+    "彗尾星",
+    "Trail",
+    "a sea star with a comet trail scarf",
+    "special"
+   ],
+   [
+    "u175",
+    "天线母",
+    "Antenna",
+    "a jellyfish with a little satellite antenna",
+    "special"
+   ],
+   [
+    "u176",
+    "星座龟",
+    "Zodiac",
+    "a turtle with a constellation shell and a scarf",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "starsea_uncommon_3": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "u177",
+    "星球螺",
+    "Planet",
+    "a snail with a little planet as its shell",
+    "special"
+   ],
+   [
+    "u178",
+    "太空虾",
+    "Spacey",
+    "a shrimp in a tiny space suit",
+    "special"
+   ],
+   [
+    "u179",
+    "星带鳗",
+    "Starband",
+    "an eel with a star ribbon",
+    "special"
+   ],
+   [
+    "u180",
+    "外星兔",
+    "Alien",
+    "a sea hare wearing an alien antenna headband",
+    "special"
+   ],
+   [
+    "u181",
+    "光环鱼",
+    "Ringlet",
+    "a fish with a little halo ring above its head",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "starsea_rare_1": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "r100",
+    "星冠鲸",
+    "Star Crown",
+    "a whale calf wearing a star pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r101",
+    "银河马",
+    "Galaxy Seahorse",
+    "a seahorse with a galaxy pattern and pearl tiara",
+    "special"
+   ],
+   [
+    "r102",
+    "月冠鳐",
+    "Moon Crown Ray",
+    "a ray wearing a crescent pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r103",
+    "星钻蟹",
+    "Star Diamond",
+    "a crab with a star diamond crown, soft glow",
+    "special"
+   ],
+   [
+    "r104",
+    "彗星章",
+    "Comet Crown",
+    "an octopus with a comet pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "starsea_rare_2": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "r105",
+    "极光鱼",
+    "Aurora Fish",
+    "a fish with aurora colored fins and a pearl tiara",
+    "special"
+   ],
+   [
+    "r106",
+    "星珠母",
+    "Star Pearl",
+    "a jellyfish holding star pearls, soft glow",
+    "special"
+   ],
+   [
+    "r107",
+    "星梦豚",
+    "Star Dream",
+    "a pufferfish with a starry flower crown, soft glow",
+    "special"
+   ],
+   [
+    "r108",
+    "星鹅鱼",
+    "Swanfin",
+    "a swan-like fish with a star tiara, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "starsea_epic_1": [
+  "a magical starry sea where the water sparkles like the night sky",
+  [
+   [
+    "e56",
+    "星河龙",
+    "Galaxy Dragon",
+    "a small dragon with a cosmic galaxy body and golden horns, glowing",
+    "special"
+   ],
+   [
+    "e57",
+    "宇宙鲸王",
+    "Cosmos Whale",
+    "a whale king with a nebula body, gold crown and gems",
+    "special"
+   ],
+   [
+    "e58",
+    "太阳鳐",
+    "Solar Ray",
+    "a ray made of shining gold sunlight with jewels",
+    "special"
+   ],
+   [
+    "e59",
+    "星环章",
+    "Ring Lord",
+    "an octopus with planet rings, gems and a gold crown",
+    "special"
+   ],
+   [
+    "e60",
+    "极光天马",
+    "Aurora Pegasus",
+    "a winged seahorse with aurora wings and a jeweled crown",
+    "special"
+   ]
+  ],
+  "epic"
+ ]
+}

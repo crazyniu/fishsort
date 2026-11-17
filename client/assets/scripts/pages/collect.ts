@@ -115,17 +115,26 @@ export class CollectPage extends Page {
     }
     onTap(chest, () => this.tapFinal());
 
-    // 册子：两列卡片（用户 2026-11-16：原来是一行一行的列表，改成卡片），占满总进度下面的地方，不用滚动
+    // 册子：两列卡片（用户 2026-11-16：原来是一行一行的列表，改成卡片）。12 册（2026-11-17 加到 12 个海域）一屏放不下，
+    // 放进滚动区，卡片保持原来的大小；打开时滚到最后一本已开放的册子那一行
     const y0 = top - 310;
     const y1 = Screen.bottom + PAGE_BOTTOM;
-    const rowsN = Math.ceil(books.length / 2);
     const cw = (690 - CARD_GAP) / 2;
-    const ch = Math.min(CARD_MAX_H, (y0 - y1 - CARD_GAP * (rowsN - 1)) / rowsN);
+    const ch = CARD_MAX_H;
+    const sc = new Scroller(v, Screen.W, y0 - y1);
+    at(sc.node, 0, (y0 + y1) / 2);
     const cards = books.map((b, i) => {
-      const c = this.bookCard(v, i, b.cards, b.unlock, cw, ch);
-      at(c, (i % 2 === 0 ? -1 : 1) * (cw + CARD_GAP) / 2, y0 - ch / 2 - Math.floor(i / 2) * (ch + CARD_GAP));
+      const c = this.bookCard(sc.content, i, b.cards, b.unlock, cw, ch);
+      at(c, (i % 2 === 0 ? -1 : 1) * (cw + CARD_GAP) / 2, -ch / 2 - Math.floor(i / 2) * (ch + CARD_GAP));
       return c;
     });
+    const rowsN = Math.ceil(books.length / 2);
+    sc.setContentHeight(rowsN * ch + (rowsN - 1) * CARD_GAP + 8);
+    let open = 0;
+    books.forEach((b, i) => {
+      if (s.level >= b.unlock) open = i;
+    });
+    sc.scrollTo(Math.max(0, Math.floor(open / 2) * (ch + CARD_GAP) - (ch + CARD_GAP)));
     if (enter) enterStagger([head, ...cards], 0.05);
   }
 

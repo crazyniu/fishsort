@@ -1,0 +1,2054 @@
+[
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c61",
+  "zh": "射水鱼",
+  "en": "Archer",
+  "desc": "an archerfish, sunny yellow with a few small dark spots",
+  "hue": "yellow",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c62",
+  "zh": "招潮蟹",
+  "en": "Fiddler",
+  "desc": "a fiddler crab with one big claw and one small claw, bright red",
+  "hue": "red",
+  "shape": "claws",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c63",
+  "zh": "绿河豚",
+  "en": "Greenpuff",
+  "desc": "a round spotted pufferfish, leaf green",
+  "hue": "green",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c64",
+  "zh": "鲎宝宝",
+  "en": "Domey",
+  "desc": "a horseshoe crab with a smooth dome shell, dusty blue",
+  "hue": "blue",
+  "shape": "dome",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c65",
+  "zh": "紫螺螺",
+  "en": "Perry",
+  "desc": "a periwinkle sea snail with a tall spiral shell, violet",
+  "hue": "purple",
+  "shape": "snail",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c66",
+  "zh": "倒水母",
+  "en": "Flipjelly",
+  "desc": "an upside-down jellyfish lying on its bell with frilly arms on top, soft pink",
+  "hue": "pink",
+  "shape": "umbrella",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c67",
+  "zh": "四眼鱼",
+  "en": "Peeper",
+  "desc": "a four-eyed fish with big bulging eyes on top of its head, bright orange",
+  "hue": "orange",
+  "shape": "snout",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c68",
+  "zh": "沙海葵",
+  "en": "Anemo",
+  "desc": "a little sand anemone with soft cyan tentacles on a short stalk",
+  "hue": "cyan",
+  "shape": "tree",
+  "inLevel": true
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c69",
+  "zh": "牡蛎宝",
+  "en": "Oyster",
+  "desc": "an oyster with a rough grey shell slightly open",
+  "hue": "grey",
+  "shape": "shell",
+  "inLevel": false
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "common",
+  "id": "c70",
+  "zh": "树蟹蟹",
+  "en": "Rooty",
+  "desc": "a small brown mangrove tree crab",
+  "hue": "brown",
+  "shape": "claws",
+  "inLevel": false
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u92",
+  "zh": "叶帽鲎",
+  "en": "Leafcap",
+  "desc": "a horseshoe crab wearing a little leaf cap"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u93",
+  "zh": "水滴鱼宝",
+  "en": "Droplet",
+  "desc": "an archerfish wearing a water-drop pendant"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u94",
+  "zh": "儒艮宝",
+  "en": "Dugie",
+  "desc": "a dugong calf with a seagrass scarf"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u95",
+  "zh": "小鳄鳄",
+  "en": "Crocky",
+  "desc": "a cute round baby crocodile with a closed smiling mouth (no teeth) and a flower behind its ear"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u96",
+  "zh": "小桶蟹",
+  "en": "Bucket",
+  "desc": "a mud crab carrying a tiny bucket"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u97",
+  "zh": "叶伞虾",
+  "en": "Leafbrella",
+  "desc": "a mangrove shrimp holding a leaf like an umbrella"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u98",
+  "zh": "竹蛏蛏",
+  "en": "Razor",
+  "desc": "a razor clam with a ribbon bow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u99",
+  "zh": "海鞘鞘",
+  "en": "Squirty",
+  "desc": "a sea squirt tube creature with a bow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u100",
+  "zh": "斑斑蛇",
+  "en": "Bandy",
+  "desc": "a cute banded sea snake with a knitted scarf"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u101",
+  "zh": "椰壳蟹",
+  "en": "Coco",
+  "desc": "a hermit crab living in a coconut shell"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u102",
+  "zh": "贝链鳐",
+  "en": "Spotty",
+  "desc": "a spotted stingray pup with a shell necklace"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u103",
+  "zh": "花鳉鳉",
+  "en": "Killy",
+  "desc": "a mangrove killifish wearing a flower petal hat"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u104",
+  "zh": "豆荚龟",
+  "en": "Podder",
+  "desc": "a baby sea turtle riding in a seed pod like a boat"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u105",
+  "zh": "背包蟹",
+  "en": "Packer",
+  "desc": "a mangrove crab wearing a leaf backpack"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "uncommon",
+  "id": "u106",
+  "zh": "草笛鱼",
+  "en": "Fluty",
+  "desc": "a seagrass pipefish with a little bow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r55",
+  "zh": "花冠鳄",
+  "en": "Crocrown",
+  "desc": "a cute baby crocodile with a closed smiling mouth wearing a flower crown, soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r56",
+  "zh": "珠鲎鲎",
+  "en": "Pearldome",
+  "desc": "a horseshoe crab wearing a pearl crown, soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r57",
+  "zh": "萤林鱼",
+  "en": "Glowfin",
+  "desc": "a mangrove fish with a pearl tiara and little firefly lights around it"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r58",
+  "zh": "儒艮仙",
+  "en": "Dugong Fairy",
+  "desc": "a dugong wearing a flower crown with a soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r59",
+  "zh": "月光蟹",
+  "en": "Moonclaw",
+  "desc": "a fiddler crab with a moon pearl crown, soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r60",
+  "zh": "叶仙虾",
+  "en": "Leaf Sprite",
+  "desc": "a glowing leaf-green shrimp with a pearl tiara"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r61",
+  "zh": "珠螺仙",
+  "en": "Pearl Snail",
+  "desc": "a periwinkle snail wearing a pearl crown, soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r62",
+  "zh": "露珠母",
+  "en": "Dewdrop",
+  "desc": "an upside-down jellyfish decorated with dew pearls, soft glow"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "rare",
+  "id": "r63",
+  "zh": "鹭羽鱼",
+  "en": "Plume",
+  "desc": "a fish with feather-like fins and a pearl crown"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "epic",
+  "id": "e31",
+  "zh": "翡根龙",
+  "en": "Rootdragon",
+  "desc": "a small dragon made of glowing mangrove roots studded with emeralds and a gold leaf crown"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "epic",
+  "id": "e32",
+  "zh": "金鳄王",
+  "en": "Croc King",
+  "desc": "a cute baby crocodile king with a closed smiling mouth, a gold crown and gem-studded scales"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "epic",
+  "id": "e33",
+  "zh": "萤光鲎",
+  "en": "Lantern Dome",
+  "desc": "a horseshoe crab whose crystal shell is full of glowing firefly lights, gold trim"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "epic",
+  "id": "e34",
+  "zh": "森灵儒艮",
+  "en": "Grove Spirit",
+  "desc": "a dugong with an aurora glow and a golden leaf crown"
+ },
+ {
+  "sea": "mangrove",
+  "rarity": "epic",
+  "id": "e35",
+  "zh": "宝根蟹",
+  "en": "Jewel Crab",
+  "desc": "a fiddler crab with one giant jeweled gold claw and a crown"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c71",
+  "zh": "鹦鹉宝",
+  "en": "Dozy",
+  "desc": "a parrotfish, aqua green with soft scale pattern",
+  "hue": "green",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c72",
+  "zh": "月水母",
+  "en": "Moonjelly",
+  "desc": "a moon jellyfish with four pale rings, soft lavender",
+  "hue": "purple",
+  "shape": "umbrella",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c73",
+  "zh": "沙鬼蟹",
+  "en": "Sandghost",
+  "desc": "a ghost crab with tall eye stalks, pale cream",
+  "hue": "cream",
+  "shape": "claws",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c74",
+  "zh": "夜虾虾",
+  "en": "Nightshrimp",
+  "desc": "a night shrimp, deep red",
+  "hue": "red",
+  "shape": "shrimp",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c75",
+  "zh": "蓝章章",
+  "en": "Bluey",
+  "desc": "a small baby octopus, bright blue",
+  "hue": "blue",
+  "shape": "legs",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c76",
+  "zh": "金天竺",
+  "en": "Cardi",
+  "desc": "a round cardinalfish, golden yellow",
+  "hue": "yellow",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c77",
+  "zh": "夜海星",
+  "en": "Nightstar",
+  "desc": "a plump sea star, warm orange",
+  "hue": "orange",
+  "shape": "star",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c78",
+  "zh": "花扁扁",
+  "en": "Ripple",
+  "desc": "a flatworm with ruffled edges, bright pink",
+  "hue": "pink",
+  "shape": "flat",
+  "inLevel": true
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c79",
+  "zh": "海萤萤",
+  "en": "Seafly",
+  "desc": "a tiny glowing bean-shaped ostracod, soft cyan glow",
+  "hue": "cyan",
+  "shape": "round",
+  "inLevel": false
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "common",
+  "id": "c80",
+  "zh": "月螺螺",
+  "en": "Moonsnail",
+  "desc": "a round moon snail with a cream shell",
+  "hue": "cream",
+  "shape": "snail",
+  "inLevel": false
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u107",
+  "zh": "睡帽章",
+  "en": "Nightcap",
+  "desc": "an octopus wearing a striped nightcap"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u108",
+  "zh": "星夹海星",
+  "en": "Star Pin",
+  "desc": "a sea star with a little star hair clip"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u109",
+  "zh": "提灯鱼",
+  "en": "Lampy",
+  "desc": "a cardinalfish holding a tiny lantern"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u110",
+  "zh": "弯月蟹",
+  "en": "Crescent",
+  "desc": "a ghost crab holding a crescent moon"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u111",
+  "zh": "星包虾",
+  "en": "Starpack",
+  "desc": "a shrimp wearing a star-shaped backpack"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u112",
+  "zh": "抱枕豹",
+  "en": "Pillow",
+  "desc": "a baby seal hugging a little pillow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u113",
+  "zh": "睡衣鱼",
+  "en": "Jammies",
+  "desc": "a fish wearing striped pajamas"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u114",
+  "zh": "星夹母",
+  "en": "Clippy",
+  "desc": "a jellyfish wearing star hair clips"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u115",
+  "zh": "猫头鱼",
+  "en": "Hooty",
+  "desc": "an owl-faced fish with a tiny bow tie"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u116",
+  "zh": "小夜灯兔",
+  "en": "Nitey",
+  "desc": "a sea hare carrying a tiny night light"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u117",
+  "zh": "萤石蟹",
+  "en": "Glowstone",
+  "desc": "a hermit crab living in a softly glowing stone"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u118",
+  "zh": "围巾鳐",
+  "en": "Scarfy",
+  "desc": "a little ray wearing a knitted scarf"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u119",
+  "zh": "牛奶鱼",
+  "en": "Milky",
+  "desc": "a milkfish holding a cup of milk"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u120",
+  "zh": "梦泡豚",
+  "en": "Dreamy",
+  "desc": "a pufferfish blowing a dream bubble"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "uncommon",
+  "id": "u121",
+  "zh": "月坠鳗",
+  "en": "Lunar",
+  "desc": "an eel wearing a moon pendant"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r64",
+  "zh": "月冠母",
+  "en": "Moon Crown",
+  "desc": "a moon jellyfish wearing a pearl crescent crown, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r65",
+  "zh": "星冠章",
+  "en": "Starcrown",
+  "desc": "an octopus wearing a starry pearl crown, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r66",
+  "zh": "夜明蟹",
+  "en": "Night Pearl",
+  "desc": "a ghost crab holding a glowing night pearl, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r67",
+  "zh": "萤冠虾",
+  "en": "Glow Crown",
+  "desc": "a shrimp wearing a glowing pearl crown"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r68",
+  "zh": "月牙鱼",
+  "en": "Crescentfin",
+  "desc": "a crescent-shaped fish with a pearl tiara, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r69",
+  "zh": "梦冠豚",
+  "en": "Dream Crown",
+  "desc": "a pufferfish wearing a flower crown with tiny stars, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r70",
+  "zh": "星光鳐",
+  "en": "Starray",
+  "desc": "a ray with star spots and a pearl tiara, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r71",
+  "zh": "夜露螺",
+  "en": "Night Dew",
+  "desc": "a moon snail decorated with dew pearls, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "rare",
+  "id": "r72",
+  "zh": "银月鹦",
+  "en": "Silver Parrot",
+  "desc": "a silver parrotfish with a pearl crown, soft glow"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "epic",
+  "id": "e36",
+  "zh": "月华龙",
+  "en": "Moon Dragon",
+  "desc": "a small silver dragon with a crescent moon and moonstone gems, glowing"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "epic",
+  "id": "e37",
+  "zh": "星河鳐",
+  "en": "Milky Way Ray",
+  "desc": "a ray whose body shows a starry galaxy, with gold trim and a crown"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "epic",
+  "id": "e38",
+  "zh": "夜后章",
+  "en": "Night Queen",
+  "desc": "an octopus queen with a moonstone crown and gold jewelry"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "epic",
+  "id": "e39",
+  "zh": "萤光凤",
+  "en": "Firefly Phoenix",
+  "desc": "a fish with long phoenix-like fins made of firefly lights and gems"
+ },
+ {
+  "sea": "lagoon",
+  "rarity": "epic",
+  "id": "e40",
+  "zh": "月宫兔",
+  "en": "Moon Rabbit",
+  "desc": "a sea hare with a jade moon palace crown and silver glow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c81",
+  "zh": "管虫虫",
+  "en": "Tubey",
+  "desc": "a giant tube worm with a bright red plume on a white tube",
+  "hue": "red",
+  "shape": "tree",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c82",
+  "zh": "热泉虾",
+  "en": "Venty",
+  "desc": "a vent shrimp, bright orange",
+  "hue": "orange",
+  "shape": "shrimp",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c83",
+  "zh": "硫磺鱼",
+  "en": "Sulfy",
+  "desc": "a slim fish, sulfur yellow",
+  "hue": "yellow",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c84",
+  "zh": "深蓝章",
+  "en": "Deepy",
+  "desc": "a little octopus, deep cobalt blue",
+  "hue": "blue",
+  "shape": "legs",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c85",
+  "zh": "鳞足螺",
+  "en": "Scaly",
+  "desc": "a snail with a spiral shell and a scaly foot, rose pink",
+  "hue": "pink",
+  "shape": "snail",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c86",
+  "zh": "紫海参",
+  "en": "Plum",
+  "desc": "a plump sea cucumber, plum purple",
+  "hue": "purple",
+  "shape": "slug",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c87",
+  "zh": "盲蟹蟹",
+  "en": "Blindy",
+  "desc": "a pale blind vent crab, light cyan",
+  "hue": "cyan",
+  "shape": "claws",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c88",
+  "zh": "绿岩鱼",
+  "en": "Pebble",
+  "desc": "a round rockfish, moss green",
+  "hue": "green",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c89",
+  "zh": "烟囱宝",
+  "en": "Smokey",
+  "desc": "a tiny cute black smoker chimney creature puffing a little smoke",
+  "hue": "grey",
+  "shape": "tree",
+  "inLevel": false
+ },
+ {
+  "sea": "vent",
+  "rarity": "common",
+  "id": "c90",
+  "zh": "火山贝",
+  "en": "Magma Clam",
+  "desc": "a clam with a dark red shell",
+  "hue": "darkred",
+  "shape": "shell",
+  "inLevel": false
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u122",
+  "zh": "安全帽蟹",
+  "en": "Hardhat",
+  "desc": "a crab wearing a yellow hard hat"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u123",
+  "zh": "护目镜虾",
+  "en": "Goggles",
+  "desc": "a shrimp wearing swimming goggles on its forehead"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u124",
+  "zh": "手套蟹",
+  "en": "Mitts",
+  "desc": "a crab wearing oven mitts on its claws"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u125",
+  "zh": "温泉章",
+  "en": "Spa Octo",
+  "desc": "an octopus with a towel folded on its head"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u126",
+  "zh": "煮蛋鱼",
+  "en": "Eggy",
+  "desc": "a fish holding a boiled egg"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u127",
+  "zh": "火苗鱼",
+  "en": "Flicker",
+  "desc": "a fish with a tiny flame-shaped pendant"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u128",
+  "zh": "岩壳龟",
+  "en": "Lava Turtle",
+  "desc": "a turtle with a lava-rock shell and a scarf"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u129",
+  "zh": "晶坠豚",
+  "en": "Crystal Puff",
+  "desc": "a pufferfish with a yellow crystal pendant"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u130",
+  "zh": "礼帽虫",
+  "en": "Tophat",
+  "desc": "a tube worm wearing a tiny top hat"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u131",
+  "zh": "煤球鱼",
+  "en": "Coaly",
+  "desc": "a round dark grey fish with a red bow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u132",
+  "zh": "蒸汽母",
+  "en": "Steamy",
+  "desc": "a jellyfish with little steam puffs and a scarf"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u133",
+  "zh": "螺栓螺",
+  "en": "Bolty",
+  "desc": "a snail with an iron shell and a bolt pin"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u134",
+  "zh": "小锅蟹",
+  "en": "Pot Crab",
+  "desc": "a hermit crab living in a little cooking pot"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u135",
+  "zh": "围巾鳗",
+  "en": "Ember",
+  "desc": "an eel wearing an orange scarf"
+ },
+ {
+  "sea": "vent",
+  "rarity": "uncommon",
+  "id": "u136",
+  "zh": "温度鱼",
+  "en": "Thermy",
+  "desc": "a fish holding a little thermometer"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r73",
+  "zh": "熔晶蟹",
+  "en": "Magma Crown",
+  "desc": "a crab with a crown of glowing orange crystals"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r74",
+  "zh": "火冠虾",
+  "en": "Flame Crown",
+  "desc": "a shrimp wearing a pearl crown with a warm glow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r75",
+  "zh": "炎珠章",
+  "en": "Ember Pearl",
+  "desc": "an octopus holding a glowing ember pearl, pearl tiara"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r76",
+  "zh": "红玉管虫",
+  "en": "Ruby Plume",
+  "desc": "a tube worm with a ruby red plume and pearls, soft glow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r77",
+  "zh": "金硫鱼",
+  "en": "Gold Sulfur",
+  "desc": "a golden fish with a pearl crown and warm glow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r78",
+  "zh": "熔光母",
+  "en": "Lava Glow",
+  "desc": "a jellyfish with a warm orange glow and a pearl crown"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r79",
+  "zh": "火山龟",
+  "en": "Volcano Turtle",
+  "desc": "a turtle with a small volcano-shaped shell and a pearl crown"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r80",
+  "zh": "炉石螺",
+  "en": "Hearthstone",
+  "desc": "a snail with a glowing hearth-stone shell, soft glow"
+ },
+ {
+  "sea": "vent",
+  "rarity": "rare",
+  "id": "r81",
+  "zh": "焰尾鳐",
+  "en": "Flametail",
+  "desc": "a ray with a flame-colored tail and pearl tiara"
+ },
+ {
+  "sea": "vent",
+  "rarity": "epic",
+  "id": "e41",
+  "zh": "熔岩龙",
+  "en": "Lava Dragon",
+  "desc": "a small dragon made of obsidian with glowing ruby veins and a gold crown"
+ },
+ {
+  "sea": "vent",
+  "rarity": "epic",
+  "id": "e42",
+  "zh": "炎晶鲸",
+  "en": "Magma Whale",
+  "desc": "a whale calf with glowing lava crystal veins and gold trim"
+ },
+ {
+  "sea": "vent",
+  "rarity": "epic",
+  "id": "e43",
+  "zh": "火山神蟹",
+  "en": "Volcano Lord",
+  "desc": "a crab with an obsidian shell, a gold crown and fiery gems"
+ },
+ {
+  "sea": "vent",
+  "rarity": "epic",
+  "id": "e44",
+  "zh": "熔金章",
+  "en": "Molten Gold",
+  "desc": "an octopus made of shining molten gold with ruby gems"
+ },
+ {
+  "sea": "vent",
+  "rarity": "epic",
+  "id": "e45",
+  "zh": "红宝管",
+  "en": "Ruby Spire",
+  "desc": "a cluster of tube worms with jeweled ruby plumes and gold rings"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c91",
+  "zh": "红鲷鲷",
+  "en": "Snappy",
+  "desc": "a snapper fish, bright red",
+  "hue": "red",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c92",
+  "zh": "花瓶绵",
+  "en": "Vase",
+  "desc": "a vase-shaped sponge creature, warm orange",
+  "hue": "orange",
+  "shape": "tree",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c93",
+  "zh": "黄嘴鱼",
+  "en": "Beaky",
+  "desc": "a longnose butterflyfish with a long snout, bright yellow",
+  "hue": "yellow",
+  "shape": "snout",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c94",
+  "zh": "苔藓龟",
+  "en": "Mossy",
+  "desc": "a small turtle with a mossy green shell",
+  "hue": "green",
+  "shape": "shell",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c95",
+  "zh": "青石鳐",
+  "en": "Tilly",
+  "desc": "a little ray with a tile pattern, cyan",
+  "hue": "cyan",
+  "shape": "diamond",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c96",
+  "zh": "蓝陶鱼",
+  "en": "Pottery",
+  "desc": "a round fish patterned like blue pottery",
+  "hue": "blue",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c97",
+  "zh": "古星星",
+  "en": "Relic Star",
+  "desc": "a sea star, soft purple",
+  "hue": "purple",
+  "shape": "star",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c98",
+  "zh": "粉蛙鱼",
+  "en": "Blush",
+  "desc": "a lumpy frogfish, bubblegum pink",
+  "hue": "pink",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c99",
+  "zh": "石像鱼",
+  "en": "Statue",
+  "desc": "a fish that looks carved from grey stone",
+  "hue": "grey",
+  "shape": "long",
+  "inLevel": false
+ },
+ {
+  "sea": "ruins",
+  "rarity": "common",
+  "id": "c100",
+  "zh": "青铜蟹",
+  "en": "Bronze",
+  "desc": "a bronze colored crab",
+  "hue": "bronze",
+  "shape": "claws",
+  "inLevel": false
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u137",
+  "zh": "桂冠鱼",
+  "en": "Laurel",
+  "desc": "a fish wearing a laurel wreath"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u138",
+  "zh": "卷轴虾",
+  "en": "Scroll",
+  "desc": "a shrimp carrying a little scroll"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u139",
+  "zh": "陶罐章",
+  "en": "Jarvo",
+  "desc": "an octopus peeking out of an ancient clay jar"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u140",
+  "zh": "火炬鱼",
+  "en": "Torchy",
+  "desc": "a fish holding a tiny torch"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u141",
+  "zh": "头盔蟹",
+  "en": "Helm",
+  "desc": "a crab wearing an ancient bronze helmet"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u142",
+  "zh": "地图鳐",
+  "en": "Mapray",
+  "desc": "a little ray carrying an old map"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u143",
+  "zh": "石柱虫",
+  "en": "Pillar",
+  "desc": "a tube worm living in a tiny broken stone pillar"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u144",
+  "zh": "古币豚",
+  "en": "Drachma",
+  "desc": "a pufferfish holding an old coin"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u145",
+  "zh": "面具鱼",
+  "en": "Masky",
+  "desc": "a fish with a tiny ancient mask pushed up on its head"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u146",
+  "zh": "马赛克星",
+  "en": "Mosaic",
+  "desc": "a sea star covered in mosaic tiles"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u147",
+  "zh": "苔背蟹",
+  "en": "Mossback",
+  "desc": "a crab with moss and a tiny flower on its back"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u148",
+  "zh": "石狮鱼",
+  "en": "Guardian",
+  "desc": "a fish with a stone lion mane collar"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u149",
+  "zh": "月桂母",
+  "en": "Bay",
+  "desc": "a jellyfish wearing a laurel wreath"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u150",
+  "zh": "书卷鳗",
+  "en": "Scribe",
+  "desc": "an eel carrying a scroll"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "uncommon",
+  "id": "u151",
+  "zh": "竖琴马",
+  "en": "Lyre",
+  "desc": "a seahorse holding a tiny lyre"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r82",
+  "zh": "神殿蟹",
+  "en": "Temple Crab",
+  "desc": "a crab wearing a temple-shaped pearl crown, soft glow"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r83",
+  "zh": "金桂鱼",
+  "en": "Golden Laurel",
+  "desc": "a fish wearing a golden laurel crown, soft glow"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r84",
+  "zh": "石灵龟",
+  "en": "Stone Spirit",
+  "desc": "a turtle with a glowing runed stone shell and pearl crown"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r85",
+  "zh": "圣杯母",
+  "en": "Chalice",
+  "desc": "a jellyfish shaped like a little chalice with pearls, soft glow"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r86",
+  "zh": "王冠鳐",
+  "en": "Crown Ray",
+  "desc": "a ray wearing a small pearl crown, soft glow"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r87",
+  "zh": "玉璧鱼",
+  "en": "Jade Disc",
+  "desc": "a round disc-shaped fish with a jade ring and pearl tiara"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r88",
+  "zh": "宝瓶章",
+  "en": "Treasure Jar",
+  "desc": "an octopus in a jeweled jar with a pearl crown"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r89",
+  "zh": "遗迹海马",
+  "en": "Relic Seahorse",
+  "desc": "a seahorse with stone carvings and a pearl crown, soft glow"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "rare",
+  "id": "r90",
+  "zh": "金币鳗",
+  "en": "Coin Eel",
+  "desc": "an eel with gold coin spots and a pearl tiara"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "epic",
+  "id": "e46",
+  "zh": "守护石龙",
+  "en": "Guardian Dragon",
+  "desc": "a small dragon of carved stone with gold inlays and glowing gems"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "epic",
+  "id": "e47",
+  "zh": "太阳神龟",
+  "en": "Sun Turtle",
+  "desc": "a turtle with a golden sun disc shell and gems"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "epic",
+  "id": "e48",
+  "zh": "黄金面具鱼",
+  "en": "Golden Mask",
+  "desc": "a fish wearing an ornate golden mask crown with gems, glowing"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "epic",
+  "id": "e49",
+  "zh": "圣杯水母",
+  "en": "Grail Jelly",
+  "desc": "a jellyfish with a jeweled golden grail bell and pearls"
+ },
+ {
+  "sea": "ruins",
+  "rarity": "epic",
+  "id": "e50",
+  "zh": "水晶神鳐",
+  "en": "Crystal Ray",
+  "desc": "a ray made of shimmering crystal with gold trim and a crown"
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c101",
+  "zh": "红灯虾",
+  "en": "Redlamp",
+  "desc": "a deep sea shrimp, deep red",
+  "hue": "red",
+  "shape": "shrimp",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c102",
+  "zh": "橙棘鲷",
+  "en": "Roughy",
+  "desc": "a round orange roughy fish",
+  "hue": "orange",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c103",
+  "zh": "金海参",
+  "en": "Goldcuke",
+  "desc": "a plump sea cucumber, golden yellow",
+  "hue": "yellow",
+  "shape": "slug",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c104",
+  "zh": "绿冠母",
+  "en": "Atolla",
+  "desc": "a crown jellyfish with a ring of soft green lights",
+  "hue": "green",
+  "shape": "umbrella",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c105",
+  "zh": "吞吞鳗",
+  "en": "Gulpy",
+  "desc": "a gulper eel with a big friendly mouth, cyan",
+  "hue": "cyan",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c106",
+  "zh": "长腿蛛",
+  "en": "Leggy",
+  "desc": "a cute sea spider with long legs, bright blue",
+  "hue": "blue",
+  "shape": "legs",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c107",
+  "zh": "三脚鱼",
+  "en": "Tripod",
+  "desc": "a tripod fish standing on three long fin rays, purple",
+  "hue": "purple",
+  "shape": "tall",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c108",
+  "zh": "粉深葵",
+  "en": "Deepbloom",
+  "desc": "a deep sea anemone, rose pink",
+  "hue": "pink",
+  "shape": "tree",
+  "inLevel": true
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c109",
+  "zh": "灯眼鱼",
+  "en": "Lampeye",
+  "desc": "a dark navy fish with a glowing eye spot",
+  "hue": "navy",
+  "shape": "round",
+  "inLevel": false
+ },
+ {
+  "sea": "trench",
+  "rarity": "common",
+  "id": "c110",
+  "zh": "雪花参",
+  "en": "Snowcuke",
+  "desc": "a translucent white sea cucumber",
+  "hue": "white",
+  "shape": "slug",
+  "inLevel": false
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u152",
+  "zh": "头灯鱼",
+  "en": "Headlamp",
+  "desc": "a fish wearing a headlamp"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u153",
+  "zh": "潜水盔章",
+  "en": "Diver",
+  "desc": "an octopus wearing a round brass diving helmet with a clear glass window"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u154",
+  "zh": "荧光棒虾",
+  "en": "Glowstick",
+  "desc": "a shrimp holding a glowstick"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u155",
+  "zh": "探照鳗",
+  "en": "Searchlight",
+  "desc": "an eel carrying a little searchlight"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u156",
+  "zh": "潜艇豚",
+  "en": "Subby",
+  "desc": "a pufferfish sitting in a tiny yellow submarine"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u157",
+  "zh": "泡盔母",
+  "en": "Bubblehelm",
+  "desc": "a jellyfish wearing a bubble helmet"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u158",
+  "zh": "星帽蛛",
+  "en": "Starhat",
+  "desc": "a sea spider wearing a star hat"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u159",
+  "zh": "背包参",
+  "en": "Hiker",
+  "desc": "a sea cucumber wearing a backpack"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u160",
+  "zh": "夜视鱼",
+  "en": "Goggly",
+  "desc": "a fish wearing night vision goggles on its forehead"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u161",
+  "zh": "光带鱼",
+  "en": "Ribbonlight",
+  "desc": "a fish trailing a glowing ribbon"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u162",
+  "zh": "铃铛蟹",
+  "en": "Jingle",
+  "desc": "a crab wearing a little bell"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u163",
+  "zh": "心灯鱼",
+  "en": "Lovelure",
+  "desc": "an anglerfish with a heart-shaped lure"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u164",
+  "zh": "火箭鱿",
+  "en": "Rocket",
+  "desc": "a squid with a little rocket backpack"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u165",
+  "zh": "围巾章",
+  "en": "Snuggle",
+  "desc": "an octopus wrapped in a cozy scarf"
+ },
+ {
+  "sea": "trench",
+  "rarity": "uncommon",
+  "id": "u166",
+  "zh": "帽帽滴",
+  "en": "Droppy",
+  "desc": "a water-drop shaped creature wearing a beanie"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r91",
+  "zh": "深渊冠母",
+  "en": "Abyss Crown",
+  "desc": "a deep sea jellyfish wearing a glowing pearl crown"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r92",
+  "zh": "光圈鱼",
+  "en": "Haloed",
+  "desc": "a fish with a glowing halo ring and pearl tiara"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r93",
+  "zh": "星灯鮟鱇",
+  "en": "Star Angler",
+  "desc": "an anglerfish with a star-shaped glowing lure and pearl crown"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r94",
+  "zh": "荧珠虾",
+  "en": "Glow Pearl",
+  "desc": "a shrimp holding a glowing pearl, soft glow"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r95",
+  "zh": "暗月章",
+  "en": "Dark Moon",
+  "desc": "an octopus with a crescent pearl crown and soft glow"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r96",
+  "zh": "珠光鳗",
+  "en": "Pearl Eel",
+  "desc": "an eel with pearly spots and a pearl tiara"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r97",
+  "zh": "晶眼鱼",
+  "en": "Crystal Eye",
+  "desc": "a fish with a crystal crown and soft glow"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r98",
+  "zh": "夜光参",
+  "en": "Night Cuke",
+  "desc": "a glowing sea cucumber with pearls"
+ },
+ {
+  "sea": "trench",
+  "rarity": "rare",
+  "id": "r99",
+  "zh": "银冠蛛",
+  "en": "Silver Spider",
+  "desc": "a sea spider wearing a silver pearl crown, soft glow"
+ },
+ {
+  "sea": "trench",
+  "rarity": "epic",
+  "id": "e51",
+  "zh": "深渊龙",
+  "en": "Abyss Dragon",
+  "desc": "a small dark dragon with neon glowing gems and a silver crown"
+ },
+ {
+  "sea": "trench",
+  "rarity": "epic",
+  "id": "e52",
+  "zh": "鮟鱇王",
+  "en": "Angler King",
+  "desc": "an anglerfish king with a gold crown and a galaxy lure"
+ },
+ {
+  "sea": "trench",
+  "rarity": "epic",
+  "id": "e53",
+  "zh": "幽光鲸",
+  "en": "Ghost Whale",
+  "desc": "a translucent whale calf with a glowing galaxy core and gold trim"
+ },
+ {
+  "sea": "trench",
+  "rarity": "epic",
+  "id": "e54",
+  "zh": "极光鱿",
+  "en": "Aurora Squid",
+  "desc": "a squid with shimmering aurora colors and jeweled fins"
+ },
+ {
+  "sea": "trench",
+  "rarity": "epic",
+  "id": "e55",
+  "zh": "虹光管母",
+  "en": "Rainbow Siphon",
+  "desc": "a siphonophore chain of jewel-like glowing bells with gold links"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c111",
+  "zh": "红星鱼",
+  "en": "Twinkle",
+  "desc": "a round fish with little star spots, bright red",
+  "hue": "red",
+  "shape": "round",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c112",
+  "zh": "彗星鱼",
+  "en": "Comet",
+  "desc": "a fish with long comet-tail fins, bright orange",
+  "hue": "orange",
+  "shape": "long",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c113",
+  "zh": "小金星",
+  "en": "Sparkle",
+  "desc": "a plump sea star, sunny yellow",
+  "hue": "yellow",
+  "shape": "star",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c114",
+  "zh": "云雾兔",
+  "en": "Misty",
+  "desc": "a sea slug with misty frills, mint green",
+  "hue": "green",
+  "shape": "slug",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c115",
+  "zh": "青云母",
+  "en": "Nebby",
+  "desc": "a jellyfish with cloud-like frills, cyan",
+  "hue": "cyan",
+  "shape": "umbrella",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c116",
+  "zh": "星鲸鲸",
+  "en": "Starwhale",
+  "desc": "a small whale calf with star freckles, royal blue",
+  "hue": "blue",
+  "shape": "whale",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c117",
+  "zh": "月牙鳐",
+  "en": "Lunaray",
+  "desc": "a crescent-winged ray, soft purple",
+  "hue": "purple",
+  "shape": "diamond",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c118",
+  "zh": "梦梦鱼",
+  "en": "Dreamfin",
+  "desc": "a tall disc fish with star-shaped fins, pink",
+  "hue": "pink",
+  "shape": "disc",
+  "inLevel": true
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c119",
+  "zh": "流星螺",
+  "en": "Meteor",
+  "desc": "a snail with a meteor-shaped shell",
+  "hue": "grey",
+  "shape": "snail",
+  "inLevel": false
+ },
+ {
+  "sea": "starsea",
+  "rarity": "common",
+  "id": "c120",
+  "zh": "星尘虾",
+  "en": "Shimmer",
+  "desc": "a shrimp with sparkly specks",
+  "hue": "white",
+  "shape": "shrimp",
+  "inLevel": false
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u167",
+  "zh": "宇航鱼",
+  "en": "Astro",
+  "desc": "a fish wearing a bubble space helmet"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u168",
+  "zh": "星杖马",
+  "en": "Wand",
+  "desc": "a seahorse holding a little star wand"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u169",
+  "zh": "土星豚",
+  "en": "Saturn",
+  "desc": "a pufferfish with a planet ring around it"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u170",
+  "zh": "望远镜蟹",
+  "en": "Scope",
+  "desc": "a crab looking through a tiny telescope"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u171",
+  "zh": "火箭章",
+  "en": "Blastoff",
+  "desc": "an octopus with a rocket backpack"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u172",
+  "zh": "月帽鳐",
+  "en": "Moonhat",
+  "desc": "a little ray wearing a crescent moon hat"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u173",
+  "zh": "风筝鱼",
+  "en": "Kite",
+  "desc": "a fish flying a little star kite"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u174",
+  "zh": "彗尾星",
+  "en": "Trail",
+  "desc": "a sea star with a comet trail scarf"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u175",
+  "zh": "天线母",
+  "en": "Antenna",
+  "desc": "a jellyfish with a little satellite antenna"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u176",
+  "zh": "星座龟",
+  "en": "Zodiac",
+  "desc": "a turtle with a constellation shell and a scarf"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u177",
+  "zh": "星球螺",
+  "en": "Planet",
+  "desc": "a snail with a little planet as its shell"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u178",
+  "zh": "太空虾",
+  "en": "Spacey",
+  "desc": "a shrimp in a tiny space suit"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u179",
+  "zh": "星带鳗",
+  "en": "Starband",
+  "desc": "an eel with a star ribbon"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u180",
+  "zh": "外星兔",
+  "en": "Alien",
+  "desc": "a sea hare wearing an alien antenna headband"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "uncommon",
+  "id": "u181",
+  "zh": "光环鱼",
+  "en": "Ringlet",
+  "desc": "a fish with a little halo ring above its head"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r100",
+  "zh": "星冠鲸",
+  "en": "Star Crown",
+  "desc": "a whale calf wearing a star pearl crown, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r101",
+  "zh": "银河马",
+  "en": "Galaxy Seahorse",
+  "desc": "a seahorse with a galaxy pattern and pearl tiara"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r102",
+  "zh": "月冠鳐",
+  "en": "Moon Crown Ray",
+  "desc": "a ray wearing a crescent pearl crown, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r103",
+  "zh": "星钻蟹",
+  "en": "Star Diamond",
+  "desc": "a crab with a star diamond crown, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r104",
+  "zh": "彗星章",
+  "en": "Comet Crown",
+  "desc": "an octopus with a comet pearl crown, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r105",
+  "zh": "极光鱼",
+  "en": "Aurora Fish",
+  "desc": "a fish with aurora colored fins and a pearl tiara"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r106",
+  "zh": "星珠母",
+  "en": "Star Pearl",
+  "desc": "a jellyfish holding star pearls, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r107",
+  "zh": "星梦豚",
+  "en": "Star Dream",
+  "desc": "a pufferfish with a starry flower crown, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "rare",
+  "id": "r108",
+  "zh": "星鹅鱼",
+  "en": "Swanfin",
+  "desc": "a swan-like fish with a star tiara, soft glow"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "epic",
+  "id": "e56",
+  "zh": "星河龙",
+  "en": "Galaxy Dragon",
+  "desc": "a small dragon with a cosmic galaxy body and golden horns, glowing"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "epic",
+  "id": "e57",
+  "zh": "宇宙鲸王",
+  "en": "Cosmos Whale",
+  "desc": "a whale king with a nebula body, gold crown and gems"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "epic",
+  "id": "e58",
+  "zh": "太阳鳐",
+  "en": "Solar Ray",
+  "desc": "a ray made of shining gold sunlight with jewels"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "epic",
+  "id": "e59",
+  "zh": "星环章",
+  "en": "Ring Lord",
+  "desc": "an octopus with planet rings, gems and a gold crown"
+ },
+ {
+  "sea": "starsea",
+  "rarity": "epic",
+  "id": "e60",
+  "zh": "极光天马",
+  "en": "Aurora Pegasus",
+  "desc": "a winged seahorse with aurora wings and a jeweled crown"
+ }
+]
