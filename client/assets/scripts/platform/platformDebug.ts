@@ -1,7 +1,7 @@
 // 开发用实现：头像昵称与排行榜写死，存档在 localStorage，广告是模拟的。
 // 浏览器试玩、截图都用它；真实平台接入前三端都先跑它（docs/04 第 5 节）。
 import { sys } from 'cc';
-import { AdResult, Capability, PlatformBase, Profile, RankEntry, VibrateKind } from './platformBase';
+import { AdResult, Capability, PlatformBase, Profile, RankEntry, VibrateKind, WindowRect } from './platformBase';
 
 const PREFIX = 'fishsort.';
 
@@ -83,6 +83,21 @@ export class PlatformDebug extends PlatformBase {
 
   override hasCapability(cap: Capability): boolean {
     return cap === 'friend_rank' || cap === 'share' || cap === 'ad_test' || cap === 'vibrate';
+  }
+
+  /**
+   * 模拟手机的刘海和微信的胶囊按钮（地址栏加 ?notch=1、?capsule=1；./run.sh 里同样能带），
+   * 按 iPhone 15 的尺寸：宽 393，状态栏 + 灵动岛 59，底部手势条 34，胶囊在 y 63–95、x 300–387
+   */
+  override safeArea(): WindowRect | null {
+    const q = this.launchQuery();
+    if (q.notch !== '1' && q.capsule !== '1') return null;
+    return { top: 59, bottom: 852 - 34, left: 0, right: 393, windowWidth: 393, windowHeight: 852 };
+  }
+
+  override menuButton(): WindowRect | null {
+    if (this.launchQuery().capsule !== '1') return null;
+    return { top: 63, bottom: 95, left: 300, right: 387, windowWidth: 393, windowHeight: 852 };
   }
 
   override launchQuery(): Record<string, string> {
