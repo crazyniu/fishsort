@@ -1164,5 +1164,66 @@
    ]
   ],
   "epic"
+ ],
+ "extra_rare_1": [
+  "various ocean places",
+  [
+   [
+    "r49",
+    "飞飞鱼",
+    "Glider",
+    "a flying fish with shimmering pearly wing fins, a seashell tiara and a soft glow",
+    "special"
+   ],
+   [
+    "r50",
+    "海苹果",
+    "Sea Apple",
+    "a round colorful sea apple sea cucumber with frilly tentacles on top and a flower crown, soft glow",
+    "special"
+   ],
+   [
+    "r51",
+    "冠海胆",
+    "Urchin",
+    "a purple sea urchin with soft rounded nubs (no sharp spikes) wearing a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r52",
+    "铜铃母",
+    "Bell",
+    "a jellyfish whose bell looks like a shiny brass ship bell, with a pearl clapper and soft glow",
+    "special"
+   ],
+   [
+    "r53",
+    "霜马马",
+    "Frostmane",
+    "a frost seahorse with ice crystal fins and a pearl tiara, soft icy glow",
+    "special"
+   ],
+   [
+    "r54",
+    "银锦锦",
+    "Silverfin",
+    "a moonlight goldfish with silver flowing fins, a pearl crown and a silver glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "extra_uncommon_1": [
+  "various ocean places",
+  [
+   [
+    "u91",
+    "宫殿蟹",
+    "Tower",
+    "a hermit crab using a tiny palace tower as its shell",
+    "special"
+   ]
+  ],
+  "uncommon"
  ]
 }

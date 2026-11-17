@@ -1313,5 +1313,40 @@
   "art/source/fish/e30.png",
   64,
   "png"
+ ],
+ "fish/r49": [
+  "art/source/fish/r49.png",
+  64,
+  "png"
+ ],
+ "fish/r50": [
+  "art/source/fish/r50.png",
+  64,
+  "png"
+ ],
+ "fish/r51": [
+  "art/source/fish/r51.png",
+  64,
+  "png"
+ ],
+ "fish/r52": [
+  "art/source/fish/r52.png",
+  64,
+  "png"
+ ],
+ "fish/r53": [
+  "art/source/fish/r53.png",
+  64,
+  "png"
+ ],
+ "fish/r54": [
+  "art/source/fish/r54.png",
+  64,
+  "png"
+ ],
+ "fish/u91": [
+  "art/source/fish/u91.png",
+  64,
+  "png"
  ]
 }

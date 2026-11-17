@@ -312,6 +312,7 @@ SPECIES_U87,水滴鱼,Blobby
 SPECIES_U88,雪人蟹,Yeti
 SPECIES_U89,斗篷鱼,Cloaky
 SPECIES_U90,啦啦蟹,Cheery
+SPECIES_U91,宫殿蟹,Tower
 SPECIES_R01,珠卷卷,Pearl Curl
 SPECIES_R02,琉璃伞,Glass Brolly
 SPECIES_R03,花鼓鼓,Drum
@@ -360,6 +361,12 @@ SPECIES_R45,海鳃鳃,Quill
 SPECIES_R46,夜光鲨,Glimmer
 SPECIES_R47,金螺螺,Gilded
 SPECIES_R48,萤管管,Glowtube
+SPECIES_R49,飞飞鱼,Glider
+SPECIES_R50,海苹果,Sea Apple
+SPECIES_R51,冠海胆,Urchin
+SPECIES_R52,铜铃母,Bell
+SPECIES_R53,霜马马,Frostmane
+SPECIES_R54,银锦锦,Silverfin
 SPECIES_E01,晶背宝,Crystal Back
 SPECIES_E02,星披披,Star Cape
 SPECIES_E03,珠角团,Pearl Horn
