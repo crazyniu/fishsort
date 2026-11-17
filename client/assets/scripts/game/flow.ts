@@ -363,6 +363,8 @@ function endRun(g: GamePage): void {
   const eco = App.config.eco;
   Tasks.add(s, eco, today(), 'rescue', g.rescued);
   Tasks.add(s, eco, today(), 'combo', g.combo.best);
+  Tasks.add(s, eco, today(), 'bowls', g.s.bowlsDone);
+  Tasks.add(s, eco, today(), 'play');
 }
 
 // ---------------------------------------------------------------- 连击送卡

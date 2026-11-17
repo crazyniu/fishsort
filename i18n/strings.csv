@@ -908,6 +908,8 @@ TASK_NAME_SKILL,用道具 ×%d,Use boosters ×%d
 TASK_NAME_DAILY,每日挑战 ×%d,Play Daily ×%d
 TASK_NAME_WHEEL,抽奖 ×%d,Open chests ×%d
 TASK_NAME_SHARE,分享 ×%d,Share ×%d
+TASK_NAME_BOWLS,装满 %d 个鱼缸,Fill %d tanks
+TASK_NAME_PLAY,玩 %d 局,Play %d games
 TASK_CHEST_DAY,每日宝箱,Daily Chest
 TASK_CHEST_WEEK,每周宝箱,Weekly Chest
 TASK_CARD_MIN,%s以上,%s+

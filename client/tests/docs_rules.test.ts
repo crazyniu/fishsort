@@ -92,7 +92,8 @@ describe('任务中心（docs/01 5.9）', () => {
     for (const t of Tasks.list(save, ECO, day)) Tasks.add(save, ECO, day, t.id, t.goal);
   };
 
-  it('每天 6 项：3 项固定 + 3 项随机，只抽已开放的；同一天同进度抽到的一样', () => {
+  it('每天 6 项（偶数）：3 项固定 + 3 项随机，只抽已开放的；同一天同进度抽到的一样', () => {
+    assert.equal(ECO.tasks?.count, 6);
     const save = fresh(30);
     const ids = Tasks.list(save, ECO, MON).map((t) => t.id);
     assert.equal(ids.length, 6);
@@ -101,22 +102,41 @@ describe('任务中心（docs/01 5.9）', () => {
     assert.deepEqual(Tasks.pick(ECO, MON, 30), ids);
     const seen = new Set<string>();
     for (let d = 0; d < 60; d++) for (const id of Tasks.pick(ECO, MON + d, 30)) seen.add(id);
-    assert.equal(seen.size, 8, '8 种任务都会轮到');
+    assert.equal(seen.size, 10, '10 种任务都会轮到');
     for (let d = 0; d < 60; d++) assert.ok(!Tasks.pick(ECO, MON + d, 11).includes('daily'), '每日挑战第 20 关才开');
     const sum = Tasks.list(save, ECO, MON).reduce((a, t) => a + t.points, 0);
     assert.equal(sum, 130, '能拿到的一共 130 分');
   });
 
-  it('新玩家第一天定表时不够 6 项：之后开放了新功能就补上，已有的和进度不动', () => {
+  it('没有广告、没有分享（平台层把它们筛出池子）：任务中心开放（第 11 关）起照样每天 6 项', () => {
+    const eco = structuredClone(ECO);
+    const tc = eco.tasks as NonNullable<typeof eco.tasks>;
+    tc.pool = tc.pool.filter((t) => t.cap === undefined);
+    for (const level of [11, 30, 200]) {
+      for (let d = 0; d < 20; d++) {
+        const ids = Tasks.pick(eco, MON + d, level);
+        assert.equal(ids.length, 6, `第 ${level} 关`);
+        assert.ok(!ids.includes('ad') && !ids.includes('share'));
+      }
+    }
+  });
+
+  it('任务数永远是偶数；不够 6 项时之后开放了新功能就补上，已有的和进度不动', () => {
+    const eco = structuredClone(ECO);
+    // 假设池子小到第 1 关只有 5 项能抽：先出 4 项（偶数）
+    const tc = eco.tasks as NonNullable<typeof eco.tasks>;
+    tc.pool = tc.pool.filter((t) => !['bowls', 'play', 'share'].includes(t.id));
     const save = fresh(1);
-    const first = Tasks.list(save, ECO, MON).map((t) => t.id);
+    const first = Tasks.list(save, eco, MON).map((t) => t.id);
+    assert.equal(first.length % 2, 0);
     assert.ok(first.length < 6, '第 1 关时技能、抽奖、每日挑战都没开');
-    Tasks.add(save, ECO, MON, 'win', 2);
+    Tasks.add(save, eco, MON, 'win', 2);
     save.level = 25;
-    const later = Tasks.list(save, ECO, MON).map((t) => t.id);
+    const later = Tasks.list(save, eco, MON).map((t) => t.id);
     assert.equal(later.length, 6);
     assert.deepEqual(later.slice(0, first.length), first);
-    assert.equal(Tasks.progress(save, ECO, 'win', MON), 2);
+    assert.equal(Tasks.progress(save, eco, 'win', MON), 2);
+    for (let level = 1; level <= 30; level++) assert.equal(Tasks.pick(eco, MON, level).length % 2, 0, `第 ${level} 关`);
   });
 
   it('做完自动记积分，每日封顶 100，同时累计成本周积分', () => {

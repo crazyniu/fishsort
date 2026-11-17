@@ -104,8 +104,10 @@ export interface TaskTier {
 export interface TasksConfig {
   /** 每天必有的任务 id */
   fixed: string[];
-  /** 另外再随机抽几个 */
+  /** 另外再随机抽几个（没有 count 时用：每天 fixed + random 项） */
   random: number;
+  /** 每天几项（偶数，至少 6，用户 2026-11-18 定）：固定的进不了池子（如没有广告时的看广告）就多抽随机的补上 */
+  count?: number;
   /** 每日积分封顶 */
   dayMax: number;
   pool: TaskDef[];
