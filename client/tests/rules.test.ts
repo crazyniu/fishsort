@@ -333,13 +333,13 @@ describe('机器人按真人的限制玩（docs/02 第 2.1 节）', () => {
 describe('收尾自动入缸（docs/01 第 2 节）', () => {
   it('后面还有缸没上架时不自动', () => {
     const s = play(level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]));
-    assert.equal(AutoFinish.plan(s), null);
+    assert.equal(AutoFinish.plan(s, 99), null);
   });
 
   it('剩下的鱼正好装满架上的缸、都看得见：给出点的顺序，照着点就赢，一条都不进暂存槽', () => {
     const s = play(level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 2, 1] }, { fish: [2, 1, 2] }]));
     for (let k = 0; k < 3; k++) Rules.tap(s, 0, k);
-    const taps = AutoFinish.plan(s);
+    const taps = AutoFinish.plan(s, 99);
     assert.ok(taps, '最后两个缸的鱼都在场上');
     for (const t of taps) {
       const ev = Rules.tap(s, t.b, t.k);
@@ -350,12 +350,12 @@ describe('收尾自动入缸（docs/01 第 2 节）', () => {
 
   it('被压住、有锁链的也照样自动：照规则点下去自然解开', () => {
     const covered = play(level([0, 1], [{ fish: [1, 1, 1] }, { fish: [0, 0, 0], under: [0], layer: 1 }]));
-    const a = AutoFinish.plan(covered);
+    const a = AutoFinish.plan(covered, 99);
     assert.ok(a);
     for (const t of a) Rules.tap(covered, t.b, t.k);
     assert.equal(covered.status, Status.WON);
     const chained = play(level([0, 1], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1], chain: 1 }]));
-    const c = AutoFinish.plan(chained);
+    const c = AutoFinish.plan(chained, 99);
     assert.ok(c);
     for (const t of c) Rules.tap(chained, t.b, t.k);
     assert.equal(chained.status, Status.WON);
@@ -363,9 +363,20 @@ describe('收尾自动入缸（docs/01 第 2 节）', () => {
 
   it('两个缸都在架上、鱼都能直接进缸就自动；第三个缸还没上架就不自动', () => {
     const s = play(level([0, 1], [{ fish: [1, 0] }, { fish: [0, 0, 1, 1] }]));
-    assert.ok(AutoFinish.plan(s));
+    assert.ok(AutoFinish.plan(s, 99));
     const t = play(level([0, 1, 2], [{ fish: [2, 0, 0, 0] }, { fish: [1, 1, 1, 2, 2] }]));
-    assert.equal(AutoFinish.plan(t), null, '第三个缸还没上架');
+    assert.equal(AutoFinish.plan(t, 99), null, '第三个缸还没上架');
+  });
+
+  it('还没进缸的鱼多于 maxLeft 条不自动；点到只剩 3 条才自动', () => {
+    const s = play(level([0, 1], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }]));
+    assert.equal(AutoFinish.plan(s, 3), null, '还剩 6 条');
+    for (let k = 0; k < 3; k++) Rules.tap(s, 0, k);
+    assert.equal(AutoFinish.left(s), 3);
+    const taps = AutoFinish.plan(s, 3);
+    assert.ok(taps);
+    for (const t of taps) Rules.tap(s, t.b, t.k);
+    assert.equal(s.status, Status.WON);
   });
 });
 
