@@ -20,6 +20,9 @@ list(APPEND CC_PROJ_SOURCES
     ${CC_PROJECT_DIR}/game/FsBridge.h
     ${CC_PROJECT_DIR}/game/FsBridge.mm
 )
+# 广告 SDK 带 Swift：放一个空的 Swift 文件，Xcode 才会链 Swift 运行时
+enable_language(Swift)
+list(APPEND CC_PROJ_SOURCES ${CC_PROJECT_DIR}/game/FsSwift.swift)
 
 cc_ios_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME} ${CC_ALL_SOURCES})
@@ -40,6 +43,7 @@ endif()
 
 # 只做 iPhone 版（docs/06 第 3 节），在 iPad 上按 iPhone 比例运行
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1")
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_SWIFT_VERSION "5.0")
 
 # Google Mobile Ads + UMP：./run.sh ios-build 下载到 sdk/（不进仓库）。CMake 3.24 不能直接链 xcframework，
 # 按真机 / 模拟器分别指到各自的切片目录。没下载时跳过，桥里按没有广告编译
