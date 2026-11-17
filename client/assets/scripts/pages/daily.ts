@@ -98,7 +98,8 @@ export class DailyPage extends Page {
     at(text(panel, tr('DAILY_CHEST'), 32).node, 0, -50);
     const items = prizeItems([
       { kind: 'coin', amount: cfg.reward.coins ?? 0 },
-      ...eco.skills.order.map((id): Prize => ({ kind: 'skill', skill: id, amount: cfg.reward.tools ?? 1 })),
+      // 配了「每种技能各几个」才列技能（2026-11-18 起每日宝箱不送技能，docs/01 5.11）
+      ...((cfg.reward.tools ?? 0) > 0 ? eco.skills.order.map((id): Prize => ({ kind: 'skill', skill: id, amount: cfg.reward.tools ?? 0 })) : []),
     ]);
     items.push({ icon: 'icon/card_back', amount: '×1' });
     items.forEach((it, i) => {
