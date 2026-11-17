@@ -1,23 +1,24 @@
 // 海图（docs/01 5.7，2026-11-17 关卡加到 240 关、12 个海域时加）：一眼看到所有海域。
-// 每个海域一张卡：这片海域的局内背景当画面，左上海域名，下面「第 N–M 关」和进度条（过了几关 / 20）；
-// 还没到的海域是灰的，写「第 N 关解锁」；现在所在的海域亮一圈、插一面「当前」小旗。点开了的海域进它那一页的选关格子。
+// 每个海域一张竖版卡（两列）：这片海域的整张局内背景当画面，上面海域名，下面「第 N–M 关」和进度条（过了几关 / 20）；
+// 还没到的海域是灰的、中间一把锁，写「第 N 关解锁」；现在所在的海域贴一面「当前」、轻轻呼吸。点开了的海域进它那一页的选关格子。
 import { Color, Mask, Node, Sprite } from 'cc';
 import * as Seas from '../core/meta/seas';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { WHITE_INK, at, box, fit, img, lazyImg, onTap, opacity, progressBar, setInk, slice, text } from '../ui/kit';
+import { WHITE_INK, at, box, fit, img, lazyImg, onTap, opacity, progressBar, setInk, slice, text, textWidth } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { Scroller } from '../ui/scroll';
 import { HEAD_BOTTOM, PAGE_BOTTOM, Page, enterStagger, pageHead, ui } from '../ui/shell';
 
-/** 一张海域卡多大、卡之间空多少 */
-const CARD_W = 680;
-const CARD_H = 230;
-const GAP = 22;
-/** 一个海域几关（economy.json 的 seas 里相邻两个 levelFrom 的差；最后一个按总关数算） */
-const DIM = new Color(150, 160, 185, 255);
+/** 一张海域卡多大（竖版，两列；用户 2026-11-17：横条只截到一截海底，看着空，改竖版卡）、卡之间空多少 */
+const CARD_W = 330;
+const CARD_H = 470;
+const GAP_X = 24;
+const GAP_Y = 26;
+/** 没到的海域画面压暗一点（再灰掉），还看得出是什么地方 */
+const DIM = new Color(185, 192, 210, 255);
 
 export class MapPage extends Page {
   private root!: Node;
@@ -50,31 +51,33 @@ export class MapPage extends Page {
     const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);
+    const rowH = CARD_H + GAP_Y;
     const cards = seas.map((sea, i) => {
       const from = sea.levelFrom;
       const to = (seas[i + 1]?.levelFrom ?? total + 1) - 1;
       const c = this.card(sc.content, i, sea.id, from, to, level, i === cur);
-      at(c, 0, -CARD_H / 2 - i * (CARD_H + GAP) - 6);
+      at(c, (i % 2 === 0 ? -1 : 1) * (CARD_W + GAP_X) / 2, -CARD_H / 2 - Math.floor(i / 2) * rowH - 10);
       return c;
     });
-    sc.setContentHeight(seas.length * (CARD_H + GAP) + 12);
-    // 打开时停在现在的海域，上面露出一点前一个
-    sc.scrollTo(Math.max(0, cur * (CARD_H + GAP) - CARD_H * 0.4));
-    enterStagger(cards.slice(Math.max(0, cur - 1), cur + 3), 0.05);
+    sc.setContentHeight(Math.ceil(seas.length / 2) * rowH + 20);
+    // 打开时停在现在的海域那一行，上面露出一点前一行
+    sc.scrollTo(Math.max(0, Math.floor(cur / 2) * rowH - CARD_H * 0.25));
+    enterStagger(cards.slice(Math.max(0, cur - (cur % 2) - 2), cur - (cur % 2) + 4), 0.05);
   }
 
-  /** 一张海域卡 */
+  /** 一张海域卡（竖版）：整张局内背景当画面，上面海域名牌，下面一条关卡范围 + 进度 */
   private card(parent: Node, i: number, id: string, from: number, to: number, level: number, current: boolean): Node {
     const open = level >= from;
     const n = slice(parent, 'kit/panel_blue', CARD_W, CARD_H, `sea${i}`);
-    // 画面：这片海域的局内背景，取中间偏下的一截（有海底和景物），四边留出卡的边
-    const pw = CARD_W - 24;
+    // 画面：局内背景是 2:3 的竖图，差不多整张放得下，四边留出卡的边
+    const pw = CARD_W - 22;
     const ph = CARD_H - 30;
     const pic = box('pic', n, pw, ph);
     at(pic, 0, 4);
     pic.addComponent(Mask).type = Mask.Type.GRAPHICS_RECT;
-    const im = lazyImg(pic, `bg/sea_${id}`, pw, pw * 1.5);
-    at(im, 0, pw * 0.5);
+    const iw = Math.max(pw, ph / 1.5);
+    const im = lazyImg(pic, `bg/sea_${id}`, iw, iw * 1.5);
+    at(im, 0, 0);
     if (!open) {
       const sp = im.getComponent(Sprite);
       if (sp) {
@@ -82,33 +85,36 @@ export class MapPage extends Page {
         sp.color = DIM;
       }
     }
-    // 左上：海域名
-    const name = slice(n, 'kit/title_plate', 280, 66, 'name');
-    at(name, -pw / 2 + 150, ph / 2 - 30);
-    fit(text(name, tr(`ALBUM_BOOK_${i + 1}`), 34), 250, 34, 22);
-    // 下面一条：关卡范围 + 进度
-    const low = box('low', n, pw, 64);
-    at(low, 0, -ph / 2 + 36);
-    const shade = img(low, 'kit/white', pw, 64, 'shade');
-    (shade.getComponent(Sprite) as Sprite).color = new Color(10, 30, 70, 150);
+    // 上：海域名
+    const name = slice(n, 'kit/title_plate', 270, 62, 'name');
+    at(name, 0, ph / 2 - 30);
+    fit(text(name, tr(`ALBUM_BOOK_${i + 1}`), 32), 240, 32, 22);
+    // 下：半透明深色底，第一行关卡范围，第二行进度条或「第 N 关解锁」
+    const lowH = 100;
+    const low = box('low', n, pw, lowH);
+    at(low, 0, 4 - ph / 2 + lowH / 2);
+    const shade = img(low, 'kit/white', pw, lowH, 'shade');
+    (shade.getComponent(Sprite) as Sprite).color = new Color(10, 30, 70, 160);
     setInk(low, WHITE_INK);
-    const range = text(low, tr('MAP_RANGE', from, to), 28, { align: 'left' });
-    at(range.node, -pw / 2 + 20, 0);
+    at(text(low, tr('MAP_RANGE', from, to), 28).node, 0, 24);
     if (open) {
+      const all = to - from + 1;
       const done = Math.max(0, Math.min(to, level - 1) - from + 1);
-      const bar = progressBar(low, 220, 30, done >= to - from + 1 ? 'green' : 'blue');
-      at(bar.node, pw / 2 - 20 - 110 - 70, 0);
-      bar.set(done / (to - from + 1));
-      at(text(bar.node, `${done}/${to - from + 1}`, 22).node, 0, 1);
+      const bar = progressBar(low, pw - 50, 30, done >= all ? 'green' : 'blue');
+      at(bar.node, 0, -22);
+      bar.set(done / all);
+      at(text(bar.node, `${done}/${all}`, 22).node, 0, 1);
     } else {
-      const lk = text(low, tr('H_UNLOCKS_AT', from), 28);
-      at(lk.node, pw / 2 - 150, 0);
-      at(img(low, 'kit/ic_lock', 36, 36, 'lock'), pw / 2 - 150 - 110, 0);
+      const lk = text(low, tr('H_UNLOCKS_AT', from), 26);
+      at(lk.node, 18, -22);
+      at(img(low, 'kit/ic_lock', 32, 32, 'lock'), -textWidth(lk) / 2 - 4, -22);
+      // 画面中间一把大锁
+      at(img(n, 'kit/ic_lock', 84, 84, 'bigLock'), 0, 30);
     }
     if (current) {
-      // 现在所在的海域：右上一面「当前」小旗、整张卡轻轻呼吸
+      // 现在所在的海域：画面上贴一面「当前」、整张卡轻轻呼吸
       const tag = slice(n, 'kit/btn_yellow', 120, 50, 'current');
-      at(tag, pw / 2 - 70, ph / 2 - 26);
+      at(tag, 0, 4 - ph / 2 + lowH + 34);
       at(text(tag, tr('LV_CURRENT'), 26).node, 0, 2);
       fx.breathe(n, 0.015, 1.6);
     }
