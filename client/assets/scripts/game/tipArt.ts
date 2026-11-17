@@ -143,6 +143,20 @@ export function tipArt(parent: Node, key: string): Node {
       link.setSiblingIndex(b.children.length - 2);
       break;
     }
+    case 'TIP_QUEUE': {
+      // 排队泡：三条鱼叠成一串，排头最亮，后面两条压暗（和局里一样）
+      const d = 220;
+      const b = box('queue', n, d, d);
+      const ids = ['c03', 'c02', 'c01'];
+      ids.forEach((id, k) => {
+        const f = img(b, `fish/${id}`, d * 0.42, d * 0.42, `fish${k}`);
+        at(f, (k - 1) * d * 0.19, -(k - 1) * d * 0.15);
+        if (k < 2) (f.getComponent(Sprite) as Sprite).color = new Color(150, 165, 195, 255);
+        else fx.breathe(f, 0.08, 0.7);
+      });
+      img(b, 'kit/bubble', d, d, 'skin');
+      break;
+    }
     case 'TIP_TOOLS3': {
       // 每种道具每关能用 3 次：两个道具图标，角上挂「×3」
       ['skill_shuffle', 'skill_net'].forEach((id, i) => {

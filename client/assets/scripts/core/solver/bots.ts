@@ -68,7 +68,7 @@ function options(s: GameState): Option[] {
     const bub = s.bubbles[b];
     const left = bub.count();
     const hidden = bub.fog > 0 ? 1 : 0;
-    for (let k = 0; k < bub.fish.length; k++) if (bub.fish[k] >= 0) opts.push([b, k, bub.fish[k], left, hidden]);
+    for (let k = 0; k < bub.fish.length; k++) if (bub.canTake(k)) opts.push([b, k, bub.fish[k], left, hidden]);
   }
   return opts;
 }

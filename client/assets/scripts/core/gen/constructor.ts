@@ -110,6 +110,74 @@ function futureSpecies(s: GameState, rng: Rng): number {
   return rng.pick(cands);
 }
 
+/**
+ * 洗牌道具（2026-11-18 改）：只动**场上**的鱼，把架上的缸现在要的鱼和最好点的那几个位置对调，其余的都不动；候场的气泡不动。
+ * 帮的是眼前这一下——能马上送走几条、腾出缸位，后面还得自己打；原来是把剩下的鱼整个重排成不需要暂存槽的局面，
+ * 点一次就等于通关（docs/02 第 0 节）。结伴鱼不拆（两条的位置不变，只换种类）。
+ * 场上没有鱼可换时返回 false
+ */
+export function rescueShuffle(s: GameState, rng: Rng): boolean {
+  const open = new Set(openBubbles(s));
+  // 每个位置离「点得到」有多远：开放气泡里普通泡都是 0，排队泡按离排头几条算；没开放的排在最后
+  const spots: { b: number; k: number; rank: number; tie: number }[] = [];
+  const pool: number[] = [];
+  for (let b = 0; b < s.bubbles.length; b++) {
+    const bub = s.bubbles[b];
+    if (!bub.onField) continue;
+    let depth = 0;
+    for (let k = bub.fish.length - 1; k >= 0; k--) {
+      if (bub.fish[k] === REMOVED) continue;
+      spots.push({ b, k, rank: (open.has(b) ? 0 : 1000) + (bub.queue ? depth : 0), tie: rng.randf() });
+      pool.push(bub.fish[k]);
+      depth += 1;
+    }
+  }
+  if (spots.length < 2) return false;
+  spots.sort((x, y) => x.rank - y.rank || x.tie - y.tie);
+  // 架上的缸还缺的鱼，场上有多少先拿多少
+  const first: number[] = [];
+  for (let i = 0; i < s.openSlots; i++) {
+    const bowl = s.slots[i];
+    if (bowl === null) continue;
+    let need = bowl.cap - bowl.count - countOf(s.returnFish, bowl.species);
+    for (let j = 0; j < pool.length && need > 0; ) {
+      if (pool[j] === bowl.species) {
+        first.push(pool[j]);
+        pool.splice(j, 1);
+        need -= 1;
+      } else j += 1;
+    }
+  }
+  // 其余的鱼不动：只把要的鱼和最前面那几个位置上的鱼对调。原来的顺序里已经排在前面的就不用换
+  void pool;
+  const want = first.slice();
+  // 前 want.length 个最好点的位置里，已经是要的鱼的先留着
+  const front = spots.slice(0, want.length);
+  const keep = new Set<number>();
+  front.forEach((p, i) => {
+    const at = want.indexOf(s.bubbles[p.b].fish[p.k]);
+    if (at >= 0) {
+      want.splice(at, 1);
+      keep.add(i);
+    }
+  });
+  let moved = 0;
+  front.forEach((p, i) => {
+    if (keep.has(i) || want.length === 0) return;
+    const sp = want.shift() as number;
+    // 从后面（不好点的位置）找一条这种鱼换过来
+    for (let j = spots.length - 1; j >= front.length; j--) {
+      const q = spots[j];
+      if (s.bubbles[q.b].fish[q.k] !== sp) continue;
+      s.bubbles[q.b].fish[q.k] = s.bubbles[p.b].fish[p.k];
+      s.bubbles[p.b].fish[p.k] = sp;
+      moved += 1;
+      break;
+    }
+  });
+  return moved > 0;
+}
+
 /** 洗牌道具：场上剩余的鱼重新分布成低难度可解局面。成功返回 true */
 export function reshuffle(s: GameState, rng: Rng): boolean {
   const blank = s.clone();

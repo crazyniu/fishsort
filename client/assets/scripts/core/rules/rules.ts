@@ -1,6 +1,6 @@
 // 规则状态机，见 docs/01-玩法设计.md 第 2–4 节。
 // 所有函数就地修改 state，并返回供表现层播放的事件序列。
-import { reshuffle } from '../gen/constructor';
+import { rescueShuffle } from '../gen/constructor';
 import { Bowl, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVED, Status } from '../model/gameState';
 import { Rng } from '../rng/rng';
 
@@ -22,6 +22,7 @@ export type EventType =
   | 'bubble_pop'
   | 'bubble_drop'
   | 'slot_open'
+  | 'slot_close'
   | 'net_fish'
   | 'blow'
   | 'shuffle'
@@ -58,6 +59,7 @@ export type Action =
 /** 开局：把订单队列的前几个缸摆上架 */
 export function start(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
+  s.baseSlots = s.openSlots;
   settle(s, ev);
   return ev;
 }
@@ -130,7 +132,7 @@ export function tap(s: GameState, b: number, k: number): GameEvent[] {
   } else {
     if (b < 0 || b >= s.bubbles.length || !isOpen(s, b)) return ev;
     const bub = s.bubbles[b];
-    if (k < 0 || k >= bub.fish.length || bub.fish[k] < 0) return ev;
+    if (!bub.canTake(k)) return ev;
     const partner = bub.partnerOf(k);
     take(s, b, k, ev);
     // 结伴鱼：第二条紧跟着结算，和普通的鱼一样（有缸进缸，否则进暂存槽；暂存槽放不下才失败）
@@ -167,7 +169,22 @@ export function tick(s: GameState, dt: number): GameEvent[] {
 
 export function unlockBowl(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
-  if (s.status !== Status.PLAYING || s.openSlots >= MAX_SLOTS) return ev;
+  if (s.status !== Status.PLAYING) return ev;
+  if (s.bowlOnce) {
+    // 加开的缸只装一缸：找第一个能用的加开位——还没开过的，或者开过、那一缸已经送走的
+    let slot = -1;
+    for (let i = s.baseSlots; i < MAX_SLOTS && slot < 0; i++) {
+      if (i >= s.openSlots || (s.slots[i] === null && s.extraFills[i] <= 0)) slot = i;
+    }
+    if (slot < 0) return ev;
+    if (slot >= s.openSlots) s.openSlots = slot + 1;
+    s.extraFills[slot] = 1;
+    ev.push({ t: 'slot_open', slot });
+    settle(s, ev);
+    finish(s, ev);
+    return ev;
+  }
+  if (s.openSlots >= MAX_SLOTS) return ev;
   s.openSlots += 1;
   ev.push({ t: 'slot_open', slot: s.openSlots - 1 });
   settle(s, ev);
@@ -253,7 +270,7 @@ function currentTarget(s: GameState, served: Set<number>): [number, number] | nu
     const bub = s.bubbles[b];
     for (let k = 0; k < bub.fish.length; k++) {
       const sp = bub.fish[k];
-      if (sp < 0 || servedSlot(s, sp, served) < 0) continue;
+      if (!bub.canTake(k) || servedSlot(s, sp, served) < 0) continue;
       const partner = bub.partnerOf(k);
       if (partner >= 0 && bub.fish[partner] >= 0 && !pairFits(s, bub.fish[k], bub.fish[partner])) continue;
       return [b, k];
@@ -306,20 +323,20 @@ export function noTarget(s: GameState): boolean {
   for (const b of openBubbles(s)) {
     const bub = s.bubbles[b];
     if (bub.fog > 0) continue;
-    for (const sp of bub.fish) {
-      if (sp < 0) continue;
+    for (let k = 0; k < bub.fish.length; k++) {
+      if (!bub.canTake(k)) continue;
       any = true;
-      if (findSlot(s, sp) >= 0) return false;
+      if (findSlot(s, bub.fish[k]) >= 0) return false;
     }
   }
   return any;
 }
 
-/** 洗牌：按当前局面重新构造一个可解的分布（各鱼种数量不变） */
+/** 洗牌：场上的鱼换位，架上的缸要的鱼换到点得到的地方（各鱼种数量不变，候场的不动） */
 export function useShuffle(s: GameState, seed: number): GameEvent[] {
   const ev: GameEvent[] = [];
   if (s.status !== Status.PLAYING) return ev;
-  if (reshuffle(s, new Rng(seed))) ev.push({ t: 'shuffle' });
+  if (rescueShuffle(s, new Rng(seed))) ev.push({ t: 'shuffle' });
   return ev;
 }
 
@@ -397,6 +414,8 @@ function settle(s: GameState, ev: GameEvent[]): void {
         s.slots[i] = null;
         s.bowlsDone += 1;
         ev.push({ t: 'bowl_done', slot: i, species: bowl.species, order: bowl.order });
+        // 加开的缸装满这一缸就收走，缸位空出来、不再上新订单
+        if (s.bowlOnce && i >= s.baseSlots) ev.push({ t: 'slot_close', slot: i });
         for (let bi = 0; bi < s.bubbles.length; bi++) {
           const bub = s.bubbles[bi];
           if (bub.chain > 0) {
@@ -409,6 +428,10 @@ function settle(s: GameState, ev: GameEvent[]): void {
     }
     for (let i = 0; i < s.openSlots; i++) {
       if (s.slots[i] === null && s.nextOrder < s.orders.length) {
+        if (s.bowlOnce && i >= s.baseSlots) {
+          if (s.extraFills[i] <= 0) continue;
+          s.extraFills[i] -= 1;
+        }
         const o = s.orders[s.nextOrder];
         const bowl = new Bowl();
         bowl.species = o.s;

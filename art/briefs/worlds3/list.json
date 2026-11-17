@@ -1,0 +1,1928 @@
+{
+ "blossom_common_1": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "c121",
+    "樱花虾",
+    "Sakura",
+    "a little shrimp, soft cherry pink",
+    "shrimp"
+   ],
+   [
+    "c122",
+    "春鲷鲷",
+    "Bream",
+    "a round sea bream, bright red",
+    "disc"
+   ],
+   [
+    "c123",
+    "青虾虎",
+    "Greengoby",
+    "a goby with big round eyes, leaf green",
+    "long"
+   ],
+   [
+    "c124",
+    "小蓝鳐",
+    "Skipray",
+    "a round ray pup with a short tail, sky blue",
+    "diamond"
+   ],
+   [
+    "c125",
+    "紫裙裙",
+    "Frillo",
+    "a nudibranch sea slug with frilly gills, violet",
+    "slug"
+   ]
+  ],
+  "common"
+ ],
+ "blossom_common_2": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "c126",
+    "金鲤鲤",
+    "Goldfin",
+    "a little round-bellied carp fish with long flowing fins, golden yellow",
+    "round"
+   ],
+   [
+    "c127",
+    "杏花蟹",
+    "Apricrab",
+    "a small round crab, warm orange",
+    "claws"
+   ],
+   [
+    "c128",
+    "薄荷螺",
+    "Swirlsnail",
+    "a sea snail with a swirl shell, cyan",
+    "snail"
+   ],
+   [
+    "c129",
+    "灰扁扁",
+    "Flounder",
+    "a flounder, sandy grey",
+    "flat"
+   ],
+   [
+    "c130",
+    "花蛤蛤",
+    "Clammy",
+    "a little clam, cream white",
+    "shell"
+   ]
+  ],
+  "common"
+ ],
+ "blossom_uncommon_1": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "u182",
+    "花伞鱼",
+    "Parasol",
+    "a goby holding a tiny paper parasol",
+    "special"
+   ],
+   [
+    "u183",
+    "樱帽虾",
+    "Bloomhat",
+    "a shrimp wearing a cherry blossom hat",
+    "special"
+   ],
+   [
+    "u184",
+    "杯杯蟹",
+    "Cupcrab",
+    "a crab sitting in a tiny teacup",
+    "special"
+   ],
+   [
+    "u185",
+    "风筝鳐",
+    "Kitey",
+    "a stingray pup with a little kite ribbon tied to its tail",
+    "special"
+   ],
+   [
+    "u186",
+    "团子鱼",
+    "Dango",
+    "a round fish holding a skewer of three rice dumplings",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "blossom_uncommon_2": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "u187",
+    "花篮螺",
+    "Basket",
+    "a snail carrying a small flower basket on its shell",
+    "special"
+   ],
+   [
+    "u188",
+    "铃铛鲤",
+    "Dingle",
+    "a carp fish wearing a little bell collar",
+    "special"
+   ],
+   [
+    "u189",
+    "樱扇章",
+    "Fanfan",
+    "an octopus holding a folding fan with petals",
+    "special"
+   ],
+   [
+    "u190",
+    "纸鹤鱼",
+    "Cranefin",
+    "a fish with a little paper crane on its head",
+    "special"
+   ],
+   [
+    "u191",
+    "粉结兔",
+    "Bowbun",
+    "a sea hare slug with a big pink bow",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "blossom_uncommon_3": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "u192",
+    "野餐蟹",
+    "Picnic",
+    "a crab carrying a checkered picnic cloth bundle",
+    "special"
+   ],
+   [
+    "u193",
+    "春笛鱼",
+    "Piper",
+    "a pipefish with a petal scarf",
+    "special"
+   ],
+   [
+    "u194",
+    "抹茶龟",
+    "Matcha",
+    "a baby sea turtle with a green tea leaf on its shell",
+    "special"
+   ],
+   [
+    "u195",
+    "花环豚",
+    "Wreath",
+    "a little porpoise wearing a flower garland",
+    "special"
+   ],
+   [
+    "u196",
+    "雨靴虾",
+    "Bootsy",
+    "a shrimp wearing tiny rain boots",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "blossom_rare_1": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "r109",
+    "樱冠鲤",
+    "Blossom Carp",
+    "a carp with a cherry blossom crown, soft pink glow",
+    "special"
+   ],
+   [
+    "r110",
+    "珠樱虾",
+    "Pearl Sakura",
+    "a pink shrimp wearing a pearl tiara, soft glow",
+    "special"
+   ],
+   [
+    "r111",
+    "花仙章",
+    "Petal Fairy",
+    "an octopus wearing a flower crown with a soft glow",
+    "special"
+   ],
+   [
+    "r112",
+    "月樱鳐",
+    "Moon Blossom",
+    "a stingray with a pearl crown and a few petals resting on its back, soft glow",
+    "special"
+   ],
+   [
+    "r113",
+    "春灯鲷",
+    "Lantern Bream",
+    "a sea bream holding a glowing paper lantern, pearl tiara",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "blossom_rare_2": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "r114",
+    "樱珠蟹",
+    "Blossom Crab",
+    "an orange crab with a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r115",
+    "花冠兔",
+    "Bloom Bunny",
+    "a sea hare slug with a flower crown, soft glow",
+    "special"
+   ],
+   [
+    "r116",
+    "露珠龟",
+    "Dew Turtle",
+    "a baby sea turtle with dew pearls on its shell and a tiara",
+    "special"
+   ],
+   [
+    "r117",
+    "柳叶鱼",
+    "Willow",
+    "a slender fish with willow-leaf fins and a pearl crown",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "blossom_epic_1": [
+  "a calm spring bay where cherry blossom petals drift down into the water",
+  [
+   [
+    "e61",
+    "樱龙龙",
+    "Blossom Dragon",
+    "a small dragon covered in glowing cherry blossom petals, a gold crown with pink gems",
+    "special"
+   ],
+   [
+    "e62",
+    "金鲤王",
+    "Carp King",
+    "a carp king with shining gold scales, ruby gems and a gold crown",
+    "special"
+   ],
+   [
+    "e63",
+    "花神鳐",
+    "Bloom Goddess",
+    "a stingray with an aurora petal pattern, gold filigree jewelry and gems",
+    "special"
+   ],
+   [
+    "e64",
+    "樱晶蟹",
+    "Rose Quartz",
+    "a crab with a rose quartz crystal shell and a gold crown",
+    "special"
+   ],
+   [
+    "e65",
+    "春之鲸",
+    "Spring Whale",
+    "a whale calf with a starry blossom pattern and a gold flower crown",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "market_common_1": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "c131",
+    "黄鱼鱼",
+    "Croaky",
+    "a yellow croaker fish, bright yellow",
+    "long"
+   ],
+   [
+    "c132",
+    "红梭蟹",
+    "Swimmer",
+    "a round swimming crab with paddle legs, bright red",
+    "claws"
+   ],
+   [
+    "c133",
+    "青柠星",
+    "Limestar",
+    "a plump sea star, lime green",
+    "star"
+   ],
+   [
+    "c134",
+    "蓝鲳鲳",
+    "Pompy",
+    "a round flat pomfret fish, bright blue",
+    "disc"
+   ],
+   [
+    "c135",
+    "紫贻贝",
+    "Musselly",
+    "a mussel shell slightly open, violet purple",
+    "shell"
+   ]
+  ],
+  "common"
+ ],
+ "market_common_2": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "c136",
+    "粉鱿鱿",
+    "Squidy",
+    "a little squid, soft pink",
+    "legs"
+   ],
+   [
+    "c137",
+    "橙鼓鼓",
+    "Tangerine",
+    "a round pufferfish, tangerine orange",
+    "round"
+   ],
+   [
+    "c138",
+    "青马马",
+    "Aqua",
+    "a little seahorse, aqua cyan",
+    "tall"
+   ],
+   [
+    "c139",
+    "灰鲈鲈",
+    "Perchy",
+    "a perch fish, grey",
+    "long"
+   ],
+   [
+    "c140",
+    "棕螺螺",
+    "Whelk",
+    "a whelk sea snail with a pointed spiral shell, brown",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "market_uncommon_1": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "u197",
+    "菜篮蟹",
+    "Shopper",
+    "a crab carrying a little shopping basket",
+    "special"
+   ],
+   [
+    "u198",
+    "钱袋鱼",
+    "Pursey",
+    "a fish with a tiny coin purse",
+    "special"
+   ],
+   [
+    "u199",
+    "围裙章",
+    "Apron",
+    "an octopus wearing a striped apron",
+    "special"
+   ],
+   [
+    "u200",
+    "草帽虾",
+    "Strawhat",
+    "a shrimp wearing a straw hat",
+    "special"
+   ],
+   [
+    "u201",
+    "气球鱼",
+    "Balloon",
+    "a fish holding a little balloon on a string",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "market_uncommon_2": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "u202",
+    "糖串鳗",
+    "Sweetie",
+    "a little eel holding a stick of round candies",
+    "special"
+   ],
+   [
+    "u203",
+    "纸袋蟹",
+    "Baggy",
+    "a hermit crab carrying a small paper bag",
+    "special"
+   ],
+   [
+    "u204",
+    "店铃螺",
+    "Shopbell",
+    "a snail with a little shop bell on its shell",
+    "special"
+   ],
+   [
+    "u205",
+    "眼镜鲷",
+    "Specs",
+    "a sea bream wearing round glasses",
+    "special"
+   ],
+   [
+    "u206",
+    "头巾鱿",
+    "Bandana",
+    "a squid wearing a bandana",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "market_uncommon_3": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "u207",
+    "灯笼豚",
+    "Lanterny",
+    "a pufferfish holding a paper lantern",
+    "special"
+   ],
+   [
+    "u208",
+    "包子鱼",
+    "Bunbun",
+    "a round fish holding a steamed bun",
+    "special"
+   ],
+   [
+    "u209",
+    "风车虾",
+    "Pinwheel",
+    "a shrimp holding a paper pinwheel",
+    "special"
+   ],
+   [
+    "u210",
+    "邮差龟",
+    "Postie",
+    "a baby sea turtle carrying a little mail bag",
+    "special"
+   ],
+   [
+    "u211",
+    "厨帽鲈",
+    "Chef",
+    "a fish wearing a chef hat",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "market_rare_1": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "r118",
+    "珠灯蟹",
+    "Lamplight",
+    "a crab carrying a glowing pearl lantern, pearl crown",
+    "special"
+   ],
+   [
+    "r119",
+    "宝袋鱼",
+    "Pouchy",
+    "a golden fish with a pearl tiara holding a small glowing pouch",
+    "special"
+   ],
+   [
+    "r120",
+    "霓灯章",
+    "Neon Octo",
+    "an octopus wearing a flower crown with tiny glowing lantern lights, soft glow",
+    "special"
+   ],
+   [
+    "r121",
+    "珠伞鱿",
+    "Pearl Squid",
+    "a squid with a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r122",
+    "银鲳仙",
+    "Silver Pompy",
+    "a round pomfret fish with a pearl tiara and soft silver glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "market_rare_2": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "r123",
+    "茶仙虾",
+    "Tea Sprite",
+    "a shrimp holding a glowing teacup, pearl crown",
+    "special"
+   ],
+   [
+    "r124",
+    "灯会豚",
+    "Lantern Puff",
+    "a pufferfish with a crown of small glowing lanterns",
+    "special"
+   ],
+   [
+    "r125",
+    "花帽鲷",
+    "Flower Bream",
+    "a sea bream wearing a flower crown with soft glow",
+    "special"
+   ],
+   [
+    "r126",
+    "珠贝商",
+    "Pearl Mussel",
+    "a mussel with a pearl crown and soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "market_epic_1": [
+  "a cozy undersea market street with shell stalls and paper lanterns",
+  [
+   [
+    "e66",
+    "灯王龙",
+    "Lantern Dragon",
+    "a small dragon decorated with glowing paper lanterns, gold filigree and ruby gems",
+    "special"
+   ],
+   [
+    "e67",
+    "宝市鲸",
+    "Bazaar Whale",
+    "a whale calf with gold filigree patterns, sapphire gems and a crown",
+    "special"
+   ],
+   [
+    "e68",
+    "招财蟹",
+    "Fortune Crab",
+    "a crab with a golden shell inlaid with jade gems and a crown",
+    "special"
+   ],
+   [
+    "e69",
+    "琉璃章",
+    "Glass Octopus",
+    "an octopus with an iridescent glass-like body and a gold crown with gems",
+    "special"
+   ],
+   [
+    "e70",
+    "宝灯鳐",
+    "Jewel Ray",
+    "a stingray with a starry pattern and a gold necklace with gems",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "cloud_common_1": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "c141",
+    "飞鱼鱼",
+    "Soary",
+    "a flying fish with big wing fins, sunny yellow",
+    "long"
+   ],
+   [
+    "c142",
+    "红鼓鼓",
+    "Balloony",
+    "a round balloon-like pufferfish, coral red",
+    "round"
+   ],
+   [
+    "c143",
+    "青团龟",
+    "Minto",
+    "a tiny sea turtle hatchling, mint green",
+    "shell"
+   ],
+   [
+    "c144",
+    "天蓝母",
+    "Skybell",
+    "a jellyfish with a round bell, sky blue",
+    "umbrella"
+   ],
+   [
+    "c145",
+    "紫海马",
+    "Lavvy",
+    "a seahorse, lavender purple",
+    "tall"
+   ]
+  ],
+  "common"
+ ],
+ "cloud_common_2": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "c146",
+    "粉豚豚",
+    "Rosydol",
+    "a baby dolphin, soft pink",
+    "whale"
+   ],
+   [
+    "c147",
+    "杏仁蟹",
+    "Almond",
+    "a small round crab, apricot orange",
+    "claws"
+   ],
+   [
+    "c148",
+    "青虾虾",
+    "Skyshrimp",
+    "a little shrimp, bright cyan",
+    "shrimp"
+   ],
+   [
+    "c149",
+    "白云鳐",
+    "Cloudy",
+    "a little ray, cloud white",
+    "flat"
+   ],
+   [
+    "c150",
+    "灰蛞蛞",
+    "Foggy",
+    "a sea slug, misty grey",
+    "slug"
+   ]
+  ],
+  "common"
+ ],
+ "cloud_uncommon_1": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "u212",
+    "风筝虾",
+    "Kitesy",
+    "a shrimp tied to a little kite",
+    "special"
+   ],
+   [
+    "u213",
+    "云帽豚",
+    "Cloudcap",
+    "a baby dolphin wearing a fluffy cloud hat",
+    "special"
+   ],
+   [
+    "u214",
+    "雨伞章",
+    "Brolly",
+    "an octopus holding a small umbrella",
+    "special"
+   ],
+   [
+    "u215",
+    "伞包龟",
+    "Chute",
+    "a baby sea turtle with a tiny parachute on its back",
+    "special"
+   ],
+   [
+    "u216",
+    "翅膀鱼",
+    "Winglet",
+    "a fish wearing little paper wings",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "cloud_uncommon_2": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "u217",
+    "虹巾马",
+    "Arcy",
+    "a seahorse with a rainbow scarf",
+    "special"
+   ],
+   [
+    "u218",
+    "飞行鳐",
+    "Aviator",
+    "a ray wearing aviator goggles",
+    "special"
+   ],
+   [
+    "u219",
+    "雨滴蟹",
+    "Drippy",
+    "a crab wearing a raindrop hat",
+    "special"
+   ],
+   [
+    "u220",
+    "云枕鱼",
+    "Napper",
+    "a sleepy fish hugging a cloud pillow",
+    "special"
+   ],
+   [
+    "u221",
+    "星棒母",
+    "Wandy",
+    "a jellyfish holding a tiny star wand",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "cloud_uncommon_3": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "u222",
+    "纸机鱼",
+    "Planey",
+    "a fish carrying a paper airplane",
+    "special"
+   ],
+   [
+    "u223",
+    "风铃螺",
+    "Chime",
+    "a snail with a wind chime on its shell",
+    "special"
+   ],
+   [
+    "u224",
+    "羽毛鲀",
+    "Feather",
+    "a pufferfish with a feather tucked on its head",
+    "special"
+   ],
+   [
+    "u225",
+    "墨镜蟹",
+    "Shady",
+    "a crab wearing sunglasses",
+    "special"
+   ],
+   [
+    "u226",
+    "水手鱼",
+    "Sailor",
+    "a fish wearing a sailor hat",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "cloud_rare_1": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "r127",
+    "云冠豚",
+    "Cloud Crown",
+    "a baby dolphin with a crown of tiny clouds, soft glow",
+    "special"
+   ],
+   [
+    "r128",
+    "虹珠马",
+    "Rainbow Pearl",
+    "a seahorse with a pearl tiara and soft rainbow glow",
+    "special"
+   ],
+   [
+    "r129",
+    "天使鳐",
+    "Sky Angel",
+    "a ray with feathery wing fins and a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r130",
+    "晴光鱼",
+    "Sunbeam",
+    "a flying fish with a golden sun-shaped pearl crown, warm glow",
+    "special"
+   ],
+   [
+    "r131",
+    "雨珠母",
+    "Raindrop",
+    "a jellyfish decorated with raindrop pearls, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "cloud_rare_2": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "r132",
+    "羽冠龟",
+    "Plume Turtle",
+    "a baby sea turtle with a feather crown, soft glow",
+    "special"
+   ],
+   [
+    "r133",
+    "云纱章",
+    "Veil Octo",
+    "an octopus wearing a cloud-like veil and a pearl tiara",
+    "special"
+   ],
+   [
+    "r134",
+    "珠云蟹",
+    "Cloud Pearl",
+    "a crab with a cloud-shaped pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r135",
+    "霞光虾",
+    "Dawn Shrimp",
+    "a shrimp with a pearl crown and a soft pink dawn glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "cloud_epic_1": [
+  "a dreamy sea beneath floating cloud islands",
+  [
+   [
+    "e71",
+    "云龙龙",
+    "Cloud Dragon",
+    "a small fluffy cloud dragon with gold horns, sapphire gems and a crown",
+    "special"
+   ],
+   [
+    "e72",
+    "天空鲸",
+    "Sky Whale",
+    "a whale calf with a starry sky pattern, gold filigree and a gem crown",
+    "special"
+   ],
+   [
+    "e73",
+    "彩虹鳐",
+    "Rainbow Ray",
+    "a ray with iridescent rainbow wings, gold jewelry and gems",
+    "special"
+   ],
+   [
+    "e74",
+    "雷光豚",
+    "Thunder",
+    "a baby dolphin with glowing lightning-yellow crystal patterns and a gold crown",
+    "special"
+   ],
+   [
+    "e75",
+    "日轮马",
+    "Sun Seahorse",
+    "a seahorse with a radiant golden sun crown and ruby gems",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "pearl_common_1": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "c151",
+    "柠檬蝶",
+    "Lemony",
+    "a butterflyfish, lemon yellow",
+    "diamond"
+   ],
+   [
+    "c152",
+    "红扇贝",
+    "Scallop",
+    "a scallop shell, coral red",
+    "shell"
+   ],
+   [
+    "c153",
+    "绿鲍鲍",
+    "Abalo",
+    "an abalone with a swirled dome shell, sea green",
+    "dome"
+   ],
+   [
+    "c154",
+    "蓝虾蛄",
+    "Mantie",
+    "a cute round mantis shrimp, bright blue",
+    "shrimp"
+   ],
+   [
+    "c155",
+    "紫团章",
+    "Plumy",
+    "a little octopus, violet",
+    "legs"
+   ]
+  ],
+  "common"
+ ],
+ "pearl_common_2": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "c156",
+    "粉鳗鳗",
+    "Pearly",
+    "a slender pearlfish eel, soft pink",
+    "long"
+   ],
+   [
+    "c157",
+    "橙蛞蛞",
+    "Tangelo",
+    "a sea slug with soft round horns, bright orange",
+    "slug"
+   ],
+   [
+    "c158",
+    "青盒盒",
+    "Cubby",
+    "a little boxfish, aqua cyan",
+    "round"
+   ],
+   [
+    "c159",
+    "白砗磲",
+    "Gianty",
+    "a giant clam with wavy lips, pearly white",
+    "shell"
+   ],
+   [
+    "c160",
+    "棕宝螺",
+    "Cowrie",
+    "a cowrie shell sea snail, brown with spots",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "pearl_uncommon_1": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "u227",
+    "珠链蝶",
+    "Necklace",
+    "a butterflyfish wearing a pearl necklace",
+    "special"
+   ],
+   [
+    "u228",
+    "贝帽章",
+    "Shellcap",
+    "an octopus wearing a scallop shell hat",
+    "special"
+   ],
+   [
+    "u229",
+    "首饰蟹",
+    "Jewelbox",
+    "a crab carrying a little jewelry box",
+    "special"
+   ],
+   [
+    "u230",
+    "发夹鳗",
+    "Clasp",
+    "an eel with a shell hair clip",
+    "special"
+   ],
+   [
+    "u231",
+    "小镜虾",
+    "Handmirror",
+    "a mantis shrimp holding a small hand mirror",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "pearl_uncommon_2": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "u232",
+    "蕾丝鲍",
+    "Lacy",
+    "an abalone with a lace ribbon",
+    "special"
+   ],
+   [
+    "u233",
+    "螺号鱼",
+    "Conchhorn",
+    "a boxfish holding a conch horn",
+    "special"
+   ],
+   [
+    "u234",
+    "沙堡蟹",
+    "Castle",
+    "a crab with a tiny sand castle on its back",
+    "special"
+   ],
+   [
+    "u235",
+    "珠帘母",
+    "Beady",
+    "a jellyfish with strings of beads",
+    "special"
+   ],
+   [
+    "u236",
+    "泡泡兔",
+    "Bubbly",
+    "a sea slug holding a bubble wand",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "pearl_uncommon_3": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "u237",
+    "贝包鱼",
+    "Clutch",
+    "a fish carrying a shell purse",
+    "special"
+   ],
+   [
+    "u238",
+    "小铲虾",
+    "Shovel",
+    "a shrimp holding a little sand shovel",
+    "special"
+   ],
+   [
+    "u239",
+    "星卡龟",
+    "Starclip",
+    "a baby sea turtle with a star hair clip",
+    "special"
+   ],
+   [
+    "u240",
+    "手镯章",
+    "Bangle",
+    "an octopus wearing coral bracelets",
+    "special"
+   ],
+   [
+    "u241",
+    "珠袋鳐",
+    "Satchel",
+    "a ray pup carrying a small pearl pouch",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "pearl_rare_1": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "r136",
+    "珠后蝶",
+    "Pearl Empress",
+    "a butterflyfish with a pearl crown, soft glow",
+    "special"
+   ],
+   [
+    "r137",
+    "虹贝章",
+    "Opal Octo",
+    "an octopus with a pearl tiara and soft rainbow glow",
+    "special"
+   ],
+   [
+    "r138",
+    "月珠鳗",
+    "Moon Eel",
+    "an eel holding a moon pearl, pearl crown",
+    "special"
+   ],
+   [
+    "r139",
+    "珠贝仙",
+    "Shell Fairy",
+    "a scallop with pearls, a flower crown and soft glow",
+    "special"
+   ],
+   [
+    "r140",
+    "银鲍鲍",
+    "Silver Abby",
+    "an abalone with a pearl crown and silvery glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "pearl_rare_2": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "r141",
+    "星珠虾",
+    "Starbead",
+    "a mantis shrimp with a star pearl tiara, soft glow",
+    "special"
+   ],
+   [
+    "r142",
+    "粉珠母",
+    "Rose Pearl",
+    "a jellyfish decorated with pink pearls, soft glow",
+    "special"
+   ],
+   [
+    "r143",
+    "珠冠蟹",
+    "Pearl Crown",
+    "a hermit crab in a pearly shell with a crown",
+    "special"
+   ],
+   [
+    "r144",
+    "雪珠兔",
+    "Snow Pearl",
+    "a white sea slug with a pearl tiara and soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "pearl_epic_1": [
+  "a calm bay full of giant clams, shells and glowing pearls",
+  [
+   [
+    "e76",
+    "珍珠龙",
+    "Pearl Dragon",
+    "a small dragon with pearly iridescent scales and a gold crown with big pearls",
+    "special"
+   ],
+   [
+    "e77",
+    "砗磲王",
+    "Clam King",
+    "a giant clam king with a cute face, a gold filigree shell, jewels and a crown",
+    "special"
+   ],
+   [
+    "e78",
+    "宝珠鲸",
+    "Orb Whale",
+    "a whale calf carrying a giant glowing pearl, gold jewelry",
+    "special"
+   ],
+   [
+    "e79",
+    "欧泊鳐",
+    "Opal Ray",
+    "a stingray with opal iridescent patterns and gold gems",
+    "special"
+   ],
+   [
+    "e80",
+    "皇冠蝶",
+    "Crown Fly",
+    "a butterflyfish with crystal fins and a jeweled gold crown",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "clockwork_common_1": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "c161",
+    "黄蝠蝠",
+    "Battino",
+    "a tall round batfish, golden yellow",
+    "tall"
+   ],
+   [
+    "c162",
+    "红龙龙",
+    "Lobby",
+    "a small lobster, brick red",
+    "claws"
+   ],
+   [
+    "c163",
+    "绿鹦螺",
+    "Nauty",
+    "a nautilus with a coiled shell, olive green",
+    "shell"
+   ],
+   [
+    "c164",
+    "蓝扳扳",
+    "Triggy",
+    "a triggerfish, steel blue",
+    "diamond"
+   ],
+   [
+    "c165",
+    "紫月螺",
+    "Lilac",
+    "a moon snail with a round shell, lilac purple",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "clockwork_common_2": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "c166",
+    "粉隆隆",
+    "Wrasly",
+    "a wrasse fish, bright pink",
+    "long"
+   ],
+   [
+    "c167",
+    "橙方母",
+    "Cubie",
+    "a box jellyfish with a square bell, orange",
+    "umbrella"
+   ],
+   [
+    "c168",
+    "青乌乌",
+    "Cuttly",
+    "a cuttlefish, teal cyan",
+    "legs"
+   ],
+   [
+    "c169",
+    "铁甲蟹",
+    "Ironclaw",
+    "an armored crab, iron grey",
+    "claws"
+   ],
+   [
+    "c170",
+    "杜父鱼",
+    "Sculpin",
+    "a round sculpin fish, brown",
+    "round"
+   ]
+  ],
+  "common"
+ ],
+ "clockwork_uncommon_1": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "u242",
+    "发条鱼",
+    "Windup",
+    "a fish with a little wind-up key on its back",
+    "special"
+   ],
+   [
+    "u243",
+    "怀表蟹",
+    "Pocketwatch",
+    "a crab holding a pocket watch",
+    "special"
+   ],
+   [
+    "u244",
+    "铜镜章",
+    "Brassgoggle",
+    "an octopus wearing brass goggles on its forehead",
+    "special"
+   ],
+   [
+    "u245",
+    "齿轮螺",
+    "Cogsnail",
+    "a snail with a gear on its shell",
+    "special"
+   ],
+   [
+    "u246",
+    "礼帽鱼",
+    "Dapper",
+    "a wrasse wearing a tiny top hat",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "clockwork_uncommon_2": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "u247",
+    "扳手虾",
+    "Wrenchy",
+    "a shrimp holding a small wrench",
+    "special"
+   ],
+   [
+    "u248",
+    "桨帽龟",
+    "Propeller",
+    "a baby sea turtle wearing a propeller beanie",
+    "special"
+   ],
+   [
+    "u249",
+    "小钟母",
+    "Clocky",
+    "a jellyfish holding a tiny alarm clock",
+    "special"
+   ],
+   [
+    "u250",
+    "领结螺",
+    "Bowtie",
+    "a nautilus wearing a bow tie",
+    "special"
+   ],
+   [
+    "u251",
+    "油壶鳐",
+    "Oily",
+    "a ray pup carrying an oil can",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "clockwork_uncommon_3": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "u252",
+    "单镜鱼",
+    "Monocle",
+    "a batfish wearing a monocle",
+    "special"
+   ],
+   [
+    "u253",
+    "马甲虾",
+    "Vesty",
+    "a small lobster wearing a striped vest",
+    "special"
+   ],
+   [
+    "u254",
+    "灯泡乌",
+    "Bulby",
+    "a cuttlefish holding a light bulb",
+    "special"
+   ],
+   [
+    "u255",
+    "工具蟹",
+    "Toolbox",
+    "a crab carrying a toolbox",
+    "special"
+   ],
+   [
+    "u256",
+    "齿链鲀",
+    "Geary",
+    "a pufferfish wearing a gear necklace",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "clockwork_rare_1": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "r145",
+    "金钟螺",
+    "Gold Nautilus",
+    "a nautilus with a brass-gold shell, a pearl crown and soft glow",
+    "special"
+   ],
+   [
+    "r146",
+    "时光鱼",
+    "Timekeeper",
+    "a fish with a glowing clock-face pendant and a pearl tiara",
+    "special"
+   ],
+   [
+    "r147",
+    "铜冠虾",
+    "Copper Crown",
+    "a lobster with a copper crown with tiny gears, soft glow",
+    "special"
+   ],
+   [
+    "r148",
+    "星齿章",
+    "Star Gear",
+    "an octopus with a crown of tiny glowing gears",
+    "special"
+   ],
+   [
+    "r149",
+    "钟楼蟹",
+    "Clocktower",
+    "a crab with a tiny clock-tower crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "clockwork_rare_2": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "r150",
+    "月轮母",
+    "Moonwheel",
+    "a jellyfish decorated with pearls and a silver gear ring, soft glow",
+    "special"
+   ],
+   [
+    "r151",
+    "银机龟",
+    "Silver Turtle",
+    "a baby sea turtle with a silver gear pattern shell and a pearl tiara",
+    "special"
+   ],
+   [
+    "r152",
+    "琥珀蝠",
+    "Amber",
+    "a batfish with an amber pearl crown, warm glow",
+    "special"
+   ],
+   [
+    "r153",
+    "发条仙",
+    "Windup Fairy",
+    "a wrasse with a glowing wind-up key and a flower crown",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "clockwork_epic_1": [
+  "a sunken clockwork town with big brass gears and old clocks",
+  [
+   [
+    "e81",
+    "机械龙",
+    "Clock Dragon",
+    "a small brass dragon with a glowing blue crystal core, gold gears and a crown",
+    "special"
+   ],
+   [
+    "e82",
+    "钟表鲸",
+    "Chrono Whale",
+    "a whale calf with a glowing clock-face pattern, gold filigree and gems",
+    "special"
+   ],
+   [
+    "e83",
+    "齿轮王",
+    "Gear King",
+    "a crab king with a jeweled gold gear shell and a crown",
+    "special"
+   ],
+   [
+    "e84",
+    "星轨螺",
+    "Orbit Nautilus",
+    "a nautilus with a starry shell and orbiting gold rings with gems",
+    "special"
+   ],
+   [
+    "e85",
+    "晶钟母",
+    "Crystal Bell",
+    "a jellyfish with a crystal bell, gold clock trim and gems",
+    "special"
+   ]
+  ],
+  "epic"
+ ],
+ "melody_common_1": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "c171",
+    "黄号号",
+    "Trumpy",
+    "a trumpetfish with a long tube snout, bright yellow",
+    "snout"
+   ],
+   [
+    "c172",
+    "红鼓鱼",
+    "Drummy",
+    "a round drum fish, bright red",
+    "round"
+   ],
+   [
+    "c173",
+    "绿羽笔",
+    "Seapen",
+    "a sea pen shaped like a soft feather, leaf green",
+    "tree"
+   ],
+   [
+    "c174",
+    "歌鲸鲸",
+    "Hummy",
+    "a chubby baby humpback whale, blue",
+    "whale"
+   ],
+   [
+    "c175",
+    "紫法螺",
+    "Tritone",
+    "a triton sea snail with a trumpet-like spiral shell, purple",
+    "snail"
+   ]
+  ],
+  "common"
+ ],
+ "melody_common_2": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "c176",
+    "粉鸟蛤",
+    "Cockly",
+    "a cockle shell with ridges, soft pink",
+    "shell"
+   ],
+   [
+    "c177",
+    "橙枪虾",
+    "Clicky",
+    "a pistol shrimp with one big round claw, bright orange",
+    "shrimp"
+   ],
+   [
+    "c178",
+    "青铃母",
+    "Chimey",
+    "a bell jellyfish with ribbon-like arms, cyan",
+    "umbrella"
+   ],
+   [
+    "c179",
+    "灰石鲈",
+    "Grunty",
+    "a grunt fish, grey",
+    "long"
+   ],
+   [
+    "c180",
+    "拖鞋虾",
+    "Slipper",
+    "a flat slipper lobster, brown",
+    "claws"
+   ]
+  ],
+  "common"
+ ],
+ "melody_uncommon_1": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "u257",
+    "鼓手蟹",
+    "Drummer",
+    "a crab playing a tiny drum",
+    "special"
+   ],
+   [
+    "u258",
+    "小号鱼",
+    "Trumpet",
+    "a trumpetfish with a little trumpet",
+    "special"
+   ],
+   [
+    "u259",
+    "提琴章",
+    "Fiddlo",
+    "an octopus playing a little violin",
+    "special"
+   ],
+   [
+    "u260",
+    "铃鼓虾",
+    "Tambo",
+    "a shrimp holding a tambourine",
+    "special"
+   ],
+   [
+    "u261",
+    "耳机鲸",
+    "Headphones",
+    "a baby whale wearing headphones",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "melody_uncommon_2": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "u262",
+    "沙锤鱼",
+    "Maraca",
+    "a fish shaking two maracas",
+    "special"
+   ],
+   [
+    "u263",
+    "琴琴马",
+    "Harpo",
+    "a seahorse with a tiny harp",
+    "special"
+   ],
+   [
+    "u264",
+    "口琴豚",
+    "Harmonica",
+    "a pufferfish playing a harmonica",
+    "special"
+   ],
+   [
+    "u265",
+    "指挥鱼",
+    "Maestro",
+    "a fish holding a conductor baton",
+    "special"
+   ],
+   [
+    "u266",
+    "唱片龟",
+    "Vinyl",
+    "a baby sea turtle carrying a little record disc",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "melody_uncommon_3": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "u267",
+    "音符母",
+    "Notey",
+    "a jellyfish with a music note hair clip",
+    "special"
+   ],
+   [
+    "u268",
+    "麦克螺",
+    "Micky",
+    "a snail holding a microphone",
+    "special"
+   ],
+   [
+    "u269",
+    "吉他蟹",
+    "Strummy",
+    "a hermit crab playing a tiny guitar",
+    "special"
+   ],
+   [
+    "u270",
+    "笛子鳗",
+    "Piccolo",
+    "an eel playing a little flute",
+    "special"
+   ],
+   [
+    "u271",
+    "披风豹",
+    "Crooner",
+    "a seal pup wearing a little stage cape",
+    "special"
+   ]
+  ],
+  "uncommon"
+ ],
+ "melody_rare_1": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "r154",
+    "歌后鲸",
+    "Diva Whale",
+    "a baby whale with a pearl crown and a soft glow",
+    "special"
+   ],
+   [
+    "r155",
+    "竖琴仙",
+    "Harp Fairy",
+    "a seahorse with a glowing harp and a flower crown",
+    "special"
+   ],
+   [
+    "r156",
+    "星鼓蟹",
+    "Star Drum",
+    "a crab with a glowing star-shaped drum and a pearl crown",
+    "special"
+   ],
+   [
+    "r157",
+    "银铃母",
+    "Silver Bell",
+    "a jellyfish with silver bells and a pearl tiara, soft glow",
+    "special"
+   ],
+   [
+    "r158",
+    "月光号",
+    "Moon Horn",
+    "a trumpetfish with a moon pearl crown, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "melody_rare_2": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "r159",
+    "和声豚",
+    "Harmony",
+    "a pufferfish with a pearl crown and little glowing music notes touching it",
+    "special"
+   ],
+   [
+    "r160",
+    "金笛鳗",
+    "Golden Flute",
+    "an eel with a golden flute and a pearl tiara",
+    "special"
+   ],
+   [
+    "r161",
+    "晨曲螺",
+    "Morning Song",
+    "a triton snail with a pearl crown and soft glow",
+    "special"
+   ],
+   [
+    "r162",
+    "舞会章",
+    "Ball Dancer",
+    "an octopus in a frilly skirt with a pearl tiara, soft glow",
+    "special"
+   ]
+  ],
+  "rare"
+ ],
+ "melody_epic_1": [
+  "a musical cove where giant conch shells hum soft songs",
+  [
+   [
+    "e86",
+    "乐章龙",
+    "Symphony Dragon",
+    "a small dragon wrapped in glowing ribbons, a gold crown with gems",
+    "special"
+   ],
+   [
+    "e87",
+    "天籁鲸",
+    "Choir Whale",
+    "a whale calf with a starry pattern, gold filigree and glowing music notes touching it",
+    "special"
+   ],
+   [
+    "e88",
+    "金琴蟹",
+    "Lyre King",
+    "a crab king holding a jeweled gold lyre, wearing a crown",
+    "special"
+   ],
+   [
+    "e89",
+    "歌光母",
+    "Aurora Song",
+    "a jellyfish with aurora ribbons, gold bells and gems",
+    "special"
+   ],
+   [
+    "e90",
+    "晶琴马",
+    "Crystal Harp",
+    "a seahorse made of crystal with a gold harp and gems",
+    "special"
+   ]
+  ],
+  "epic"
+ ]
+}

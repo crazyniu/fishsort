@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import { construct } from '../assets/scripts/core/gen/constructor';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { Bowl, GameState, LoseReason, RETURN_BUBBLE, Status } from '../assets/scripts/core/model/gameState';
+import { LevelData } from '../assets/scripts/core/model/levelData';
 import { Rng } from '../assets/scripts/core/rng/rng';
 import * as AutoFinish from '../assets/scripts/core/rules/autoFinish';
 import * as Rules from '../assets/scripts/core/rules/rules';
@@ -424,5 +425,116 @@ describe('限时关（docs/01 第 4 节）', () => {
     const s = play(level([0], [{ fish: [0, 0, 0] }]));
     Rules.tick(s, 999);
     assert.equal(s.status, Status.PLAYING);
+  });
+});
+
+describe('排队泡', () => {
+  // 一个排队泡 [0, 1, 0]（排头是下标 2），一个普通泡 [1, 1]；订单要 1、1、1 再要 0、0（暂存槽 5 格）
+  const queueLevel = (): LevelData => {
+    const lv = new LevelData();
+    lv.palette = 2;
+    lv.orders = [
+      { s: 1, cap: 3, timer: 0 },
+      { s: 0, cap: 2, timer: 0 },
+    ];
+    const bubble = (id: number, fish: number[], queue: boolean) => ({ id, x: 0.3 + id * 0.3, y: 0.5, r: 0.1, layer: 1, fish, under: [], chain: 0, fog: 0, ice: [], pairs: [], queue });
+    lv.bubbles = [bubble(0, [0, 1, 0], true), bubble(1, [1, 1], false)];
+    return lv;
+  };
+
+  it('只有排头能点，取走以后轮到下一条', () => {
+    const s = GameState.fromLevel(queueLevel());
+    Rules.start(s);
+    assert.equal(s.bubbles[0].front(), 2);
+    assert.equal(Rules.tap(s, 0, 0).length, 0, '排在后面的点不动');
+    assert.equal(Rules.tap(s, 0, 1).length, 0);
+    assert.ok(Rules.tap(s, 0, 2).length > 0, '排头能点');
+    assert.equal(s.bubbles[0].front(), 1);
+    assert.ok(Rules.tap(s, 0, 1).length > 0);
+    assert.equal(s.bubbles[0].front(), 0);
+  });
+
+  it('洋流、收尾和机器人都只碰排头', () => {
+    const s = GameState.fromLevel(queueLevel());
+    Rules.start(s);
+    // 架上的两个缸要 1 和 0：洋流先送排头的 0，再轮到后面的 1、0，连普通泡里的 1 一起清完
+    Rules.useCurrent(s);
+    assert.equal(s.status, Status.WON);
+    const t = GameState.fromLevel(queueLevel());
+    Rules.start(t);
+    const taps = [];
+    for (let i = 0; i < 10 && t.status === Status.PLAYING; i++) {
+      const next = Bots.nextTap(t, new Rng(1));
+      if (!next) break;
+      taps.push(next);
+      assert.ok(Rules.tap(t, next[0], next[1]).length > 0, '机器人不点排在后面的鱼');
+    }
+    assert.equal(t.status, Status.WON);
+  });
+
+  it('关卡文件：排队泡才写 queue，读回来不丢', () => {
+    const lv = queueLevel();
+    const back = LevelData.fromJson(lv.toJson()) as LevelData;
+    assert.equal(back.bubbles[0].queue, true);
+    assert.equal(back.bubbles[1].queue, false);
+    assert.ok(!lv.toJson().includes('"queue":0'));
+    assert.equal((JSON.parse(lv.toJson()).bubbles[1] as { queue?: number }).queue, undefined);
+  });
+});
+
+describe('加开的缸只装一缸、洗牌只换眼前要的鱼（docs/01 2.4、5.2）', () => {
+  const bubble = (id: number, fish: number[], queue = false) => ({ id, x: 0.2 + id * 0.2, y: 0.5, r: 0.1, layer: 1, fish, under: [], chain: 0, fog: 0, ice: [], pairs: [], queue });
+  const make = (orders: number[], bubbles: ReturnType<typeof bubble>[]): GameState => {
+    const lv = new LevelData();
+    lv.palette = 4;
+    lv.orders = orders.map((s) => ({ s, cap: 3, timer: 0 }));
+    lv.bubbles = bubbles;
+    const s = GameState.fromLevel(lv);
+    s.bowlOnce = true;
+    Rules.start(s);
+    return s;
+  };
+
+  it('加开的缸装满一缸就收走，不再上新订单；再开一次又能用', () => {
+    const s = make([0, 1, 2, 3, 0], [bubble(0, [2, 2, 2]), bubble(1, [0, 0, 0, 0, 0]), bubble(2, [1, 1, 1, 3, 3]), bubble(3, [3, 0])]);
+    assert.equal(s.baseSlots, 2);
+    const open = Rules.unlockBowl(s);
+    assert.ok(open.some((e) => e.t === 'slot_open' && e.slot === 2));
+    assert.equal(bowl(s, 2).species, 2, '加开的缸接下一张订单');
+    let ev: ReturnType<typeof Rules.tap> = [];
+    for (let k = 0; k < 3; k++) ev = Rules.tap(s, 0, 2 - k);
+    assert.ok(ev.some((e) => e.t === 'slot_close' && e.slot === 2), '装满就收走');
+    assert.equal(s.slots[2], null, '不再上新订单');
+    assert.equal(s.nextOrder, 3);
+    assert.ok(Rules.unlockBowl(s).some((e) => e.t === 'slot_open' && e.slot === 2), '再开一次，还是这个位置');
+    assert.equal(bowl(s, 2).species, 3);
+    assert.ok(Rules.unlockBowl(s).some((e) => e.t === 'slot_open' && e.slot === 3), '第 3 个还占着时开第 4 个');
+    assert.equal(Rules.unlockBowl(s).length, 0, '两个加开位都占着，开不了');
+  });
+
+  it('默认（没开 bowlOnce）开了整关有效', () => {
+    const s = make([0, 1, 2, 3], [bubble(0, [2, 2, 2]), bubble(1, [0, 0, 0]), bubble(2, [1, 1, 1, 3, 3, 3])]);
+    s.bowlOnce = false;
+    Rules.unlockBowl(s);
+    for (let k = 0; k < 3; k++) Rules.tap(s, 0, 2 - k);
+    assert.equal(bowl(s, 2).species, 3, '装满后接着上下一张订单');
+  });
+
+  it('洗牌：把架上的缸要的鱼换到排头，其余的鱼不动', () => {
+    // 两个缸要 0 和 1；排队泡的排头是 2、3，要的鱼压在后面
+    const s = make([0, 1, 2, 3], [bubble(0, [0, 0, 2], true), bubble(1, [1, 1, 3], true), bubble(2, [0, 1, 2, 3, 2, 3], true)]);
+    const before = s.bubbles.map((b) => b.fish.slice());
+    assert.ok(Rules.noTarget(s), '洗牌前没有一条能直接进缸');
+    assert.ok(Rules.useShuffle(s, 5).length > 0);
+    assert.ok(!Rules.noTarget(s), '洗牌后排头有能进缸的鱼');
+    const count = (rows: number[][]) => rows.flat().sort().join(',');
+    assert.equal(count(s.bubbles.map((b) => b.fish)), count(before), '各种鱼的数量不变');
+    let same = 0;
+    let all = 0;
+    s.bubbles.forEach((b, i) => b.fish.forEach((f, k) => { all++; if (f === before[i][k]) same++; }));
+    assert.ok(all - same <= 12, `最多对调 6 对（动了 ${all - same} 条）`);
+    // 要的鱼已经在排头了：再洗没有可换的，不算用掉
+    const t = make([0, 1], [bubble(0, [2, 0], true), bubble(1, [3, 1], true)]);
+    assert.equal(Rules.useShuffle(t, 5).length, 0);
   });
 });

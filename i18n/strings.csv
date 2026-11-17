@@ -96,6 +96,7 @@ UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life"
 TIP_DROP,后面还会掉下新气泡,More bubbles will drop in
 TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time
+TIP_QUEUE,排队泡：里面的鱼排着队，只能取最前面最亮的那条,"Queue bubble: fish line up. Only the bright one in front can go"
 TIP_TOOLS3,从这里起关卡更难了，每种道具每关能用 3 次,Levels get harder from here. Each booster can be used 3 times per level
 TIP_BUFFER4,从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具,Only 4 holding slots from here on. They fill up fast — use boosters when stuck
 REVIVE_CLOCK,时间 +30 秒,+30s on the clock
@@ -113,6 +114,12 @@ ALBUM_BOOK_9,火山热泉,Volcano Vents
 ALBUM_BOOK_10,远古遗迹,Ancient Ruins
 ALBUM_BOOK_11,深海峡谷,Deep Trench
 ALBUM_BOOK_12,星海秘境,Starry Sea
+ALBUM_BOOK_13,樱花海湾,Blossom Bay
+ALBUM_BOOK_14,海底集市,Seabed Market
+ALBUM_BOOK_15,云朵浮岛,Cloud Isles
+ALBUM_BOOK_16,珍珠贝湾,Pearl Cove
+ALBUM_BOOK_17,齿轮钟湾,Clockwork Bay
+ALBUM_BOOK_18,歌声海湾,Melody Cove
 ALBUM_CLAIMED,已领取,Claimed
 ALBUM_TAKE,领取,Claim
 DAILY_START,开始挑战,Play
@@ -152,7 +159,7 @@ DAILY_TITLE,每日挑战,Daily Challenge
 ADS_LEFT,剩 %d 次,%d left
 MECH_TITLE,新玩法,New!
 GOT_IT,知道了,Got it
-SLOT_LINE,多一个鱼缸，更好过关,One more tank for this level
+SLOT_LINE,多一个鱼缸，装满一缸就收走,One extra tank. It leaves when full
 LOCK_PREVIEW,解锁奖励,Unlock rewards
 H_FEAT_DAILY,每日挑战,Daily
 PRIZE_HOURS,%d 小时,%dh
@@ -302,6 +309,66 @@ SPECIES_C117,月牙鳐,Lunaray
 SPECIES_C118,梦梦鱼,Dreamfin
 SPECIES_C119,流星螺,Meteor
 SPECIES_C120,星尘虾,Shimmer
+SPECIES_C121,樱花虾,Sakura
+SPECIES_C122,春鲷鲷,Bream
+SPECIES_C123,青虾虎,Greengoby
+SPECIES_C124,小蓝鳐,Skipray
+SPECIES_C125,紫裙裙,Frillo
+SPECIES_C126,金鲤鲤,Goldfin
+SPECIES_C127,杏花蟹,Apricrab
+SPECIES_C128,薄荷螺,Swirlsnail
+SPECIES_C129,灰扁扁,Flounder
+SPECIES_C130,花蛤蛤,Clammy
+SPECIES_C131,黄鱼鱼,Croaky
+SPECIES_C132,红梭蟹,Swimmer
+SPECIES_C133,青柠星,Limestar
+SPECIES_C134,蓝鲳鲳,Pompy
+SPECIES_C135,紫贻贝,Musselly
+SPECIES_C136,粉鱿鱿,Squidy
+SPECIES_C137,橙鼓鼓,Tangerine
+SPECIES_C138,青马马,Aqua
+SPECIES_C139,灰鲈鲈,Perchy
+SPECIES_C140,棕螺螺,Whelk
+SPECIES_C141,飞鱼鱼,Soary
+SPECIES_C142,红鼓鼓,Balloony
+SPECIES_C143,青团龟,Minto
+SPECIES_C144,天蓝母,Skybell
+SPECIES_C145,紫海马,Lavvy
+SPECIES_C146,粉豚豚,Rosydol
+SPECIES_C147,杏仁蟹,Almond
+SPECIES_C148,青虾虾,Skyshrimp
+SPECIES_C149,白云鳐,Cloudy
+SPECIES_C150,灰蛞蛞,Foggy
+SPECIES_C151,柠檬蝶,Lemony
+SPECIES_C152,红扇贝,Scallop
+SPECIES_C153,绿鲍鲍,Abalo
+SPECIES_C154,蓝虾蛄,Mantie
+SPECIES_C155,紫团章,Plumy
+SPECIES_C156,粉鳗鳗,Pearly
+SPECIES_C157,橙蛞蛞,Tangelo
+SPECIES_C158,青盒盒,Cubby
+SPECIES_C159,白砗磲,Gianty
+SPECIES_C160,棕宝螺,Cowrie
+SPECIES_C161,黄蝠蝠,Battino
+SPECIES_C162,红龙龙,Lobby
+SPECIES_C163,绿鹦螺,Nauty
+SPECIES_C164,蓝扳扳,Triggy
+SPECIES_C165,紫月螺,Lilac
+SPECIES_C166,粉隆隆,Wrasly
+SPECIES_C167,橙方母,Cubie
+SPECIES_C168,青乌乌,Cuttly
+SPECIES_C169,铁甲蟹,Ironclaw
+SPECIES_C170,杜父鱼,Sculpin
+SPECIES_C171,黄号号,Trumpy
+SPECIES_C172,红鼓鱼,Drummy
+SPECIES_C173,绿羽笔,Seapen
+SPECIES_C174,歌鲸鲸,Hummy
+SPECIES_C175,紫法螺,Tritone
+SPECIES_C176,粉鸟蛤,Cockly
+SPECIES_C177,橙枪虾,Clicky
+SPECIES_C178,青铃母,Chimey
+SPECIES_C179,灰石鲈,Grunty
+SPECIES_C180,拖鞋虾,Slipper
 SPECIES_U01,叶卷龙,Leafy
 SPECIES_U02,霞扇扇,Fanny
 SPECIES_U03,饼壳壳,Crusty
@@ -483,6 +550,96 @@ SPECIES_U178,太空虾,Spacey
 SPECIES_U179,星带鳗,Starband
 SPECIES_U180,外星兔,Alien
 SPECIES_U181,光环鱼,Ringlet
+SPECIES_U182,花伞鱼,Parasol
+SPECIES_U183,樱帽虾,Bloomhat
+SPECIES_U184,杯杯蟹,Cupcrab
+SPECIES_U185,风筝鳐,Kitey
+SPECIES_U186,团子鱼,Dango
+SPECIES_U187,花篮螺,Basket
+SPECIES_U188,铃铛鲤,Dingle
+SPECIES_U189,樱扇章,Fanfan
+SPECIES_U190,纸鹤鱼,Cranefin
+SPECIES_U191,粉结兔,Bowbun
+SPECIES_U192,野餐蟹,Picnic
+SPECIES_U193,春笛鱼,Piper
+SPECIES_U194,抹茶龟,Matcha
+SPECIES_U195,花环豚,Wreath
+SPECIES_U196,雨靴虾,Bootsy
+SPECIES_U197,菜篮蟹,Shopper
+SPECIES_U198,钱袋鱼,Pursey
+SPECIES_U199,围裙章,Apron
+SPECIES_U200,草帽虾,Strawhat
+SPECIES_U201,气球鱼,Balloon
+SPECIES_U202,糖串鳗,Sweetie
+SPECIES_U203,纸袋蟹,Baggy
+SPECIES_U204,店铃螺,Shopbell
+SPECIES_U205,眼镜鲷,Specs
+SPECIES_U206,头巾鱿,Bandana
+SPECIES_U207,灯笼豚,Lanterny
+SPECIES_U208,包子鱼,Bunbun
+SPECIES_U209,风车虾,Pinwheel
+SPECIES_U210,邮差龟,Postie
+SPECIES_U211,厨帽鲈,Chef
+SPECIES_U212,风筝虾,Kitesy
+SPECIES_U213,云帽豚,Cloudcap
+SPECIES_U214,雨伞章,Brolly
+SPECIES_U215,伞包龟,Chute
+SPECIES_U216,翅膀鱼,Winglet
+SPECIES_U217,虹巾马,Arcy
+SPECIES_U218,飞行鳐,Aviator
+SPECIES_U219,雨滴蟹,Drippy
+SPECIES_U220,云枕鱼,Napper
+SPECIES_U221,星棒母,Wandy
+SPECIES_U222,纸机鱼,Planey
+SPECIES_U223,风铃螺,Chime
+SPECIES_U224,羽毛鲀,Feather
+SPECIES_U225,墨镜蟹,Shady
+SPECIES_U226,水手鱼,Sailor
+SPECIES_U227,珠链蝶,Necklace
+SPECIES_U228,贝帽章,Shellcap
+SPECIES_U229,首饰蟹,Jewelbox
+SPECIES_U230,发夹鳗,Clasp
+SPECIES_U231,小镜虾,Handmirror
+SPECIES_U232,蕾丝鲍,Lacy
+SPECIES_U233,螺号鱼,Conchhorn
+SPECIES_U234,沙堡蟹,Castle
+SPECIES_U235,珠帘母,Beady
+SPECIES_U236,泡泡兔,Bubbly
+SPECIES_U237,贝包鱼,Clutch
+SPECIES_U238,小铲虾,Shovel
+SPECIES_U239,星卡龟,Starclip
+SPECIES_U240,手镯章,Bangle
+SPECIES_U241,珠袋鳐,Satchel
+SPECIES_U242,发条鱼,Windup
+SPECIES_U243,怀表蟹,Pocketwatch
+SPECIES_U244,铜镜章,Brassgoggle
+SPECIES_U245,齿轮螺,Cogsnail
+SPECIES_U246,礼帽鱼,Dapper
+SPECIES_U247,扳手虾,Wrenchy
+SPECIES_U248,桨帽龟,Propeller
+SPECIES_U249,小钟母,Clocky
+SPECIES_U250,领结螺,Bowtie
+SPECIES_U251,油壶鳐,Oily
+SPECIES_U252,单镜鱼,Monocle
+SPECIES_U253,马甲虾,Vesty
+SPECIES_U254,灯泡乌,Bulby
+SPECIES_U255,工具蟹,Toolbox
+SPECIES_U256,齿链鲀,Geary
+SPECIES_U257,鼓手蟹,Drummer
+SPECIES_U258,小号鱼,Trumpet
+SPECIES_U259,提琴章,Fiddlo
+SPECIES_U260,铃鼓虾,Tambo
+SPECIES_U261,耳机鲸,Headphones
+SPECIES_U262,沙锤鱼,Maraca
+SPECIES_U263,琴琴马,Harpo
+SPECIES_U264,口琴豚,Harmonica
+SPECIES_U265,指挥鱼,Maestro
+SPECIES_U266,唱片龟,Vinyl
+SPECIES_U267,音符母,Notey
+SPECIES_U268,麦克螺,Micky
+SPECIES_U269,吉他蟹,Strummy
+SPECIES_U270,笛子鳗,Piccolo
+SPECIES_U271,披风豹,Crooner
 SPECIES_R01,珠卷卷,Pearl Curl
 SPECIES_R02,琉璃伞,Glass Brolly
 SPECIES_R03,花鼓鼓,Drum
@@ -591,6 +748,60 @@ SPECIES_R105,极光鱼,Aurora Fish
 SPECIES_R106,星珠母,Star Pearl
 SPECIES_R107,星梦豚,Star Dream
 SPECIES_R108,星鹅鱼,Swanfin
+SPECIES_R109,樱冠鲤,Blossom Carp
+SPECIES_R110,珠樱虾,Pearl Sakura
+SPECIES_R111,花仙章,Petal Fairy
+SPECIES_R112,月樱鳐,Moon Blossom
+SPECIES_R113,春灯鲷,Lantern Bream
+SPECIES_R114,樱珠蟹,Blossom Crab
+SPECIES_R115,花冠兔,Bloom Bunny
+SPECIES_R116,露珠龟,Dew Turtle
+SPECIES_R117,柳叶鱼,Willow
+SPECIES_R118,珠灯蟹,Lamplight
+SPECIES_R119,宝袋鱼,Pouchy
+SPECIES_R120,霓灯章,Neon Octo
+SPECIES_R121,珠伞鱿,Pearl Squid
+SPECIES_R122,银鲳仙,Silver Pompy
+SPECIES_R123,茶仙虾,Tea Sprite
+SPECIES_R124,灯会豚,Lantern Puff
+SPECIES_R125,花帽鲷,Flower Bream
+SPECIES_R126,珠贝商,Pearl Mussel
+SPECIES_R127,云冠豚,Cloud Crown
+SPECIES_R128,虹珠马,Rainbow Pearl
+SPECIES_R129,天使鳐,Sky Angel
+SPECIES_R130,晴光鱼,Sunbeam
+SPECIES_R131,雨珠母,Raindrop
+SPECIES_R132,羽冠龟,Plume Turtle
+SPECIES_R133,云纱章,Veil Octo
+SPECIES_R134,珠云蟹,Cloud Pearl
+SPECIES_R135,霞光虾,Dawn Shrimp
+SPECIES_R136,珠后蝶,Pearl Empress
+SPECIES_R137,虹贝章,Opal Octo
+SPECIES_R138,月珠鳗,Moon Eel
+SPECIES_R139,珠贝仙,Shell Fairy
+SPECIES_R140,银鲍鲍,Silver Abby
+SPECIES_R141,星珠虾,Starbead
+SPECIES_R142,粉珠母,Rose Pearl
+SPECIES_R143,珠冠蟹,Pearl Crown
+SPECIES_R144,雪珠兔,Snow Pearl
+SPECIES_R145,金钟螺,Gold Nautilus
+SPECIES_R146,时光鱼,Timekeeper
+SPECIES_R147,铜冠虾,Copper Crown
+SPECIES_R148,星齿章,Star Gear
+SPECIES_R149,钟楼蟹,Clocktower
+SPECIES_R150,月轮母,Moonwheel
+SPECIES_R151,银机龟,Silver Turtle
+SPECIES_R152,琥珀蝠,Amber
+SPECIES_R153,发条仙,Windup Fairy
+SPECIES_R154,歌后鲸,Diva Whale
+SPECIES_R155,竖琴仙,Harp Fairy
+SPECIES_R156,星鼓蟹,Star Drum
+SPECIES_R157,银铃母,Silver Bell
+SPECIES_R158,月光号,Moon Horn
+SPECIES_R159,和声豚,Harmony
+SPECIES_R160,金笛鳗,Golden Flute
+SPECIES_R161,晨曲螺,Morning Song
+SPECIES_R162,舞会章,Ball Dancer
 SPECIES_E01,晶背宝,Crystal Back
 SPECIES_E02,星披披,Star Cape
 SPECIES_E03,珠角团,Pearl Horn
@@ -651,6 +862,36 @@ SPECIES_E57,宇宙鲸王,Cosmos Whale
 SPECIES_E58,太阳鳐,Solar Ray
 SPECIES_E59,星环章,Ring Lord
 SPECIES_E60,极光天马,Aurora Pegasus
+SPECIES_E61,樱龙龙,Blossom Dragon
+SPECIES_E62,金鲤王,Carp King
+SPECIES_E63,花神鳐,Bloom Goddess
+SPECIES_E64,樱晶蟹,Rose Quartz
+SPECIES_E65,春之鲸,Spring Whale
+SPECIES_E66,灯王龙,Lantern Dragon
+SPECIES_E67,宝市鲸,Bazaar Whale
+SPECIES_E68,招财蟹,Fortune Crab
+SPECIES_E69,琉璃章,Glass Octopus
+SPECIES_E70,宝灯鳐,Jewel Ray
+SPECIES_E71,云龙龙,Cloud Dragon
+SPECIES_E72,天空鲸,Sky Whale
+SPECIES_E73,彩虹鳐,Rainbow Ray
+SPECIES_E74,雷光豚,Thunder
+SPECIES_E75,日轮马,Sun Seahorse
+SPECIES_E76,珍珠龙,Pearl Dragon
+SPECIES_E77,砗磲王,Clam King
+SPECIES_E78,宝珠鲸,Orb Whale
+SPECIES_E79,欧泊鳐,Opal Ray
+SPECIES_E80,皇冠蝶,Crown Fly
+SPECIES_E81,机械龙,Clock Dragon
+SPECIES_E82,钟表鲸,Chrono Whale
+SPECIES_E83,齿轮王,Gear King
+SPECIES_E84,星轨螺,Orbit Nautilus
+SPECIES_E85,晶钟母,Crystal Bell
+SPECIES_E86,乐章龙,Symphony Dragon
+SPECIES_E87,天籁鲸,Choir Whale
+SPECIES_E88,金琴蟹,Lyre King
+SPECIES_E89,歌光母,Aurora Song
+SPECIES_E90,晶琴马,Crystal Harp
 SPECIES_L01,曦尾锦,Dawn Koi
 SPECIES_L02,月眠鲸,Moon Whale
 PROFILE_CHANGE_AVATAR,换头像,Change

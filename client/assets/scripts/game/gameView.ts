@@ -189,8 +189,8 @@ export class GamePage extends Page {
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
   private nudged = new Set<string>();
-  /** 小手现在指着哪个道具 */
-  private pointed: SkillId | null = null;
+  /** 小手现在放在哪个节点上（某个道具键，或加鱼缸的「＋」） */
+  private pointedNode: Node | null = null;
   private fieldTop = 0;
   private fieldBottom = 0;
   private total = 0;
@@ -238,6 +238,8 @@ export class GamePage extends Page {
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
     this.s.clock = this.arg.daily ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
+    // 加开的缸只装一缸就收走（docs/01 2.4）
+    this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
     const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
@@ -276,7 +278,7 @@ export class GamePage extends Page {
     this.bufferSlots = [];
     this.warned.clear();
     this.nudged.clear();
-    this.pointed = null;
+    this.pointedNode = null;
     this.plusNodes = [];
     this.skillNodes.clear();
     this.hintNode = null;
@@ -498,28 +500,34 @@ export class GamePage extends Page {
     }
   }
 
-  /** 小手该指哪个道具：按顺序挑第一个解锁了、本关没用完的（库存是 0 也指：点了去买或看广告） */
-  private handSkill(order: string[] | undefined): SkillId | null {
+  /**
+   * 小手该指哪个：按顺序挑第一个**现在用得上**的——解锁了、本关次数没用完、点了有效果（库存是 0 也指：点了去买或看广告）。
+   * 'bowl' 是加鱼缸的「＋」：还有空着的加开位才指。
+   * 用户 2026-11-18：洗牌本关的次数用完了，小手还指着它；应该指能用的技能或者鱼缸
+   */
+  private handSkill(order: string[] | undefined): string | null {
     if (!order) return null;
     const s = App.save.data;
     for (const id of order) {
+      if (id === 'bowl') {
+        if (this.plusNodes.some((p) => p.active)) return id;
+        continue;
+      }
       const v = this.skillNodes.get(id as SkillId);
       if (!v || v.lock.active) continue;
       const why = Skills.canUse(s, App.config.eco, id, this.used[id] ?? 0, this.arg.daily ? 0 : this.arg.level);
-      if (why === '' || why === 'empty') return id as SkillId;
+      if ((why === '' || why === 'empty') && Flow.hasEffect(this, id) === null) return id;
     }
     return null;
   }
 
-  /** 把小手放到 id 这个道具键上（null = 收起来） */
-  private pointSkill(id: SkillId | null): void {
-    if (this.pointed === id) return;
-    if (this.pointed) this.skillNodes.get(this.pointed)?.node.getChildByName('finger')?.destroy();
-    this.pointed = id;
-    if (id) {
-      const v = this.skillNodes.get(id);
-      if (v) addFinger(v.node);
-    }
+  /** 把小手放到 id 这个道具键（或加鱼缸的「＋」）上，null = 收起来 */
+  private pointSkill(id: string | null): void {
+    const node = id === null ? null : id === 'bowl' ? (this.plusNodes.find((p) => p.active) ?? null) : (this.skillNodes.get(id as SkillId)?.node ?? null);
+    if (this.pointedNode === node) return;
+    if (this.pointedNode && this.pointedNode.isValid) this.pointedNode.getChildByName('finger')?.destroy();
+    this.pointedNode = node;
+    if (node) addFinger(node);
   }
 
   // ---------------------------------------------------------------- 输入
@@ -668,6 +676,12 @@ export class GamePage extends Page {
           opened.add(e.slot as number);
           const plus = this.plusNodes[e.slot as number];
           if (plus) plus.active = false;
+          break;
+        }
+        case 'slot_close': {
+          // 加开的缸装满送走以后，这个位置变回「＋」（等送走的演出播完）
+          const plus = this.plusNodes[e.slot as number];
+          if (plus) fx.delay(this.fly, t + cfg.bowlDone.dropAt, () => (plus.active = true));
           break;
         }
         case 'bubble_pop': {

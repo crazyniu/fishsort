@@ -7,8 +7,9 @@ import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
 import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
+import * as Careful from '../assets/scripts/core/solver/careful';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
-import { CONFIG, curve as loadCurve, levelFile } from './helpers';
+import { CONFIG, curve as loadCurve, level, levelFile, play } from './helpers';
 
 describe('生成器', () => {
   it('同种子输出一致', () => {
@@ -138,15 +139,99 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
   });
 });
 
+describe('排队泡关卡（docs/02 第 0.4、0.6 节）', () => {
+  const c = loadCurve();
+
+  it('第 26 关起分三档：每 5 关一个难关、每 20 关一个大难关，其余普通关', () => {
+    assert.equal(LevelCurve.jamKind(c, 25), null);
+    assert.equal(LevelCurve.jamKind(c, 26), 'normal');
+    assert.equal(LevelCurve.jamKind(c, 30), 'hard');
+    assert.equal(LevelCurve.jamKind(c, 40), 'big');
+    assert.equal(LevelCurve.jamKind(c, 360), 'big');
+  });
+
+  it('排队泡第 28 关才有，越往后越多；只打乱后面一段', () => {
+    assert.equal(LevelCurve.params(c, 27, 0).queue, 0);
+    assert.ok((LevelCurve.params(c, 28, 0).queue as number) > 0.3);
+    const q = [60, 120, 240, 360].map((id) => LevelCurve.params(c, id, 0).queue as number);
+    for (let i = 1; i < q.length; i++) assert.ok(q[i] > q[i - 1], `${q}`);
+    for (const id of [26, 140, 360]) {
+      const from = LevelCurve.params(c, id, 0).scrambleFrom as number;
+      assert.ok(from > 0 && from < 1);
+    }
+    assert.equal(LevelCurve.knot([[10, 0], [20, 1]], 15), 0.5);
+    assert.equal(LevelCurve.knot([[10, 0], [20, 1]], 5), 0);
+    assert.equal(LevelCurve.knot([[10, 0], [20, 1]], 25), 1);
+  });
+
+  it('目标：花得越多过关概率越高；难关的变体往普通关靠', () => {
+    for (const id of [30, 100, 140, 300, 360]) {
+      const t = LevelCurve.jamTargets(c, id, 0) as number[];
+      for (let k = 1; k < t.length; k++) assert.ok(t[k] > t[k - 1], `第 ${id} 关 ${t}`);
+      const normal = LevelCurve.jamTargets(c, id + 1, 0) as number[];
+      assert.ok(t[0] < normal[0]);
+      assert.deepEqual(LevelCurve.jamTargets(c, id, 2), normal);
+      const e1 = LevelCurve.jamTargets(c, id, 1) as number[];
+      assert.ok(e1[0] > t[0] && e1[0] < normal[0]);
+    }
+    assert.equal(LevelCurve.jamTargets(c, 31, 1), null, '普通关的变体只要更容易，不设目标');
+    assert.ok((LevelCurve.jamTargets(c, 140, 0) as number[])[0] < (LevelCurve.jamTargets(c, 135, 0) as number[])[0], '大难关比难关难');
+  });
+
+  it('打乱只动编号在后面的气泡', () => {
+    const p: GenParams = { species: 6, fish: 60, layers: 1, slack: 1, cap: 12, queue: 0.5, scramble: 15, scrambleFrom: 0.5 };
+    const plain = generate({ ...p, scramble: 0 }, 11) as LevelData;
+    const lv = generate(p, 11, (x) => Careful.play(x, 1, 'careful').taps);
+    if (lv === null) return;
+    assert.deepEqual(LevelCheck.errors(lv), []);
+    const half = Math.floor(lv.bubbles.length * 0.5);
+    assert.equal(plain.bubbles.length, lv.bubbles.length);
+    for (let b = 0; b < half; b++) assert.deepEqual(lv.bubbles[b].fish, plain.bubbles[b].fish, `气泡 ${b}`);
+  });
+});
+
+describe('机器人：卡死了才花道具（docs/02 第 0.3 节）', () => {
+  const lv = level([0, 1], [{ fish: [1, 1, 0, 0, 2] }, { fish: [1, 0, 3] }], 4);
+
+  it('「卡死」= 点得到的鱼都进不了缸、暂存槽只剩最后一格', () => {
+    const s = play(lv);
+    assert.equal(Careful.stuck(s), false);
+    s.buffer = [7, 8, 9];
+    s.bufferCap = 4;
+    s.bubbles[0].fish = [9, 9];
+    s.bubbles[1].fish = [8, 8];
+    s.bubbles[0].queue = true;
+    s.bubbles[1].queue = true;
+    assert.equal(Careful.stuck(s), true);
+  });
+
+  it('不带道具的局和带道具但没用上的局一模一样；带了道具的过关概率不会更低', () => {
+    const p: GenParams = { species: 6, fish: 60, layers: 1, slack: 1, cap: 12, queue: 1, scramble: 20, scrambleFrom: 0.3 };
+    const g = generate(p, 5, (x) => Careful.play(x, 1, 'careful').taps);
+    if (g === null) return;
+    const caps = { shuffle: 2, bowl: 2, blow: 2, net: 2 };
+    for (let seed = 0; seed < 20; seed++) {
+      const bare = Careful.play(g, seed, 'normal');
+      const with_ = Careful.play(g, seed, 'normal', caps);
+      if (with_.items === 0) assert.deepEqual(with_.taps, bare.taps);
+      if (bare.won) assert.ok(with_.won && with_.items === 0);
+    }
+    const none = Careful.itemsNeeded(g, 30, 'normal', Careful.NO_ITEMS);
+    const some = Careful.itemsNeeded(g, 30, 'normal', caps);
+    assert.ok(Careful.within(some, 8) >= Careful.within(none, 0));
+    assert.equal(Careful.within(some, 0), Careful.within(none, 0));
+  });
+});
+
 describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
   const names = readdirSync(join(CONFIG, 'levels'))
     .filter((n) => n.endsWith('.json'))
     .map((n) => n.slice(0, -5))
     .sort();
 
-  it('240 关，每关本体加两个易化变体', () => {
-    assert.equal(names.length, 720);
-    for (let id = 1; id <= 240; id++) {
+  it('360 关，每关本体加两个易化变体', () => {
+    assert.equal(names.length, 1080);
+    for (let id = 1; id <= 360; id++) {
       const base = `level_${String(id).padStart(4, '0')}`;
       for (const n of [base, `${base}_e1`, `${base}_e2`]) assert.ok(names.includes(n), n);
     }
