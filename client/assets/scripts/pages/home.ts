@@ -210,7 +210,7 @@ export class HomePage extends Page {
 
   private tapEntry(def: EntryDef): void {
     // 未开放：点进去是锁页（docs/01 5.3）
-    if (def.feature && !Features.isUnlocked(App.config.eco, def.feature, App.save.data.level)) ui.go('lock', { feature: def.feature });
+    if (def.feature && !App.featureOpen(def.feature)) ui.go('lock', { feature: def.feature });
     else def.open();
   }
 
@@ -477,7 +477,7 @@ export class HomePage extends Page {
     this.tag.active = hard;
     for (const e of this.entries.values()) {
       const f = e.def.feature;
-      const open = f === null || Features.isUnlocked(eco, f, lvl);
+      const open = f === null || App.featureOpen(f);
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;

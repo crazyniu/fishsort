@@ -1,6 +1,7 @@
 // 全局服务的入口：平台、配置、存档。启动时 Boot 调 App.start()，之后界面层从这里取。
 import type { Capability, PlatformBase } from '../platform/platformBase';
 import { createPlatform } from '../platform/index';
+import * as Features from '../core/meta/features';
 import { Config } from './config';
 import { LaunchFlags, parseLaunch } from './launch';
 import { Save } from './save';
@@ -10,6 +11,19 @@ export class App {
   static config: Config;
   static save: Save;
   static flags: LaunchFlags;
+
+  /**
+   * 能点开的最高一关：平时是存档进度；试玩模式（./run.sh 不带 real）所有关都能点开，进度本身不改
+   * （用户 2026-11-17：run.sh 里所有关卡都解锁）
+   */
+  static reach(): number {
+    return App.flags.boost ? Math.max(App.save.data.level, App.config.levelCount) : App.save.data.level;
+  }
+
+  /** 功能开没开：按存档进度；试玩模式下「选关」（海图、选关页）一直开着，好挑关 */
+  static featureOpen(f: string): boolean {
+    return (App.flags.boost && f === 'levelSelect') || Features.isUnlocked(App.config.eco, f, App.save.data.level);
+  }
 
   static async start(): Promise<void> {
     App.platform = createPlatform();
