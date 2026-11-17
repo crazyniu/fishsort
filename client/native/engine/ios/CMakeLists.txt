@@ -32,6 +32,12 @@ foreach(t cocos_engine ${EXECUTABLE_NAME})
     endif()
 endforeach()
 
+# Cocos 3.8.8 预编译的 libwebp.a 成员没按 8 字节对齐，Xcode 27 的新链接器会丢掉它们、链接失败。
+# ./run.sh ios-build 用 Xcode 的 libtool 重新打包一份对齐的放到 sdk/libwebp/（不进仓库），这里把引擎的 webp 目标指过去
+if(TARGET webp AND EXISTS ${CC_PROJECT_DIR}/sdk/libwebp/libwebp.a)
+    set_target_properties(webp PROPERTIES IMPORTED_LOCATION ${CC_PROJECT_DIR}/sdk/libwebp/libwebp.a)
+endif()
+
 # 只做 iPhone 版（docs/06 第 3 节），在 iPad 上按 iPhone 比例运行
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1")
 

@@ -122,6 +122,16 @@ ios_sdk() {
   ls "$dir"
 }
 
+# Cocos 3.8.8 预编译的 libwebp.a 和 Xcode 27 的链接器不兼容（成员没对齐），用 libtool 重新打包一份对齐的（iOS 工程的 CMakeLists 用它）
+ios_fix_webp() {
+  local src dst="$CLIENT/native/engine/ios/sdk/libwebp/libwebp.a"
+  src="$(dirname "$(dirname "$COCOS")")/Resources/resources/3d/engine/native/external/ios/libs/libwebp.a"
+  [ -f "$dst" ] && [ "$dst" -nt "$src" ] && return 0
+  [ -f "$src" ] || { echo "! 没找到 ${src}，跳过"; return 0; }
+  mkdir -p "$(dirname "$dst")"
+  xcrun libtool -static -o "$dst" "$src" 2>/dev/null || { echo "! libwebp 重新打包失败"; rm -f "$dst"; }
+}
+
 # xcode 工程和 scheme：Cocos 按构建配置的 name 起名（name-mobile）
 ios_project() {
   local proj
@@ -134,6 +144,7 @@ ios_build() {
   local mode="${1:-}" proj scheme team
   node tools/native/apply.mjs
   ios_sdk
+  ios_fix_webp
   cocos_build ios
   # Cocos 构建时用它模板里的启动图盖掉我们的（tools/native/icons.py 生成的），换回来
   git checkout -- "$CLIENT"/native/engine/ios/LaunchScreenBackground*.png 2>/dev/null || true
