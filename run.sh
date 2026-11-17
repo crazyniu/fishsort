@@ -35,7 +35,7 @@ usage() {
   serve [同上的参数]    不重新构建，直接打开上次的构建
   build                 只构建网页版 → client/build/web-mobile
   wechat-build          构建微信小游戏包 → client/build/wechatgame（再用微信开发者工具打开上传）
-  ios-build [sim|ipa]   构建 iOS：出 Xcode 工程 → client/build/ios/proj；sim = 再编译一个模拟器版验证能编过，
+  ios-build [sim|dev|ipa]  构建 iOS：出 Xcode 工程 → client/build/ios/proj；sim = 再编一个模拟器版、dev = 编一个不签名的真机版，验证能编过；
                         ipa = 归档并导出上传 App Store 用的 ipa（要先在 Xcode 里登录开发者账号、game.json 填 ios.team）
   android-build [apk|aab]  构建 Android：出 Gradle 工程，再编出 apk（测试装机）或 aab（上传 Google Play，要签名，见 docs/10）
   native-apply          按 game.json 改写各平台的构建配置和原生工程（打包命令会自动跑）
@@ -143,10 +143,17 @@ ios_build() {
   case "$mode" in
     "") echo "✓ Xcode 工程：${proj}（用 Xcode 打开可以直接装到手机上调试）" ;;
     sim)
-      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphonesimulator -configuration Debug \
+      # 只编 arm64（Apple 芯片的 Mac）：Cocos 预编译库的 x86_64 模拟器部分和 Xcode 27 的链接器不兼容
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphonesimulator -configuration Debug ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
         -derivedDataPath "$CLIENT/build/ios/derived" CODE_SIGNING_ALLOWED=NO build > "$CLIENT/build/ios/sim.log" 2>&1 \
         || { grep -E "error:|BUILD FAILED" "$CLIENT/build/ios/sim.log" | head -30; die "模拟器版编译失败（全文 client/build/ios/sim.log）"; }
       echo "✓ 模拟器版编译通过：client/build/ios/derived/Build/Products/Debug-iphonesimulator/"
+      ;;
+    dev)
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphoneos -configuration Release \
+        -derivedDataPath "$CLIENT/build/ios/derived-dev" CODE_SIGNING_ALLOWED=NO build > "$CLIENT/build/ios/dev.log" 2>&1 \
+        || { grep -E "error:|BUILD FAILED" "$CLIENT/build/ios/dev.log" | sort -u | head -30; die "真机版编译失败（全文 client/build/ios/dev.log）"; }
+      echo "✓ 真机版（Release、不签名）编译通过"
       ;;
     ipa)
       [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
@@ -169,7 +176,7 @@ PLIST
         || { tail -20 "$out/export.log"; die "导出 ipa 失败"; }
       echo "✓ ipa：$(ls "$out"/*.ipa)（用 Xcode 的 Organizer 或 Transporter 上传）"
       ;;
-    *) die "用法: ./run.sh ios-build [sim|ipa]" ;;
+    *) die "用法: ./run.sh ios-build [sim|dev|ipa]" ;;
   esac
 }
 

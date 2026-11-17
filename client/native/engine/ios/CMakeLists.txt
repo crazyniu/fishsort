@@ -25,6 +25,13 @@ cc_ios_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME} ${CC_ALL_SOURCES})
 cc_ios_after_target(${EXECUTABLE_NAME})
 
+# Xcode 27 的 libc++ 不许特化 std::is_floating_point 等（引擎带的 enoki/half.h 这么做了），这条诊断默认是错误，降成警告
+foreach(t cocos_engine ${EXECUTABLE_NAME})
+    if(TARGET ${t})
+        target_compile_options(${t} PRIVATE -Wno-invalid-specialization)
+    endif()
+endforeach()
+
 # 只做 iPhone 版（docs/06 第 3 节），在 iPad 上按 iPhone 比例运行
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1")
 
