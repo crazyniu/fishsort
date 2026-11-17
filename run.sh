@@ -46,6 +46,7 @@ usage() {
   level-gen [起] [止]   按难度曲线生成关卡
   level-verify [文件…]  校验关卡（不给文件就校验全部；--runs=N 改机器人局数）
   level-probe 关卡号,…  难度探针：随手玩家和细心玩家两个机器人各自的胜率（--files 量包里的关卡；--rule / --scramble / --slots 见 tools/level/probe.ts）
+  eco-sim [--from=130]  金币的账：按活跃玩家每天过几关跑若干天，看一天挣多少、要花多少、要看几次广告（参数见 tools/economy/sim.ts）
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（结果要提交）
   art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
   font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
@@ -254,6 +255,10 @@ case "$cmd" in
   level-probe)
     need_node_modules
     (cd client && npx tsx tools/level/probe.ts "$@")
+    ;;
+  eco-sim)
+    need_node_modules
+    (cd client && npx tsx tools/economy/sim.ts "$@")
     ;;
   meta)
     node tools/cocos/meta.mjs "$@"

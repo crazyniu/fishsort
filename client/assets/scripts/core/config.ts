@@ -141,7 +141,7 @@ export interface EconomyConfig {
     /** 看广告得命，每天几次 */
     adDaily?: number;
   };
-  skills: { order: SkillId[]; grantOnUnlock: number; freePerDay: number };
+  skills: { order: SkillId[]; grantOnUnlock: number; freePerDay: number; freeDaily?: number };
   seas?: Sea[];
   album: { books: Book[]; final: Reward };
   dex: { tiers: number[]; coins: number[] };

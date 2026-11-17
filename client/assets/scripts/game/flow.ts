@@ -437,7 +437,7 @@ function rescuePopup(g: GamePage): void {
   const icon = img(p.body, `icon/skill_${RESCUE_SKILL}`, 240, 240, 'skill');
   at(icon, 0, 140);
   fx.breathe(icon, 0.06, 0.8);
-  const free = Skills.freeAvailable(s, RESCUE_SKILL);
+  const free = Skills.freeAvailable(s, RESCUE_SKILL, App.config.eco);
   const tag = slice(icon, 'kit/tag_red', free ? 120 : 96, 56, 'count');
   at(tag, 100, 90);
   at(text(tag, free ? tr('UI_SKILL_FREE') : `×${Skills.count(s, RESCUE_SKILL)}`, 30).node, 0, 2);

@@ -49,9 +49,16 @@ export function syncUnlocks(save: SaveData, eco: EconomyConfig): string[] {
   return out;
 }
 
-/** 今天这个技能的免费次还在不在 */
-export function freeAvailable(save: SaveData, id: string): boolean {
-  return !(id in save.daily.toolFree);
+/**
+ * 今天这个技能还有没有免费次。
+ * - 配了 `skills.freeDaily`（2026-11-18）：每天的免费次**不分种类**，一共这么多次。原来是每种每天各免费一次，一天 4 个，
+ *   玩家一天要用的道具基本不用花金币（docs/01 6.3）
+ * - 没配（Godot 版导出的黄金数据）：每种每天各一次
+ */
+export function freeAvailable(save: SaveData, id: string, eco?: EconomyConfig): boolean {
+  const total = eco?.skills.freeDaily;
+  if (total === undefined) return !(id in save.daily.toolFree);
+  return Object.keys(save.daily.toolFree).length < total;
 }
 
 export interface UseResult {
@@ -74,7 +81,7 @@ export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
 export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, levelId = 0): UseResult['reason'] {
   if (!isUnlocked(eco, id, save.level)) return 'locked';
   if (usedThisLevel >= maxPerLevel(eco, levelId)) return 'limit';
-  if (!freeAvailable(save, id) && count(save, id) <= 0) return 'empty';
+  if (!freeAvailable(save, id, eco) && count(save, id) <= 0) return 'empty';
   return '';
 }
 
@@ -82,10 +89,11 @@ export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisL
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };
   if (usedThisLevel >= maxPerLevel(eco, levelId)) return { ok: false, free: false, reason: 'limit' };
-  if (!freeAvailable(save, id) && count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
+  if (!freeAvailable(save, id, eco) && count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
   Tasks.add(save, eco, day, 'skill');
-  if (freeAvailable(save, id)) {
-    save.daily.toolFree[id] = true;
+  if (freeAvailable(save, id, eco)) {
+    // 不分种类时记成「第几次_哪个」：同一种一天用两次免费的也各占一格
+    save.daily.toolFree[eco.skills.freeDaily === undefined ? id : `${Object.keys(save.daily.toolFree).length}_${id}`] = true;
     return { ok: true, free: true, reason: '' };
   }
   save.tools[id] = count(save, id) - 1;
