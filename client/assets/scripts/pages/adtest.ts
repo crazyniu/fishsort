@@ -6,13 +6,12 @@ import { PlatformDebug } from '../platform/platformDebug';
 import { App } from '../services/app';
 import { mono } from '../services/clock';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, iconButton, lazyImg, slice, text } from '../ui/kit';
+import { COLOR, at, box, button, lazyImg, slice, text } from '../ui/kit';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
-import { Page, ui } from '../ui/shell';
+import { Page, pageHead, ui } from '../ui/shell';
 
 export class AdTestPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
 
@@ -38,11 +37,7 @@ export class AdTestPage extends Page {
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
     const top = Screen.top;
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 90, () => ui.back());
-    at(back, -Screen.W / 2 + 70, top - 80);
-    const title = slice(v, 'kit/title_page', 340, 96, 'title');
-    at(title, 20, top - 80);
-    at(text(title, tr('UI_AD_TEST'), 52).node, 0, 4);
+    pageHead(v, tr('UI_AD_TEST'));
 
     // 开关 + 频控
     const on = p.adsAvailable();

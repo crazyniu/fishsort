@@ -1,0 +1,242 @@
+{
+ "shore": [
+  "sunny sandy beach shallows and tide pools",
+  [
+   [
+    "c31",
+    "螺居居",
+    "Shelly",
+    "a hermit crab peeking out of a spiral sea shell; the shell is bright candy pink, the little crab body and claws are cream-white",
+    "shell"
+   ],
+   [
+    "c32",
+    "圆胆胆",
+    "Bumpy",
+    "a round sea urchin ball covered in short soft rounded nubs (no sharp spikes at all), violet purple",
+    "round"
+   ],
+   [
+    "c33",
+    "参参",
+    "Cuke",
+    "a chubby long sea cucumber lying sideways with soft round bumps, mint green with darker green dots",
+    "long"
+   ],
+   [
+    "c34",
+    "虾米米",
+    "Shrimpy",
+    "a small curled shrimp with long soft antennae, sky blue",
+    "shrimp"
+   ],
+   [
+    "c35",
+    "鲽饼饼",
+    "Flatty",
+    "a flat oval flounder seen from above with both big eyes on top, golden yellow with orange freckles",
+    "flat"
+   ]
+  ]
+ ],
+ "coral": [
+  "colorful coral reef garden",
+  [
+   [
+    "c36",
+    "花海兔",
+    "Ruffle",
+    "a sea slug nudibranch with frilly ruffled edges and two little soft horns, hot magenta purple with orange frill tips",
+    "slug"
+   ],
+   [
+    "c37",
+    "蓝吊吊",
+    "Tangy",
+    "an oval surgeonfish, royal blue body with one dark swoosh mark and a yellow tail",
+    "round"
+   ],
+   [
+    "c38",
+    "鹦嘴嘴",
+    "Parry",
+    "a parrotfish with a rounded beak-like mouth, bright leaf green body with soft scale pattern",
+    "long"
+   ],
+   [
+    "c39",
+    "斑马马",
+    "Zebby",
+    "a tall round disc-shaped reef fish with a long flowing top fin, white body with three bold black vertical bands",
+    "disc"
+   ],
+   [
+    "c40",
+    "管花花",
+    "Tufty",
+    "a tube worm: a short tube with two fluffy spiral feather crowns on top, turquoise crowns on a white tube",
+    "tree"
+   ]
+  ]
+ ],
+ "kelp": [
+  "tall kelp forest",
+  [
+   [
+    "c41",
+    "獭宝宝",
+    "Otty",
+    "a sea otter floating on its back hugging a small clam, warm brown fur with a cream face",
+    "otter"
+   ],
+   [
+    "c42",
+    "金橙橙",
+    "Garry",
+    "a round chubby damselfish, vivid bright orange all over",
+    "round"
+   ],
+   [
+    "c43",
+    "蜗蜗",
+    "Snaily",
+    "a sea snail with a big swirly spiral shell, purple shell and lilac soft body",
+    "snail"
+   ],
+   [
+    "c44",
+    "鳗条条",
+    "Eely",
+    "a friendly long eel with a wavy body and smiling face, bright cobalt blue",
+    "long"
+   ],
+   [
+    "c45",
+    "粉伞伞",
+    "Pinkie",
+    "a jellyfish with a round bell and short wavy ribbons, soft pink",
+    "umbrella"
+   ]
+  ]
+ ],
+ "wreck": [
+  "sunken shipwreck and dark reef",
+  [
+   [
+    "c46",
+    "金币币",
+    "Goldie",
+    "a perfectly round coin-shaped fish, shiny gold yellow with a lighter ring pattern",
+    "round"
+   ],
+   [
+    "c47",
+    "绿鳗鳗",
+    "Morry",
+    "a moray eel peeking up with a friendly face, grass green with yellow-green spots",
+    "long"
+   ],
+   [
+    "c48",
+    "葵葵",
+    "Annie",
+    "a sea anemone: a short round cream base with many soft rounded coral-pink tentacles on top and a happy face on the base",
+    "tree"
+   ],
+   [
+    "c49",
+    "海螺螺",
+    "Conchy",
+    "a conch shell creature with a cone-shaped spiral shell, peach orange shell with a pale belly",
+    "snail"
+   ],
+   [
+    "c50",
+    "幽幽",
+    "Ghosty",
+    "a tiny ghost fish shaped like a cute little sheet ghost with a flowing wispy tail, white with very pale blue shading",
+    "ghost"
+   ]
+  ]
+ ],
+ "crystal": [
+  "icy crystal cave with cold water",
+  [
+   [
+    "c51",
+    "企企",
+    "Pengy",
+    "a penguin chick swimming, dark navy back, white belly, small yellow beak and feet",
+    "bird"
+   ],
+   [
+    "c52",
+    "海豹豹",
+    "Sealy",
+    "a fluffy round seal pup lying on its belly, white with light grey shading",
+    "seal"
+   ],
+   [
+    "c53",
+    "磷虾虾",
+    "Krilly",
+    "a krill, slim curled body with many tiny legs, translucent red-pink",
+    "shrimp"
+   ],
+   [
+    "c54",
+    "圆球球",
+    "Lumpy",
+    "a round lumpsucker fish with a tiny tail, bright lime green with darker green bumps",
+    "round"
+   ],
+   [
+    "c55",
+    "一角角",
+    "Narly",
+    "a small chubby narwhal with a short soft spiral horn with a rounded tip, lilac purple with a pale belly",
+    "whale"
+   ]
+  ]
+ ],
+ "palace": [
+  "deep sea palace with ancient pillars",
+  [
+   [
+    "c56",
+    "金蟹蟹",
+    "Kingy",
+    "a round crab with two big claws, shiny gold yellow",
+    "claws"
+   ],
+   [
+    "c57",
+    "小天使",
+    "Angie",
+    "a sea angel: a translucent little body with two small wing-like flaps, pastel pink with a deeper pink heart-shaped belly",
+    "angel"
+   ],
+   [
+    "c58",
+    "锦锦",
+    "Fancy",
+    "a fancy fantail fish with a big flowing double tail, bright red with white fin edges",
+    "round"
+   ],
+   [
+    "c59",
+    "灯灯伞",
+    "Glowy",
+    "a glowing jellyfish with a tall lantern-shaped bell and short frills, bright lime yellow-green",
+    "umbrella"
+   ],
+   [
+    "c60",
+    "月月",
+    "Moony",
+    "a tall round disc-shaped moonfish with small fins, silver white with a soft pearly shimmer",
+    "disc"
+   ]
+  ]
+ ]
+}

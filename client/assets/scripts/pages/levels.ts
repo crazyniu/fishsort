@@ -1,10 +1,8 @@
-// 选关（定版图 02，docs/01 5.7、docs/09 第 4 节）。一条从下往上蜿蜒的路线：
-// 已过关蓝色 + 绿勾 + 这关首通给的家园星星（普通 1、挑战关 2）；当前关绿色发光 +「当前」；
-// 挑战关紫色奖杯台 +「挑战」旗；没到的灰色带锁。打开时自动滚到当前关。
-// 路线可能有几百关，只给屏幕附近的关建节点（滚动时增删）。
-import { EventTouch, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
+// 选关（docs/01 5.7）。一页就是一个海域（20 关，4 列 × 5 行的格子）：标题是海域名，背景是这片海域的局内背景，
+// 左右翻页就是换海域（用户 2026-11-17；原来是一条从下往上的长路线，关卡多了不好翻）。
+// 已过关蓝色 + 绿勾；当前关绿色、会呼吸 +「当前」；挑战关紫色 + 小旗；没到的灰色带锁。打开时停在当前关那一页。
+import { EventTouch, Label, Node, Tween, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
-import * as HomeBase from '../core/meta/homeBase';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
 import * as Seas from '../core/meta/seas';
@@ -14,287 +12,163 @@ import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, hex, iconButton, img, lazyImg, slice, text } from '../ui/kit';
+import { at, box, capsule, fit, img, keyButton, lazyImg, onTap, opacity, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
-import { Page, ui } from '../ui/shell';
+import { HEAD_BOTTOM, PAGE_BOTTOM, Page, pageHead, ui } from '../ui/shell';
 
-/** 与 tools/art/kit.mjs 的 path_wave 一致：一个周期 4 关，每关 STEP 高，左右摆 AMP */
-const STEP = 200;
-const AMP = 150;
-const PERIOD = 4;
-const TILE_W = 420;
-const NODE = 150;
-/** 当前关之后再画几关（灰的） */
-const AHEAD = 12;
+const COLS = 4;
+const ROWS = 5;
+const PER_PAGE = COLS * ROWS;
+/** 一格多大、关卡圆牌多大 */
+const CELL = 158;
+const NODE = 122;
+/** 面板顶上写重玩次数的那一行多高 */
+const HEAD_ROW = 48;
+/** 手指横着划过这么远就翻页 */
+const SWIPE = 70;
 
 export class LevelsPage extends Page {
-  readonly tab = null;
-  private content!: Node;
   private bg!: Node;
   private sea = '';
-  private deco: Node[] = [];
-  private pathLayer!: Node;
-  private nodeLayer!: Node;
-  private replayLabel!: ReturnType<typeof text>;
-  private built = new Map<number, Node>();
-  private tiles = new Map<number, Node>();
-  private last = 1;
-  private y = 0;
-  private minY = 0;
-  private maxY = 0;
-  private dragging = false;
-  private moved = 0;
-  private vel = 0;
-  private lastMove = 0;
-  /** 惯性滚动的 tween 目标 */
-  private scroll = { y: 0 };
+  private root!: Node;
+  private view: Node | null = null;
+  private replay: Label | null = null;
+  private pageNo = 0;
+  private downX = 0;
 
   build(root: Node): void {
+    this.root = root;
     this.bg = box('bg', root);
-    this.content = box('content', root, Screen.W, Screen.H);
-    this.pathLayer = box('path', this.content);
-    this.nodeLayer = box('nodes', this.content);
-    // 两边游的鱼（不跟着滚）
-    for (const [id, x, y, sz] of [
-      ['c03', -Screen.W / 2 + 90, -60, 150],
-      ['c05', Screen.W / 2 - 90, 220, 120],
-      ['c01', Screen.W / 2 - 100, -380, 170],
-    ] as const) {
-      const f = img(root, `fish/${id}`, sz, sz, `deco_${id}`);
-      at(f, x, y);
-      if (x > 0) f.setScale(-1, 1, 1);
-      this.deco.push(f);
-    }
-    // 顶部：返回 + 标题 + 今日重玩奖励剩余
-    const top = Screen.top;
-    const head = box('head', root, Screen.W, 220);
-    at(head, 0, top - 110);
-    // 标题区垫一条和海面同色的底，往下淡出：路线上的关卡滚到这里就被盖住，不和标题、重玩条叠在一起
-    const yTop = Screen.H / 2 - (top - 110);
-    const yBot = -170;
-    const band = img(head, 'kit/fade_white', Screen.W, yTop - yBot, 'band');
-    at(band, 0, (yTop + yBot) / 2);
-    (band.getComponent(Sprite) as Sprite).color = hex('#3A9CEB');
-    const back = iconButton(head, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-    at(back, -Screen.W / 2 + 70, 40);
-    const title = slice(head, 'kit/title_page', 380, 100, 'title');
-    at(title, 0, 40);
-    at(text(title, tr('H_FEAT_LEVELS'), 56).node, 0, 4);
-    const replay = slice(head, 'kit/capsule', 360, 56, 'replay');
-    at(replay, 0, -40);
-    this.replayLabel = text(replay, '', 28);
-
-    root.on(Node.EventType.TOUCH_START, (e: EventTouch) => this.onDown(e));
-    root.on(Node.EventType.TOUCH_MOVE, (e: EventTouch) => this.onMove(e));
-    root.on(Node.EventType.TOUCH_END, (e: EventTouch) => this.onUp(e, true));
-    root.on(Node.EventType.TOUCH_CANCEL, (e: EventTouch) => this.onUp(e, false));
+    root.on(Node.EventType.TOUCH_START, (e: EventTouch) => (this.downX = e.getUILocation().x));
+    root.on(Node.EventType.TOUCH_END, (e: EventTouch) => {
+      const dx = e.getUILocation().x - this.downX;
+      if (Math.abs(dx) >= SWIPE) this.turn(dx < 0 ? 1 : -1);
+    });
   }
 
-  /** 第 n 关在路线坐标里的位置（第 1 关在原点，往上走） */
-  private pos(n: number): [number, number] {
-    const i = n - 1;
-    return [AMP * Math.sin((2 * Math.PI * i) / PERIOD), i * STEP];
+  /** 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有） */
+  private get pages(): number {
+    return Math.floor((App.save.data.level - 1) / PER_PAGE) + 2;
   }
 
   override show(): void {
-    const s = App.save.data;
-    // 背景跟当前关所在的海域
+    this.pageNo = Math.floor((App.save.data.level - 1) / PER_PAGE);
+    this.render(0);
+  }
+
+  /** 这一页是哪个海域（第 121 关起关卡文件在后半段循环，海域跟着关卡文件走） */
+  private seaOf(first: number): number {
     const eco = App.config.eco;
-    const sea = eco.seas?.[Seas.forLevel(eco, Meta.levelFile(s.level, App.config.levelCount))]?.id ?? 'shore';
-    if (sea !== this.sea) {
-      this.sea = sea;
-      this.bg.destroyAllChildren();
-      const bgH = Math.max(Screen.H, Screen.W * 1.5);
-      lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
-    }
-    this.deco.forEach((f, i) => {
-      Tween.stopAllByTarget(f);
-      fx.bob(f, 14, 2.2 + i * 0.4, i * 0.5);
-    });
-    this.last = s.level + AHEAD;
-    for (const n of this.built.values()) n.destroy();
-    this.built.clear();
-    for (const t of this.tiles.values()) t.destroy();
-    this.tiles.clear();
-    // 内容 y 偏移：第 1 关在屏幕下方 1/4 处；最上面一关不越过标题
-    const bottom = Screen.bottom + 200;
-    const topLimit = Screen.top - 330;
-    this.maxY = bottom;
-    this.minY = Math.min(bottom, topLimit - this.pos(this.last)[1]);
-    // 自动滚到当前关：放在屏幕中间偏下
-    const want = Screen.bottom + Screen.H * 0.4 - this.pos(s.level)[1];
-    this.setY(Math.max(this.minY, Math.min(this.maxY, want)));
-    this.refresh();
-    // 当前关进场：弹一下，光环扩散
-    const cur = this.built.get(s.level);
-    if (cur) {
-      fx.popIn(cur, 0.1, 0.35);
-      fx.delay(this.node, 0.35, () => {
-        const [x, y] = this.pos(s.level);
-        fx.ring(this.nodeLayer, x, y, 80, 220);
-      });
-    }
+    return Seas.forLevel(eco, Meta.levelFile(first, App.config.levelCount));
   }
 
   override refresh(): void {
     const s = App.save.data;
     Daily.roll(s, today());
     const left = Math.max(0, App.config.eco.replay.rewardedPerDay - s.daily.replay);
-    this.replayLabel.string = tr('LV_REPLAY_LEFT', left, App.config.eco.replay.rewardedPerDay);
+    if (this.replay?.isValid) this.replay.string = tr('LV_REPLAY_LEFT', left, App.config.eco.replay.rewardedPerDay);
   }
 
-  override hide(): void {
-    Tween.stopAllByTarget(this.scroll);
-    for (const f of this.deco) Tween.stopAllByTarget(f);
+  private turn(d: number): void {
+    const next = Math.max(0, Math.min(this.pages - 1, this.pageNo + d));
+    if (next === this.pageNo) return;
+    this.pageNo = next;
+    sfx('tab');
+    this.render(d);
   }
 
-  private setY(y: number): void {
-    this.y = y;
-    this.content.setPosition(0, y, 0);
-    this.cull();
-  }
-
-  /** 只留屏幕上下各多一屏范围里的节点和路线片 */
-  private cull(): void {
-    const lo = Screen.bottom - this.y - STEP * 2;
-    const hi = Screen.top - this.y + STEP * 2;
-    const first = Math.max(1, Math.floor(lo / STEP) + 1);
-    const lastVisible = Math.min(this.last, Math.ceil(hi / STEP) + 1);
-    for (const [n, node] of this.built) {
-      if (n < first || n > lastVisible) {
-        node.destroy();
-        this.built.delete(n);
-      }
-    }
-    for (let n = first; n <= lastVisible; n++) if (!this.built.has(n)) this.built.set(n, this.makeNode(n));
-    // 路线片：每片管 PERIOD 关，从第 1 关往下多画半关当起点，最后一关往上收住
-    const tileH = STEP * PERIOD;
-    const tFirst = Math.max(0, Math.floor(lo / tileH));
-    const tLast = Math.min(Math.floor((this.pos(this.last)[1] - 1) / tileH), Math.floor(hi / tileH));
-    for (const [k, t] of this.tiles) {
-      if (k < tFirst || k > tLast) {
-        t.destroy();
-        this.tiles.delete(k);
-      }
-    }
-    for (let k = tFirst; k <= tLast; k++) {
-      if (this.tiles.has(k)) continue;
-      const t = img(this.pathLayer, 'kit/path_wave', TILE_W, tileH, `tile${k}`);
-      at(t, 0, k * tileH + tileH / 2);
-      this.tiles.set(k, t);
-    }
-  }
-
-  private makeNode(n: number): Node {
+  /** 画这一页；dir 是翻页方向（1 往后、-1 往前、0 刚打开），新的一页从那一边滑进来 */
+  private render(dir: number): void {
+    this.view?.destroy();
+    const v = box('view', this.root, Screen.W, Screen.H);
+    this.view = v;
     const s = App.save.data;
-    const eco = App.config.eco;
+    const first = this.pageNo * PER_PAGE + 1;
+    // 页头写海域名；背景换成这片海域的局内背景
+    const seaIdx = this.seaOf(first);
+    const sea = App.config.eco.seas?.[seaIdx]?.id ?? 'shore';
+    if (sea !== this.sea) {
+      this.sea = sea;
+      this.bg.destroyAllChildren();
+      const bgH = Math.max(Screen.H, Screen.W * 1.5);
+      lazyImg(this.bg, `bg/sea_${sea}`, (bgH * 1024) / 1536, bgH);
+    }
+    pageHead(v, tr(`ALBUM_BOOK_${seaIdx + 1}`));
+    // 版面：页头下面到翻页键上面，是一块白色面板；面板顶上一行写今日重玩奖励还剩几次（原来是浮在面板上面的一根细条），
+    // 下面是格子
+    const navY = Screen.bottom + PAGE_BOTTOM + 50;
+    const top = Screen.top - HEAD_BOTTOM - 16;
+    const bottom = navY + 70;
+    const panelH = Math.min(ROWS * CELL + 44 + HEAD_ROW, top - bottom);
+    const rowH = (panelH - 44 - HEAD_ROW) / ROWS;
+    const panelW = COLS * CELL + 44;
+    const panel = slice(v, 'kit/panel_glass', panelW, panelH, 'grid');
+    at(panel, 0, (top + bottom) / 2);
+    this.replay = text(panel, '', 28);
+    at(this.replay.node, 0, panelH / 2 - 22 - HEAD_ROW / 2 + 6);
+    this.refresh();
+    for (let i = 0; i < PER_PAGE; i++) {
+      const cell = this.cell(panel, first + i);
+      at(cell, (i % COLS - (COLS - 1) / 2) * CELL, panelH / 2 - 22 - HEAD_ROW - rowH * (Math.floor(i / COLS) + 0.5));
+      if (first + i === s.level) fx.breathe(cell, 0.05, 1.2);
+    }
+    // 翻页：左右两个键，中间写这一页是第几关到第几关
+    const range = capsule(v, 240, 64, null, `${first} - ${first + PER_PAGE - 1}`, 32);
+    at(range.node, 0, navY);
+    const prev = keyButton(v, 'blue', 'kit/ic_back', 84, () => this.turn(-1));
+    at(prev, -190, navY);
+    const next = keyButton(v, 'blue', 'kit/ic_back', 84, () => this.turn(1));
+    at(next, 190, navY);
+    (next.getChildByName('glyph') as Node).setScale(-1, 1, 1);
+    for (const [key, off] of [[prev, this.pageNo === 0], [next, this.pageNo >= this.pages - 1]] as const) {
+      if (!off) continue;
+      // 翻到头了：键留着占位，变淡、点了没反应
+      opacity(key).opacity = 90;
+    }
+    if (dir !== 0) {
+      panel.setPosition(dir * 90, panel.position.y, 0);
+      tween(panel).to(0.18, { position: new Vec3(0, panel.position.y, 0) }, { easing: 'quadOut' }).start();
+      fx.fadeIn(panel, 0.18);
+    } else {
+      fx.popIn(panel, 0, 0.25);
+    }
+  }
+
+  /** 一关的格子：圆牌 + 关卡号，上面的小标记说明状态 */
+  private cell(parent: Node, n: number): Node {
+    const s = App.save.data;
     const hard = LevelCurve.isChallenge(App.config.curve, Meta.levelFile(n, App.config.levelCount));
     const done = n < s.level;
     const cur = n === s.level;
-    const [x, y] = this.pos(n);
-    const holder = box(`lv${n}`, this.nodeLayer, NODE, NODE);
-    at(holder, x, y);
-    const size = cur ? NODE * 1.2 : NODE;
-    if (cur) {
-      const glow = img(holder, 'kit/fx_glow', size * 1.9, size * 1.9, 'glow');
-      fx.breathe(glow, 0.08, 1.4);
-      const rays = fx.rays(holder, size * 2);
-      rays.setSiblingIndex(0);
-    }
-    const skin = cur ? 'skin/j_node_green' : done ? (hard ? 'skin/j_node_purple' : 'skin/j_node_blue') : hard ? 'skin/j_node_purple' : 'skin/j_node_gray';
-    const ball = img(holder, skin, size, size, 'ball');
-    const num = text(ball, String(n), cur ? 64 : 52, { outline: done || cur || hard ? undefined : hex('#5E6B7D') });
-    at(num.node, 0, done ? 12 : 6);
+    const holder = box(`lv${n}`, parent, CELL, CELL);
+    const skin = cur ? 'skin/f_node_green' : !done ? 'skin/f_node_gray' : hard ? 'skin/f_node_purple' : 'skin/f_node_blue';
+    const ball = img(holder, skin, NODE, NODE, 'ball');
+    const open = done || cur;
+    const num = text(ball, String(n), open ? 44 : 34);
+    at(num.node, 0, open ? 8 : 24);
+    fit(num, NODE - 30, open ? 44 : 34, 22);
     if (hard) {
-      // 节点正上方一块红色小牌：小旗 +「挑战」（和下面的「当前」牌对称，不被装饰挡，也不碰相邻节点）
-      const flag = slice(holder, 'kit/btn_red', 150, 52, 'flag');
-      at(flag, 0, size / 2 + 22);
-      flag.setSiblingIndex(holder.children.length - 1);
-      const fi = img(flag, 'skin/j_flag', 40, 43, 'pole');
-      at(fi, -46, 6);
-      at(text(flag, tr('UI_CHALLENGE'), 26).node, 14, 3);
+      // 挑战关：左上角插一面小旗（没到的也插，提前看得到哪一关难）
+      const flag = img(holder, 'skin/j_flag', 40, 43, 'flag');
+      at(flag, -NODE * 0.36, NODE * 0.36);
     }
     if (done) {
-      const check = img(holder, 'kit/round_green', 54, 54, 'check');
-      at(check, size * 0.36, size * 0.34);
-      img(check, 'kit/ic_check', 34, 34, 'ic');
-      // 这关首通给了几颗家园星星
-      const k = HomeBase.starsForLevel(eco, hard);
-      for (let i = 0; i < k; i++) {
-        const st = img(ball, 'icon/star', 36, 36, 'star');
-        at(st, (i - (k - 1) / 2) * 34, -34);
-      }
+      at(img(holder, 'kit/ic_check', 40, 40, 'check'), NODE * 0.36, NODE * 0.36);
     } else if (cur) {
-      const tag = slice(holder, 'kit/btn_yellow', 128, 54, 'current');
-      at(tag, 0, -size * 0.5);
-      at(text(tag, tr('LV_CURRENT'), 30).node, 0, 3);
+      const tag = slice(holder, 'kit/btn_yellow', 96, 40, 'current');
+      at(tag, 0, -NODE * 0.5 + 2);
+      const l = text(tag, tr('LV_CURRENT'), 22);
+      at(l.node, 0, 2);
+      fit(l, 80, 22, 14);
     } else {
-      const lock = img(ball, 'kit/ic_lock', 40, 40, 'lock');
-      at(lock, 0, -36);
+      at(img(ball, 'kit/ic_lock', 32, 32, 'lock'), 0, -14);
     }
+    onTap(holder, () => this.open(n, ball), { sound: null });
     return holder;
   }
 
-  // ---------------------------------------------------------------- 拖动、点关卡
-  private onDown(_e: EventTouch): void {
-    Tween.stopAllByTarget(this.scroll);
-    this.dragging = true;
-    this.moved = 0;
-    this.vel = 0;
-    this.lastMove = Date.now();
-  }
-
-  private onMove(e: EventTouch): void {
-    if (!this.dragging) return;
-    const dy = e.getUIDelta().y;
-    this.moved += Math.abs(dy);
-    const nowMs = Date.now();
-    const dt = Math.max(1, nowMs - this.lastMove) / 1000;
-    this.vel = this.vel * 0.3 + (dy / dt) * 0.7;
-    this.lastMove = nowMs;
-    // 越界时阻尼
-    let y = this.y + dy;
-    if (y > this.maxY) y = this.y + dy * 0.35;
-    if (y < this.minY) y = this.y + dy * 0.35;
-    this.setY(y);
-  }
-
-  private onUp(e: EventTouch, fire: boolean): void {
-    if (!this.dragging) return;
-    this.dragging = false;
-    if (fire && this.moved < 12) {
-      this.tapAt(e);
-      return;
-    }
-    // 松手惯性 + 回弹
-    const idle = (Date.now() - this.lastMove) / 1000;
-    const v = idle > 0.1 ? 0 : this.vel;
-    const target = Math.max(this.minY, Math.min(this.maxY, this.y + v * 0.35));
-    const dur = Math.min(0.9, 0.25 + Math.abs(target - this.y) / 2500);
-    this.scroll.y = this.y;
-    tween(this.scroll)
-      .to(dur, { y: target }, { easing: 'quartOut', onUpdate: () => this.setY(this.scroll.y) })
-      .start();
-  }
-
-  private tapAt(e: EventTouch): void {
-    const p = e.getUILocation();
-    const local = this.nodeLayer.getComponent(UITransform);
-    if (!local) return;
-    const q = local.convertToNodeSpaceAR(new Vec3(p.x, p.y, 0));
-    for (const [n, node] of this.built) {
-      const dx = q.x - node.position.x;
-      const dy = q.y - node.position.y;
-      if (dx * dx + dy * dy > (NODE * 0.6) ** 2) continue;
-      this.open(n, node);
-      return;
-    }
-  }
-
-  private open(n: number, node: Node): void {
-    const s = App.save.data;
-    const ball = node.getChildByName('ball') ?? node;
-    if (n > s.level) {
+  private open(n: number, ball: Node): void {
+    if (n > App.save.data.level) {
       fx.shake(ball, 8);
       sfx('blocked');
       ui.toast(tr('LV_LOCKED'));
@@ -302,11 +176,6 @@ export class LevelsPage extends Page {
     }
     sfx('tap');
     Tween.stopAllByTarget(ball);
-    tween(ball)
-      .to(0.06, { scale: new Vec3(0.92, 0.92, 1) })
-      .to(0.1, { scale: new Vec3(1.05, 1.05, 1) })
-      .to(0.06, { scale: new Vec3(1, 1, 1) })
-      .call(() => Flow.startLevel(n))
-      .start();
+    Flow.startLevel(n);
   }
 }

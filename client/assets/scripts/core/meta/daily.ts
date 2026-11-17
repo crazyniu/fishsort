@@ -23,7 +23,7 @@ export function weekOf(day: number): number {
   return idiv(day + 3, WEEK_DAYS);
 }
 
-/** 跨天清零每日计数，跨周清零本周过关数和已领的过关目标。所有每日功能进来先调它 */
+/** 跨天清零每日计数，跨周清零本周过关数、任务积分和已领的任务宝箱。所有每日功能进来先调它（每日任务另由 Tasks.sync 换新） */
 export function roll(save: SaveData, day: number): void {
   if ((save.daily.day ?? -1) !== day) save.daily = fresh(day);
   const week = save.week;
@@ -31,6 +31,7 @@ export function roll(save: SaveData, day: number): void {
   if (week.id !== id) {
     week.id = id;
     week.cleared = 0;
-    week.claimed = [];
+    week.points = 0;
+    week.taskClaimed = [];
   }
 }

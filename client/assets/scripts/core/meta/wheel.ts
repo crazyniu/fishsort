@@ -7,6 +7,7 @@ import * as Cards from './cards';
 import * as Daily from './daily';
 import * as Lives from './lives';
 import * as Skills from './skills';
+import * as Tasks from './tasks';
 import type { CardResult, SaveData } from './save';
 
 export interface SpinResult {
@@ -91,6 +92,7 @@ export function spin(
   } else {
     return null;
   }
+  Tasks.add(save, eco, day, 'wheel');
   return draw(save, eco, species, rng, now, '');
 }
 
@@ -107,6 +109,7 @@ export function tenPull(
   const cost = eco.wheel.tenCost;
   if (save.coins < cost) return null;
   save.coins -= cost;
+  Tasks.add(save, eco, day, 'wheel');
   const n = eco.wheel.tenCount;
   const minRank = Cards.rank(eco, eco.wheel.tenMinRarity);
   const results: SpinResult[] = [];

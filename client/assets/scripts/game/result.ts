@@ -10,7 +10,7 @@ import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, at, box, button, hex, img, lazyImg, onTap, opacity, plate, setImg, slice, text } from '../ui/kit';
+import { at, box, Btn, button, COLOR, fit, img, lazyImg, onTap, opacity, plate, setImg, slice, text, textWidth } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
@@ -20,7 +20,6 @@ import * as Flow from './flow';
 const BANNER_H = 120;
 
 export class ResultPage extends Page {
-  readonly tab = null;
   private d!: Flow.WinData;
   private content!: Node;
   private skipTo: (() => void) | null = null;
@@ -68,10 +67,11 @@ export class ResultPage extends Page {
     const chestC = chestY + chestS * 0.09;
 
     // 横幅与星星
-    const ribbon = plate(c, 'skin/j_ribbon', 700, 200, 'ribbon');
+    const ribbon = plate(c, 'skin/f_ribbon', 700, 200, 'ribbon');
     at(ribbon, 0, ribbonY);
-    const title = text(ribbon, tr('WIN_TITLE'), 88, { color: COLOR.yellow, outline: hex('#B4500A'), outlineWidth: 8 });
+    const title = text(ribbon, tr('WIN_TITLE'), 80);
     at(title.node, 0, 14);
+    fit(title, 470, 80, 44);
     const stars: Node[] = [];
     const starPos: [number, number][] = [0, 1, 2].map((i) => [(i - 1) * 170, top - 130 + (i === 1 ? 30 : 0)]);
     for (let i = 0; i < 3; i++) {
@@ -92,26 +92,23 @@ export class ResultPage extends Page {
     const chest = img(c, chestIcon, chestS, chestS, 'chest');
     at(chest, 0, chestC);
 
-    // 奖励一排：金币总数、技能、收藏卡、家园星星、首胜（docs/01 3.3：图标 + 数字，不写明细）
+    // 奖励一排：金币总数、技能、收藏卡、首胜（docs/01 3.3：图标 + 数字，不写明细）
     const pill = slice(c, 'kit/panel_glass', 660, 170, 'rewards');
     at(pill, 0, rowY);
     opacity(pill).opacity = 235;
     const items: Node[] = [];
-    // 金币一格：图标 + 左对齐的数字（数字跳动变长也不压到右边的格子）
+    // 金币一格：图标 + 左对齐的数字。格宽按最后会跳到的数（翻倍后）量出来，数字跳动变长也不压到右边的格子，
+    // 也不在右边空一大块（用户 2026-11-17：奖励一排一边挤一边空）
     const coinCell = box('coins', pill, 270, 150);
+    const coinLabel = text(coinCell, `+${r.coins * 2}`, 50, { align: 'left' });
+    const coinW = 96 + 14 + Math.max(60, textWidth(coinLabel)) + 16;
+    coinLabel.string = '+0';
+    (coinCell.getComponent(UITransform) as UITransform).setContentSize(coinW, 150);
     const coinIcon = img(coinCell, 'icon/coin', 96, 96, 'icon');
-    at(coinIcon, -80, 0);
-    const coinLabel = text(coinCell, '+0', 50, { align: 'left' });
-    at(coinLabel.node, -24, 0);
+    at(coinIcon, -coinW / 2 + 48, 0);
+    at(coinLabel.node, -coinW / 2 + 96 + 14, 0);
     items.push(coinCell);
     const extras: Node[] = [];
-    if (r.stars > 0) {
-      const st = box('stars', pill, 130, 150);
-      const ic = img(st, 'icon/star', 80, 80, 'icon');
-      at(ic, 0, 18);
-      at(text(st, `+${r.stars}`, 34).node, 0, -46);
-      extras.push(st);
-    }
     const chestPrize = d.chest;
     if (chestPrize && chestPrize.kind === 'skill' && chestPrize.skill) {
       extras.push(prizeCell(pill, { icon: `icon/skill_${chestPrize.skill}`, amount: '×1' }, 96));
@@ -122,7 +119,7 @@ export class ResultPage extends Page {
     for (const card of d.cards) extras.push(prizeCell(pill, cardItem(card), 96));
     if (r.first_win) extras.push(prizeCell(pill, { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) }, 96));
     const all = [coinCell, ...extras];
-    const widths = all.map((_n, i) => (i === 0 ? 270 : 128));
+    const widths = all.map((_n, i) => (i === 0 ? coinW + 20 : 128));
     const total = widths.reduce((a, b) => a + b, 0);
     let x = -total / 2;
     all.forEach((n, i) => {

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""局内障碍和鱼缸订单卡的部件（docs/ux/game.md、docs/03 第 3 节），全部是 Codex 出图（2026-11-16），这里只切图：
+"""局内障碍和鱼缸目标卡的部件（docs/ux/game.md、docs/03 第 3 节），全部是 Codex 出图（2026-11-16），这里只切图：
   - j_fog：迷雾泡上蒙的那团雾。fog.png，黑底出图，按亮度还原透明度。
   - j_mystery：雾里每个鱼位放的问号球，「?」画在图里。obstacle_parts.png 左边那颗。
   - j_ice_bead：冰晶连线的一节（横放的六角冰晶），沿连线方向一节节排开。obstacle_parts.png 中间那颗。
   - j_frost：冰晶连线咬住依赖泡的那一头（一簇冰刺）。obstacle_parts.png 右边那颗。
-  - j_order：鱼缸前面叠的订单卡（手绘风格的奶油色水彩纸，用户 2026-11-16 要求不用亮面）。order_card.png。
-出图需求在 art/briefs/ui_skin/{fog,obstacle_parts,order_card}.txt。
+  - j_goal：木架下面钉着的目标卡（一叠两张白边相片，里面是空的水下小景；游戏在上面画要的那种鱼和「0/3」）。goal_card.png。
+出图需求在 art/briefs/ui_skin/{fog,obstacle_parts}.txt、art/briefs/redesign/goal_card.txt。
 用法：python3 tools/art/obstacles.py [art/raw/ui_skin]   之后跑 ./run.sh meta 和 ./run.sh art-compress
 """
 import sys
@@ -33,9 +33,10 @@ def main() -> None:
         save('j_mystery', scaled(mystery, 160 / mystery.width))
         save('j_ice_bead', scaled(bead, 120 / bead.width))
         save('j_frost', scaled(frost, 120 / frost.width))
-    if (raw / 'order_card.png').exists():
-        card = key_magenta(raw / 'order_card.png')
-        save('j_order', scaled(card, 200 / card.width))
+    if (raw / 'goal_card.png').exists():
+        card = key_magenta(raw / 'goal_card.png')
+        card = card.crop(card.getbbox())
+        save('j_goal', scaled(card, 480 / card.width))
 
 
 if __name__ == '__main__':

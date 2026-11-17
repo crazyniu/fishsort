@@ -4,9 +4,9 @@ import { deepCopy, isObject } from '../util';
 import * as Daily from './daily';
 import * as DailyChallenge from './dailyChallenge';
 import * as Dex from './dex';
-import * as HomeBase from './homeBase';
 import * as LevelChest from './levelChest';
 import * as Lives from './lives';
+import * as Tasks from './tasks';
 import * as Wheel from './wheel';
 import type { SaveData } from './save';
 
@@ -31,9 +31,9 @@ export function create(eco: EconomyConfig): SaveData {
     album: { claimed: [], final: false, frame: false },
     challenge: DailyChallenge.fresh(),
     dex: Dex.fresh(),
-    base: HomeBase.fresh(),
     signin: { count: 0, lastDay: -1, doubledDay: -1 },
-    week: { id: -1, cleared: 0, claimed: [] },
+    week: { id: -1, cleared: 0, points: 0, taskClaimed: [] },
+    tasks: Tasks.fresh(),
     daily: Daily.fresh(-1),
     ads: { interstitialAt: -100000.0, interstitialLevel: 0, rewardedAt: -100000.0 },
     seenTips: {},

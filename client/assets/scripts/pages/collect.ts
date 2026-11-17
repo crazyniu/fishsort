@@ -13,14 +13,15 @@ import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, hex, iconButton, img, lazyImg, onTap, opacity, progressBar, redDot, slice, text } from '../ui/kit';
+import { at, box, button, COLOR, fit, hex, img, lazyImg, onTap, opacity, progressBar, redDot, setInk, slice, text, textWidth, WHITE_INK } from '../ui/kit';
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, enterStagger, ui } from '../ui/shell';
+import { PAGE_BOTTOM, Page, enterStagger, pageHead, ui } from '../ui/shell';
 
-const ROW_H = 170;
-const ROW_GAP = 16;
+/** 册子卡片：两列，卡片之间的空，最高多高 */
+const CARD_GAP = 16;
+const CARD_MAX_H = 300;
 const CELL_W = 224;
 const CELL_H = 300;
 
@@ -34,7 +35,6 @@ const RARITY_PLATE: Record<string, string> = {
 };
 
 export class CollectPage extends Page {
-  readonly tab = 'collect' as const;
   /** 正在看哪一册；-1 = 册子列表。切走再回来还在这一册 */
   private static book = -1;
   private root!: Node;
@@ -90,12 +90,7 @@ export class CollectPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const top = Screen.top;
-    const title = slice(v, 'kit/title_page', 320, 100, 'title');
-    at(title, 0, top - 90);
-    at(text(title, tr('UI_TAB_COLLECTION'), 60).node, 0, 4);
-    const fish = img(v, 'fish/c03', 110, 110, 'fish');
-    at(fish, -230, top - 90);
-    fx.bob(fish, 8, 2.4);
+    pageHead(v, tr('UI_TAB_COLLECTION'));
 
     // 总进度 + 终极大奖宝箱
     const books = Album.books(eco);
@@ -119,68 +114,66 @@ export class CollectPage extends Page {
     }
     onTap(chest, () => this.tapFinal());
 
-    // 册子行
+    // 册子：两列卡片（用户 2026-11-16：原来是一行一行的列表，改成卡片），占满总进度下面的地方，不用滚动
     const y0 = top - 310;
-    const y1 = Screen.bottom + TABBAR_H + 10;
-    const sc = new Scroller(v, Screen.W, y0 - y1);
-    at(sc.node, 0, (y0 + y1) / 2);
-    this.scroller = sc;
-    const rows: Node[] = [];
-    books.forEach((b, i) => {
-      const row = this.bookRow(sc.content, i, b.cards, b.unlock);
-      at(row, 0, -ROW_GAP / 2 - ROW_H / 2 - i * (ROW_H + ROW_GAP));
-      rows.push(row);
+    const y1 = Screen.bottom + PAGE_BOTTOM;
+    const rowsN = Math.ceil(books.length / 2);
+    const cw = (690 - CARD_GAP) / 2;
+    const ch = Math.min(CARD_MAX_H, (y0 - y1 - CARD_GAP * (rowsN - 1)) / rowsN);
+    const cards = books.map((b, i) => {
+      const c = this.bookCard(v, i, b.cards, b.unlock, cw, ch);
+      at(c, (i % 2 === 0 ? -1 : 1) * (cw + CARD_GAP) / 2, y0 - ch / 2 - Math.floor(i / 2) * (ch + CARD_GAP));
+      return c;
     });
-    sc.setContentHeight(books.length * (ROW_H + ROW_GAP) + ROW_GAP);
-    if (enter) enterStagger([head, ...rows], 0.05);
+    if (enter) enterStagger([head, ...cards], 0.05);
   }
 
-  private bookRow(parent: Node, i: number, cards: string[], unlock: number): Node {
+  /**
+   * 一册的卡片，从上到下：封面 → 册名 → 进度条（数字写在条上）。集齐没领的，进度条换成「领取」按钮；领过的右上角一个对勾；
+   * 没开放的封面是灰的，下面写「第 N 关解锁」。点卡片进这一册
+   */
+  private bookCard(parent: Node, i: number, cards: string[], unlock: number, w: number, h: number): Node {
     const s = App.save.data;
     const eco = App.config.eco;
     const open = Album.isOpen(eco, i, s.level);
-    const row = slice(parent, 'kit/panel_glass', 690, ROW_H, `book${i}`);
-    const cover = img(row, `skin/j_book_${i + 1}`, 146, 148, 'cover');
-    at(cover, -250, 0);
+    const card = slice(parent, 'kit/panel_blue', w, h, `book${i}`);
+    // 卡片矮的时候（屏幕矮）封面跟着缩
+    const cs = Math.min(150, h * 0.5);
+    const cover = img(card, `skin/j_book_${i + 1}`, cs, cs * (148 / 146), 'cover');
+    at(cover, 0, h / 2 - 18 - cs / 2);
     const star = App.config.speciesById.get(cards[cards.length - 1]);
-    const fish = img(cover, `fish/${star?.id ?? cards[0]}`, 100, 100, 'fish');
-    at(fish, 6, 4);
-    const name = text(row, tr(`ALBUM_BOOK_${i + 1}`), 42, { align: 'left' });
-    at(name.node, -160, 34);
+    const fish = img(cover, `fish/${star?.id ?? cards[0]}`, cs * 0.68, cs * 0.68, 'fish');
+    at(fish, cs * 0.04, cs * 0.03);
+    const name = text(card, tr(`ALBUM_BOOK_${i + 1}`), 32);
+    at(name.node, 0, h / 2 - 18 - cs - 30);
+    fit(name, w - 36, 32, 20);
+    const lowY = -h / 2 + 50;
     if (!open) {
       for (const n of [cover, fish]) (n.getComponent(Sprite) as Sprite).grayscale = true;
       silhouette(fish);
-      const l = img(row, 'kit/ic_lock', 40, 40, 'lk');
-      at(l, -140, -30);
-      const t = text(row, tr('H_UNLOCKS_AT', unlock), 32, { align: 'left', color: COLOR.yellow });
-      at(t.node, -110, -30);
-      return row;
+      const t = text(card, tr('H_UNLOCKS_AT', unlock), 26, { color: COLOR.yellow });
+      at(t.node, 16, lowY);
+      fit(t, w - 90, 26, 16);
+      at(img(card, 'kit/ic_lock', 36, 36, 'lk'), 16 - textWidth(t) / 2 - 24, lowY);
+      return card;
     }
     const have = Album.have(s, eco, i);
-    // 名字下面一行：进度条 + 右边的数字，不叠在一起
-    const bar = progressBar(row, 220, 22, 'green');
-    at(bar.node, -160 + 110, -30);
-    bar.set(have / cards.length);
-    const cnt = text(row, `${have}/${cards.length}`, 28, { align: 'left', color: hex('#D4ECFF') });
-    at(cnt.node, -160 + 220 + 16, -30);
     if (Album.canClaim(s, eco, i)) {
-      const b = button(row, { color: 'green', w: 170, h: 84, label: tr('ALBUM_TAKE'), fontSize: 40, onTap: () => this.claimBook(i) });
-      at(b.node, 220, 0);
+      const b = button(card, { color: 'green', w: w - 90, h: 62, label: tr('ALBUM_TAKE'), fontSize: 30, onTap: () => this.claimBook(i) });
+      at(b.node, 0, lowY);
       fx.breathe(b.node, 0.05, 1.1);
-    } else if (Album.isClaimed(s, i)) {
-      const t = text(row, tr('ALBUM_CLAIMED'), 34, { color: COLOR.yellow });
-      at(t.node, 230, 0);
     } else {
-      // 往右的箭头：用返回键图标左右翻转，和全套图标同一风格
-      const arrow = img(row, 'kit/ic_back', 52, 52, 'arrow');
-      arrow.setScale(-1, 1, 1);
-      at(arrow, 262, 0);
+      const bar = progressBar(card, w - 90, 30, 'green');
+      at(bar.node, 0, lowY);
+      bar.set(have / cards.length);
+      at(text(bar.node, `${have}/${cards.length}`, 22).node, 0, 1);
     }
-    onTap(row, () => {
+    if (Album.isClaimed(s, i)) at(img(card, 'kit/ic_check', 48, 48, 'done'), w / 2 - 34, h / 2 - 34);
+    onTap(card, () => {
       CollectPage.book = i;
       this.render(true);
     }, { press: 0.97 });
-    return row;
+    return card;
   }
 
   private claimBook(i: number): void {
@@ -214,11 +207,7 @@ export class CollectPage extends Page {
     const eco = App.config.eco;
     const b = Album.books(eco)[i];
     const top = Screen.top;
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => this.back());
-    at(back, -Screen.W / 2 + 70, top - 80);
-    const title = slice(v, 'kit/title_page', 360, 100, 'title');
-    at(title, 0, top - 80);
-    at(text(title, tr(`ALBUM_BOOK_${i + 1}`), 50).node, 0, 4);
+    pageHead(v, tr(`ALBUM_BOOK_${i + 1}`), { onBack: () => this.back() });
 
     // 大奖条：金币 + 每种技能 ×n + 进度
     const strip = slice(v, 'kit/panel_glass', 690, 150, 'prize');
@@ -251,7 +240,7 @@ export class CollectPage extends Page {
 
     // 卡片网格
     const y0 = top - 310;
-    const y1 = Screen.bottom + TABBAR_H + 10;
+    const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);
     this.scroller = sc;
@@ -282,8 +271,10 @@ export class CollectPage extends Page {
     const plate = slice(cell, 'kit/capsule', 190, 52, 'plate');
     at(plate, 0, -58);
     if (owned > 0) {
+      // 有的卡：名牌染成稀有度的颜色，白字
       (plate.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
-      text(plate, speciesName(sp.id), 30, { color: owned > 0 ? COLOR.white : COLOR.gray });
+      setInk(plate, WHITE_INK);
+      fit(text(plate, speciesName(sp.id), 30), 170, 30, 18);
       fx.wiggle(fish, 4, 2 + Math.random());
       const ring = RARITY_GLOW[sp.rarity];
       if (ring && sp.rarity !== 'common') {
@@ -338,6 +329,13 @@ export class CollectPage extends Page {
         const t = text(bar.node, need > 0 ? `${n}/${need}` : tr('DEX_RESCUED', n), 24);
         at(t.node, 0, 1);
       }
+    } else {
+      // 不在关卡里出场的卡（只能开宝箱得）：没有救援进度，同一个位置放稀有度小牌，每格下面都齐
+      const tag = slice(cell, 'kit/capsule', 190, 40, 'rarity');
+      (tag.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
+      setInk(tag, WHITE_INK);
+      at(text(tag, tr(`UI_RARITY_${sp.rarity.toUpperCase()}`), 24).node, 0, 1);
+      at(tag, 0, -116);
     }
     return cell;
   }

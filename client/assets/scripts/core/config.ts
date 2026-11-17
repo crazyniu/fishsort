@@ -75,9 +75,42 @@ export interface SignInDay {
   bigChest?: { minRarity: Rarity; coins: number; unlimitedSeconds: number };
 }
 
-export interface WeeklyGoalTier {
-  clears: number;
-  reward: Reward;
+/** 一项每日任务。mode 为 max 时进度取单次最大值（最高连击），否则累加 */
+export interface TaskDef {
+  id: string;
+  goal: number;
+  points: number;
+  /** 这项功能开放后才会抽到 */
+  feature?: string;
+  /** 平台有这项能力才留在池子里（启动时由服务层筛掉） */
+  cap?: string;
+  mode?: 'max';
+}
+
+/** 任务宝箱里的收藏卡：rates 不写就用过关宝箱的概率；minRarity 是最低稀有度 */
+export interface TaskCard {
+  rates?: Partial<Record<Rarity, number>>;
+  minRarity?: Rarity;
+  preferUnowned?: boolean;
+}
+
+/** 积分进度条上的一档宝箱 */
+export interface TaskTier {
+  points: number;
+  reward?: Reward;
+  card?: TaskCard;
+}
+
+export interface TasksConfig {
+  /** 每天必有的任务 id */
+  fixed: string[];
+  /** 另外再随机抽几个 */
+  random: number;
+  /** 每日积分封顶 */
+  dayMax: number;
+  pool: TaskDef[];
+  dayTiers: TaskTier[];
+  weekTiers: TaskTier[];
 }
 
 export interface EconomyConfig {
@@ -117,8 +150,7 @@ export interface EconomyConfig {
     streakDays: number;
     streakReward: Reward;
   };
-  weeklyGoal?: { tiers: WeeklyGoalTier[] };
-  homeBase: { stars: { level: number; challenge: number; challengeEvery: number }; areas: Area[] };
+  tasks?: TasksConfig;
   features: Record<string, number>;
   chest: {
     normal: { coins: number; skill: number; card: number; coinMin: number; coinMax: number };
@@ -220,7 +252,7 @@ export interface CurveConfig {
   gen: Record<string, number>;
 }
 
-/** 界面数值（动画时长、场地、家园物件位置），assets/resources/config/game_ui.json */
+/** 界面数值（动画时长、场地、主页装饰），assets/resources/config/game_ui.json */
 export interface GameUiConfig {
   fly: { seconds: number; tapPop: number; stagger: number; bufferSeconds: number };
   bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number };
@@ -244,6 +276,5 @@ export interface GameUiConfig {
   /** 场地：…maxRadius 是气泡半径的上限（气泡少的关卡放大到它为止） */
   field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; maxRadius: number };
   badgeCap: number;
-  basePage: { scene: number; buildFx: number; chestDelay: number; steps: Record<string, [number, number, number][]> };
   homeDeco: { school: [string, number, number, number][] };
 }

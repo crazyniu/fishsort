@@ -112,23 +112,23 @@
     },
     {
       "id": "coral",
-      "levelFrom": 20
+      "levelFrom": 21
     },
     {
       "id": "kelp",
-      "levelFrom": 40
+      "levelFrom": 41
     },
     {
       "id": "wreck",
-      "levelFrom": 60
+      "levelFrom": 61
     },
     {
       "id": "crystal",
-      "levelFrom": 80
+      "levelFrom": 81
     },
     {
       "id": "palace",
-      "levelFrom": 100
+      "levelFrom": 101
     }
   ],
   "album": {
@@ -143,6 +143,11 @@
           "c11",
           "c22",
           "c30",
+          "c31",
+          "c32",
+          "c33",
+          "c34",
+          "c35",
           "u03",
           "u04",
           "u08",
@@ -157,13 +162,18 @@
       {
         "id": 2,
         "sea": "coral",
-        "unlock": 20,
+        "unlock": 21,
         "cards": [
           "c01",
           "c02",
           "c17",
           "c21",
           "c29",
+          "c36",
+          "c37",
+          "c38",
+          "c39",
+          "c40",
           "u02",
           "u05",
           "u07",
@@ -178,13 +188,18 @@
       {
         "id": 3,
         "sea": "kelp",
-        "unlock": 40,
+        "unlock": 41,
         "cards": [
           "c07",
           "c09",
           "c25",
           "c26",
           "c28",
+          "c41",
+          "c42",
+          "c43",
+          "c44",
+          "c45",
           "u01",
           "u06",
           "u09",
@@ -199,13 +214,18 @@
       {
         "id": 4,
         "sea": "wreck",
-        "unlock": 60,
+        "unlock": 61,
         "cards": [
           "c06",
           "c12",
           "c13",
           "c23",
           "c24",
+          "c46",
+          "c47",
+          "c48",
+          "c49",
+          "c50",
           "u13",
           "u14",
           "r08",
@@ -220,13 +240,18 @@
       {
         "id": 5,
         "sea": "crystal",
-        "unlock": 80,
+        "unlock": 81,
         "cards": [
           "c08",
           "c16",
           "c18",
           "c19",
           "c20",
+          "c51",
+          "c52",
+          "c53",
+          "c54",
+          "c55",
           "u11",
           "u12",
           "r02",
@@ -241,13 +266,18 @@
       {
         "id": 6,
         "sea": "palace",
-        "unlock": 100,
+        "unlock": 101,
         "cards": [
           "c04",
           "c10",
           "c14",
           "c15",
           "c27",
+          "c56",
+          "c57",
+          "c58",
+          "c59",
+          "c60",
           "u10",
           "u15",
           "r06",
@@ -292,221 +322,114 @@
       "unlimited": 3600
     }
   },
-  "weeklyGoal": {
-    "tiers": [
+  "tasks": {
+    "fixed": [
+      "win",
+      "rescue",
+      "ad"
+    ],
+    "random": 3,
+    "dayMax": 100,
+    "pool": [
       {
-        "clears": 10,
+        "id": "win",
+        "goal": 3,
+        "points": 30
+      },
+      {
+        "id": "rescue",
+        "goal": 30,
+        "points": 20
+      },
+      {
+        "id": "ad",
+        "goal": 1,
+        "points": 20
+      },
+      {
+        "id": "combo",
+        "goal": 6,
+        "points": 20,
+        "mode": "max"
+      },
+      {
+        "id": "skill",
+        "goal": 1,
+        "points": 20,
+        "feature": "skill_shuffle"
+      },
+      {
+        "id": "daily",
+        "goal": 1,
+        "points": 20,
+        "feature": "daily"
+      },
+      {
+        "id": "wheel",
+        "goal": 1,
+        "points": 20,
+        "feature": "wheel"
+      },
+      {
+        "id": "share",
+        "goal": 1,
+        "points": 20,
+        "cap": "share"
+      }
+    ],
+    "dayTiers": [
+      {
+        "points": 20,
         "reward": {
-          "coins": 300
+          "coins": 80
         }
       },
       {
-        "clears": 25,
+        "points": 50,
         "reward": {
-          "coins": 600,
           "skills": 1
         }
       },
       {
-        "clears": 50,
+        "points": 80,
         "reward": {
-          "coins": 1200,
-          "tools": 1
+          "coins": 120
+        }
+      },
+      {
+        "points": 100,
+        "card": {
+          "rates": {
+            "common": 75,
+            "uncommon": 25
+          }
         }
       }
-    ]
-  },
-  "homeBase": {
-    "stars": {
-      "level": 1,
-      "challenge": 2,
-      "challengeEvery": 5
-    },
-    "areas": [
+    ],
+    "weekTiers": [
       {
-        "id": "shore",
-        "unlock": 8,
-        "steps": [
-          [
-            1,
-            300
-          ],
-          [
-            1,
-            400
-          ],
-          [
-            1,
-            500
-          ],
-          [
-            2,
-            600
-          ],
-          [
-            2,
-            800
-          ]
-        ],
+        "points": 150,
         "reward": {
-          "coins": 1000,
+          "coins": 300,
+          "skills": 1
+        }
+      },
+      {
+        "points": 350,
+        "card": {
+          "minRarity": "uncommon"
+        }
+      },
+      {
+        "points": 550,
+        "reward": {
+          "coins": 400,
           "tools": 1,
-          "unlimited": 3600
-        }
-      },
-      {
-        "id": "coral",
-        "unlock": 25,
-        "steps": [
-          [
-            2,
-            1200
-          ],
-          [
-            2,
-            1400
-          ],
-          [
-            2,
-            1600
-          ],
-          [
-            3,
-            1800
-          ],
-          [
-            3,
-            2000
-          ]
-        ],
-        "reward": {
-          "coins": 3000,
-          "tools": 1,
-          "unlimited": 3600
-        }
-      },
-      {
-        "id": "kelp",
-        "unlock": 45,
-        "steps": [
-          [
-            2,
-            1600
-          ],
-          [
-            2,
-            1800
-          ],
-          [
-            3,
-            2000
-          ],
-          [
-            3,
-            2200
-          ],
-          [
-            3,
-            2400
-          ]
-        ],
-        "reward": {
-          "coins": 3500,
-          "tools": 1,
-          "unlimited": 3600
-        }
-      },
-      {
-        "id": "wreck",
-        "unlock": 65,
-        "steps": [
-          [
-            2,
-            2000
-          ],
-          [
-            3,
-            2200
-          ],
-          [
-            3,
-            2400
-          ],
-          [
-            3,
-            2600
-          ],
-          [
-            3,
-            2800
-          ]
-        ],
-        "reward": {
-          "coins": 4000,
-          "tools": 2,
-          "unlimited": 7200
-        }
-      },
-      {
-        "id": "crystal",
-        "unlock": 85,
-        "steps": [
-          [
-            3,
-            3000
-          ],
-          [
-            3,
-            3200
-          ],
-          [
-            3,
-            3400
-          ],
-          [
-            3,
-            3600
-          ],
-          [
-            3,
-            3800
-          ]
-        ],
-        "reward": {
-          "coins": 5000,
-          "tools": 2,
-          "unlimited": 7200
-        }
-      },
-      {
-        "id": "palace",
-        "unlock": 105,
-        "steps": [
-          [
-            3,
-            4000
-          ],
-          [
-            3,
-            4400
-          ],
-          [
-            3,
-            4800
-          ],
-          [
-            3,
-            5200
-          ],
-          [
-            3,
-            5600
-          ]
-        ],
-        "reward": {
-          "coins": 8000,
-          "tools": 3,
-          "unlimited": 10800
+          "unlimited": 1800
+        },
+        "card": {
+          "minRarity": "rare",
+          "preferUnowned": true
         }
       }
     ]
@@ -517,10 +440,9 @@
     "levelSelect": 5,
     "album": 6,
     "skill_blow": 7,
-    "homeBase": 8,
     "skill_net": 9,
     "wheel": 10,
-    "rank": 11,
+    "tasks": 11,
     "skill_current": 12,
     "daily": 20
   },

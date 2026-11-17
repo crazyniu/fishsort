@@ -1,226 +1,41 @@
 {
  "ui/bg/home": [
-  "raw:cocos1/bg_home.png",
+  "raw:redesign/bg_c.png",
   750,
   "jpg"
  ],
  "ui/bg/sea_shore": [
-  "raw:cocos1/bg_sea_shore.png",
+  "raw:redesign/sea_shore.png",
   750,
   "jpg"
- ],
- "ui/base/shore_bg": [
-  "raw:cocos1/base_shore_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/shore_1": [
-  "raw:cocos1/base_shore_1.png",
-  210,
-  "png"
- ],
- "ui/base/shore_2": [
-  "raw:cocos1/base_shore_2.png",
-  210,
-  "png"
- ],
- "ui/base/shore_3": [
-  "raw:cocos1/base_shore_3.png",
-  210,
-  "png"
- ],
- "ui/base/shore_4": [
-  "raw:cocos1/base_shore_4.png",
-  210,
-  "png"
- ],
- "ui/base/shore_5": [
-  "raw:cocos1/base_shore_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_coral": [
-  "raw:cocos1/bg_sea_coral.png",
+  "raw:redesign/sea_coral.png",
   750,
   "jpg"
- ],
- "ui/base/coral_bg": [
-  "raw:cocos1/base_coral_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/coral_1": [
-  "raw:cocos1/base_coral_1.png",
-  210,
-  "png"
- ],
- "ui/base/coral_2": [
-  "raw:cocos1/base_coral_2.png",
-  210,
-  "png"
- ],
- "ui/base/coral_3": [
-  "raw:cocos1/base_coral_3.png",
-  210,
-  "png"
- ],
- "ui/base/coral_4": [
-  "raw:cocos1/base_coral_4.png",
-  210,
-  "png"
- ],
- "ui/base/coral_5": [
-  "raw:cocos1/base_coral_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_kelp": [
-  "raw:cocos1/bg_sea_kelp.png",
+  "raw:redesign/sea_kelp.png",
   750,
   "jpg"
- ],
- "ui/base/kelp_bg": [
-  "raw:cocos1/base_kelp_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/kelp_1": [
-  "raw:cocos1/base_kelp_1.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_2": [
-  "raw:cocos1/base_kelp_2.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_3": [
-  "raw:cocos1/base_kelp_3.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_4": [
-  "raw:cocos1/base_kelp_4.png",
-  210,
-  "png"
- ],
- "ui/base/kelp_5": [
-  "raw:cocos1/base_kelp_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_wreck": [
-  "raw:cocos1/bg_sea_wreck.png",
+  "raw:redesign/sea_wreck.png",
   750,
   "jpg"
- ],
- "ui/base/wreck_bg": [
-  "raw:cocos1/base_wreck_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/wreck_1": [
-  "raw:cocos1/base_wreck_1.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_2": [
-  "raw:cocos1/base_wreck_2.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_3": [
-  "raw:cocos1/base_wreck_3.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_4": [
-  "raw:cocos1/base_wreck_4.png",
-  210,
-  "png"
- ],
- "ui/base/wreck_5": [
-  "raw:cocos1/base_wreck_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_crystal": [
-  "raw:cocos1/bg_sea_crystal.png",
+  "raw:redesign/sea_crystal.png",
   750,
   "jpg"
- ],
- "ui/base/crystal_bg": [
-  "raw:cocos1/base_crystal_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/crystal_1": [
-  "raw:cocos1/base_crystal_1.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_2": [
-  "raw:cocos1/base_crystal_2.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_3": [
-  "raw:cocos1/base_crystal_3.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_4": [
-  "raw:cocos1/base_crystal_4.png",
-  210,
-  "png"
- ],
- "ui/base/crystal_5": [
-  "raw:cocos1/base_crystal_5.png",
-  210,
-  "png"
  ],
  "ui/bg/sea_palace": [
-  "raw:cocos1/bg_sea_palace.png",
+  "raw:redesign/sea_palace.png",
   750,
   "jpg"
- ],
- "ui/base/palace_bg": [
-  "raw:cocos1/base_palace_bg.png",
-  690,
-  "jpg"
- ],
- "ui/base/palace_1": [
-  "raw:cocos1/base_palace_1.png",
-  210,
-  "png"
- ],
- "ui/base/palace_2": [
-  "raw:cocos1/base_palace_2.png",
-  210,
-  "png"
- ],
- "ui/base/palace_3": [
-  "raw:cocos1/base_palace_3.png",
-  210,
-  "png"
- ],
- "ui/base/palace_4": [
-  "raw:cocos1/base_palace_4.png",
-  210,
-  "png"
- ],
- "ui/base/palace_5": [
-  "raw:cocos1/base_palace_5.png",
-  210,
-  "png"
  ],
  "ui/icon/tab_shop": [
   "raw:cocos1/tab_shop.png",
-  92,
-  "png"
- ],
- "ui/icon/tab_base": [
-  "raw:cocos1/tab_base.png",
   92,
   "png"
  ],
@@ -229,14 +44,29 @@
   92,
   "png"
  ],
- "ui/icon/tab_rank": [
-  "raw:cocos1/tab_rank.png",
+ "ui/icon/tab_tasks": [
+  "raw:cocos1/tab_tasks.png",
   92,
   "png"
  ],
- "ui/icon/tab_home": [
-  "art/source/ui/tab_main.png",
-  92,
+ "ui/icon/task_win": [
+  "raw:cocos1/task_win.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_combo": [
+  "raw:cocos1/task_combo.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_ad": [
+  "raw:cocos1/task_ad.png",
+  80,
+  "png"
+ ],
+ "ui/icon/task_share": [
+  "raw:cocos1/task_share.png",
+  80,
   "png"
  ],
  "ui/icon/entry_signin": [
@@ -631,6 +461,156 @@
  ],
  "fish/u15": [
   "art/source/fish/u15.png",
+  64,
+  "png"
+ ],
+ "fish/c31": [
+  "art/source/fish/c31.png",
+  64,
+  "png"
+ ],
+ "fish/c32": [
+  "art/source/fish/c32.png",
+  64,
+  "png"
+ ],
+ "fish/c33": [
+  "art/source/fish/c33.png",
+  64,
+  "png"
+ ],
+ "fish/c34": [
+  "art/source/fish/c34.png",
+  64,
+  "png"
+ ],
+ "fish/c35": [
+  "art/source/fish/c35.png",
+  64,
+  "png"
+ ],
+ "fish/c36": [
+  "art/source/fish/c36.png",
+  64,
+  "png"
+ ],
+ "fish/c37": [
+  "art/source/fish/c37.png",
+  64,
+  "png"
+ ],
+ "fish/c38": [
+  "art/source/fish/c38.png",
+  64,
+  "png"
+ ],
+ "fish/c39": [
+  "art/source/fish/c39.png",
+  64,
+  "png"
+ ],
+ "fish/c40": [
+  "art/source/fish/c40.png",
+  64,
+  "png"
+ ],
+ "fish/c41": [
+  "art/source/fish/c41.png",
+  64,
+  "png"
+ ],
+ "fish/c42": [
+  "art/source/fish/c42.png",
+  64,
+  "png"
+ ],
+ "fish/c43": [
+  "art/source/fish/c43.png",
+  64,
+  "png"
+ ],
+ "fish/c44": [
+  "art/source/fish/c44.png",
+  64,
+  "png"
+ ],
+ "fish/c45": [
+  "art/source/fish/c45.png",
+  64,
+  "png"
+ ],
+ "fish/c46": [
+  "art/source/fish/c46.png",
+  64,
+  "png"
+ ],
+ "fish/c47": [
+  "art/source/fish/c47.png",
+  64,
+  "png"
+ ],
+ "fish/c48": [
+  "art/source/fish/c48.png",
+  64,
+  "png"
+ ],
+ "fish/c49": [
+  "art/source/fish/c49.png",
+  64,
+  "png"
+ ],
+ "fish/c50": [
+  "art/source/fish/c50.png",
+  64,
+  "png"
+ ],
+ "fish/c51": [
+  "art/source/fish/c51.png",
+  64,
+  "png"
+ ],
+ "fish/c52": [
+  "art/source/fish/c52.png",
+  64,
+  "png"
+ ],
+ "fish/c53": [
+  "art/source/fish/c53.png",
+  64,
+  "png"
+ ],
+ "fish/c54": [
+  "art/source/fish/c54.png",
+  64,
+  "png"
+ ],
+ "fish/c55": [
+  "art/source/fish/c55.png",
+  64,
+  "png"
+ ],
+ "fish/c56": [
+  "art/source/fish/c56.png",
+  64,
+  "png"
+ ],
+ "fish/c57": [
+  "art/source/fish/c57.png",
+  64,
+  "png"
+ ],
+ "fish/c58": [
+  "art/source/fish/c58.png",
+  64,
+  "png"
+ ],
+ "fish/c59": [
+  "art/source/fish/c59.png",
+  64,
+  "png"
+ ],
+ "fish/c60": [
+  "art/source/fish/c60.png",
   64,
   "png"
  ]

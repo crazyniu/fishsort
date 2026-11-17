@@ -22,9 +22,22 @@ export interface DailySave {
 
 export interface WeekSave {
   id: number;
-  /** 本周首次通过的关卡数 */
+  /** 本周首次通过的关卡数（好友周榜的分数） */
   cleared: number;
-  /** 本周已领的过关目标档（下标） */
+  /** 本周任务积分 */
+  points: number;
+  /** 本周已领的任务宝箱档（下标） */
+  taskClaimed: number[];
+}
+
+/** 每日任务，见 docs/01 第 5.9 节 */
+export interface TasksSave {
+  day: number;
+  /** 今天的任务 id */
+  ids: string[];
+  /** 每项的进度 */
+  prog: Record<string, number>;
+  /** 今天已领的每日宝箱档（下标） */
   claimed: number[];
 }
 
@@ -42,9 +55,9 @@ export interface SaveData {
   album: { claimed: number[]; final: boolean; frame: boolean };
   challenge: { wonDay: number; streak: number; tryDay: number; tries: number };
   dex: { seen: Record<string, number>; claimed: Record<string, number> };
-  base: { stars: number; built: number[] };
   signin: { count: number; lastDay: number; doubledDay: number };
   week: WeekSave;
+  tasks: TasksSave;
   daily: DailySave;
   ads: { interstitialAt: number; interstitialLevel: number; rewardedAt: number };
   seenTips: Record<string, boolean>;

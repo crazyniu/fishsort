@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// 代码画的界面小件：特效用的光、环、星、彩纸，纯色块和渐隐带，选关路线，头像选中框等。SVG 写的，按 3 倍渲染成透明 PNG。
-// 按钮、面板、条、鱼缸、气泡这些有质感的部件是 Codex 出的位图（tools/art/skin.py → ui/skin），不在这里；
-// kit/ic_* 图标也是 Codex 位图（tools/art/slice.py 切的）。
+// 代码画的界面小件：特效用的光、环、星、彩纸，纯色块、分隔线。SVG 写的，按 3 倍渲染成透明 PNG。
+// 平面的界面部件（按钮、面板、图标键、白色图标）在 tools/art/flat_skin.py；鱼缸、气泡这些插画是 Codex 出的位图（tools/art/skin.py → ui/skin）。
 // 输出 assets/resources/ui/kit/<名字>.png，九宫格边距写进 tools/art/slices.json（meta.mjs 读它）。
 // 用法：node tools/art/kit.mjs [名字...]   不给名字 = 全部重画；--sheet 另出一张总览图
 import { Resvg } from '@resvg/resvg-js';
@@ -45,23 +44,7 @@ function rad(stops, cx = 0.5, cy = 0.5, r = 0.5, fx = cx, fy = cy) {
 
 const rr = (x, y, w, h, r, attrs) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ry="${r}" ${attrs}/>`;
 
-// ---------------------------------------------------------------- 亮面方块（头像选中框）
-const LEDGE = 8;
-
-/** 厚果冻方块：整块是厚度色，面在上面、下沿露出 LEDGE 的厚度。col = [面上色, 面下色, 厚度色, 柔光强度] */
-function faceBody(col, w, h, r = 22) {
-  const [top, bot, ledge, glow] = col;
-  const fh = h - LEDGE;
-  const [g, d] = lin([[0, top], [1, bot]]);
-  const [gl, dl] = lin([[0, '#fff', glow], [0.45, '#fff', 0]]);
-  const [gb, db] = lin([[0, ledge, 0], [1, ledge, 0.35]]);
-  return `<defs>${d}${dl}${db}</defs>
-    ${rr(0, 0, w, h, r, `fill="${ledge}"`)}
-    ${rr(0, 0, w, fh, r, `fill="url(#${g})"`)}
-    ${rr(0, 0, w, fh, r, `fill="url(#${gb})"`)}
-    ${rr(4, 3, w - 8, fh * 0.6, r - 4, `fill="url(#${gl})"`)}`;
-}
-part('tab_sel', 132, 132, faceBody(['#8FE6FF', '#3CB6F5', '#1B7FC8', 0.45], 132, 132, 24), [30, 36, 30, 30]);
+// ---------------------------------------------------------------- 分隔线
 // 细分隔线（家园信息条、区域之间）
 part('tab_divider', 4, 80, rr(0, 0, 4, 80, 2, 'fill="#0B2A73" fill-opacity="0.3"'));
 
@@ -71,25 +54,6 @@ part('tab_divider', 4, 80, rr(0, 0, 4, 80, 2, 'fill="#0B2A73" fill-opacity="0.3"
   part('bowl_glow', 180, 180, `<defs>${dl}</defs><circle cx="90" cy="100" r="88" fill="url(#${gl})"/>`);
   const [gh, dh] = rad([[0.6, '#FFF27A', 0], [0.82, '#FFE14A', 0.9], [1, '#FFB300', 0]]);
   part('hint_ring', 200, 200, `<defs>${dh}</defs><circle cx="100" cy="100" r="98" fill="url(#${gh})"/>`);
-}
-
-// ---------------------------------------------------------------- 选关路线
-// 选关路线：一个周期 4 关、每关 200 高、左右摆 150；上下首尾相接（节点位置见 pages/levels.ts）
-{
-  const W = 420;
-  const H = 800;
-  const A = 150;
-  const pts = [];
-  for (let y = -40; y <= H + 40; y += 4) pts.push(`${(W / 2 - A * Math.sin((2 * Math.PI * y) / H)).toFixed(2)} ${y}`);
-  const d = `M${pts.join(' L')}`;
-  part(
-    'path_wave',
-    W,
-    H,
-    `<path d="${d}" fill="none" stroke="#1F7FD0" stroke-opacity="0.28" stroke-width="78"/>` +
-      `<path d="${d}" fill="none" stroke="#BDF0FF" stroke-opacity="0.75" stroke-width="62"/>` +
-      `<path d="${d}" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="22"/>`,
-  );
 }
 
 // ---------------------------------------------------------------- 特效、杂项
@@ -117,11 +81,6 @@ part('tab_divider', 4, 80, rr(0, 0, 4, 80, 2, 'fill="#0B2A73" fill-opacity="0.3"
   part('white', 8, 8, rr(0, 0, 8, 8, 0, 'fill="#fff"'), [3, 3, 3, 3]);
   part('round_white', 64, 64, rr(0, 0, 64, 64, 22, 'fill="#fff"'), [24, 24, 24, 24]);
   part('circle_white', 64, 64, '<circle cx="32" cy="32" r="31" fill="#fff"/>');
-  const [gv, dv] = lin([[0, '#000', 0], [1, '#000', 1]]);
-  // 页顶标题区的底：上面 60% 不透明，往下淡出（白色，代码里染色）
-  const [gw, dw] = lin([[0, '#fff', 1], [0.6, '#fff', 1], [1, '#fff', 0]]);
-  part('fade_white', 8, 64, `<defs>${dw}</defs><rect width="8" height="64" fill="url(#${gw})"/>`);
-  part('fade_down', 8, 64, `<defs>${dv}</defs><rect width="8" height="64" fill="url(#${gv})"/>`);
 }
 
 // ---------------------------------------------------------------- 输出

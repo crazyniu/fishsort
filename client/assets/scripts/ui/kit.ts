@@ -47,6 +47,8 @@ export interface Ink {
   glyph: Color | null;
   /** 文字描边色（docs/03：白字加深色描边，浅色面上深色字不描边）；null = 不描边 */
   outline: Color | null;
+  /** 不描边的字下面压的一道实色（平面按钮：白字 + 一道按钮下边的深色，不描边） */
+  depth?: Color;
 }
 
 export const INK = {
@@ -57,55 +59,43 @@ export const INK = {
 };
 
 const ON_DARK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: COLOR.navy };
-const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
-const btnInk = (o: string): Ink => ({ text: COLOR.white, accent: COLOR.white, glyph: null, outline: hex(o) });
-const ON_GREEN = btnInk('#1A7412');
-const ON_BLUE = btnInk('#0F3F96');
-/** 白色果冻图标键 */
-const ON_WHITE_KEY: Ink = { text: INK.ink, accent: INK.amber, glyph: null, outline: null };
-const ON_AMBER = btnInk('#8A4F00');
-const ON_RED = btnInk('#8A1F12');
-const ON_GRAY = btnInk('#5A6880');
+const ON_LIGHT: Ink = { text: INK.ink, accent: INK.amber, glyph: hex('#3F8DFF'), outline: null };
+/** 平面的彩色部件（用户 2026-11-16 定的新设计）：白字不描边，下面压一道和部件下边同色的实色 */
+const flatInk = (o: string, accent: Color = COLOR.white): Ink => ({ text: COLOR.white, accent, glyph: null, outline: null, depth: hex(o) });
+const ON_GREEN = flatInk('#268F1B');
+const ON_BLUE = flatInk('#1E55C4');
+const ON_AMBER = flatInk('#C47400');
+const ON_RED = flatInk('#BC3320');
+const ON_GRAY = flatInk('#7C889C');
+/** 蓝色的标签牌、列表行、技能键：强调色还是黄 */
+const ON_FLAT_BLUE = flatInk('#1A52BE', COLOR.yellow);
+const ON_GOLD = flatInk('#C47400');
 
 /** 部件 → 上面放的字用什么颜色 */
 const PART_INK: Record<string, Ink> = {
-  'kit/panel_glass': ON_LIGHT,
-  'kit/row': ON_LIGHT,
-  'kit/seg_bg': ON_LIGHT,
-  'kit/panel_blue': ON_DARK,
-  'kit/row_blue': ON_DARK,
-  'kit/title_plate': ON_DARK,
-  'kit/title_page': ON_DARK,
-  'kit/capsule': ON_DARK,
-  'kit/cell_gold': ON_AMBER,
-  'kit/tag_red': ON_RED,
-  'kit/tag_amber': ON_AMBER,
-  'kit/btn_green': ON_GREEN,
-  'kit/btn_red': ON_RED,
-  'kit/btn_blue': ON_BLUE,
-  'kit/btn_yellow': ON_AMBER,
-  'kit/btn_gray': ON_GRAY,
-  'kit/round_green': ON_GREEN,
-  'kit/round_red': ON_RED,
-  'kit/round_blue': ON_WHITE_KEY,
-  // Codex 位图部件（ui/skin）
   'skin/j_btn_green': ON_GREEN,
   'skin/j_btn_blue': ON_BLUE,
   'skin/j_btn_amber': ON_AMBER,
   'skin/j_btn_red': ON_RED,
   'skin/j_btn_gray': ON_GRAY,
-  'skin/j_bar_top': ON_DARK,
-  'skin/j_bar_tab': ON_DARK,
-  'skin/j_plate': ON_DARK,
-  'skin/j_tile': ON_DARK,
-  'skin/j_inset': ON_DARK,
-  'skin/j_panel': ON_DARK,
-  'skin/j_row': ON_DARK,
-  'skin/j_row_gold': ON_AMBER,
-  'skin/j_popup': ON_DARK,
-  'skin/j_key_blue': ON_BLUE,
-  'skin/j_key_green': ON_GREEN,
-  'skin/j_key_red': ON_RED,
+  'skin/f_plate_blue': ON_FLAT_BLUE,
+  'skin/f_dock': ON_LIGHT,
+  'skin/f_card': ON_LIGHT,
+  'skin/f_card_s': ON_LIGHT,
+  'skin/f_popup': ON_LIGHT,
+  'skin/f_inset': ON_LIGHT,
+  'skin/f_block': ON_FLAT_BLUE,
+  'skin/f_block_s': ON_FLAT_BLUE,
+  'skin/f_block_gold': ON_GOLD,
+  'skin/f_block_gold_s': ON_GOLD,
+  'skin/f_key_blue': ON_BLUE,
+  'skin/f_key_green': ON_GREEN,
+  'skin/f_key_red': ON_RED,
+  'skin/f_ribbon': ON_RED,
+  'skin/f_node_green': ON_GREEN,
+  'skin/f_node_blue': ON_BLUE,
+  'skin/f_node_purple': flatInk('#6B3CC4'),
+  'skin/f_node_gray': ON_GRAY,
 };
 
 const inks = new WeakMap<Node, Ink>();
@@ -126,6 +116,9 @@ export function inkOf(n: Node | null): Ink {
 }
 
 export const DARK_INK = ON_DARK;
+export const LIGHT_INK = ON_LIGHT;
+/** 染了色的白色部件（稀有度名牌）上：白字、不描边 */
+export const WHITE_INK: Ink = { text: COLOR.white, accent: COLOR.yellow, glyph: null, outline: null };
 
 /** 界面上的数字：取整，不加千分位逗号（用户 2026-11-16 定：100449 就显示 100449） */
 export function fmt(n: number): string {
@@ -171,7 +164,8 @@ export function img(parent: Node | null, path: string, w?: number, h?: number, n
   setFrame(n, f, w, h);
   const k = PART_INK[path];
   if (k) inks.set(n, k);
-  if (path.startsWith('kit/ic_') && path !== 'kit/ic_lock') {
+  // 平面的白色图标：在白色容器里染成蓝色，在彩色部件上保持白色
+  if (path.startsWith('skin/f_g_')) {
     glyphs.add(n);
     const g = inkOf(parent).glyph;
     if (g) sp.color = g;
@@ -209,55 +203,75 @@ export function lazyImg(parent: Node, path: string, w: number, h?: number): Node
 }
 
 /**
- * 旧的代码绘制部件 → 新的位图部件（docs/03 第 5 节）。页面代码还写着旧名字的，按这张表换皮：
- * plate = 横向三宫格（按高度缩放），nine = 九宫格（小于 150 的用小圆角的 j_row）
+ * 部件名 → 平面部件的图（docs/03 第 2 节；tools/art/flat_skin.py 程序画的）。页面代码写左边的名字：
+ * plate = 横向三宫格（按高度缩放，圆角跟着高度走），nine = 九宫格（圆角、下边粗细固定）
  */
 const ALIAS: Record<string, [string, 'plate' | 'nine']> = {
-  'kit/capsule': ['skin/j_bar_top', 'plate'],
-  'kit/title_plate': ['skin/j_plate', 'plate'],
+  // 容器：白色、不凸起，上面写深蓝字
+  'kit/panel_glass': ['skin/f_card', 'nine'],
+  'kit/capsule': ['skin/f_dock', 'plate'],
+  // 容器里的格子：浅蓝
+  'kit/row': ['skin/f_inset', 'nine'],
+  // 凸起的蓝色块：列表行、商品卡、技能键
+  'kit/panel_blue': ['skin/f_block', 'nine'],
+  'kit/row_blue': ['skin/f_block', 'nine'],
+  'kit/cell_gold': ['skin/f_block_gold', 'nine'],
+  'kit/title_plate': ['skin/f_plate_blue', 'plate'],
   'kit/btn_green': ['skin/j_btn_green', 'plate'],
   'kit/btn_blue': ['skin/j_btn_blue', 'plate'],
   'kit/btn_yellow': ['skin/j_btn_amber', 'plate'],
   'kit/btn_red': ['skin/j_btn_red', 'plate'],
   'kit/btn_gray': ['skin/j_btn_gray', 'plate'],
-  'kit/panel_blue': ['skin/j_panel', 'nine'],
-  'kit/panel_glass': ['skin/j_panel', 'nine'],
-  'kit/row': ['skin/j_panel', 'nine'],
-  'kit/row_blue': ['skin/j_panel', 'nine'],
-  'kit/slot': ['skin/j_slot', 'nine'],
-  'kit/slot_warn': ['skin/j_slot_warn', 'nine'],
-  'kit/shelf': ['skin/j_shelf', 'plate'],
-  'kit/bar_track': ['skin/j_bar_track', 'plate'],
-  'kit/bar_track_light': ['skin/j_bar_track', 'plate'],
-  'kit/bar_yellow': ['skin/j_bar_yellow', 'plate'],
-  'kit/bar_green': ['skin/j_bar_green', 'plate'],
-  'kit/bar_blue': ['skin/j_bar_blue', 'plate'],
-  'kit/bar_purple': ['skin/j_bar_purple', 'plate'],
   'kit/tag_red': ['skin/j_btn_red', 'plate'],
   'kit/tag_amber': ['skin/j_btn_amber', 'plate'],
-  'kit/cell_gold': ['skin/j_row_gold', 'nine'],
-  'kit/seg_bg': ['skin/j_bar_track', 'plate'],
+  'kit/slot': ['skin/f_slot', 'nine'],
+  'kit/slot_warn': ['skin/f_slot_warn', 'nine'],
+  'kit/shelf': ['skin/f_shelf', 'plate'],
+  'kit/bar_track': ['skin/f_bar_track', 'plate'],
+  'kit/bar_track_light': ['skin/f_bar_track_light', 'plate'],
+  'kit/bar_yellow': ['skin/f_bar_yellow', 'plate'],
+  'kit/bar_green': ['skin/f_bar_green', 'plate'],
+  'kit/bar_blue': ['skin/f_bar_blue', 'plate'],
+  'kit/bar_purple': ['skin/f_bar_purple', 'plate'],
+  'kit/seg_bg': ['skin/f_bar_track_light', 'plate'],
   'kit/seg_on': ['skin/j_btn_blue', 'plate'],
 };
-/** img() 用的旧圆键 → 新的果冻方键 */
+/** img() 用的名字 → 平面部件的图 */
 const IMG_ALIAS: Record<string, string> = {
-  'kit/round_green': 'skin/j_key_green',
-  'kit/round_red': 'skin/j_key_red',
-  'kit/round_blue': 'skin/j_key_blue',
-  'kit/dot_red': 'skin/j_dot',
+  'kit/round_green': 'skin/f_key_green',
+  'kit/round_red': 'skin/f_key_red',
+  'kit/round_blue': 'skin/f_key_blue',
+  'kit/dot_red': 'skin/f_dot',
   'kit/bubble': 'skin/j_bubble',
   'kit/bubble_small': 'skin/j_bubble',
+  // 放在按钮、图标键上的图标：平面的白色图标
+  'kit/ic_back': 'skin/f_g_back',
+  'kit/ic_x': 'skin/f_g_x',
+  'kit/ic_plus': 'skin/f_g_plus',
+  'kit/ic_gear': 'skin/f_g_gear',
+  'kit/ic_video': 'skin/f_g_video',
+  'kit/ic_share': 'skin/f_g_share',
+  'kit/ic_check': 'skin/f_check',
+  'kit/ic_music': 'skin/f_g_music',
+  'kit/ic_sound': 'skin/f_g_sound',
+  'kit/ic_vibrate': 'skin/f_g_vibrate',
+  'kit/ic_globe': 'skin/f_g_globe',
+  'kit/ic_timer': 'skin/f_g_timer',
 };
 const plates = new WeakSet<Node>();
 
+/** 九宫格的块又矮又小时换成小圆角的那一张 */
+const SMALL: Record<string, string> = {
+  'skin/f_card': 'skin/f_card_s',
+  'skin/f_block': 'skin/f_block_s',
+  'skin/f_block_gold': 'skin/f_block_gold_s',
+};
 function nineFor(path: string, w: number, h: number): string {
-  return path === 'skin/j_panel' && Math.min(w, h) < 150 ? 'skin/j_row' : path;
+  return SMALL[path] && Math.min(w, h) < 150 ? SMALL[path] : path;
 }
 
 /** 九宫格：外层节点 w×h 管布局和子节点，皮在缩小 1/RES 的子节点上 */
 export function slice(parent: Node | null, path: string, w: number, h: number, name = path): Node {
-  // 页面标题：统一放在蓝色标题牌上（和商店一样），牌子不超过 86 高
-  if (path === 'kit/title_page') return plate(parent, 'skin/j_plate', Math.max(220, w - 70), Math.min(h, 86), name);
   const alias = ALIAS[path];
   if (alias?.[1] === 'plate') return plate(parent, alias[0], w, h, name);
   if (alias) path = nineFor(alias[0], w, h);
@@ -358,6 +372,12 @@ export interface TextOpts {
  * 文字（docs/03 第 2 节）：颜色、描边按所在的面自动取——深色底与按钮上白字加深色描边，浅色卡片上深藏青字不描边；
  * 写 COLOR.white / COLOR.yellow 也按面换成对应的正文色 / 强调色；outline: null 强制不描边
  */
+/** 描边、厚度投影各是字号的几分之一 */
+const OUTLINE_DIV = 18;
+const SHADOW_DIV = 26;
+/** 平面按钮上的字，下面那道实色是字号的几分之一 */
+const FLAT_DEPTH_DIV = 16;
+
 export function text(parent: Node | null, s: string, fontSize: number, o: TextOpts = {}): Label {
   const k = o.sharp ?? 1;
   const design = fontSize;
@@ -379,15 +399,21 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   if (outline) {
     l.enableOutline = true;
     l.outlineColor = outline;
-    // 描边约字号的 1/12：再粗，笔画之间的空隙会被填死
-    l.outlineWidth = o.outlineWidth !== undefined ? Math.round(o.outlineWidth * k) : Math.max(2, Math.round(fontSize / 12));
+    // 描边约字号的 1/18（用户 2026-11-16：原来 1/12，字看着太粗太重）；字体本身已经是最粗的一档，描边只负责和底色分开
+    l.outlineWidth = o.outlineWidth !== undefined ? Math.round(o.outlineWidth * k) : Math.max(2, Math.round(fontSize / OUTLINE_DIV));
   }
   // 描边字下面压一道更深的硬投影，字像有厚度一样立起来（定版图的做法）；小字不加，免得糊
   if (o.shadow ?? (!!outline && design >= 28)) {
     l.enableShadow = true;
     l.shadowColor = depthColor(outline ?? COLOR.shadow);
-    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / 18)));
+    l.shadowOffset.set(0, -Math.max(1, Math.round(fontSize / SHADOW_DIV)));
     l.shadowBlur = 1;
+  } else if (!outline && ink.depth && o.shadow !== false) {
+    // 平面按钮上的字：不描边，只在下面压一道实色
+    l.enableShadow = true;
+    l.shadowColor = ink.depth;
+    l.shadowOffset.set(0, -Math.max(2, Math.round(fontSize / FLAT_DEPTH_DIV)));
+    l.shadowBlur = 0;
   }
   l.horizontalAlign =
     o.align === 'left' ? HorizontalTextAlignment.LEFT : o.align === 'right' ? HorizontalTextAlignment.RIGHT : HorizontalTextAlignment.CENTER;
@@ -402,6 +428,44 @@ export function text(parent: Node | null, s: string, fontSize: number, o: TextOp
   l.string = s;
   if (k !== 1) n.setScale(1 / k, 1 / k, 1);
   return l;
+}
+
+/** 这行字现在有多宽（设计单位） */
+export function textWidth(l: Label): number {
+  l.updateRenderData(true);
+  return (l.node.getComponent(UITransform) as UITransform).width * Math.abs(l.node.scale.x);
+}
+
+/**
+ * 一行字最宽 maxW：超了就把字号缩到刚好放下（最小 min）。别的语言字长、数字位数多时不压到旁边的东西。
+ * 内容会变的字（数量、倒计时）每次改完再调一次，base 传原来的字号
+ */
+export function fit(l: Label, maxW: number, base = l.fontSize, min = 20): void {
+  l.fontSize = base;
+  const w = textWidth(l);
+  if (w <= maxW) return;
+  l.fontSize = Math.max(min, Math.floor((base * maxW) / w));
+  l.updateRenderData(true);
+}
+
+/** 一行里左边标题、右边小字状态，一共 room 宽：右边最多占一半，剩下的给左边，中间至少留 gap */
+export function fitPair(left: Label, right: Label, room: number, leftBase: number, rightBase: number, gap = 14): void {
+  fit(right, room * 0.5, rightBase);
+  fit(left, room - textWidth(right) - gap, leftBase);
+}
+
+/**
+ * 页标题牌（各页统一：同一块牌、同一个高度和字号，牌的宽度跟着字走）。
+ * h 默认 80；夹在顶栏和内容之间的（商店）给小一点
+ */
+export function pageTitle(parent: Node, s: string, h = 80): Node {
+  const n = plate(parent, 'skin/f_plate_blue', 240, h, 'title');
+  const l = text(n, s, Math.round(h * 0.56));
+  // 面的中心比外框高半道下边
+  l.node.setPosition(0, h * 0.06, 0);
+  fit(l, 520);
+  resizePlate(n, Math.max(220, Math.round(textWidth(l) + 110)), h);
+  return n;
 }
 
 /** 字的厚度色：比描边再深一档 */
@@ -427,6 +491,8 @@ export function reink(n: Node): void {
       if (ink.outline) {
         l.outlineColor = ink.outline;
         if (l.enableShadow) l.shadowColor = depthColor(ink.outline);
+      } else if (ink.depth && l.enableShadow) {
+        l.shadowColor = ink.depth;
       }
     }
     const sp = m.getComponent(Sprite);
@@ -543,15 +609,15 @@ export interface Btn {
   enabled: boolean;
 }
 
-/** 亮面果冻按钮（圆角方块，不是胶囊；Codex 位图）：深色描边、下沿厚度、顶部高光；按下整体缩一点并压暗 */
+/** 平面按钮：纯色圆角方块 + 底下一道同色系的粗边；按下整体缩一点并压暗 */
 export function button(parent: Node | null, o: BtnOpts): Btn {
   const n = plate(parent, BTN_SKIN[o.color], o.w, o.h, 'button');
   const fs = o.fontSize ?? Math.round(o.h * 0.4);
   let color = o.color;
   let pressed = false;
   const row = box('row', n);
-  // 面的中心比外框中心高一点（下沿有厚度）
-  const place = () => row.setPosition(0, o.h * 0.03 - (pressed ? 2 : 0), 0);
+  // 面的中心比外框中心高半道下边（下边占按钮高的 11%，见 tools/art/flat_skin.py）
+  const place = () => row.setPosition(0, o.h * 0.055 - (pressed ? 2 : 0), 0);
   place();
   let icon: Node | null = null;
   if (o.icon) {
@@ -566,6 +632,8 @@ export function button(parent: Node | null, o: BtnOpts): Btn {
     const gap = 10;
     const ic = icon && icon.active ? icon : null;
     const iw = ic ? sizeOf(ic).w : 0;
+    // 字比按钮宽（别的语言字长）就缩小字号，两边各留 20，不伸到按钮外面
+    if (label && !art) fit(label, (o.w - 40 - (ic ? iw + gap : 0)) / label.node.scale.x, fs * 2, 28);
     const lw = art ? sizeOf(art).w : label ? (label.node.getComponent(UITransform) as UITransform).width * label.node.scale.x : 0;
     const total = iw + (ic && label ? gap : 0) + lw;
     let x = -total / 2;
@@ -649,23 +717,23 @@ export function twoLines(b: Btn, main: string, sub: string, subIcon: string | nu
   }
 }
 
-/** 图标键（设置、加号…）：果冻方块（Codex 位图）+ 图标；按下缩一点并压暗 */
-export function keyButton(parent: Node, color: 'blue' | 'green' | 'red', glyph: string, s: number, fn: (() => void) | null, glyphScale = 0.6): Node {
-  const n = img(parent, `skin/j_key_${color}`, s, s, 'key');
+/** 图标键（设置、加号、返回、关闭）：纯色圆角方块 + 底下一道粗边 + 白色图标；按下缩一点并压暗。fn 为 null 时只是个摆设（外面整块可点） */
+export function keyButton(parent: Node, color: 'blue' | 'green' | 'red', glyph: string, s: number, fn: (() => void) | null, glyphScale = 0.56): Node {
+  const n = img(parent, `skin/f_key_${color}`, s, s, 'key');
   const g = img(n, glyph, s * glyphScale, s * glyphScale, 'glyph');
-  g.setPosition(0, s * 0.02, 0);
+  // 面的中心比外框高半道下边
+  g.setPosition(0, s * 0.055, 0);
   const sp = n.getComponent(Sprite) as Sprite;
   if (fn) onTap(n, () => fn(), { press: 0.92, onPress: (down) => (sp.color = down ? PRESSED : COLOR.white) });
   return n;
 }
 
-/** 图标键（设置、返回）：蓝色果冻方块 + 白色图标。skin 参数是旧接口，留着不用 */
-const WHITE_GLYPH: Record<string, string> = { 'kit/ic_gear': 'skin/g_gear' };
+/** 蓝色图标键（设置、返回）。skin 参数是旧接口，留着不用 */
 export function iconButton(parent: Node, _skin: string, glyph: string | null, s: number, fn: () => void): Node {
-  return keyButton(parent, 'blue', WHITE_GLYPH[glyph ?? ''] ?? glyph ?? 'skin/g_gear', s, fn, glyph === 'kit/ic_back' ? 0.62 : 0.6);
+  return keyButton(parent, 'blue', glyph ?? 'kit/ic_gear', s, fn);
 }
 
-/** 信息条（金币、生命、关卡号）：深色半透明圆角 12，左边图标 + 白色数字 */
+/** 信息条（金币、生命、关卡号）：白色圆角小条，左边图标 + 深蓝数字 */
 export interface Capsule {
   node: Node;
   label: Label;
@@ -674,7 +742,7 @@ export interface Capsule {
 }
 
 export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56)): Capsule {
-  const n = plate(parent, 'skin/j_bar_top', w, h, 'capsule');
+  const n = plate(parent, 'skin/f_dock', w, h, 'capsule');
   let icon: Node | null = null;
   if (iconPath) {
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
@@ -683,7 +751,13 @@ export function capsule(parent: Node, w: number, h: number, iconPath: string | n
   // 有图标：数字左对齐紧跟图标；没图标：居中
   const label = text(n, s, fontSize, iconPath ? { align: 'left' } : {});
   label.node.setPosition(iconPath ? -w / 2 + h * 0.96 + 8 : 0, 0, 0);
-  return { node: n, label, icon, set: (v: string) => (label.string = v) };
+  const room = w - (iconPath ? h * 0.96 + 8 : 0) - 24;
+  const set = (v: string) => {
+    label.string = v;
+    fit(label, room, fontSize);
+  };
+  set(s);
+  return { node: n, label, icon, set };
 }
 
 // ---------------------------------------------------------------- 进度条

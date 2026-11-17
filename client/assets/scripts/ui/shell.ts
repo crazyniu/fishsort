@@ -1,47 +1,49 @@
-// 界面外壳：分层、页面切换、底栏、顶栏、提示条。
-// 底栏固定 商店 · 家园 · 主页 · 收藏 · 排行（docs/01 5.3）；顶栏按需显示：主页、商店（docs/01 5.3）。
-import { Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
+// 界面外壳：分层、页面切换、顶栏、提示条。
+// 没有底栏（用户 2026-11-16 定）：主页是总入口，别的页面都从主页点进去、左上角返回（docs/01 5.3）；顶栏按需显示：主页、商店。
+import { Label, Node, UITransform, Vec3, tween } from 'cc';
 import * as Album from '../core/meta/album';
-import * as Dex from '../core/meta/dex';
 import * as Features from '../core/meta/features';
 import * as PlayerData from '../core/meta/playerData';
-import * as HomeBase from '../core/meta/homeBase';
 import * as Lives from '../core/meta/lives';
-import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
-import { now, today } from '../services/clock';
-import { fadeIn, popIn, ring, sparkle } from './fx';
-import { tr } from './i18n';
-import { COLOR, at, hex, blockInput, box, fmt, img, keyButton, onTap, opacity, plate, redDot, setImg, slice, text, tint } from './kit';
+import { now } from '../services/clock';
+import { fadeIn, popIn } from './fx';
+import { COLOR, Capsule, at, hex, blockInput, box, capsule, fit, fmt, img, keyButton, onTap, opacity, pageTitle, plate, setImg, slice, text, tint } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
-export type Tab = 'shop' | 'base' | 'home' | 'collect' | 'rank';
-export const TABS: Tab[] = ['shop', 'base', 'home', 'collect', 'rank'];
-/** 页签对应的功能开放项；商店、主页一开始就有 */
-const TAB_FEATURE: Record<Tab, string | null> = { shop: null, base: 'homeBase', home: null, collect: 'album', rank: 'rank' };
-const TAB_ICON: Record<Tab, string> = {
-  shop: 'icon/tab_shop',
-  base: 'icon/tab_base',
-  home: 'icon/tab_home',
-  collect: 'icon/tab_collect',
-  rank: 'icon/tab_rank',
-};
-const TAB_LABEL: Record<Tab, string> = {
-  shop: 'UI_TAB_SHOP',
-  base: 'UI_TAB_BASE',
-  home: 'UI_TAB_MAIN',
-  collect: 'UI_TAB_COLLECTION',
-  rank: 'UI_TAB_RANK',
-};
-export const TABBAR_H = 164;
-/** 页签文字都是白的（定版图 01）；选中靠亮色方块和放大的图标区分 */
-const TAB_DIM = COLOR.white;
+/** 根页面：回到这里返回历史就清空 */
+const HOME = 'home';
+/** 按关开放的页面对应的功能开放项；没开放时点进去是锁页（docs/01 5.3） */
+const PAGE_FEATURE: Record<string, string> = { collect: 'album', tasks: 'tasks' };
+/** 页面最底下留的空（再加上机型的安全区，Screen.bottom 已经算进去了） */
+export const PAGE_BOTTOM = 24;
+
+/** 子页面页头的中线离屏幕顶多远、返回键多大、标题牌多高 */
+export const HEAD_Y = 76;
+const HEAD_KEY = 88;
+const HEAD_TITLE = 76;
+/** 页头下面的内容从这里开始（离屏幕顶） */
+export const HEAD_BOTTOM = 136;
+
+/**
+ * 子页面的页头（各页同一个位置、同一个大小）：左上角返回键，标题牌居中；要花金币的页面右边再放一条金币数。
+ * 返回金币条（没要就是 null），页面刷新时自己改数字
+ */
+export function pageHead(parent: Node, title: string, o: { onBack?: () => void; coins?: boolean } = {}): Capsule | null {
+  const y = Screen.top - HEAD_Y;
+  const back = keyButton(parent, 'blue', 'kit/ic_back', HEAD_KEY, o.onBack ?? (() => ui.back()));
+  at(back, -Screen.W / 2 + 24 + HEAD_KEY / 2, y);
+  back.name = 'back';
+  at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  if (!o.coins) return null;
+  const c = capsule(parent, 196, 64, 'icon/coin', fmt(App.save.data.coins), 30);
+  at(c.node, Screen.W / 2 - 24 - 98, y);
+  return c;
+}
 
 export abstract class Page {
   node!: Node;
-  /** 页签页给出所属页签；子页面（选关、抽奖、每日挑战、局内）为 null，不显示底栏 */
-  abstract readonly tab: Tab | null;
   /** 这一页要不要顶栏（金币、生命、设置）：用得到才放，见 docs/01 5.3 */
   readonly topBar: boolean = false;
   abstract build(root: Node): void;
@@ -56,117 +58,6 @@ export abstract class Page {
   }
 }
 
-const PAGE_TAG = 9104;
-
-class TabBar {
-  node: Node;
-  private sel: Node;
-  private cells = new Map<Tab, { node: Node; icon: Node; label: Label; dot: Node; lock: Node }>();
-  private current: Tab = 'home';
-
-  constructor(parent: Node, private readonly onSelect: (t: Tab) => void) {
-    // 宝蓝亮面底栏；选中的页签垫一块亮青色方块（略高出底栏），图标放大（docs/03 第 2 节、定版图 01）
-    const w = Screen.W - 12;
-    this.node = plate(parent, 'skin/j_bar_tab', w, TABBAR_H, 'tabbar');
-    at(this.node, 0, -Screen.H / 2 + TABBAR_H / 2 + Math.max(6, Screen.safeBottom));
-    blockInput(this.node);
-    const cw = (w - 28) / TABS.length;
-    for (let i = 1; i < TABS.length; i++) {
-      const line = tint(this.node, 3, 84, hex('#0A2A8A'), 'sep');
-      opacity(line).opacity = 90;
-      at(line, -w / 2 + 14 + cw * i, 0);
-    }
-    this.sel = img(this.node, 'skin/j_tile', cw + 2, ((cw + 2) * 512) / 420, 'sel');
-    TABS.forEach((t, i) => {
-      const x = -w / 2 + 14 + cw * (i + 0.5);
-      const cell = box(t, this.node, cw, TABBAR_H);
-      at(cell, x, 0);
-      const icon = img(cell, TAB_ICON[t], 92, 92, 'icon');
-      at(icon, 0, 22);
-      const label = text(cell, tr(TAB_LABEL[t]), 34, { color: TAB_DIM });
-      at(label.node, 0, -50);
-      const dot = redDot(cell, 42, 60, 28);
-      const lock = img(cell, 'kit/ic_lock', 40, 40, 'lock');
-      at(lock, 32, -2);
-      this.cells.set(t, { node: cell, icon, label, dot, lock });
-      onTap(cell, () => this.onSelect(t), { press: 0.94, sound: 'tab' });
-    });
-    this.select('home', false);
-  }
-
-  /**
-   * 切页签的动效（用户 2026-11-16）：选中块带着过冲滑过去、路上横向拉长一点；新图标先缩一下再弹起来、左右晃一下落定，
-   * 脚下冒一圈光和几颗星光；字弹一下变白；旧图标缩回去
-   */
-  select(t: Tab, animate = true): void {
-    const prev = this.cells.get(this.current);
-    const same = this.current === t;
-    if (prev && !same) {
-      Tween.stopAllByTarget(prev.icon);
-      prev.icon.angle = 0;
-      prev.label.color = TAB_DIM;
-      if (animate) tween(prev.icon).to(0.14, { scale: new Vec3(1, 1, 1), position: new Vec3(0, 22, 0) }, { easing: 'quadOut' }).start();
-      else {
-        prev.icon.setScale(1, 1, 1);
-        at(prev.icon, 0, 22);
-      }
-    }
-    this.current = t;
-    const c = this.cells.get(t) as { node: Node; icon: Node; label: Label };
-    const x = c.node.position.x;
-    c.label.color = COLOR.white;
-    Tween.stopAllByTarget(this.sel);
-    Tween.stopAllByTarget(c.icon);
-    Tween.stopAllByTarget(c.label.node);
-    c.label.node.setScale(1, 1, 1);
-    if (!animate || same) {
-      at(this.sel, x, 9);
-      this.sel.setScale(1, 1, 1);
-      c.icon.angle = 0;
-      c.icon.setScale(1.14, 1.14, 1);
-      at(c.icon, 0, 30);
-      return;
-    }
-    tween(this.sel)
-      .to(0.1, { scale: new Vec3(1.14, 0.94, 1) }, { easing: 'quadOut' })
-      .to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
-      .start();
-    tween(this.sel).to(0.24, { position: new Vec3(x, 9, 0) }, { easing: 'backOut' }).start();
-    c.icon.setScale(0.86, 0.86, 1);
-    tween(c.icon)
-      .to(0.14, { scale: new Vec3(1.3, 1.3, 1), position: new Vec3(0, 46, 0), angle: -9 }, { easing: 'quadOut' })
-      .to(0.1, { scale: new Vec3(1.1, 1.18, 1), position: new Vec3(0, 28, 0), angle: 7 }, { easing: 'quadIn' })
-      .to(0.12, { scale: new Vec3(1.14, 1.14, 1), position: new Vec3(0, 30, 0), angle: 0 }, { easing: 'backOut' })
-      .start();
-    c.label.node.setScale(1.22, 1.22, 1);
-    tween(c.label.node).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    ring(this.node, x, 24, 70, 190, hex('#BFF2FF'));
-    sparkle(this.node, x, 30, 6, 86, hex('#E6FBFF'), 24);
-  }
-
-  refresh(): void {
-    const s = App.save.data;
-    const eco = App.config.eco;
-    const day = today();
-    for (const t of TABS) {
-      const c = this.cells.get(t);
-      if (!c) continue;
-      const f = TAB_FEATURE[t];
-      const locked = f !== null && !Features.isUnlocked(eco, f, s.level);
-      c.lock.active = locked;
-      (c.icon.getComponent(Sprite) as Sprite).grayscale = locked;
-      opacity(c.icon).opacity = locked ? 120 : 255;
-      let dot = false;
-      if (!locked) {
-        if (t === 'collect') dot = Album.claimable(s, eco) + Dex.claimable(s, eco) > 0;
-        if (t === 'rank') dot = WeeklyGoal.claimable(s, eco, day) > 0;
-        if (t === 'base') dot = HomeBase.canBuild(s, eco);
-      }
-      c.dot.active = dot;
-    }
-  }
-}
-
 /**
  * 主页顶栏（定版图 01）：一整条宝蓝亮面条——左端头像框压在条上，中间一道深色凹槽里放金币（带绿色加号）和生命，右端设置键。
  * 顶上垫一层淡渐变压住背景图
@@ -178,6 +69,8 @@ class TopBar {
   readonly coinIcon: Node;
   private lives: Label;
   private timer: Label;
+  private lifeRoom = 0;
+  private coinRoom = 0;
   private heart: Node;
   private avatar: Node;
   private frame: Node;
@@ -187,48 +80,45 @@ class TopBar {
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     this.node = box('topbar', parent, Screen.W, 120);
     at(this.node, 0, Screen.top - 76);
-    const fade = img(this.node, 'kit/fade_down', Screen.W, 220, 'fade');
-    fade.angle = 180;
-    opacity(fade).opacity = 90;
-    at(fade, 0, 40);
+    // 平面顶栏（新设计，用户 2026-11-16）：不再有一整条底板，四块东西各自浮在场景上——
+    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。两条小条是不凸起的白色圆角块，字深蓝不描边（容器一律是白的）
     const BW = Screen.W - 40;
-    plate(this.node, 'skin/j_bar_top', BW, 92, 'bar');
     const L = -BW / 2;
-    // 凹槽：从头像框右边到设置键左边
-    const x1 = L + 118;
-    const x2 = BW / 2 - 96;
-    const well = plate(this.node, 'skin/j_inset', x2 - x1, 64, 'well');
-    at(well, (x1 + x2) / 2, 1);
-    // 金币：图标 + 数字（最多 7 位，不加逗号）+ 绿色加号
-    // 去掉逗号后金币这一格可以窄一点，让给生命后面的倒计时（不然倒计时顶到设置键）
-    const CW = 284;
-    const coinTap = box('coins', this.node, CW, 92);
-    at(coinTap, x1 + CW / 2, 0);
-    this.coinIcon = img(coinTap, 'icon/coin', 62, 62, 'icon');
-    at(this.coinIcon, -CW / 2 + 36, 2);
-    this.coins = text(coinTap, '0', 38, { align: 'left' });
-    at(this.coins.node, -CW / 2 + 72, 1);
-    at(keyButton(coinTap, 'green', 'kit/ic_plus', 52, null, 0.62), CW / 2 - 32, 2);
-    onTap(coinTap, actions.coins);
-    const sep = tint(this.node, 3, 40, hex('#7FC4FF'), 'sep');
-    opacity(sep).opacity = 110;
-    at(sep, x1 + CW + 6, 1);
-    // 生命：图标 + 数量，回满前后面跟一个小号倒计时
-    const lw = x2 - x1 - CW - 10;
-    const lifeTap = box('lives', this.node, lw, 92);
-    at(lifeTap, x1 + CW + 10 + lw / 2, 0);
-    this.heart = img(lifeTap, 'icon/heart', 62, 62, 'icon');
-    at(this.heart, -lw / 2 + 36, 2);
-    this.lives = text(lifeTap, '5/5', 38, { align: 'left' });
-    at(this.lives.node, -lw / 2 + 72, 1);
-    this.timer = text(lifeTap, '', 26, { align: 'left', color: hex('#CFE7FF') });
-    onTap(lifeTap, actions.lives);
-    at(keyButton(this.node, 'blue', 'skin/g_gear', 72, actions.settings), BW / 2 - 12 - 36, 1);
-    // 头像框最后放，压在条的左端上
-    this.frame = img(this.node, 'skin/j_avatar', 118, 115, 'avatarFrame');
-    at(this.frame, L + 52, 0);
-    this.avatar = img(this.frame, 'icon/avatar', 82, 82, 'avatar');
+    const G = 14;
+    const AV = 92;
+    const KEY = 84;
+    const PH = 72;
+    // 头像
+    this.frame = img(this.node, 'skin/f_avatar', AV, AV, 'avatarFrame');
+    at(this.frame, L + AV / 2, 0);
+    this.avatar = img(this.frame, 'icon/avatar', 70, 70, 'avatar');
+    at(this.avatar, 0, 5);
     onTap(this.frame, actions.profile);
+    // 设置
+    at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), BW / 2 - KEY / 2, 0);
+    // 两条小条平分头像和设置键之间的宽：金币略宽（最多 7 位数 + 加号）
+    const room = BW - AV - KEY - G * 3;
+    const CW = Math.round(room * 0.54);
+    const lw = room - CW;
+    const coinTap = plate(this.node, 'skin/f_dock', CW, PH, 'coins');
+    at(coinTap, L + AV + G + CW / 2, 0);
+    this.coinIcon = img(coinTap, 'icon/coin', 58, 58, 'icon');
+    at(this.coinIcon, -CW / 2 + 38, 0);
+    this.coins = text(coinTap, '0', 36, { align: 'left' });
+    at(this.coins.node, -CW / 2 + 76, 1);
+    at(keyButton(coinTap, 'green', 'kit/ic_plus', 50, null, 0.5), CW / 2 - 36, 0);
+    this.coinRoom = CW - 76 - 36 - 25 - 10;
+    onTap(coinTap, actions.coins);
+    // 生命：图标 + 数量，回满前后面跟一个小号倒计时
+    const lifeTap = plate(this.node, 'skin/f_dock', lw, PH, 'lives');
+    this.lifeRoom = lw;
+    at(lifeTap, L + AV + G + CW + G + lw / 2, 0);
+    this.heart = img(lifeTap, 'icon/heart', 58, 58, 'icon');
+    at(this.heart, -lw / 2 + 38, 0);
+    this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
+    at(this.lives.node, -lw / 2 + 76, 1);
+    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#5E86C0') });
+    onTap(lifeTap, actions.lives);
   }
 
   refresh(): void {
@@ -236,28 +126,27 @@ class TopBar {
     const eco = App.config.eco;
     const t = now();
     if (this.shownCoins !== s.coins) {
-      const str = fmt(s.coins);
-      this.coins.fontSize = str.length > 7 ? 32 : 38;
-      this.coins.string = str;
+      this.coins.string = fmt(s.coins);
+      fit(this.coins, this.coinRoom, 36, 22);
       if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;
     }
     // 集齐收藏的头像框：换成金色
-    setImg(this.frame, Album.hasFrame(s) ? 'skin/j_avatar_gold' : 'skin/j_avatar', 118, 115);
+    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', 92, 92);
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 82, 82);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 70, 70);
     }
     const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
     let tail = '';
     if (Lives.isUnlimited(s, t)) {
-      setImg(this.heart, 'icon/heart_inf', 62, 62);
+      setImg(this.heart, 'icon/heart_inf', 58, 58);
       this.lives.string = '∞';
       tail = mmss(Lives.unlimitedLeft(s, t));
     } else {
-      setImg(this.heart, 'icon/heart', 62, 62);
+      setImg(this.heart, 'icon/heart', 58, 58);
       const n = Lives.count(s, eco, t);
       const full = n >= eco.lives.max;
       this.lives.string = full ? `${n}/${eco.lives.max}` : String(n);
@@ -266,7 +155,10 @@ class TopBar {
     this.timer.string = tail;
     this.lives.updateRenderData(true);
     const lw = (this.lives.node.getComponent(UITransform) as UITransform).width;
-    at(this.timer.node, this.lives.node.position.x + lw + 8, -3);
+    const tx = this.lives.node.position.x + lw + 8;
+    at(this.timer.node, tx, -2);
+    // 倒计时最多写到这一条的右边留 18 的地方
+    fit(this.timer, this.lifeRoom / 2 - 18 - tx, 24, 18);
   }
 }
 
@@ -278,20 +170,17 @@ export class Shell {
   popups!: Node;
   toasts!: Node;
   fx!: Node;
-  tabbar!: TabBar;
   topbar!: TopBar;
   private registry = new Map<string, () => Page>();
   private built = new Map<string, Page>();
   private current: { name: string; page: Page } | null = null;
+  /** 从主页一路点进来经过的页面，返回键照着它往回走 */
+  private history: string[] = [];
 
   /** 当前页面的名字（没有页面时是空串） */
   get pageName(): string {
     return this.current?.name ?? '';
   }
-  private history: string[] = [];
-  private lastTab: Tab = 'home';
-  /** 没开放的页签显示的锁页（pages/lock.ts 提供，避免 ui 层引用页面层） */
-  lockedTab: ((tab: Tab, feature: string) => Page) | null = null;
 
   init(canvas: Node, topActions: ConstructorParameters<typeof TopBar>[1]): void {
     this.root = box('ui', canvas, Screen.W, Screen.H);
@@ -303,7 +192,6 @@ export class Shell {
     this.toasts = box('toasts', this.root, Screen.W, Screen.H);
     initPopups(this.popups);
     this.topbar = new TopBar(this.bars, topActions);
-    this.tabbar = new TabBar(this.bars, (t) => this.go(t));
   }
 
   register(name: string, make: () => Page): void {
@@ -328,15 +216,17 @@ export class Shell {
     return this.current?.name ?? '';
   }
 
-  /** 切页面。页签页互相切不进历史；子页面进历史，返回键回到上一页 */
+  /** 切页面。主页是根，别的页面进历史，返回键回到上一页；回到主页历史清空 */
   go(name: string, arg?: unknown): void {
-    // 没开放的页签：换成这个页签的锁页（docs/01 5.3：灰的带锁，但可以点进去看锁页）
-    const f = (TABS as string[]).includes(name) ? TAB_FEATURE[name as Tab] : null;
-    if (f && this.lockedTab && !Features.isUnlocked(App.config.eco, f, App.save.data.level)) {
-      const key = `${name}@lock`;
-      const make = this.lockedTab;
-      if (!this.registry.has(key)) this.register(key, () => make(name as Tab, f));
-      name = key;
+    this.open(name, arg, true);
+  }
+
+  private open(name: string, arg: unknown, push: boolean): void {
+    // 没开放的功能：换成锁页（docs/01 5.3：入口是灰的带锁，但可以点进去看锁页）
+    const f = PAGE_FEATURE[name];
+    if (f && !Features.isUnlocked(App.config.eco, f, App.save.data.level)) {
+      name = 'lock';
+      arg = { feature: f };
     }
     const next = this.page(name);
     const prev = this.current;
@@ -349,42 +239,31 @@ export class Shell {
     if (prev) {
       prev.page.hide();
       prev.page.node.active = false;
-      if (next.tab === null) this.history.push(prev.name);
     }
-    if (next.tab !== null) this.history = [];
+    // 要去的页面已经在历史里（如 局内 → 结算 → 下一关）：退回到那一层，历史不会越走越长
+    const seen = this.history.indexOf(name);
+    if (name === HOME) this.history = [];
+    else if (seen >= 0) this.history.length = seen;
+    else if (prev && push) this.history.push(prev.name);
     this.current = { name, page: next };
     next.node.active = true;
     next.show(arg);
     fadeIn(next.node, 0.15);
-    // 页签之间切换：新页面从略大一点收回原大（和底栏的切换动效一起，有「切过来」的感觉；只放大不位移，边上不露底）
-    Tween.stopAllByTag(PAGE_TAG, next.node);
-    next.node.setScale(1, 1, 1);
-    if (prev && next.tab !== null && prev.page.tab !== null) {
-      next.node.setScale(1.035, 1.035, 1);
-      tween(next.node).tag(PAGE_TAG).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' }).start();
-    }
-    this.tabbar.node.active = next.tab !== null;
     this.topbar.node.active = next.topBar;
-    if (next.tab !== null) {
-      this.tabbar.select(next.tab);
-      this.lastTab = next.tab;
-    }
     this.refresh();
   }
 
   back(): void {
     if (!this.current || !this.current.page.back()) return;
-    const prev = this.history.pop();
-    this.go(prev ?? this.lastTab);
+    this.open(this.history.pop() ?? HOME, undefined, false);
   }
 
-  /** 存档变了以后调：当前页、顶栏、底栏红点一起刷新 */
+  /** 存档变了以后调：当前页、顶栏一起刷新 */
   refresh(): void {
     // 各自兜住：一块出错不连累别的
     for (const [name, f] of [
       ['page', () => this.current?.page.refresh()],
       ['topbar', () => this.topbar.node.active && this.topbar.refresh()],
-      ['tabbar', () => this.tabbar.node.active && this.tabbar.refresh()],
     ] as const) {
       try {
         f();
@@ -394,19 +273,17 @@ export class Shell {
     }
   }
 
-  /** 换语言：页面全部按新文案重建，回到当前页 */
+  /** 换语言：页面全部按新文案重建，回到当前页（局内、结算、锁页回主页） */
   rebuild(topActions: ConstructorParameters<typeof TopBar>[1]): void {
-    const name = this.current?.name ?? 'home';
+    const name = this.current?.name ?? HOME;
     closeAllPopups();
     for (const p of this.built.values()) p.node.destroy();
     this.built.clear();
     this.current = null;
     this.history = [];
     this.topbar.node.destroy();
-    this.tabbar.node.destroy();
     this.topbar = new TopBar(this.bars, topActions);
-    this.tabbar = new TabBar(this.bars, (t) => this.go(t));
-    this.go(name === 'game' || name === 'result' ? 'home' : name.replace('@lock', ''));
+    this.go(name === 'game' || name === 'result' || name === 'lock' ? HOME : name);
   }
 
   /** 屏幕中间偏上的一条提示，1.6 秒后消失 */

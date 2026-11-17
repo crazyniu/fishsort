@@ -14,10 +14,10 @@ import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { COLOR, at, box, button, capsule, fmt, iconButton, img, lazyImg, opacity, setImg, slice, text, twoLines } from '../ui/kit';
+import { at, box, button, COLOR, fmt, img, lazyImg, opacity, setImg, slice, text, twoLines } from '../ui/kit';
 import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, skillName, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, ui } from '../ui/shell';
+import { Page, pageHead, ui } from '../ui/shell';
 
 /** 一次抽奖结果 → 奖品格 */
 export function spinItem(r: Wheel.SpinResult): PrizeItem {
@@ -43,7 +43,6 @@ const SHOWCASE: [string, number, number, number, number][] = [
 const BEATS = [0, 0.19, 0.35, 0.49, 0.61, 0.71, 0.8, 0.88, 0.95];
 
 export class WheelPage extends Page {
-  readonly tab = null;
   private root!: Node;
   private view: Node | null = null;
   private chest!: Node;
@@ -78,22 +77,19 @@ export class WheelPage extends Page {
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
     const top = Screen.top;
-    const back = iconButton(v, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-    at(back, -Screen.W / 2 + 70, top - 80);
     // 标题行：左返回 · 中标题 · 右金币（同一行）
-    const title = slice(v, 'kit/title_page', 290, 100, 'title');
-    at(title, 0, top - 80);
-    at(text(title, tr('H_FEAT_WHEEL'), 56).node, 0, 0);
-    const coins = capsule(v, 220, 64, 'icon/coin', fmt(s.coins), 28);
-    at(coins.node, Screen.W / 2 - 32 - 110, top - 80);
+    pageHead(v, tr('H_FEAT_WHEEL'), { coins: true });
 
-    // 自下而上：次按钮一排 → 主按钮 → 剩余次数 → 宝箱（在剩下的空间里居中）
+    // 自下而上：次按钮一排 → 主按钮；上面剩下的空间里，宝箱（连同一圈奖品气泡）和紧贴在箱子下面的「剩几次」作为一组居中
+    // （原来「剩几次」贴着主按钮，和宝箱之间空一大段，像浮着的一根条）
     const y2 = Screen.bottom + 40 + 54;
     const btnY = y2 + 54 + 24 + 64;
-    const cntY = btnY + 64 + 32 + 36;
-    const room = top - 140 - (cntY + 36 + 16);
-    const cs = Math.min(420, room);
-    const mid = cntY + 36 + 16 + room / 2;
+    const lo = btnY + 64 + 24;
+    const hi = top - 140;
+    // 一组的高：气泡最高处在箱子中心上方 0.64cs + 68，箱底在中心下方约 0.45cs，再往下是 20 的空和 72 高的牌子
+    const cs = Math.min(420, (hi - lo - 160) / 1.09);
+    const mid = hi - 0.64 * cs - 68 - (hi - lo - (1.09 * cs + 160)) / 2;
+    const cntY = mid - 0.45 * cs - 56;
     this.chestS = cs;
     this.mid = mid;
     // 宝箱背后：暖色放射光慢慢转 + 一团呼吸的柔光
@@ -164,7 +160,7 @@ export class WheelPage extends Page {
         ui.refresh();
       },
     });
-    twoLines(ad, '+1', `${adLeft}/${eco.wheel.adPerDay}`, null, 'kit/ic_video');
+    twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
     at(ad.node, 0, y2);
     ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
     if (App.platform.hasCapability('share')) {
@@ -182,7 +178,7 @@ export class WheelPage extends Page {
           ui.refresh();
         },
       });
-      twoLines(sh, '+1', String(shareLeft), null, 'kit/ic_share');
+      twoLines(sh, '+1', tr('ADS_LEFT', shareLeft), null, 'kit/ic_share');
       at(sh.node, BW + 16, y2);
       sh.setEnabled(shareLeft > 0);
     }

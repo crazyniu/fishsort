@@ -19,7 +19,7 @@ import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { language, tr } from '../ui/i18n';
-import { Capsule, COLOR, artNumber, at, blockInput, box, capsule, iconButton, img, keyButton, lazyImg, onTap, opacity, setImg, setSlice, size, slice, text, tint } from '../ui/kit';
+import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
 import { Page, ui } from '../ui/shell';
@@ -35,10 +35,10 @@ interface BowlView {
   node: Node;
   /** 缸里已经进来的鱼（空缸是空的） */
   inside: Node;
-  /** 缸前面叠着的订单卡：还差几条就有几张，进一条揭掉最前面那张 */
-  cards: Node[];
-  /** 订单卡之间的横向间距 */
-  cardStep: number;
+  /** 木架下面钉着的目标卡：要的那种鱼 +「进了几条 / 要几条」 */
+  tag: Node;
+  tagLabel: Label;
+  got: number;
   sp: number;
   timer: Node | null;
   timerLabel: Label | null;
@@ -72,22 +72,34 @@ const FEVER = [
 const HOP_TAG = 9102;
 /** 鱼游动时拖的光带、星光的颜色 */
 const TRAIL = new Color(190, 235, 255, 255);
-/** 普通鱼缸的高（宽 150）、木架的厚度、缸底压进木架上沿多少 */
-const BOWL_H = 139;
-const SHELF_H = 46;
+/** 普通鱼缸的宽、高（大鱼缸宽 BOWL_BIG），木架的厚度、缸底压进木架上沿多少。
+ * 上面这一段（鱼缸、木架、目标卡、暂存槽）收得紧一点，地方留给气泡场：鱼和气泡不能小（用户 2026-11-17） */
+const BOWL_W = 136;
+const BOWL_BIG = 154;
+const BOWL_H = 126;
+const SHELF_H = 38;
 const BOWL_SINK = 5;
 
 /** 背景冒泡循环的 tween 标签（换关时只停这个，不碰别的） */
 const AMBIENT_TAG = 9201;
 /** 夸奖字出现时让连击计让开的 tween 标签 */
 const PRAISE_TAG = 9202;
-/** 技能数量角标的红 */
-const BADGE_RED = new Color(235, 64, 64, 255);
-/** 订单卡的高宽比（skin/j_order 是 200×257） */
-const ORDER_RATIO = 257 / 200;
+/** 技能键（半透明格子）多大 */
+const SKILL_S = 128;
+/** 技能数量角标的最小宽、高 */
+const BADGE_W = 48;
+const BADGE_H = 40;
+/** 鱼缸的目标卡（钉在木架下面）多大；顶上的图钉往上压进木架多少 */
+const GOAL_W = 140;
+const GOAL_H = 122;
+const GOAL_PIN = 18;
+/** 暂存格的高；它和目标卡、和气泡场之间留多少 */
+const SLOT_H = 86;
+const SLOT_GAP = 8;
+/** 鱼缸的上沿离屏幕顶多远（上面是顶栏那一行） */
+const BOWL_TOP = 92;
 
 export class GamePage extends Page {
-  readonly tab = null;
   // 一局的状态
   lv!: LevelData;
   s!: GameState;
@@ -97,6 +109,8 @@ export class GamePage extends Page {
   /** 局内时钟（秒），连击窗口用 */
   clock = 0;
   moved = false;
+  /** 这一局的每日任务进度记过了没有（Flow.endRun） */
+  tallied = false;
   ended = false;
   paused = false;
   used: Record<string, number> = {};
@@ -115,11 +129,9 @@ export class GamePage extends Page {
   private comboNum!: Node;
   private comboWord!: Node;
   private comboWordW = 78;
-  private comboBar!: Node;
   /** 连击计的位置：屏幕正中、鱼缸那一排 */
   private comboX = 0;
   private comboY = 0;
-  private comboBarW = 220;
   /** 连击时屏幕四边的光框（一个节点装四条边，整体调亮度） */
   private frame!: Node;
   private frameHi = 0;
@@ -158,6 +170,11 @@ export class GamePage extends Page {
   private fieldBottom = 0;
   private total = 0;
 
+  /** 这一局已经救了几只 */
+  get rescued(): number {
+    return this.s ? this.total - this.s.fishLeft() : 0;
+  }
+
   build(root: Node): void {
     this.bg = box('bg', root, Screen.W, Screen.H);
     this.under = box('under', root, Screen.W, Screen.H);
@@ -195,12 +212,15 @@ export class GamePage extends Page {
     this.s = GameState.fromLevel(this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
-    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file));
+    // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
+    const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
+    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;
     this.clock = 0;
     this.moved = false;
+    this.tallied = false;
     this.ended = false;
     this.paused = false;
     this.netMode = false;
@@ -251,7 +271,7 @@ export class GamePage extends Page {
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
     // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
     // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
-    this.comboY = top - 330;
+    this.comboY = top - BOWL_TOP - BOWL_H + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H - SLOT_GAP - SLOT_H / 2;
     this.comboRow = box('combo', this.fly, 420, 120);
     at(this.comboRow, this.comboX, this.comboY);
     this.comboBadge = box('badge', this.comboRow, 420, 120);
@@ -267,16 +287,12 @@ export class GamePage extends Page {
       this.comboWordW = (word.node.getComponent(UITransform) as UITransform).width;
     }
     this.comboNum = box('num', this.comboBadge);
-    this.comboBar = tint(this.comboBadge, this.comboBarW, 8, COLOR.yellow, 'bar');
-    (this.comboBar.getComponent(UITransform) as UITransform).setAnchorPoint(0, 0.5);
-    at(this.comboBar, -this.comboBarW / 2, -54);
     this.comboRow.active = false;
     // 连击光框：四边各一条柔光，6 连以上常亮、随档位换色，每次命中闪一下，断连熄灭。盖在玩法上面、不挡点击
-    this.frame = box('frame', this.fly, Screen.W, Screen.H);
+    this.frame = box('frame', this.under, Screen.W, Screen.H);
     for (const sx of [-1, 1]) at(img(this.frame, 'kit/fx_glow', 300, Screen.H * 1.2, 'side'), (sx * Screen.W) / 2, 0);
     for (const sy of [-1, 1]) at(img(this.frame, 'kit/fx_glow', Screen.W * 1.2, 280, 'cap'), 0, (sy * Screen.H) / 2);
     opacity(this.frame).opacity = 0;
-    this.frame.setSiblingIndex(0);
     // 连击放射光：垫在玩法后面，整屏大，慢慢转
     const raysS = Math.hypot(Screen.W, Screen.H) * 1.15;
     this.feverRays = img(this.under, 'kit/fx_rays', raysS, raysS, 'rays');
@@ -285,7 +301,7 @@ export class GamePage extends Page {
     // 木架与鱼缸
     // 鱼缸坐在木架上：缸底压进木架上沿几个像素（用户 2026-11-16：原来缸底悬在木架前面，没放在底座上）；
     // 数量牌贴在木架正面
-    this.bowlY = top - 172;
+    this.bowlY = top - BOWL_TOP - BOWL_H / 2;
     this.shelfTop = this.bowlY - BOWL_H / 2 + BOWL_SINK;
     const shelfW = Screen.W - 40;
     this.shelf = slice(this.stage, 'kit/shelf', shelfW, SHELF_H, 'shelf');
@@ -293,7 +309,7 @@ export class GamePage extends Page {
     const bw = (shelfW - 30) / MAX_SLOTS;
     this.bowlX = Array.from({ length: MAX_SLOTS }, (_, i) => -shelfW / 2 + 15 + bw * (i + 0.5));
     for (let i = 0; i < MAX_SLOTS; i++) {
-      const plus = img(this.stage, 'skin/j_bowl', 150, 139, `plus${i}`);
+      const plus = img(this.stage, 'skin/j_bowl', BOWL_W, BOWL_H, `plus${i}`);
       at(plus, this.bowlX[i], this.bowlY);
       opacity(plus).opacity = 200;
       const p = img(plus, 'kit/round_green', 64, 64, 'btn');
@@ -306,22 +322,23 @@ export class GamePage extends Page {
     }
 
     // 暂存槽
-    this.bufferY = top - 330;
+    // 暂存槽在目标卡下面
+    this.bufferY = this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H - SLOT_GAP - SLOT_H / 2;
     const cap = this.s.bufferCap;
     const sw = Math.min(124, (Screen.W - 60) / cap - 10);
     for (let i = 0; i < cap; i++) {
-      const sl = slice(this.stage, 'kit/slot', sw, 92, `slot${i}`);
+      const sl = slice(this.stage, 'kit/slot', sw, SLOT_H, `slot${i}`);
       at(sl, this.slotX(i), this.bufferY);
       this.bufferSlots.push(sl);
     }
 
     // 技能栏
-    const skillY = Screen.bottom + 100;
-    SKILLS.forEach((id, i) => this.buildSkill(id, -Screen.W / 2 + (Screen.W / 4) * (i + 0.5), skillY));
+    const skillY = Screen.bottom + 26 + SKILL_S / 2;
+    SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + 36), skillY));
 
     // 场地：暂存槽和技能栏之间全部高度（用户 2026-11-16：场地尽量大）
-    this.fieldTop = this.bufferY - 60;
-    this.fieldBottom = skillY + 96;
+    this.fieldTop = this.bufferY - SLOT_H / 2 - SLOT_GAP;
+    this.fieldBottom = skillY + SKILL_S / 2 + 18;
     this.returnY = this.fieldTop - 40;
     const fh = this.fieldTop - this.fieldBottom;
     at(this.feverRays, 0, (this.fieldTop + this.fieldBottom) / 2);
@@ -349,30 +366,32 @@ export class GamePage extends Page {
     return -((cap - 1) * step) / 2 + i * step;
   }
 
-  /** 技能键：蓝色玻璃方块，插画图标 + 名字；数量是右上角的扁平红色圆角标（只写数字，不带乘号；用户 2026-11-16），没有了换绿色加号 */
+  /**
+   * 技能键：四个一样大的半透明深蓝格子里放插画图标（四个图标是 Codex 一张图里画的一套，大小、风格一致；用户 2026-11-17），下面一行小字是名字；右上角红色小标签是数量（免费时写 FREE），
+   * 没有了换绿色加号。用户 2026-11-16：原来是四块大蓝按钮，压在场地下面太重；角标也要和整体风格一致
+   */
   private buildSkill(id: SkillId, x: number, y: number): void {
-    const node = slice(this.stage, 'kit/panel_blue', 156, 168, id);
+    const S = SKILL_S;
+    const node = img(this.stage, 'skin/f_skill', S, S, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 108, 108, 'icon');
-    at(icon, 0, 16);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 30);
-    at(name.node, 0, -54);
-    // 常见的扁平角标：白边红底白字，不要反光（用户 2026-11-16）
-    const badge = img(node, 'kit/circle_white', 52, 52, 'badge');
-    at(badge, 156 / 2 - 16, 168 / 2 - 14);
-    const dot = img(badge, 'kit/circle_white', 44, 44, 'dot');
-    (dot.getComponent(Sprite) as Sprite).color = BADGE_RED;
-    const count = text(badge, '', 26, { outline: null, shadow: false });
-    // 白底圆片会被当成浅色面、字换成深色：这里直接写死白字
-    count.color = new Color(255, 255, 255, 255);
-    const plus = keyButton(node, 'green', 'kit/ic_plus', 50, null, 0.62);
-    at(plus, 156 / 2 - 18, 168 / 2 - 14);
-    const lock = box('lock', node, 156, 168);
-    const lockIcon = img(lock, 'kit/ic_lock', 48, 48, 'icon');
-    at(lockIcon, 0, 18);
-    const lockLabel = text(lock, '', 24);
-    at(lockLabel.node, 0, -56);
+    const icon = img(node, `icon/skill_${id}`, 96, 96, 'icon');
+    at(icon, 0, 12);
+    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 24);
+    at(name.node, 0, -46);
+    fit(name, S - 12, 24, 16);
+    const badge = slice(node, 'kit/tag_red', BADGE_W, BADGE_H, 'badge');
+    at(badge, S / 2 - BADGE_W / 2 + 8, S / 2 - 10);
+    const count = text(badge, '', 26);
+    at(count.node, 0, 2);
+    const plus = keyButton(node, 'green', 'kit/ic_plus', 46, null, 0.56);
+    at(plus, S / 2 - 14, S / 2 - 12);
+    const lock = box('lock', node, S, S);
+    const lockIcon = img(lock, 'kit/ic_lock', 44, 44, 'icon');
+    at(lockIcon, 0, 14);
+    const lockLabel = text(lock, '', 22);
+    at(lockLabel.node, 0, -46);
     lockLabel.string = tr('H_UNLOCKS_AT', Skills.unlockLevel(App.config.eco, id));
+    fit(lockLabel, S - 8, 22, 14);
     onTap(node, () => Flow.useSkill(this, id));
     this.skillNodes.set(id, { node, icon, count, lock, plus, name: name.node, badge });
   }
@@ -392,9 +411,10 @@ export class GamePage extends Page {
       v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
-      // 「免费」两个字比数字宽，字号小一点才放得进圆角标
-      v.count.fontSize = free ? 19 : 26;
-      v.count.lineHeight = Math.round(v.count.fontSize * 1.25);
+      // 标签跟着字宽走：FREE 比数字宽
+      const bw = Math.max(BADGE_W, Math.round(textWidth(v.count) + 24));
+      resizeSlice(v.badge, bw, BADGE_H);
+      at(v.badge, SKILL_S / 2 - bw / 2 + 8, SKILL_S / 2 - 10);
     }
   }
 
@@ -716,7 +736,7 @@ export class GamePage extends Page {
     if (!view) return;
     view.incoming--;
     view.shown++;
-    this.peelCard(view);
+    this.bumpTag(view);
     this.settleInside(view);
     // 满缸正在飘走的不再压（它的缩放归飘走动画管）
     if (!view.leaving) fx.squash(view.node, 0.88);
@@ -731,28 +751,24 @@ export class GamePage extends Page {
 
   private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number): void {
     const big = cap > 3;
-    const s = big ? 170 : 150;
+    const s = big ? BOWL_BIG : BOWL_W;
     const h = s * 0.925;
     const restY = this.shelfTop - BOWL_SINK + h / 2;
     const node = img(this.stage, 'skin/j_bowl', s, h, `bowl${slot}`);
     at(node, this.bowlX[slot], restY);
     // 空缸里什么都不放（用户 2026-11-16：缸里画着目标鱼，会让人以为已经有一条了）。
-    // 要什么、还差几条，看缸前面叠着的订单卡：一张卡一条鱼，进一条揭掉一张
+    // 要什么、进了几条，看木架下面钉着的目标卡（用户 2026-11-16 定的样子）：一叠白边相片，上面是要的那种鱼（画得大，看得清），
+    // 右下角「0/3」；进一条数字加一、卡弹一下。卡的底图是 Codex 画的（art/briefs/redesign/goal_card.txt）
     const inside = box('inside', node, s, h);
-    const cards: Node[] = [];
-    const cw = big ? 56 : 68;
-    const ch = cw * ORDER_RATIO;
-    const step = cap > 1 ? Math.min(cw * 0.42, (s * 0.86 - cw) / (cap - 1)) : 0;
-    for (let i = 0; i < cap; i++) {
-      const k = i - (cap - 1) / 2;
-      const card = img(node, 'skin/j_order', cw, ch, `card${i}`);
-      at(card, k * step, -h / 2 + ch * 0.16 + Math.abs(k) * 2.5);
-      card.angle = -k * 7;
-      // 鱼画在纸面中间偏上一点，不压住卡边的手绘描线和左下角的小浪花
-      const fish = img(card, this.field.spriteFor(sp), cw * 0.8, cw * 0.8, 'fish');
-      at(fish, 0, ch * 0.04);
-      cards.push(card);
-    }
+    const tag = img(node, 'skin/j_goal', GOAL_W, GOAL_H, 'tag');
+    // 卡顶上的图钉压在木架正面
+    at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
+    const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
+    at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
+    // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
+    const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
+    at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
+    fit(tagLabel, GOAL_W * 0.5, 38, 26);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {
@@ -761,7 +777,7 @@ export class GamePage extends Page {
       timerLabel = text(timerNode, String(Math.ceil(timer)), 28);
     }
     this.bowlBubbles(node, s, h);
-    const view: BowlView = { node, inside, cards, cardStep: step, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
+    const view: BowlView = { node, inside, tag, tagLabel, got: 0, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
     onTap(node, () => this.tapBowl(slot), { press: 0 });
     // 新缸从上方落下
@@ -777,29 +793,12 @@ export class GamePage extends Page {
     if (plus) plus.active = false;
   }
 
-  /** 揭掉最前面那张订单卡：往上一弹、转着淡掉，剩下的卡往中间收一点 */
-  private peelCard(view: BowlView): void {
-    const card = view.cards.pop();
-    if (!card) return;
-    Tween.stopAllByTarget(card);
-    const p = card.position;
-    tween(card)
-      .to(0.12, { position: new Vec3(p.x, p.y + 26, 0), scale: new Vec3(1.18, 1.18, 1) }, { easing: 'quadOut' })
-      .to(0.2, { position: new Vec3(p.x + (p.x >= 0 ? 30 : -30), p.y + 40, 0), scale: new Vec3(0.4, 0.4, 1), angle: card.angle + (p.x >= 0 ? -40 : 40) }, { easing: 'quadIn' })
-      .call(() => card.destroy())
-      .start();
-    tween(opacity(card)).delay(0.12).to(0.2, { opacity: 0 }).start();
-    const n = view.cards.length;
-    if (n === 0) return;
-    const ch = (view.cards[0].getComponent(UITransform) as UITransform).height;
-    const step = view.cardStep;
-    view.cards.forEach((c, i) => {
-      const k = i - (n - 1) / 2;
-      Tween.stopAllByTarget(c);
-      tween(c)
-        .to(0.18, { position: new Vec3(k * step, -view.h / 2 + ch * 0.16 + Math.abs(k) * 2.5, 0), angle: -k * 7 }, { easing: 'quadOut' })
-        .start();
-    });
+  /** 进了一条：目标牌上的数字加一，牌弹一下 */
+  private bumpTag(view: BowlView): void {
+    view.got = Math.min(view.cap, view.got + 1);
+    view.tagLabel.string = `${view.got}/${view.cap}`;
+    fit(view.tagLabel, GOAL_W * 0.5, 38, 26);
+    fx.punch(view.tag, 1.18, 0.22);
   }
 
   /** 缸里进来的鱼：按进来的先后摆在水里（3 条摆成三角、6 条摆两排），各自轻轻游 */
@@ -902,7 +901,7 @@ export class GamePage extends Page {
     if (r.tier < 0) {
       this.showCombo(false);
       // 蓄势（还没到起算数）：鱼缸上方冒个小数字，一次比一次大
-      if (r.count >= 2) this.hitPop(bowlX, `×${r.count}`, 24 + r.count * 3);
+      if (r.count >= 2) this.hitPop(`×${r.count}`, 30 + r.count * 4);
       return;
     }
     const col = COMBO_COLORS[r.tier] ?? COLOR.white;
@@ -919,7 +918,6 @@ export class GamePage extends Page {
       at(img(cl.node, 'icon/coin', 28, 28, 'coin'), -34, 0);
       fx.floatUp(this.fly, cl.node, this.comboX + groupW / 2 + 50, this.comboY - 10, 26, 0.6);
     }
-    (this.comboBar.getComponent(Sprite) as Sprite).color = col;
     if (!was) {
       Tween.stopAllByTarget(this.comboRow);
       Tween.stopAllByTarget(opacity(this.comboRow));
@@ -940,11 +938,11 @@ export class GamePage extends Page {
     tween(bd).to(0.16, { scale: new Vec3(1, 1, 1) }, { easing: 'quadOut' }).start();
     const cx = this.comboX;
     const cy = this.comboY;
-    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 150, col, 28);
-    // 满屏跟着这一击动：鱼缸炸一圈档位色的光和火花，整个场面顿一下，四边光框闪一下
-    fx.glowPop(this.fly, bowlX, this.bowlY, 260 + r.tier * 40, col, 0.3, 220);
-    fx.ring(this.fly, bowlX, this.bowlY, 80, 240 + r.tier * 40, col);
-    fx.sparkle(this.fly, bowlX, this.bowlY, 8 + r.tier * 2, 130 + r.tier * 15, col, 30);
+    fx.sparkle(this.fly, cx, cy, 6 + Math.min(r.count, 10), 110, col, 28);
+    // 满屏跟着这一击动：鱼缸背后炸一圈档位色的光和火花（垫在缸后面，不盖缸和订单卡），整个场面顿一下，四边光框闪一下
+    fx.glowPop(this.under, bowlX, this.bowlY, 300 + r.tier * 40, col, 0.3, 240);
+    fx.ring(this.under, bowlX, this.bowlY, 80, 280 + r.tier * 40, col);
+    fx.sparkle(this.under, bowlX, this.bowlY, 8 + r.tier * 2, 150 + r.tier * 15, col, 30);
     fx.punch(this.stage, 1.008 + r.tier * 0.004);
     this.setFever(r.tier, col);
     this.pulseFrame();
@@ -956,12 +954,12 @@ export class GamePage extends Page {
     this.comboRow.active = on;
   }
 
-  /** 鱼缸上方冒一个数字：略歪着弹出来，往上飘一点、淡出（不冲进顶栏） */
-  private hitPop(x: number, s: string, size0: number): void {
+  /** 蓄势时在连击计的位置冒一个数字：略歪着弹出来，往上飘一点、淡出（用户 2026-11-16：不盖鱼缸和订单卡） */
+  private hitPop(s: string, size0: number): void {
     const n = box('pop', null);
     artNumber(n, s, size0);
     n.angle = (Math.random() - 0.5) * 14;
-    fx.floatUp(this.fly, n, x, this.bowlY + 6, 30, 0.5);
+    fx.floatUp(this.fly, n, this.comboX, this.comboY - 6, 24, 0.5);
   }
 
   /**
@@ -1073,19 +1071,17 @@ export class GamePage extends Page {
 
   private spawnRise(): void {
     const tier = Math.max(0, this.comboTier);
-    const front = Math.random() < 0.3;
     const bubble = Math.random() < 0.3;
-    const s0 = front ? 16 + Math.random() * 16 : 22 + Math.random() * 30;
-    const n = img(front ? this.fly : this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
+    const s0 = 22 + Math.random() * 30;
+    const n = img(this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
     if (!bubble) (n.getComponent(Sprite) as Sprite).color = this.comboColor;
-    const half = Screen.W / 2;
-    const x = front ? (Math.random() < 0.5 ? -1 : 1) * (half - 10 - Math.random() * 70) : (Math.random() - 0.5) * Screen.W;
+    const x = (Math.random() - 0.5) * Screen.W;
     const y0 = Screen.bottom - 30;
     const y1 = Screen.bottom + Screen.H * (0.55 + Math.random() * 0.5);
     const dur = (1.5 + Math.random() * 0.9) * (1 - tier * 0.1);
     at(n, x, y0);
     const op = opacity(n);
-    op.opacity = front ? 190 : 235;
+    op.opacity = 235;
     tween(n)
       .to(dur, { position: new Vec3(x + (Math.random() - 0.5) * 90, y1, 0), angle: bubble ? 0 : 200 }, { easing: 'quadOut' })
       .call(() => n.destroy())
@@ -1094,12 +1090,12 @@ export class GamePage extends Page {
   }
 
   /** 一发烟花：柔光一闪、两圈光环、一大一小两圈火花 */
-  private boom(x: number, y: number, col: Color, loud = true): void {
-    fx.glowPop(this.fly, x, y, 380, col, 0.3);
-    fx.ring(this.fly, x, y, 60, 420, col);
-    fx.ring(this.fly, x, y, 30, 240, COLOR.white);
-    fx.sparkle(this.fly, x, y, 26, 280, col, 52);
-    fx.sparkle(this.fly, x, y, 12, 140, COLOR.white, 30);
+  private boom(x: number, y: number, col: Color, loud = true, layer: Node = this.fly): void {
+    fx.glowPop(layer, x, y, 380, col, 0.3);
+    fx.ring(layer, x, y, 60, 420, col);
+    fx.ring(layer, x, y, 30, 240, COLOR.white);
+    fx.sparkle(layer, x, y, 26, 280, col, 52);
+    fx.sparkle(layer, x, y, 12, 140, COLOR.white, 30);
     if (loud) sfx('firework');
   }
 
@@ -1110,8 +1106,8 @@ export class GamePage extends Page {
    * 升档音按档位换（越高越长越亮），震动中 / 重。停一下后夸奖词缩小飞进顶上的连击计
    */
   private praise(word: string, tier: number, col: Color): void {
-    // 小一点、放在暂存槽那一排：不盖住下面的气泡（用户 2026-11-16）
-    const y = this.bufferY - 16;
+    // 小一点、放在暂存槽那一排，不伸到上面的鱼缸、订单卡和下面的气泡上（用户 2026-11-16）
+    const y = this.bufferY - 6;
     if (this.praiseNode?.isValid) this.praiseNode.destroy();
     // 夸奖字和连击计在同一排：夸奖字在的时候连击计淡出，播完再回来
     const meter = opacity(this.comboBadge);
@@ -1121,15 +1117,15 @@ export class GamePage extends Page {
     this.praiseNode = holder;
     at(holder, 0, y);
     // 背后：档位色柔光 + Codex 画的爆炸星（慢慢转）；字：中文用 Codex 艺术字，其它语言用字
-    const glow = img(holder, 'kit/fx_glow', 520, 280, 'glow');
+    const glow = img(holder, 'kit/fx_glow', 380, 200, 'glow');
     (glow.getComponent(Sprite) as Sprite).color = col;
     glow.setScale(0.3, 0.3, 1);
     tween(glow).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
-    const star = img(holder, 'skin/j_burst', 290, 311, 'burst');
+    const star = img(holder, 'skin/j_burst', 190, 204, 'burst');
     star.setScale(0.2, 0.2, 1);
     tween(star).to(0.2, { scale: new Vec3(1.1, 1.1, 1) }, { easing: 'quadOut' }).to(0.12, { scale: new Vec3(1, 1, 1) }).start();
     tween(star).by(1.4, { angle: -50 }).start();
-    const ww = 380;
+    const ww = 290;
     const l = {
       node:
         language() === 'zh_CN'
@@ -1176,22 +1172,22 @@ export class GamePage extends Page {
     sfx('tier', tier + 1);
   }
 
-  /** 夸奖词落地的那一下：整屏的冲击都在这一帧 */
+  /** 夸奖词落地的那一下：整屏的冲击都在这一帧。闪光、放射光、冲击波、彩纸、烟花全垫在玩法后面：气泡、鱼缸、订单卡都画在它上面，不被挡（用户 2026-11-16） */
   private praiseImpact(y: number, tier: number, col: Color): void {
     const half = Screen.W / 2;
     const reach = Math.hypot(Screen.W, Screen.H);
     buzz(tier >= 2 ? 'heavy' : 'medium');
     fx.trauma(this.stage, 0.5 + tier * 0.12, 20);
-    fx.flash(this.fly, Screen.W, Screen.H, 90 + tier * 25, col);
-    fx.rayBurst(this.fly, 0, y, reach * 1.2, col, 0.6, 190);
-    fx.ring(this.fly, 0, y, 140, reach * 1.1, col, 0.55);
-    fx.ring(this.fly, 0, y, 100, 620, COLOR.white, 0.4);
-    fx.sparkle(this.fly, 0, y, 18 + tier * 4, 340, col, 44);
-    fx.sparkle(this.fly, 0, y, 10 + tier * 2, 180, COLOR.white, 30);
+    fx.flash(this.under, Screen.W, Screen.H, 90 + tier * 25, col);
+    fx.rayBurst(this.under, 0, y, reach * 1.2, col, 0.6, 190);
+    fx.ring(this.under, 0, y, 140, reach * 1.1, col, 0.55);
+    fx.ring(this.under, 0, y, 100, 620, COLOR.white, 0.4);
+    fx.sparkle(this.under, 0, y, 18 + tier * 4, 340, col, 44);
+    fx.sparkle(this.fly, 0, y, 10 + tier * 2, 110, COLOR.white, 28);
     // 两个下角往中间喷彩纸
     const n = 16 + tier * 10;
-    fx.cannon(this.fly, -half - 10, this.fieldBottom - 20, 66, n, 900 + tier * 110);
-    fx.cannon(this.fly, half + 10, this.fieldBottom - 20, 114, n, 900 + tier * 110);
+    fx.cannon(this.under, -half - 10, this.fieldBottom - 20, 66, n, 900 + tier * 110);
+    fx.cannon(this.under, half + 10, this.fieldBottom - 20, 114, n, 900 + tier * 110);
     // 全场气泡从夸奖词往外鼓一圈；鱼缸依次跳一下
     const holder = this.field.node.parent as Node;
     this.field.ripple(-holder.position.x, y - holder.position.y, 0.1 + tier * 0.02);
@@ -1210,8 +1206,8 @@ export class GamePage extends Page {
     const mid = (this.fieldTop + this.fieldBottom) / 2;
     const span = (this.fieldTop - this.fieldBottom) / 2;
     for (let i = 0; i < (tier >= 3 ? 5 : tier >= 2 ? 3 : 0); i++) {
-      fx.delay(this.fly, 0.12 + i * 0.14, () => {
-        this.boom((Math.random() - 0.5) * (Screen.W - 160), mid + (Math.random() - 0.5) * span * 1.4, COMBO_COLORS[(tier + i) % COMBO_COLORS.length], i % 2 === 0);
+      fx.delay(this.under, 0.12 + i * 0.14, () => {
+        this.boom((Math.random() - 0.5) * (Screen.W - 160), mid + (Math.random() - 0.5) * span * 1.4, COMBO_COLORS[(tier + i) % COMBO_COLORS.length], i % 2 === 0, this.under);
         if (i === 0) buzz('medium');
       });
     }
@@ -1279,10 +1275,9 @@ export class GamePage extends Page {
     // 弹窗开着（提示、开缸位、买技能…）时局内暂停：限时缸不走、代打不点
     if (this.paused || ui.currentName !== 'game' || popupCount() > 0) return;
     this.clock += dt;
-    // 连击倒计时细条
+    // 连击的时限（用户 2026-11-16：不要倒计时条）：到点就断
     if (this.comboRow.active && !this.comboBreaking) {
       const left = Math.max(0, 1 - (this.clock - this.lastHit()) / App.config.eco.combo.windowSeconds);
-      size(this.comboBar, this.comboBarW * left, 8);
       if (left <= 0) this.missCombo();
     }
     // 连击中：光点按档位的频率往上冒

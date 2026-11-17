@@ -1,31 +1,28 @@
 // 未开放功能的锁页（定版图 10、11）：功能名、大图、「第 N 关解锁」、解锁奖励预览（真实大奖内容，带数量）。
-// 所有锁页共用这个版式（docs/09 第 2、4 节）。页签页没开放时也画它。
+// 所有锁页共用这个版式（docs/09 第 2、4 节）：主页上没开放的入口点进来都是它。
 import { Node } from 'cc';
 import type { Reward } from '../core/config';
 import * as Features from '../core/meta/features';
-import * as HomeBase from '../core/meta/homeBase';
-import * as WeeklyGoal from '../core/meta/weeklyGoal';
 import { App } from '../services/app';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { at, box, fmt, iconButton, img, lazyImg, slice, text } from '../ui/kit';
+import { at, box, fmt, img, lazyImg, slice, text } from '../ui/kit';
 import { PrizeItem, prizeCell } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, TABBAR_H, ui } from '../ui/shell';
+import { Page, PAGE_BOTTOM, pageHead } from '../ui/shell';
+import { tierPreview } from './tasks';
 
 const NAME: Record<string, string> = {
-  homeBase: 'UI_TAB_BASE',
   album: 'UI_TAB_COLLECTION',
-  rank: 'UI_TAB_RANK',
+  tasks: 'TASK_TITLE',
   daily: 'H_FEAT_DAILY',
   wheel: 'H_FEAT_WHEEL',
   signin: 'H_FEAT_SIGNIN',
   levelSelect: 'H_FEAT_LEVELS',
 };
 const ART: Record<string, string> = {
-  homeBase: 'icon/tab_base',
   album: 'icon/tab_collect',
-  rank: 'icon/tab_rank',
+  tasks: 'icon/tab_tasks',
   daily: 'icon/chest_daily',
   wheel: 'icon/entry_wheel',
   signin: 'icon/entry_signin',
@@ -42,27 +39,16 @@ function rewardItems(r: Reward, mult = 1): PrizeItem[] {
   return out;
 }
 
-function sum(rs: Reward[]): Reward {
-  return rs.reduce<Reward>(
-    (a, r) => ({
-      coins: (a.coins ?? 0) + (r.coins ?? 0),
-      tools: (a.tools ?? 0) + (r.tools ?? 0),
-      skills: (a.skills ?? 0) + (r.skills ?? 0),
-      unlimited: (a.unlimited ?? 0) + (r.unlimited ?? 0),
-    }),
-    {},
-  );
-}
-
 export function lockPrizes(feature: string): PrizeItem[] {
   const eco = App.config.eco;
   switch (feature) {
-    case 'homeBase':
-      return rewardItems(sum(HomeBase.areas(eco).map((a) => a.reward)));
     case 'album':
       return [...rewardItems(eco.album.final), { icon: 'kit/fx_ring', amount: tr('H_PRIZE_FRAME') }];
-    case 'rank':
-      return rewardItems(sum(WeeklyGoal.tiers(eco).map((t) => t.reward)));
+    case 'tasks': {
+      // 本周最后一档宝箱
+      const week = eco.tasks?.weekTiers ?? [];
+      return week.length ? tierPreview(week[week.length - 1]) : [];
+    }
     case 'daily':
       return [...rewardItems(eco.dailyChallenge.reward), { icon: 'icon/card_back', amount: '×1' }];
     case 'wheel':
@@ -84,17 +70,14 @@ export function lockPrizes(feature: string): PrizeItem[] {
   }
 }
 
-/** 画一张锁页。bottom：底下要留多少（页签页留底栏） */
-export function lockView(parent: Node, feature: string, bottom: number): void {
+/** 画一张锁页 */
+function lockView(parent: Node, feature: string): void {
   const eco = App.config.eco;
   const bgH = Math.max(Screen.H, Screen.W * 1.5);
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
   const top = Screen.top;
-  const title = slice(parent, 'kit/title_page', 360, 100, 'title');
-  // 页头和别的子页面一致：标题牌在 top - 80，返回键 96、在左上同一高度
-  at(title, 0, top - 80);
-  text(title, tr(NAME[feature] ?? feature), 56).node.setPosition(0, 4, 0);
-  const span = top - 170 - (Screen.bottom + bottom);
+  pageHead(parent, tr(NAME[feature] ?? feature));
+  const span = top - 170 - (Screen.bottom + PAGE_BOTTOM);
   const artY = top - 170 - span * 0.32;
   const rays = fx.rays(parent, 520);
   at(rays, 0, artY);
@@ -122,9 +105,8 @@ export function lockView(parent: Node, feature: string, bottom: number): void {
   }
 }
 
-/** 主页入口（抽奖、每日挑战、签到、选关）没开放时进的锁页：左上返回 */
+/** 主页入口没开放时进的锁页：左上返回 */
 export class LockPage extends Page {
-  readonly tab = null;
   private root!: Node;
   build(root: Node): void {
     this.root = root;
@@ -133,26 +115,6 @@ export class LockPage extends Page {
     this.root.destroyAllChildren();
     const feature = (arg as { feature: string }).feature;
     const holder = box('holder', this.root);
-    lockView(holder, feature, 0);
-    const back = iconButton(this.root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-    at(back, -Screen.W / 2 + 70, Screen.top - 80);
+    lockView(holder, feature);
   }
 }
-
-/** 还没做完的页面：先放一张锁页一样的占位，免得点进去空白 */
-export class TodoPage extends Page {
-  constructor(
-    readonly tab: 'shop' | 'base' | 'home' | 'collect' | 'rank' | null,
-    private readonly feature: string,
-  ) {
-    super();
-  }
-  build(root: Node): void {
-    lockView(root, this.feature, this.tab ? TABBAR_H : 0);
-    if (!this.tab) {
-      const back = iconButton(root, 'kit/round_blue', 'kit/ic_back', 96, () => ui.back());
-      at(back, -Screen.W / 2 + 70, Screen.top - 80);
-    }
-  }
-}
-

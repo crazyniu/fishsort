@@ -5,6 +5,7 @@ import type { Rng } from '../rng/rng';
 import { clampi, idiv, posmod } from '../util';
 import * as Album from './album';
 import * as Cards from './cards';
+import * as Tasks from './tasks';
 import type { Prize, SaveData } from './save';
 
 export function fresh(): SaveData['challenge'] {
@@ -84,6 +85,8 @@ export function win(
   const c = save.challenge;
   c.streak = streak(save, day) + 1;
   c.wonDay = day;
+  Tasks.add(save, eco, day, 'win');
+  Tasks.add(save, eco, day, 'daily');
   const prizes = Album.grant(save, cfg.reward, now, eco, rng);
   const rarity = Cards.rollRarity(eco, eco.chest.cardRates, rng);
   const open = Album.pool(eco, species, save.level);
