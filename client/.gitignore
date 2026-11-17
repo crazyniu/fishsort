@@ -4,6 +4,8 @@ temp/
 local/
 build/
 profiles/
-native/
+# native/engine 是我们改过的原生工程（Cocos 模板 + 自己的代码），要进仓库；下载的 SDK 和本机配置不进
+native/engine/ios/sdk/
+native/engine/common/localCfg.cmake
 node_modules/
 .cc-types/

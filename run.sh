@@ -34,7 +34,12 @@ usage() {
                         以上参数可以连着写：./run.sh real level 65 auto
   serve [同上的参数]    不重新构建，直接打开上次的构建
   build                 只构建网页版 → client/build/web-mobile
-  wechat-build          构建微信小游戏包 → client/build/wechatgame
+  wechat-build          构建微信小游戏包 → client/build/wechatgame（再用微信开发者工具打开上传）
+  ios-build [sim|ipa]   构建 iOS：出 Xcode 工程 → client/build/ios/proj；sim = 再编译一个模拟器版验证能编过，
+                        ipa = 归档并导出上传 App Store 用的 ipa（要先在 Xcode 里登录开发者账号、game.json 填 ios.team）
+  android-build [apk|aab]  构建 Android：出 Gradle 工程，再编出 apk（测试装机）或 aab（上传 Google Play，要签名，见 docs/10）
+  native-apply          按 game.json 改写各平台的构建配置和原生工程（打包命令会自动跑）
+  native-icons          从图标和背景生成各平台的应用图标、iOS 启动屏、商店图标（换了图标后在 Linux 上跑，结果要提交）
   editor                用 Cocos Creator 打开 client/
   clean                 清掉 Cocos 的缓存（client/library、temp、build、local），资源导入出错时用
   cdp logs [秒] | eval '<表达式>' | shot <图> | burst <目录> <张数> <间隔毫秒> '<JS>'
@@ -99,6 +104,87 @@ cocos_build() {
     echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
     git status --short -- client | head -20
   fi
+}
+
+# ---------------------------------------------------------------- 原生包（docs/10-开发底座.md）
+
+# iOS 的 Google Mobile Ads + UMP：下载到 client/native/engine/ios/sdk/（不进仓库），iOS 工程的 CMakeLists 链它
+ios_sdk() {
+  local dir="$CLIENT/native/engine/ios/sdk" tmp
+  [ -d "$dir/GoogleMobileAds.xcframework" ] && return 0
+  echo "· 下载 Google Mobile Ads iOS SDK …"
+  tmp="$(mktemp -d)"
+  curl -fsSL -o "$tmp/sdk.zip" https://dl.google.com/googleadmobadssdk/googlemobileadssdkios.zip || { echo "! SDK 下载失败，这次按没有广告编译"; return 0; }
+  (cd "$tmp" && unzip -q sdk.zip)
+  mkdir -p "$dir"
+  find "$tmp" -maxdepth 3 -name '*.xcframework' -type d -exec cp -R {} "$dir/" \;
+  rm -rf "$tmp"
+  ls "$dir"
+}
+
+# xcode 工程和 scheme：Cocos 按构建配置的 name 起名（name-mobile）
+ios_project() {
+  local proj
+  proj="$(ls -d "$CLIENT"/build/ios/proj/*.xcodeproj 2>/dev/null | head -1)"
+  [ -n "$proj" ] || die "没找到 Xcode 工程（client/build/ios/proj/*.xcodeproj），先 ./run.sh ios-build"
+  echo "$proj"
+}
+
+ios_build() {
+  local mode="${1:-}" proj scheme team
+  node tools/native/apply.mjs
+  ios_sdk
+  cocos_build ios
+  proj="$(ios_project)"
+  scheme="$(basename "$proj" .xcodeproj)-mobile"
+  team="$(node -e 'console.log(require("./game.json").ios.team || "")')"
+  case "$mode" in
+    "") echo "✓ Xcode 工程：${proj}（用 Xcode 打开可以直接装到手机上调试）" ;;
+    sim)
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphonesimulator -configuration Debug \
+        -derivedDataPath "$CLIENT/build/ios/derived" CODE_SIGNING_ALLOWED=NO build > "$CLIENT/build/ios/sim.log" 2>&1 \
+        || { grep -E "error:|BUILD FAILED" "$CLIENT/build/ios/sim.log" | head -30; die "模拟器版编译失败（全文 client/build/ios/sim.log）"; }
+      echo "✓ 模拟器版编译通过：client/build/ios/derived/Build/Products/Debug-iphonesimulator/"
+      ;;
+    ipa)
+      [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
+      local out="$CLIENT/build/ios/release"
+      rm -rf "$out"; mkdir -p "$out"
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphoneos -configuration Release \
+        -archivePath "$out/app.xcarchive" DEVELOPMENT_TEAM="$team" -allowProvisioningUpdates archive > "$out/archive.log" 2>&1 \
+        || { grep -E "error:|ARCHIVE FAILED" "$out/archive.log" | head -30; die "归档失败（全文 client/build/ios/release/archive.log）"; }
+      cat > "$out/ExportOptions.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>method</key><string>app-store-connect</string>
+  <key>teamID</key><string>${team}</string>
+  <key>signingStyle</key><string>automatic</string>
+</dict></plist>
+PLIST
+      xcodebuild -exportArchive -archivePath "$out/app.xcarchive" -exportPath "$out" \
+        -exportOptionsPlist "$out/ExportOptions.plist" -allowProvisioningUpdates > "$out/export.log" 2>&1 \
+        || { tail -20 "$out/export.log"; die "导出 ipa 失败"; }
+      echo "✓ ipa：$(ls "$out"/*.ipa)（用 Xcode 的 Organizer 或 Transporter 上传）"
+      ;;
+    *) die "用法: ./run.sh ios-build [sim|ipa]" ;;
+  esac
+}
+
+android_build() {
+  local mode="${1:-apk}" proj
+  node tools/native/apply.mjs
+  [ -n "${ANDROID_HOME:-}" ] || [ -d "$HOME/Library/Android/sdk" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
+  cocos_build android
+  proj="$CLIENT/build/android/proj"
+  [ -x "$proj/gradlew" ] || die "没找到 Gradle 工程：$proj"
+  case "$mode" in
+    apk) (cd "$proj" && ./gradlew assembleDebug) && echo "✓ apk：$(find "$proj" -name '*.apk' -path '*debug*' | head -1)" ;;
+    aab)
+      # 签名：RELEASE_STORE_FILE 等四个变量写在 ~/.gradle/gradle.properties（不进仓库，docs/10）
+      (cd "$proj" && ./gradlew bundleRelease) && echo "✓ aab：$(find "$proj" -name '*.aab' | head -1)（传到 Google Play Console）" ;;
+    *) die "用法: ./run.sh android-build [apk|aab]" ;;
+  esac
 }
 
 # 试玩参数 → 地址栏参数（client/assets/scripts/services/launch.ts 读）：real、level <N>、auto [起] [止]、page <名字>
@@ -188,7 +274,7 @@ case "$cmd" in
 esac
 
 case "$cmd" in
-  play|serve|build|wechat-build|editor)
+  play|serve|build|wechat-build|ios-build|android-build|editor)
     if [ "${RUN_SH_PULLED:-}" != "1" ]; then
       pull_latest
       # 拉到了新代码：用新的 run.sh 重跑（run.sh 自己也可能改了）
@@ -206,7 +292,11 @@ case "$cmd" in
     ;;
   serve)        web_serve "$@" ;;
   build)        cocos_build web-mobile ;;
-  wechat-build) cocos_build wechatgame ;;
+  wechat-build) node tools/native/apply.mjs && cocos_build wechatgame ;;
+  ios-build)    ios_build "$@" ;;
+  android-build) android_build "$@" ;;
+  native-apply) node tools/native/apply.mjs ;;
+  native-icons) python3 tools/native/icons.py "$@" ;;
   editor)
     need_cocos
     exec "$COCOS" --project "$CLIENT" "$@"

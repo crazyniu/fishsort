@@ -1,0 +1,4 @@
+<resources>
+    <!-- 简体中文系统下的应用名（tools/native/apply.mjs 按 game.json 改写） -->
+    <string name="fs_app_name">啵啵救援队</string>
+</resources>
