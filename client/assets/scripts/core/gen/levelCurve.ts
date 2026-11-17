@@ -1,6 +1,6 @@
 // 把 level_curve.json 的难度曲线换算成某一关的生成参数与目标胜率，见 docs/02-关卡设计.md 第 2 节。
 // 参数随关卡号连续插值，不按段跳变。障碍搭配、挑战关降幅、第 3 缸区间是 2026-11-16 关卡设计复查后的规则。
-import type { CurveConfig } from '../config';
+import type { CurveConfig, JamKind } from '../config';
 import { NO_TIMER } from '../model/gameState';
 import type { LevelData } from '../model/levelData';
 import { clampf, idiv, lerpf, roundi } from '../util';
@@ -32,6 +32,10 @@ export interface GenParams {
   pairs?: number;
   challenge?: boolean;
   scramble?: number;
+  /** 只打乱编号在这个比例之后的气泡（0–1，不给 = 全部） */
+  scrambleFrom?: number;
+  /** 最多试几次（不给 = LevelGen.ATTEMPTS） */
+  attempts?: number;
   /** 限时缸秒数的算法（level_curve.json 的 timer）与机器人的计时（bot） */
   timerRule?: { loose: number; min: number; max: number; step: number; maxSteps: number };
   clock?: { tapSec: number; bowlSec: number };
@@ -55,6 +59,7 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
     mechanics(curve, id, p);
     if (isChallenge(curve, id)) challenge(curve, id, p);
   }
+  jam(curve, id, ease, p);
   const e = curve.ease;
   if (ease > 0) {
     p.species = Math.max(3, p.species - ease * e.species);
@@ -65,6 +70,58 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   p.fish = Math.max(9, idiv(p.fish, 3) * 3);
   p.buffer = bufferFor(curve, id);
   return p;
+}
+
+/** 排队泡关卡：这一关是哪一档；不是排队泡关卡（jam 没配或还没到 jam.from）返回 null */
+export function jamKind(curve: CurveConfig, id: number): JamKind | null {
+  const j = curve.jam;
+  if (!j || id < j.from) return null;
+  if (id % j.bigEvery === 0) return 'big';
+  return isChallenge(curve, id) ? 'hard' : 'normal';
+}
+
+/** 分段线性的折点表取值：第一个折点之前、最后一个之后取端点值 */
+export function knot(k: readonly (readonly number[])[], id: number): number {
+  if (id <= k[0][0]) return k[0][1];
+  for (let i = 1; i < k.length; i++) {
+    if (id <= k[i][0]) return k[i - 1][1] + ((id - k[i - 1][0]) * (k[i][1] - k[i - 1][1])) / (k[i][0] - k[i - 1][0]);
+  }
+  return k[k.length - 1][1];
+}
+
+/**
+ * 排队泡关卡的生成参数：多少气泡排队、从哪里开始打乱、打乱多少（起点）。变体按 jam.ease 少打乱，
+ * 也没有难关、大难关的加量（按普通关的规模生成）
+ */
+function jam(curve: CurveConfig, id: number, ease: number, p: GenParams): void {
+  const kind = jamKind(curve, id);
+  if (kind === null) return;
+  const j = curve.jam as NonNullable<CurveConfig['jam']>;
+  p.queue = knot(j.queue, id);
+  p.scrambleFrom = knot(j.scrambleFrom, id);
+  const share = knot(j.scramble[kind], id) * (ease > 0 ? j.ease[Math.min(ease, j.ease.length) - 1] : 1);
+  p.scramble = Math.trunc(p.fish * share);
+}
+
+/**
+ * 排队泡关卡的验收目标：普通玩家机器人花不超过 k 样就过关的比例 [不花, ≤1, ≤2, …]（0–1）。
+ * 变体：难关、大难关的第 1 个变体取这一档和普通关的中间，第 2 个变体取普通关；普通关的变体不设目标（只要更容易）
+ */
+export function jamTargets(curve: CurveConfig, id: number, ease: number): number[] | null {
+  const kind = jamKind(curve, id);
+  if (kind === null) return null;
+  const j = curve.jam as NonNullable<CurveConfig['jam']>;
+  const at = (k: JamKind) => {
+    let t = j.targets[k][0][1];
+    for (const [from, v] of j.targets[k]) if (id >= from) t = v;
+    return t;
+  };
+  const normal = at('normal');
+  if (ease <= 0) return at(kind);
+  if (kind === 'normal') return null;
+  if (ease >= 2) return normal;
+  const own = at(kind);
+  return own.map((v, i) => (v + (normal[Math.min(i, normal.length - 1)] ?? 1)) / 2);
 }
 
 function base(curve: CurveConfig, id: number): GenParams {

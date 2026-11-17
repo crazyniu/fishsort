@@ -1,7 +1,7 @@
 // 关卡生成器，见 docs/02-关卡设计.md 第 4 节。
 // 先按解构造出一关和它的参考解，再在不破坏参考解的前提下叠加障碍（锁链、冰封、迷雾、结伴鱼、限时）。
 import { GameState, UNASSIGNED } from '../model/gameState';
-import { BubbleData, LevelData, OrderData } from '../model/levelData';
+import { BubbleData, LevelData, OrderData, Tap } from '../model/levelData';
 import { Rng } from '../rng/rng';
 import { start, tap } from '../rules/rules';
 import { DEFAULT_CLOCK, solve, wins } from '../solver/bots';
@@ -19,10 +19,15 @@ export const TIMER_SAMPLES = 3;
 /** 打乱后找参考解时贪心机器人最多试几局 */
 export const SOLVE_TRIES = 60;
 
-export function generate(p: GenParams, seed: number): LevelData | null {
+/**
+ * solver：打乱后找参考解用谁（不给 = 贪心机器人 SOLVE_TRIES 局）。排队泡关卡贪心机器人几乎打不过，
+ * 关卡工具传细心玩家进来（core/solver/careful.ts）
+ */
+export function generate(p: GenParams, seed: number, solver?: (lv: LevelData) => Tap[]): LevelData | null {
   const rng = new Rng(seed);
-  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
-    const lv = attemptOnce(p, rng);
+  const attempts = p.attempts ?? ATTEMPTS;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const lv = attemptOnce(p, rng, solver);
     if (lv !== null) {
       lv.levelSeed = seed;
       return lv;
@@ -31,7 +36,7 @@ export function generate(p: GenParams, seed: number): LevelData | null {
   return null;
 }
 
-function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
+function attemptOnce(p: GenParams, rng: Rng, solver?: (lv: LevelData) => Tap[]): LevelData | null {
   const lv = new LevelData();
   const ns = p.species;
   const total = p.fish;
@@ -57,8 +62,8 @@ function attemptOnce(p: GenParams, rng: Rng): LevelData | null {
   lv.ref = res.taps;
   const scramble = Math.trunc(p.scramble ?? 0);
   if (scramble > 0) {
-    scrambleFish(rng, lv, scramble);
-    lv.ref = solve(lv, SOLVE_TRIES);
+    scrambleFish(rng, lv, scramble, p.scrambleFrom ?? 0);
+    lv.ref = solver !== undefined ? solver(lv) : solve(lv, SOLVE_TRIES);
     if (lv.ref.length === 0) return null;
   }
   // 叠加障碍：都照着参考解加，参考解照样能通关
@@ -107,11 +112,12 @@ function timeline(lv: LevelData): Timeline {
 
 /**
  * 随机交换 count 对不同种的鱼。按解构造出来的关卡对「只顾眼前」的打法太顺，
- * 打乱一部分才有需要规划的局面；打乱后的可解性由 Bots.solve 找到的通关步骤证明
+ * 打乱一部分才有需要规划的局面；打乱后的可解性由找到的通关步骤证明。
+ * from：只打乱编号在前 from（0–1）之后的气泡（掉落关按编号落下，前面一段顺、后面难，docs/02 第 0.5 节）
  */
-function scrambleFish(rng: Rng, lv: LevelData, count: number): void {
+function scrambleFish(rng: Rng, lv: LevelData, count: number, from: number): void {
   const spots: [number, number][] = [];
-  for (let b = 0; b < lv.bubbles.length; b++) {
+  for (let b = Math.floor(lv.bubbles.length * from); b < lv.bubbles.length; b++) {
     for (let k = 0; k < lv.bubbles[b].fish.length; k++) spots.push([b, k]);
   }
   let done = 0;

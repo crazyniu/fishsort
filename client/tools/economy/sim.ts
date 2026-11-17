@@ -5,12 +5,13 @@
 //   --casual  只打关卡和签到，不做每日挑战、任务中心、抽奖
 //   --frugal  难关先不花金币白打一次，输了再花
 //   --runs    跑几遍取平均（默认 20）
-// 关卡难不难不在这里量：按 docs/02 第 0.4 节的目标假设——不花金币 / 花 1 样 / 2 样……各自的过关概率（下面的 TARGETS）。
+// 关卡难不难不在这里量：按 docs/02 第 0.4 节的目标假设——不花金币 / 花 1 样 / 2 样……各自的过关概率（level_curve.json 的 jam.targets）。
 // 玩家的打法：卡住了就花一样，一局最多花 maxItems 样；四样里约一样是开缸，其余是技能。
 // 技能先用今天的免费次、再用库存；都没有就花金币买，金币不够就看广告拿一个。缸位、命同理。
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import type { EconomyConfig, Species } from '../../assets/scripts/core/config';
+import type { CurveConfig, EconomyConfig, Species } from '../../assets/scripts/core/config';
+import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import * as Album from '../../assets/scripts/core/meta/album';
 import * as DailyChallenge from '../../assets/scripts/core/meta/dailyChallenge';
 import * as Dex from '../../assets/scripts/core/meta/dex';
@@ -27,18 +28,12 @@ import { Rng } from '../../assets/scripts/core/rng/rng';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const CONFIG = join(CLIENT, 'assets/resources/config');
-
 /**
- * 细心玩家的过关概率目标（docs/02 第 0.4 节）：[不花金币, 花 1 样, 花 2 样, 花 3 样, 花 4 样]，maxItems = 一局最多花几样。
- * 普通关全程一样；难关（每 5 关）和大难关（每 20 关）按关卡段前松后紧。
+ * 过关概率按 level_curve.json 的 jam.targets（docs/02 第 0.4 节，普通玩家机器人量的）：[不花金币, 花 ≤1 样, ≤2 样, …]，
+ * maxItems = 一局最多花几样（表有几档就到几样）。排队泡关卡之前的关（新手期）按 EARLY。
  */
-const NORMAL = { p: [0.88, 0.97], maxItems: 1 };
-const TARGETS: { from: number; hard: { p: number[]; maxItems: number }; big: { p: number[]; maxItems: number } }[] = [
-  { from: 1, hard: { p: [0.9, 0.98], maxItems: 1 }, big: { p: [0.9, 0.98], maxItems: 1 } },
-  { from: 26, hard: { p: [0.5, 0.75, 0.9], maxItems: 2 }, big: { p: [0.35, 0.6, 0.8, 0.9], maxItems: 3 } },
-  { from: 61, hard: { p: [0.3, 0.55, 0.75, 0.9], maxItems: 3 }, big: { p: [0.15, 0.4, 0.6, 0.8, 0.9], maxItems: 4 } },
-  { from: 121, hard: { p: [0.15, 0.45, 0.7, 0.9], maxItems: 3 }, big: { p: [0.05, 0.25, 0.5, 0.75, 0.88], maxItems: 4 } },
-];
+const curve = JSON.parse(readFileSync(join(CONFIG, 'level_curve.json'), 'utf8')) as CurveConfig;
+const EARLY = { p: [0.9, 0.98], maxItems: 1 };
 /** 花的几样里开缸占多少 */
 const BOWL_SHARE = 0.25;
 /** 打一局算几秒（命的恢复按它走） */
@@ -50,10 +45,9 @@ function arg(name: string, fallback: string): string {
 }
 
 function targetFor(level: number): { p: number[]; maxItems: number } {
-  if (level % 5 !== 0) return NORMAL;
-  let t = TARGETS[0];
-  for (const x of TARGETS) if (level >= x.from) t = x;
-  return level % 20 === 0 ? t.big : t.hard;
+  const p = LevelCurve.jamTargets(curve, level, 0);
+  if (p === null) return EARLY;
+  return { p, maxItems: p.length - 1 };
 }
 
 class Book {
@@ -80,7 +74,7 @@ function main(): void {
   const perDay = Number(arg('levels', '10'));
   const casual = process.argv.includes('--casual');
   const frugal = process.argv.includes('--frugal');
-  const total = 240;
+  const total = curve.total;
   const runs = Number(arg('runs', '20'));
   const book = new Book();
   let played = 0;
@@ -197,7 +191,8 @@ function main(): void {
       earn('救援记录', () => {
         // 这一关救了 8 种左右、每种十来条（本海域的局内生物）
         const sea = Math.floor((level - 1) / 20);
-        const pool = inLevel.filter((_, i) => Math.floor((i * 12) / inLevel.length) === sea % 12);
+        const seaN = eco.seas?.length ?? 1;
+        const pool = inLevel.filter((_, i) => Math.floor((i * seaN) / inLevel.length) === sea % seaN);
         const counts: Record<string, number> = {};
         for (let i = 0; i < 8 && pool.length > 0; i++) counts[rng.pick(pool).id] = 12;
         Dex.record(save, counts);

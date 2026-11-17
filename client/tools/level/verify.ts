@@ -9,6 +9,7 @@ import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
 import * as Bots from '../../assets/scripts/core/solver/bots';
 import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
+import * as Jam from './jam';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
@@ -38,7 +39,7 @@ function obstacles(lv: LevelData): string[] {
   return out;
 }
 
-const rows = ['level,species,fish,bubbles,challenge,peak,greedy2,greedy3,random2,obstacles,flag'];
+const rows = ['level,species,fish,bubbles,challenge,peak,greedy2,greedy3,random2,obstacles,flag,kind,queue,normal0,normal1,normal2,normal3,normal4,normal6,casual0,casual6'];
 let bad = 0;
 let off = 0;
 let off3 = 0;
@@ -77,6 +78,28 @@ for (const path of files) {
     for (const e of errs) console.error(`✗ ${name}: ${e}`);
     continue;
   }
+  const kind = LevelCurve.jamKind(curve, lv.id);
+  if (kind !== null) {
+    // 排队泡关卡（docs/02 第 0 节）：按普通玩家机器人花几样才过来验收，不看贪心机器人的胜率
+    const ease = isVariant ? Number(name.slice(name.indexOf('_e') + 2)) : 0;
+    const m = Jam.measure(lv, lv.id, 50000);
+    const target = LevelCurve.jamTargets(curve, lv.id, ease);
+    const flags: string[] = [];
+    if (target !== null && Jam.gap(m, target).miss > 0) flags.push(Jam.gap(m, target).signed < 0 ? '偏难' : '偏易');
+    if (isVariant) {
+      const base = baseRate.get(lv.id);
+      if (base !== undefined && m.normal[0] * 100 < base - 5) flags.push('变体不比本体易');
+    } else baseRate.set(lv.id, m.normal[0] * 100);
+    if (flags.length > 0) off++;
+    const fish = lv.bubbles.reduce((n, b) => n + b.fish.length, 0);
+    const pc = (x: number) => Math.round(x * 100);
+    const queued = lv.bubbles.filter((b) => b.queue).length;
+    const peak = LevelCheck.replay(lv).peak;
+    rows.push(
+      [name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', peak, -1, -1, -1, obs.join('+'), flags.join('|'), kind, queued, ...[0, 1, 2, 3, 4, 6].map((k) => pc(m.normal[k])), pc(m.casual[0]), pc(m.casual[6])].join(','),
+    );
+    continue;
+  }
   const g2 = rate(lv, 'greedy', 2);
   const g3 = isVariant ? -1 : rate(lv, 'greedy', 3);
   const r2 = isVariant ? -1 : rate(lv, 'random', 2);
@@ -103,9 +126,9 @@ for (const path of files) {
     if (LevelCurve.miss(s3, g3) > 0) off3++;
   }
   const peak = LevelCheck.replay(lv).peak;
-  rows.push([name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', peak, g2, g3, r2, obs.join('+'), flags.join('|')].join(','));
+  rows.push([name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', peak, g2, g3, r2, obs.join('+'), flags.join('|'), '', '', '', '', '', '', '', '', '', ''].join(','));
 }
 if (all) writeFileSync(join(CLIENT, 'tools/level/report.csv'), rows.join('\n') + '\n');
 else console.log(rows.join('\n'));
-console.log(`校验 ${files.length} 个关卡（每关 ${runs} 局）：不合格 ${bad}，2 缸胜率偏离目标或不单调 ${off}，第 3 缸不在区间 ${off3}`);
+console.log(`校验 ${files.length} 个关卡（前 ${(curve.jam?.from ?? 1) - 1} 关贪心机器人每关 ${runs} 局，之后普通玩家机器人每关 ${Jam.NORMAL_GAMES} 局）：不合格 ${bad}，偏离目标 ${off}，第 3 缸不在区间 ${off3}`);
 process.exit(bad > 0 ? 1 : 0);

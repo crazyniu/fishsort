@@ -1175,6 +1175,594 @@
    "shape": "shrimp"
   },
   {
+   "id": "c121",
+   "name": "樱花虾",
+   "rarity": "common",
+   "group": "pink-shrimp",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [250, 102, 164]
+  },
+  {
+   "id": "c122",
+   "name": "春鲷鲷",
+   "rarity": "common",
+   "group": "red-disc",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "disc",
+   "inLevel": true, "rgb": [248, 59, 59]
+  },
+  {
+   "id": "c123",
+   "name": "青虾虎",
+   "rarity": "common",
+   "group": "green-long",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [146, 225, 34]
+  },
+  {
+   "id": "c124",
+   "name": "小蓝鳐",
+   "rarity": "common",
+   "group": "blue-diamond",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "diamond",
+   "inLevel": true, "rgb": [80, 195, 251]
+  },
+  {
+   "id": "c125",
+   "name": "紫裙裙",
+   "rarity": "common",
+   "group": "purple-slug",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "slug",
+   "inLevel": true, "rgb": [191, 95, 242]
+  },
+  {
+   "id": "c126",
+   "name": "金鲤鲤",
+   "rarity": "common",
+   "group": "yellow-round",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [253, 202, 9]
+  },
+  {
+   "id": "c127",
+   "name": "杏花蟹",
+   "rarity": "common",
+   "group": "orange-claws",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true, "rgb": [251, 125, 3]
+  },
+  {
+   "id": "c128",
+   "name": "薄荷螺",
+   "rarity": "common",
+   "group": "cyan-snail",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "snail",
+   "inLevel": true, "rgb": [40, 236, 246]
+  },
+  {
+   "id": "c129",
+   "name": "灰扁扁",
+   "rarity": "common",
+   "group": "grey-flat",
+   "hue": "grey",
+   "pattern": "solid",
+   "shape": "flat"
+  },
+  {
+   "id": "c130",
+   "name": "花蛤蛤",
+   "rarity": "common",
+   "group": "white-shell",
+   "hue": "white",
+   "pattern": "solid",
+   "shape": "shell"
+  },
+  {
+   "id": "c131",
+   "name": "黄鱼鱼",
+   "rarity": "common",
+   "group": "yellow-long",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [252, 212, 2]
+  },
+  {
+   "id": "c132",
+   "name": "红梭蟹",
+   "rarity": "common",
+   "group": "red-claws",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true, "rgb": [247, 57, 25]
+  },
+  {
+   "id": "c133",
+   "name": "青柠星",
+   "rarity": "common",
+   "group": "green-star",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "star",
+   "inLevel": true, "rgb": [148, 239, 3]
+  },
+  {
+   "id": "c134",
+   "name": "蓝鲳鲳",
+   "rarity": "common",
+   "group": "blue-disc",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "disc",
+   "inLevel": true, "rgb": [58, 169, 251]
+  },
+  {
+   "id": "c135",
+   "name": "紫贻贝",
+   "rarity": "common",
+   "group": "purple-shell",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [150, 66, 226]
+  },
+  {
+   "id": "c136",
+   "name": "粉鱿鱿",
+   "rarity": "common",
+   "group": "pink-legs",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "legs",
+   "inLevel": true, "rgb": [251, 116, 181]
+  },
+  {
+   "id": "c137",
+   "name": "橙鼓鼓",
+   "rarity": "common",
+   "group": "orange-round",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [252, 149, 32]
+  },
+  {
+   "id": "c138",
+   "name": "青马马",
+   "rarity": "common",
+   "group": "cyan-tall",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "tall",
+   "inLevel": true, "rgb": [58, 228, 233]
+  },
+  {
+   "id": "c139",
+   "name": "灰鲈鲈",
+   "rarity": "common",
+   "group": "grey-long",
+   "hue": "grey",
+   "pattern": "solid",
+   "shape": "long"
+  },
+  {
+   "id": "c140",
+   "name": "棕螺螺",
+   "rarity": "common",
+   "group": "brown-snail",
+   "hue": "brown",
+   "pattern": "solid",
+   "shape": "snail"
+  },
+  {
+   "id": "c141",
+   "name": "飞鱼鱼",
+   "rarity": "common",
+   "group": "yellow-long",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [253, 224, 18]
+  },
+  {
+   "id": "c142",
+   "name": "红鼓鼓",
+   "rarity": "common",
+   "group": "red-round",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [251, 104, 99]
+  },
+  {
+   "id": "c143",
+   "name": "青团龟",
+   "rarity": "common",
+   "group": "green-shell",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [113, 231, 157]
+  },
+  {
+   "id": "c144",
+   "name": "天蓝母",
+   "rarity": "common",
+   "group": "blue-umbrella",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true, "rgb": [98, 201, 251]
+  },
+  {
+   "id": "c145",
+   "name": "紫海马",
+   "rarity": "common",
+   "group": "purple-tall",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "tall",
+   "inLevel": true, "rgb": [210, 133, 244]
+  },
+  {
+   "id": "c146",
+   "name": "粉豚豚",
+   "rarity": "common",
+   "group": "pink-whale",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "whale",
+   "inLevel": true, "rgb": [251, 144, 197]
+  },
+  {
+   "id": "c147",
+   "name": "杏仁蟹",
+   "rarity": "common",
+   "group": "orange-claws",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true, "rgb": [251, 138, 51]
+  },
+  {
+   "id": "c148",
+   "name": "青虾虾",
+   "rarity": "common",
+   "group": "cyan-shrimp",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [20, 225, 251]
+  },
+  {
+   "id": "c149",
+   "name": "白云鳐",
+   "rarity": "common",
+   "group": "white-flat",
+   "hue": "white",
+   "pattern": "solid",
+   "shape": "flat"
+  },
+  {
+   "id": "c150",
+   "name": "灰蛞蛞",
+   "rarity": "common",
+   "group": "grey-slug",
+   "hue": "grey",
+   "pattern": "solid",
+   "shape": "slug"
+  },
+  {
+   "id": "c151",
+   "name": "柠檬蝶",
+   "rarity": "common",
+   "group": "yellow-diamond",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "diamond",
+   "inLevel": true, "rgb": [252, 226, 3]
+  },
+  {
+   "id": "c152",
+   "name": "红扇贝",
+   "rarity": "common",
+   "group": "red-shell",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [250, 92, 79]
+  },
+  {
+   "id": "c153",
+   "name": "绿鲍鲍",
+   "rarity": "common",
+   "group": "green-dome",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "dome",
+   "inLevel": true, "rgb": [84, 210, 120]
+  },
+  {
+   "id": "c154",
+   "name": "蓝虾蛄",
+   "rarity": "common",
+   "group": "blue-shrimp",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [20, 176, 250]
+  },
+  {
+   "id": "c155",
+   "name": "紫团章",
+   "rarity": "common",
+   "group": "purple-legs",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "legs",
+   "inLevel": true, "rgb": [184, 95, 236]
+  },
+  {
+   "id": "c156",
+   "name": "粉鳗鳗",
+   "rarity": "common",
+   "group": "pink-long",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [246, 131, 197]
+  },
+  {
+   "id": "c157",
+   "name": "橙蛞蛞",
+   "rarity": "common",
+   "group": "orange-slug",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "slug",
+   "inLevel": true, "rgb": [251, 144, 33]
+  },
+  {
+   "id": "c158",
+   "name": "青盒盒",
+   "rarity": "common",
+   "group": "cyan-round",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [61, 230, 233]
+  },
+  {
+   "id": "c159",
+   "name": "白砗磲",
+   "rarity": "common",
+   "group": "white-shell",
+   "hue": "white",
+   "pattern": "solid",
+   "shape": "shell"
+  },
+  {
+   "id": "c160",
+   "name": "棕宝螺",
+   "rarity": "common",
+   "group": "brown-snail",
+   "hue": "brown",
+   "pattern": "solid",
+   "shape": "snail"
+  },
+  {
+   "id": "c161",
+   "name": "黄蝠蝠",
+   "rarity": "common",
+   "group": "yellow-tall",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "tall",
+   "inLevel": true, "rgb": [251, 197, 2]
+  },
+  {
+   "id": "c162",
+   "name": "红龙龙",
+   "rarity": "common",
+   "group": "red-claws",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true, "rgb": [236, 59, 36]
+  },
+  {
+   "id": "c163",
+   "name": "绿鹦螺",
+   "rarity": "common",
+   "group": "green-shell",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [169, 179, 48]
+  },
+  {
+   "id": "c164",
+   "name": "蓝扳扳",
+   "rarity": "common",
+   "group": "blue-diamond",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "diamond",
+   "inLevel": true, "rgb": [82, 144, 206]
+  },
+  {
+   "id": "c165",
+   "name": "紫月螺",
+   "rarity": "common",
+   "group": "purple-snail",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "snail",
+   "inLevel": true, "rgb": [198, 121, 228]
+  },
+  {
+   "id": "c166",
+   "name": "粉隆隆",
+   "rarity": "common",
+   "group": "pink-long",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [249, 64, 162]
+  },
+  {
+   "id": "c167",
+   "name": "橙方母",
+   "rarity": "common",
+   "group": "orange-umbrella",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true, "rgb": [252, 134, 24]
+  },
+  {
+   "id": "c168",
+   "name": "青乌乌",
+   "rarity": "common",
+   "group": "cyan-legs",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "legs",
+   "inLevel": true, "rgb": [37, 216, 205]
+  },
+  {
+   "id": "c169",
+   "name": "铁甲蟹",
+   "rarity": "common",
+   "group": "grey-claws",
+   "hue": "grey",
+   "pattern": "solid",
+   "shape": "claws"
+  },
+  {
+   "id": "c170",
+   "name": "杜父鱼",
+   "rarity": "common",
+   "group": "brown-round",
+   "hue": "brown",
+   "pattern": "solid",
+   "shape": "round"
+  },
+  {
+   "id": "c171",
+   "name": "黄号号",
+   "rarity": "common",
+   "group": "yellow-snout",
+   "hue": "yellow",
+   "pattern": "solid",
+   "shape": "snout",
+   "inLevel": true, "rgb": [253, 217, 7]
+  },
+  {
+   "id": "c172",
+   "name": "红鼓鱼",
+   "rarity": "common",
+   "group": "red-round",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [249, 64, 53]
+  },
+  {
+   "id": "c173",
+   "name": "绿羽笔",
+   "rarity": "common",
+   "group": "green-tree",
+   "hue": "green",
+   "pattern": "solid",
+   "shape": "tree",
+   "inLevel": true, "rgb": [127, 229, 50]
+  },
+  {
+   "id": "c174",
+   "name": "歌鲸鲸",
+   "rarity": "common",
+   "group": "blue-whale",
+   "hue": "blue",
+   "pattern": "solid",
+   "shape": "whale",
+   "inLevel": true, "rgb": [35, 134, 246]
+  },
+  {
+   "id": "c175",
+   "name": "紫法螺",
+   "rarity": "common",
+   "group": "purple-snail",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "snail",
+   "inLevel": true, "rgb": [183, 80, 231]
+  },
+  {
+   "id": "c176",
+   "name": "粉鸟蛤",
+   "rarity": "common",
+   "group": "pink-shell",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [250, 120, 179]
+  },
+  {
+   "id": "c177",
+   "name": "橙枪虾",
+   "rarity": "common",
+   "group": "orange-shrimp",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [250, 114, 21]
+  },
+  {
+   "id": "c178",
+   "name": "青铃母",
+   "rarity": "common",
+   "group": "cyan-umbrella",
+   "hue": "cyan",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true, "rgb": [73, 231, 243]
+  },
+  {
+   "id": "c179",
+   "name": "灰石鲈",
+   "rarity": "common",
+   "group": "grey-long",
+   "hue": "grey",
+   "pattern": "solid",
+   "shape": "long"
+  },
+  {
+   "id": "c180",
+   "name": "拖鞋虾",
+   "rarity": "common",
+   "group": "brown-claws",
+   "hue": "brown",
+   "pattern": "solid",
+   "shape": "claws"
+  },
+  {
    "id": "u01",
    "name": "叶卷龙",
    "rarity": "uncommon",
@@ -2472,6 +3060,636 @@
    "shape": "special"
   },
   {
+   "id": "u182",
+   "name": "花伞鱼",
+   "rarity": "uncommon",
+   "group": "special-u182",
+   "shape": "special"
+  },
+  {
+   "id": "u183",
+   "name": "樱帽虾",
+   "rarity": "uncommon",
+   "group": "special-u183",
+   "shape": "special"
+  },
+  {
+   "id": "u184",
+   "name": "杯杯蟹",
+   "rarity": "uncommon",
+   "group": "special-u184",
+   "shape": "special"
+  },
+  {
+   "id": "u185",
+   "name": "风筝鳐",
+   "rarity": "uncommon",
+   "group": "special-u185",
+   "shape": "special"
+  },
+  {
+   "id": "u186",
+   "name": "团子鱼",
+   "rarity": "uncommon",
+   "group": "special-u186",
+   "shape": "special"
+  },
+  {
+   "id": "u187",
+   "name": "花篮螺",
+   "rarity": "uncommon",
+   "group": "special-u187",
+   "shape": "special"
+  },
+  {
+   "id": "u188",
+   "name": "铃铛鲤",
+   "rarity": "uncommon",
+   "group": "special-u188",
+   "shape": "special"
+  },
+  {
+   "id": "u189",
+   "name": "樱扇章",
+   "rarity": "uncommon",
+   "group": "special-u189",
+   "shape": "special"
+  },
+  {
+   "id": "u190",
+   "name": "纸鹤鱼",
+   "rarity": "uncommon",
+   "group": "special-u190",
+   "shape": "special"
+  },
+  {
+   "id": "u191",
+   "name": "粉结兔",
+   "rarity": "uncommon",
+   "group": "special-u191",
+   "shape": "special"
+  },
+  {
+   "id": "u192",
+   "name": "野餐蟹",
+   "rarity": "uncommon",
+   "group": "special-u192",
+   "shape": "special"
+  },
+  {
+   "id": "u193",
+   "name": "春笛鱼",
+   "rarity": "uncommon",
+   "group": "special-u193",
+   "shape": "special"
+  },
+  {
+   "id": "u194",
+   "name": "抹茶龟",
+   "rarity": "uncommon",
+   "group": "special-u194",
+   "shape": "special"
+  },
+  {
+   "id": "u195",
+   "name": "花环豚",
+   "rarity": "uncommon",
+   "group": "special-u195",
+   "shape": "special"
+  },
+  {
+   "id": "u196",
+   "name": "雨靴虾",
+   "rarity": "uncommon",
+   "group": "special-u196",
+   "shape": "special"
+  },
+  {
+   "id": "u197",
+   "name": "菜篮蟹",
+   "rarity": "uncommon",
+   "group": "special-u197",
+   "shape": "special"
+  },
+  {
+   "id": "u198",
+   "name": "钱袋鱼",
+   "rarity": "uncommon",
+   "group": "special-u198",
+   "shape": "special"
+  },
+  {
+   "id": "u199",
+   "name": "围裙章",
+   "rarity": "uncommon",
+   "group": "special-u199",
+   "shape": "special"
+  },
+  {
+   "id": "u200",
+   "name": "草帽虾",
+   "rarity": "uncommon",
+   "group": "special-u200",
+   "shape": "special"
+  },
+  {
+   "id": "u201",
+   "name": "气球鱼",
+   "rarity": "uncommon",
+   "group": "special-u201",
+   "shape": "special"
+  },
+  {
+   "id": "u202",
+   "name": "糖串鳗",
+   "rarity": "uncommon",
+   "group": "special-u202",
+   "shape": "special"
+  },
+  {
+   "id": "u203",
+   "name": "纸袋蟹",
+   "rarity": "uncommon",
+   "group": "special-u203",
+   "shape": "special"
+  },
+  {
+   "id": "u204",
+   "name": "店铃螺",
+   "rarity": "uncommon",
+   "group": "special-u204",
+   "shape": "special"
+  },
+  {
+   "id": "u205",
+   "name": "眼镜鲷",
+   "rarity": "uncommon",
+   "group": "special-u205",
+   "shape": "special"
+  },
+  {
+   "id": "u206",
+   "name": "头巾鱿",
+   "rarity": "uncommon",
+   "group": "special-u206",
+   "shape": "special"
+  },
+  {
+   "id": "u207",
+   "name": "灯笼豚",
+   "rarity": "uncommon",
+   "group": "special-u207",
+   "shape": "special"
+  },
+  {
+   "id": "u208",
+   "name": "包子鱼",
+   "rarity": "uncommon",
+   "group": "special-u208",
+   "shape": "special"
+  },
+  {
+   "id": "u209",
+   "name": "风车虾",
+   "rarity": "uncommon",
+   "group": "special-u209",
+   "shape": "special"
+  },
+  {
+   "id": "u210",
+   "name": "邮差龟",
+   "rarity": "uncommon",
+   "group": "special-u210",
+   "shape": "special"
+  },
+  {
+   "id": "u211",
+   "name": "厨帽鲈",
+   "rarity": "uncommon",
+   "group": "special-u211",
+   "shape": "special"
+  },
+  {
+   "id": "u212",
+   "name": "风筝虾",
+   "rarity": "uncommon",
+   "group": "special-u212",
+   "shape": "special"
+  },
+  {
+   "id": "u213",
+   "name": "云帽豚",
+   "rarity": "uncommon",
+   "group": "special-u213",
+   "shape": "special"
+  },
+  {
+   "id": "u214",
+   "name": "雨伞章",
+   "rarity": "uncommon",
+   "group": "special-u214",
+   "shape": "special"
+  },
+  {
+   "id": "u215",
+   "name": "伞包龟",
+   "rarity": "uncommon",
+   "group": "special-u215",
+   "shape": "special"
+  },
+  {
+   "id": "u216",
+   "name": "翅膀鱼",
+   "rarity": "uncommon",
+   "group": "special-u216",
+   "shape": "special"
+  },
+  {
+   "id": "u217",
+   "name": "虹巾马",
+   "rarity": "uncommon",
+   "group": "special-u217",
+   "shape": "special"
+  },
+  {
+   "id": "u218",
+   "name": "飞行鳐",
+   "rarity": "uncommon",
+   "group": "special-u218",
+   "shape": "special"
+  },
+  {
+   "id": "u219",
+   "name": "雨滴蟹",
+   "rarity": "uncommon",
+   "group": "special-u219",
+   "shape": "special"
+  },
+  {
+   "id": "u220",
+   "name": "云枕鱼",
+   "rarity": "uncommon",
+   "group": "special-u220",
+   "shape": "special"
+  },
+  {
+   "id": "u221",
+   "name": "星棒母",
+   "rarity": "uncommon",
+   "group": "special-u221",
+   "shape": "special"
+  },
+  {
+   "id": "u222",
+   "name": "纸机鱼",
+   "rarity": "uncommon",
+   "group": "special-u222",
+   "shape": "special"
+  },
+  {
+   "id": "u223",
+   "name": "风铃螺",
+   "rarity": "uncommon",
+   "group": "special-u223",
+   "shape": "special"
+  },
+  {
+   "id": "u224",
+   "name": "羽毛鲀",
+   "rarity": "uncommon",
+   "group": "special-u224",
+   "shape": "special"
+  },
+  {
+   "id": "u225",
+   "name": "墨镜蟹",
+   "rarity": "uncommon",
+   "group": "special-u225",
+   "shape": "special"
+  },
+  {
+   "id": "u226",
+   "name": "水手鱼",
+   "rarity": "uncommon",
+   "group": "special-u226",
+   "shape": "special"
+  },
+  {
+   "id": "u227",
+   "name": "珠链蝶",
+   "rarity": "uncommon",
+   "group": "special-u227",
+   "shape": "special"
+  },
+  {
+   "id": "u228",
+   "name": "贝帽章",
+   "rarity": "uncommon",
+   "group": "special-u228",
+   "shape": "special"
+  },
+  {
+   "id": "u229",
+   "name": "首饰蟹",
+   "rarity": "uncommon",
+   "group": "special-u229",
+   "shape": "special"
+  },
+  {
+   "id": "u230",
+   "name": "发夹鳗",
+   "rarity": "uncommon",
+   "group": "special-u230",
+   "shape": "special"
+  },
+  {
+   "id": "u231",
+   "name": "小镜虾",
+   "rarity": "uncommon",
+   "group": "special-u231",
+   "shape": "special"
+  },
+  {
+   "id": "u232",
+   "name": "蕾丝鲍",
+   "rarity": "uncommon",
+   "group": "special-u232",
+   "shape": "special"
+  },
+  {
+   "id": "u233",
+   "name": "螺号鱼",
+   "rarity": "uncommon",
+   "group": "special-u233",
+   "shape": "special"
+  },
+  {
+   "id": "u234",
+   "name": "沙堡蟹",
+   "rarity": "uncommon",
+   "group": "special-u234",
+   "shape": "special"
+  },
+  {
+   "id": "u235",
+   "name": "珠帘母",
+   "rarity": "uncommon",
+   "group": "special-u235",
+   "shape": "special"
+  },
+  {
+   "id": "u236",
+   "name": "泡泡兔",
+   "rarity": "uncommon",
+   "group": "special-u236",
+   "shape": "special"
+  },
+  {
+   "id": "u237",
+   "name": "贝包鱼",
+   "rarity": "uncommon",
+   "group": "special-u237",
+   "shape": "special"
+  },
+  {
+   "id": "u238",
+   "name": "小铲虾",
+   "rarity": "uncommon",
+   "group": "special-u238",
+   "shape": "special"
+  },
+  {
+   "id": "u239",
+   "name": "星卡龟",
+   "rarity": "uncommon",
+   "group": "special-u239",
+   "shape": "special"
+  },
+  {
+   "id": "u240",
+   "name": "手镯章",
+   "rarity": "uncommon",
+   "group": "special-u240",
+   "shape": "special"
+  },
+  {
+   "id": "u241",
+   "name": "珠袋鳐",
+   "rarity": "uncommon",
+   "group": "special-u241",
+   "shape": "special"
+  },
+  {
+   "id": "u242",
+   "name": "发条鱼",
+   "rarity": "uncommon",
+   "group": "special-u242",
+   "shape": "special"
+  },
+  {
+   "id": "u243",
+   "name": "怀表蟹",
+   "rarity": "uncommon",
+   "group": "special-u243",
+   "shape": "special"
+  },
+  {
+   "id": "u244",
+   "name": "铜镜章",
+   "rarity": "uncommon",
+   "group": "special-u244",
+   "shape": "special"
+  },
+  {
+   "id": "u245",
+   "name": "齿轮螺",
+   "rarity": "uncommon",
+   "group": "special-u245",
+   "shape": "special"
+  },
+  {
+   "id": "u246",
+   "name": "礼帽鱼",
+   "rarity": "uncommon",
+   "group": "special-u246",
+   "shape": "special"
+  },
+  {
+   "id": "u247",
+   "name": "扳手虾",
+   "rarity": "uncommon",
+   "group": "special-u247",
+   "shape": "special"
+  },
+  {
+   "id": "u248",
+   "name": "桨帽龟",
+   "rarity": "uncommon",
+   "group": "special-u248",
+   "shape": "special"
+  },
+  {
+   "id": "u249",
+   "name": "小钟母",
+   "rarity": "uncommon",
+   "group": "special-u249",
+   "shape": "special"
+  },
+  {
+   "id": "u250",
+   "name": "领结螺",
+   "rarity": "uncommon",
+   "group": "special-u250",
+   "shape": "special"
+  },
+  {
+   "id": "u251",
+   "name": "油壶鳐",
+   "rarity": "uncommon",
+   "group": "special-u251",
+   "shape": "special"
+  },
+  {
+   "id": "u252",
+   "name": "单镜鱼",
+   "rarity": "uncommon",
+   "group": "special-u252",
+   "shape": "special"
+  },
+  {
+   "id": "u253",
+   "name": "马甲虾",
+   "rarity": "uncommon",
+   "group": "special-u253",
+   "shape": "special"
+  },
+  {
+   "id": "u254",
+   "name": "灯泡乌",
+   "rarity": "uncommon",
+   "group": "special-u254",
+   "shape": "special"
+  },
+  {
+   "id": "u255",
+   "name": "工具蟹",
+   "rarity": "uncommon",
+   "group": "special-u255",
+   "shape": "special"
+  },
+  {
+   "id": "u256",
+   "name": "齿链鲀",
+   "rarity": "uncommon",
+   "group": "special-u256",
+   "shape": "special"
+  },
+  {
+   "id": "u257",
+   "name": "鼓手蟹",
+   "rarity": "uncommon",
+   "group": "special-u257",
+   "shape": "special"
+  },
+  {
+   "id": "u258",
+   "name": "小号鱼",
+   "rarity": "uncommon",
+   "group": "special-u258",
+   "shape": "special"
+  },
+  {
+   "id": "u259",
+   "name": "提琴章",
+   "rarity": "uncommon",
+   "group": "special-u259",
+   "shape": "special"
+  },
+  {
+   "id": "u260",
+   "name": "铃鼓虾",
+   "rarity": "uncommon",
+   "group": "special-u260",
+   "shape": "special"
+  },
+  {
+   "id": "u261",
+   "name": "耳机鲸",
+   "rarity": "uncommon",
+   "group": "special-u261",
+   "shape": "special"
+  },
+  {
+   "id": "u262",
+   "name": "沙锤鱼",
+   "rarity": "uncommon",
+   "group": "special-u262",
+   "shape": "special"
+  },
+  {
+   "id": "u263",
+   "name": "琴琴马",
+   "rarity": "uncommon",
+   "group": "special-u263",
+   "shape": "special"
+  },
+  {
+   "id": "u264",
+   "name": "口琴豚",
+   "rarity": "uncommon",
+   "group": "special-u264",
+   "shape": "special"
+  },
+  {
+   "id": "u265",
+   "name": "指挥鱼",
+   "rarity": "uncommon",
+   "group": "special-u265",
+   "shape": "special"
+  },
+  {
+   "id": "u266",
+   "name": "唱片龟",
+   "rarity": "uncommon",
+   "group": "special-u266",
+   "shape": "special"
+  },
+  {
+   "id": "u267",
+   "name": "音符母",
+   "rarity": "uncommon",
+   "group": "special-u267",
+   "shape": "special"
+  },
+  {
+   "id": "u268",
+   "name": "麦克螺",
+   "rarity": "uncommon",
+   "group": "special-u268",
+   "shape": "special"
+  },
+  {
+   "id": "u269",
+   "name": "吉他蟹",
+   "rarity": "uncommon",
+   "group": "special-u269",
+   "shape": "special"
+  },
+  {
+   "id": "u270",
+   "name": "笛子鳗",
+   "rarity": "uncommon",
+   "group": "special-u270",
+   "shape": "special"
+  },
+  {
+   "id": "u271",
+   "name": "披风豹",
+   "rarity": "uncommon",
+   "group": "special-u271",
+   "shape": "special"
+  },
+  {
    "id": "r01",
    "name": "珠卷卷",
    "rarity": "rare",
@@ -3236,6 +4454,384 @@
    "shape": "special"
   },
   {
+   "id": "r109",
+   "name": "樱冠鲤",
+   "rarity": "rare",
+   "group": "special-r109",
+   "shape": "special"
+  },
+  {
+   "id": "r110",
+   "name": "珠樱虾",
+   "rarity": "rare",
+   "group": "special-r110",
+   "shape": "special"
+  },
+  {
+   "id": "r111",
+   "name": "花仙章",
+   "rarity": "rare",
+   "group": "special-r111",
+   "shape": "special"
+  },
+  {
+   "id": "r112",
+   "name": "月樱鳐",
+   "rarity": "rare",
+   "group": "special-r112",
+   "shape": "special"
+  },
+  {
+   "id": "r113",
+   "name": "春灯鲷",
+   "rarity": "rare",
+   "group": "special-r113",
+   "shape": "special"
+  },
+  {
+   "id": "r114",
+   "name": "樱珠蟹",
+   "rarity": "rare",
+   "group": "special-r114",
+   "shape": "special"
+  },
+  {
+   "id": "r115",
+   "name": "花冠兔",
+   "rarity": "rare",
+   "group": "special-r115",
+   "shape": "special"
+  },
+  {
+   "id": "r116",
+   "name": "露珠龟",
+   "rarity": "rare",
+   "group": "special-r116",
+   "shape": "special"
+  },
+  {
+   "id": "r117",
+   "name": "柳叶鱼",
+   "rarity": "rare",
+   "group": "special-r117",
+   "shape": "special"
+  },
+  {
+   "id": "r118",
+   "name": "珠灯蟹",
+   "rarity": "rare",
+   "group": "special-r118",
+   "shape": "special"
+  },
+  {
+   "id": "r119",
+   "name": "宝袋鱼",
+   "rarity": "rare",
+   "group": "special-r119",
+   "shape": "special"
+  },
+  {
+   "id": "r120",
+   "name": "霓灯章",
+   "rarity": "rare",
+   "group": "special-r120",
+   "shape": "special"
+  },
+  {
+   "id": "r121",
+   "name": "珠伞鱿",
+   "rarity": "rare",
+   "group": "special-r121",
+   "shape": "special"
+  },
+  {
+   "id": "r122",
+   "name": "银鲳仙",
+   "rarity": "rare",
+   "group": "special-r122",
+   "shape": "special"
+  },
+  {
+   "id": "r123",
+   "name": "茶仙虾",
+   "rarity": "rare",
+   "group": "special-r123",
+   "shape": "special"
+  },
+  {
+   "id": "r124",
+   "name": "灯会豚",
+   "rarity": "rare",
+   "group": "special-r124",
+   "shape": "special"
+  },
+  {
+   "id": "r125",
+   "name": "花帽鲷",
+   "rarity": "rare",
+   "group": "special-r125",
+   "shape": "special"
+  },
+  {
+   "id": "r126",
+   "name": "珠贝商",
+   "rarity": "rare",
+   "group": "special-r126",
+   "shape": "special"
+  },
+  {
+   "id": "r127",
+   "name": "云冠豚",
+   "rarity": "rare",
+   "group": "special-r127",
+   "shape": "special"
+  },
+  {
+   "id": "r128",
+   "name": "虹珠马",
+   "rarity": "rare",
+   "group": "special-r128",
+   "shape": "special"
+  },
+  {
+   "id": "r129",
+   "name": "天使鳐",
+   "rarity": "rare",
+   "group": "special-r129",
+   "shape": "special"
+  },
+  {
+   "id": "r130",
+   "name": "晴光鱼",
+   "rarity": "rare",
+   "group": "special-r130",
+   "shape": "special"
+  },
+  {
+   "id": "r131",
+   "name": "雨珠母",
+   "rarity": "rare",
+   "group": "special-r131",
+   "shape": "special"
+  },
+  {
+   "id": "r132",
+   "name": "羽冠龟",
+   "rarity": "rare",
+   "group": "special-r132",
+   "shape": "special"
+  },
+  {
+   "id": "r133",
+   "name": "云纱章",
+   "rarity": "rare",
+   "group": "special-r133",
+   "shape": "special"
+  },
+  {
+   "id": "r134",
+   "name": "珠云蟹",
+   "rarity": "rare",
+   "group": "special-r134",
+   "shape": "special"
+  },
+  {
+   "id": "r135",
+   "name": "霞光虾",
+   "rarity": "rare",
+   "group": "special-r135",
+   "shape": "special"
+  },
+  {
+   "id": "r136",
+   "name": "珠后蝶",
+   "rarity": "rare",
+   "group": "special-r136",
+   "shape": "special"
+  },
+  {
+   "id": "r137",
+   "name": "虹贝章",
+   "rarity": "rare",
+   "group": "special-r137",
+   "shape": "special"
+  },
+  {
+   "id": "r138",
+   "name": "月珠鳗",
+   "rarity": "rare",
+   "group": "special-r138",
+   "shape": "special"
+  },
+  {
+   "id": "r139",
+   "name": "珠贝仙",
+   "rarity": "rare",
+   "group": "special-r139",
+   "shape": "special"
+  },
+  {
+   "id": "r140",
+   "name": "银鲍鲍",
+   "rarity": "rare",
+   "group": "special-r140",
+   "shape": "special"
+  },
+  {
+   "id": "r141",
+   "name": "星珠虾",
+   "rarity": "rare",
+   "group": "special-r141",
+   "shape": "special"
+  },
+  {
+   "id": "r142",
+   "name": "粉珠母",
+   "rarity": "rare",
+   "group": "special-r142",
+   "shape": "special"
+  },
+  {
+   "id": "r143",
+   "name": "珠冠蟹",
+   "rarity": "rare",
+   "group": "special-r143",
+   "shape": "special"
+  },
+  {
+   "id": "r144",
+   "name": "雪珠兔",
+   "rarity": "rare",
+   "group": "special-r144",
+   "shape": "special"
+  },
+  {
+   "id": "r145",
+   "name": "金钟螺",
+   "rarity": "rare",
+   "group": "special-r145",
+   "shape": "special"
+  },
+  {
+   "id": "r146",
+   "name": "时光鱼",
+   "rarity": "rare",
+   "group": "special-r146",
+   "shape": "special"
+  },
+  {
+   "id": "r147",
+   "name": "铜冠虾",
+   "rarity": "rare",
+   "group": "special-r147",
+   "shape": "special"
+  },
+  {
+   "id": "r148",
+   "name": "星齿章",
+   "rarity": "rare",
+   "group": "special-r148",
+   "shape": "special"
+  },
+  {
+   "id": "r149",
+   "name": "钟楼蟹",
+   "rarity": "rare",
+   "group": "special-r149",
+   "shape": "special"
+  },
+  {
+   "id": "r150",
+   "name": "月轮母",
+   "rarity": "rare",
+   "group": "special-r150",
+   "shape": "special"
+  },
+  {
+   "id": "r151",
+   "name": "银机龟",
+   "rarity": "rare",
+   "group": "special-r151",
+   "shape": "special"
+  },
+  {
+   "id": "r152",
+   "name": "琥珀蝠",
+   "rarity": "rare",
+   "group": "special-r152",
+   "shape": "special"
+  },
+  {
+   "id": "r153",
+   "name": "发条仙",
+   "rarity": "rare",
+   "group": "special-r153",
+   "shape": "special"
+  },
+  {
+   "id": "r154",
+   "name": "歌后鲸",
+   "rarity": "rare",
+   "group": "special-r154",
+   "shape": "special"
+  },
+  {
+   "id": "r155",
+   "name": "竖琴仙",
+   "rarity": "rare",
+   "group": "special-r155",
+   "shape": "special"
+  },
+  {
+   "id": "r156",
+   "name": "星鼓蟹",
+   "rarity": "rare",
+   "group": "special-r156",
+   "shape": "special"
+  },
+  {
+   "id": "r157",
+   "name": "银铃母",
+   "rarity": "rare",
+   "group": "special-r157",
+   "shape": "special"
+  },
+  {
+   "id": "r158",
+   "name": "月光号",
+   "rarity": "rare",
+   "group": "special-r158",
+   "shape": "special"
+  },
+  {
+   "id": "r159",
+   "name": "和声豚",
+   "rarity": "rare",
+   "group": "special-r159",
+   "shape": "special"
+  },
+  {
+   "id": "r160",
+   "name": "金笛鳗",
+   "rarity": "rare",
+   "group": "special-r160",
+   "shape": "special"
+  },
+  {
+   "id": "r161",
+   "name": "晨曲螺",
+   "rarity": "rare",
+   "group": "special-r161",
+   "shape": "special"
+  },
+  {
+   "id": "r162",
+   "name": "舞会章",
+   "rarity": "rare",
+   "group": "special-r162",
+   "shape": "special"
+  },
+  {
    "id": "e01",
    "name": "晶背宝",
    "rarity": "epic",
@@ -3658,6 +5254,216 @@
    "name": "极光天马",
    "rarity": "epic",
    "group": "special-e60",
+   "shape": "special"
+  },
+  {
+   "id": "e61",
+   "name": "樱龙龙",
+   "rarity": "epic",
+   "group": "special-e61",
+   "shape": "special"
+  },
+  {
+   "id": "e62",
+   "name": "金鲤王",
+   "rarity": "epic",
+   "group": "special-e62",
+   "shape": "special"
+  },
+  {
+   "id": "e63",
+   "name": "花神鳐",
+   "rarity": "epic",
+   "group": "special-e63",
+   "shape": "special"
+  },
+  {
+   "id": "e64",
+   "name": "樱晶蟹",
+   "rarity": "epic",
+   "group": "special-e64",
+   "shape": "special"
+  },
+  {
+   "id": "e65",
+   "name": "春之鲸",
+   "rarity": "epic",
+   "group": "special-e65",
+   "shape": "special"
+  },
+  {
+   "id": "e66",
+   "name": "灯王龙",
+   "rarity": "epic",
+   "group": "special-e66",
+   "shape": "special"
+  },
+  {
+   "id": "e67",
+   "name": "宝市鲸",
+   "rarity": "epic",
+   "group": "special-e67",
+   "shape": "special"
+  },
+  {
+   "id": "e68",
+   "name": "招财蟹",
+   "rarity": "epic",
+   "group": "special-e68",
+   "shape": "special"
+  },
+  {
+   "id": "e69",
+   "name": "琉璃章",
+   "rarity": "epic",
+   "group": "special-e69",
+   "shape": "special"
+  },
+  {
+   "id": "e70",
+   "name": "宝灯鳐",
+   "rarity": "epic",
+   "group": "special-e70",
+   "shape": "special"
+  },
+  {
+   "id": "e71",
+   "name": "云龙龙",
+   "rarity": "epic",
+   "group": "special-e71",
+   "shape": "special"
+  },
+  {
+   "id": "e72",
+   "name": "天空鲸",
+   "rarity": "epic",
+   "group": "special-e72",
+   "shape": "special"
+  },
+  {
+   "id": "e73",
+   "name": "彩虹鳐",
+   "rarity": "epic",
+   "group": "special-e73",
+   "shape": "special"
+  },
+  {
+   "id": "e74",
+   "name": "雷光豚",
+   "rarity": "epic",
+   "group": "special-e74",
+   "shape": "special"
+  },
+  {
+   "id": "e75",
+   "name": "日轮马",
+   "rarity": "epic",
+   "group": "special-e75",
+   "shape": "special"
+  },
+  {
+   "id": "e76",
+   "name": "珍珠龙",
+   "rarity": "epic",
+   "group": "special-e76",
+   "shape": "special"
+  },
+  {
+   "id": "e77",
+   "name": "砗磲王",
+   "rarity": "epic",
+   "group": "special-e77",
+   "shape": "special"
+  },
+  {
+   "id": "e78",
+   "name": "宝珠鲸",
+   "rarity": "epic",
+   "group": "special-e78",
+   "shape": "special"
+  },
+  {
+   "id": "e79",
+   "name": "欧泊鳐",
+   "rarity": "epic",
+   "group": "special-e79",
+   "shape": "special"
+  },
+  {
+   "id": "e80",
+   "name": "皇冠蝶",
+   "rarity": "epic",
+   "group": "special-e80",
+   "shape": "special"
+  },
+  {
+   "id": "e81",
+   "name": "机械龙",
+   "rarity": "epic",
+   "group": "special-e81",
+   "shape": "special"
+  },
+  {
+   "id": "e82",
+   "name": "钟表鲸",
+   "rarity": "epic",
+   "group": "special-e82",
+   "shape": "special"
+  },
+  {
+   "id": "e83",
+   "name": "齿轮王",
+   "rarity": "epic",
+   "group": "special-e83",
+   "shape": "special"
+  },
+  {
+   "id": "e84",
+   "name": "星轨螺",
+   "rarity": "epic",
+   "group": "special-e84",
+   "shape": "special"
+  },
+  {
+   "id": "e85",
+   "name": "晶钟母",
+   "rarity": "epic",
+   "group": "special-e85",
+   "shape": "special"
+  },
+  {
+   "id": "e86",
+   "name": "乐章龙",
+   "rarity": "epic",
+   "group": "special-e86",
+   "shape": "special"
+  },
+  {
+   "id": "e87",
+   "name": "天籁鲸",
+   "rarity": "epic",
+   "group": "special-e87",
+   "shape": "special"
+  },
+  {
+   "id": "e88",
+   "name": "金琴蟹",
+   "rarity": "epic",
+   "group": "special-e88",
+   "shape": "special"
+  },
+  {
+   "id": "e89",
+   "name": "歌光母",
+   "rarity": "epic",
+   "group": "special-e89",
+   "shape": "special"
+  },
+  {
+   "id": "e90",
+   "name": "晶琴马",
+   "rarity": "epic",
+   "group": "special-e90",
    "shape": "special"
   },
   {

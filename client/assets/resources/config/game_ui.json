@@ -73,13 +73,8 @@
  },
  "tips": {
   "6": "TIP_LIVES",
-    "59": "TIP_QUEUE",
+    "28": "TIP_QUEUE",
     "65": "TIP_CLOCK",
-    "119": "TIP_QUEUE",
-    "124": "TIP_QUEUE",
-    "125": "TIP_QUEUE",
-    "140": "TIP_QUEUE",
-    "199": "TIP_QUEUE",
     "121": "TIP_BUFFER4",
     "123": "TIP_TOOLS3"
  },

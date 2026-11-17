@@ -1,5 +1,5 @@
 {
-  "total": 240,
+  "total": 360,
   "cycle": 5,
   "fixed": {
     "1": {"species": 3, "fish": 12, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3},
@@ -15,7 +15,9 @@
     {"from": 81, "to": 110, "species": [7, 8], "fish": [84, 93], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
     {"from": 111, "to": 120, "species": [8, 8], "fish": [93, 96], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
     {"from": 121, "to": 180, "species": [8, 8], "fish": [96, 102], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
-    {"from": 181, "to": 240, "species": [8, 8], "fish": [102, 108], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]}
+    {"from": 181, "to": 240, "species": [8, 8], "fish": [102, 108], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
+    {"from": 241, "to": 300, "species": [8, 8], "fish": [108, 111], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
+    {"from": 301, "to": 360, "species": [8, 8], "fish": [111, 114], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]}
   ],
   "colorGap": [[1, 55], [11, 45], [25, 34], [60, 24], [110, 16]],
   "unlock": {"chain": 16, "timer": 31, "fog": 41, "ice": 61, "big": 81, "pairs": 111},
@@ -30,6 +32,23 @@
   "bot": {"tapSec": 1.5, "bowlSec": 1.5},
   "clock": {"challengeFrom": 61, "factor": [0.55, 0.5], "step": 5, "min": 60, "queueExtra": 1.0, "comboSeconds": [1, 1, 1, 2]},
   "buffer": [[1, 5], [121, 4]],
+  "jam": {
+    "from": 26, "bigEvery": 20,
+    "queue": [[27, 0], [28, 0.35], [60, 0.5], [120, 0.7], [240, 0.85], [360, 0.95]],
+    "scrambleFrom": [[26, 0.6], [120, 0.45], [240, 0.35], [360, 0.3]],
+    "scramble": {
+      "normal": [[26, 0.03], [120, 0.08], [360, 0.12]],
+      "hard": [[26, 0.1], [120, 0.2], [360, 0.3]],
+      "big": [[26, 0.15], [120, 0.28], [360, 0.38]]
+    },
+    "targets": {
+      "normal": [[26, [0.85, 0.97]]],
+      "hard": [[26, [0.5, 0.75, 0.9]], [61, [0.3, 0.55, 0.75, 0.9]], [121, [0.15, 0.45, 0.7, 0.9]], [241, [0.12, 0.4, 0.65, 0.85, 0.95]]],
+      "big": [[26, [0.35, 0.6, 0.8, 0.9]], [61, [0.15, 0.4, 0.6, 0.8, 0.9]], [121, [0.05, 0.25, 0.5, 0.75, 0.88]], [241, [0.04, 0.2, 0.45, 0.7, 0.85, 0.95]]]
+    },
+    "tol": 0.1,
+    "ease": [0.5, 0.2]
+  },
   "timer": {"loose": 2, "min": 45, "max": 90, "step": 5, "maxSteps": 20},
   "gen": {"seeds": 40, "seedsMore": 40, "probes": 6, "probesFine": 4, "band": 0.1, "knobMax": 1.6, "close": 3, "variantSeeds": 45, "capMin": 17, "perAvgMin": 1.6, "fishNudge": 3, "monotoneMargin": 3, "variantMargin": 4, "runs": 40, "verifyRuns": 400, "verifySeedBase": 1000, "tol40": 12, "giveUpSeeds": 10, "bowl3Seeds": 8, "bowl3Worse": 3}
 }

@@ -10,6 +10,7 @@ import { generate } from '../../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
 import * as Bots from '../../assets/scripts/core/solver/bots';
 import { clampf, idiv } from '../../assets/scripts/core/util';
+import * as Jam from './jam';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
@@ -52,7 +53,7 @@ function main(): number {
   loadPrevious(from);
   let failed = 0;
   for (let id = from; id <= to; id++) {
-    const made = makeLevel(id);
+    const made = LevelCurve.jamKind(curve, id) !== null ? makeJam(id) : makeLevel(id);
     if (made === null) {
       console.error(`生成失败: 第 ${id} 关`);
       failed++;
@@ -76,6 +77,39 @@ function loadPrevious(from: number): void {
       break;
     }
   }
+}
+
+/**
+ * 排队泡关卡（jam.from 关起，docs/02 第 0 节）：按「普通玩家花几样才过」的目标生成本体，再生成两个更容易的变体
+ * （难关、大难关：第 1 个变体到这一档和普通关的中间、第 2 个到普通关；普通关：越来越容易就行）
+ */
+function makeJam(id: number): [string, LevelData][] | null {
+  const kind = LevelCurve.jamKind(curve, id);
+  const target = LevelCurve.jamTargets(curve, id, 0) as number[];
+  const base = Jam.pick(id, 0, target, 0, trace);
+  if (base === null) return null;
+  const out: [string, LevelData][] = [[name(id), base.lv]];
+  const names: string[] = [];
+  const parts: string[] = [];
+  let prev = base.m.normal[0];
+  for (let ease = 1; ease <= EASE_VARIANTS; ease++) {
+    const v = Jam.pick(id, ease, LevelCurve.jamTargets(curve, id, ease), prev, trace);
+    if (v === null) return null;
+    if (v.m.normal[0] < prev) warnings.push(`警告: 第 ${id} 关变体 e${ease} 不比上一档容易：${Math.round(v.m.normal[0] * 100)}% < ${Math.round(prev * 100)}%`);
+    prev = Math.max(prev, v.m.normal[0]);
+    v.lv.id = id;
+    names.push(name(id, ease));
+    out.push([name(id, ease), v.lv]);
+    parts.push(`${Math.round(v.m.normal[0] * 100)}`);
+  }
+  base.lv.id = id;
+  base.lv.variants = names;
+  if (base.miss > 0) warnings.push(`警告: 第 ${id} 关（${kind}）没达标：目标 [${target.map((x) => Math.round(x * 100)).join(' ')}]，实测 ${Jam.row(base.m)}`);
+  const queued = base.lv.bubbles.filter((b) => b.queue).length;
+  console.log(
+    `第 ${String(id).padStart(3)} 关 ${kind === 'big' ? '大难' : kind === 'hard' ? '难  ' : '    '} 排队 ${queued}/${base.lv.bubbles.length} 打乱 ${(base.share * 100).toFixed(0)}%  目标 [${target.map((x) => Math.round(x * 100)).join(' ')}]  ${Jam.row(base.m)}  变体不花 [${parts.join(', ')}]`,
+  );
+  return out;
 }
 
 /** 返回 [文件名, 关卡]，含本体和两个更易变体；失败返回 null */

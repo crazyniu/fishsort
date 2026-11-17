@@ -202,6 +202,9 @@ export interface CurveSegment {
   slack: [number, number];
 }
 
+/** 排队泡关卡的三档：普通关、难关（每 cycle 关一个）、大难关（每 jam.bigEvery 关一个） */
+export type JamKind = 'normal' | 'hard' | 'big';
+
 export interface CurveConfig {
   total: number;
   cycle: number;
@@ -261,6 +264,23 @@ export interface CurveConfig {
    * comboSeconds：连击起算后每命中一次加几秒，按连击档位查（时间给得短，靠连击挣回来）。没有这一项就都不限时
    */
   clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number; queueExtra?: number; comboSeconds?: number[] };
+  /**
+   * 排队泡关卡（docs/02 第 0 节，2026-11-18）：from 关起每关都按这里生成和验收。
+   * 难度来自「排队泡 + 只打乱后面一段」，按「普通玩家机器人花不超过 k 样就过关的比例」验收（targets）。
+   * queue / scrambleFrom / scramble 是分段线性的折点 [关卡号, 值]；scramble 是打乱比例的起点，生成器在它附近搜。
+   * targets：[从第几关起, [不花, 花 ≤1 样, ≤2 样, …]]，tol 是容差；ease 是两个变体的打乱比例乘数。
+   * bigEvery：大难关每几关一个（海域最后一关）
+   */
+  jam?: {
+    from: number;
+    bigEvery: number;
+    queue: [number, number][];
+    scrambleFrom: [number, number][];
+    scramble: Record<JamKind, [number, number][]>;
+    targets: Record<JamKind, [number, number[]][]>;
+    tol: number;
+    ease: number[];
+  };
   /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
   buffer?: [number, number][];
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
