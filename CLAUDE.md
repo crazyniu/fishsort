@@ -15,6 +15,7 @@
 | `docs/07-里程碑.md` | 开发顺序与每阶段验收标准 |
 | `docs/08-界面规格流程.md` | 界面先写规格、后写代码；审查清单；规格放 `docs/ux/` |
 | `docs/09-Cocos迁移与界面重做.md` | 换 Cocos Creator 3.8 与界面重做的需求；定版界面图在本地 `art/ui-final/`（不进仓库） |
+| `docs/10-开发底座.md` | 三端一个仓库：平台层、原生工程、`game.json`、打包上架、做新游戏的步骤（这个仓库是以后同类游戏的底座） |
 
 文档是唯一事实来源：改规则或数值时，先改文档再改代码，同一次提交里完成。
 
@@ -60,7 +61,10 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh real                  # 按真实存档进度（可与上面几个连用，如 ./run.sh real level 3）
 ./run.sh serve                 # 不重新构建，直接打开上次的构建（后面同样可跟 level / auto / page / real）
 ./run.sh build                 # 只构建不打开
-./run.sh wechat-build          # 构建微信小游戏包
+./run.sh wechat-build          # 构建微信小游戏包（再用微信开发者工具上传）
+./run.sh ios-build [sim|ipa]   # iOS：出 Xcode 工程；sim = 编一个模拟器版验证；ipa = 归档导出上传用的包（docs/10）
+./run.sh android-build [apk|aab]  # Android：测试用 apk / 上传 Google Play 的 aab（要装 Android Studio）
+./run.sh native-apply          # 按 game.json 改写各平台的构建配置和原生工程（打包时自动跑）
 ./run.sh editor                # 打开 Cocos Creator
 ./run.sh cdp logs | eval '<表达式>' | shot <文件> | burst <目录> <张数> <间隔毫秒>   # 读控制台、页面里求值、截图、连拍
 
@@ -74,6 +78,8 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh meta                  # 给新资源补 .meta（结果要提交）
 ./run.sh art-compress          # 包体压缩：PNG 量化、背景音乐转 mp3
 ./run.sh font-subset           # 按文案重新裁字体
+./run.sh native-icons          # 从图标生成各平台应用图标、iOS 启动屏、商店图标（结果要提交）
+./store/gen.sh && python3 tools/store/compose.py   # 上架插画（Codex）→ 加标题、裁成各商店尺寸（store/images）
 ```
 
 Cocos Creator 由 `run.sh` 自动查找（`COCOS_CREATOR` 环境变量 → `/Applications/Cocos/Creator/3.8.8/`）。

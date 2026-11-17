@@ -16,7 +16,7 @@ export interface RankEntry {
 }
 
 /** 平台能力名 */
-export type Capability = 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test';
+export type Capability = 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options';
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';
 
@@ -77,6 +77,9 @@ export abstract class PlatformBase {
   vibrate(_kind: VibrateKind): void {}
 
   track(_event: string, _params: Record<string, unknown> = {}): void {}
+
+  /** 打开广告的隐私选项（欧洲等地的同意设置）；hasCapability('privacy_options') 时设置里才有入口 */
+  openPrivacyOptions(): void {}
 
   hasCapability(_cap: Capability): boolean {
     return false;

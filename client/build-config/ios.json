@@ -1,0 +1,33 @@
+{
+  "name": "PopPopRescue",
+  "debug": false,
+  "md5Cache": false,
+  "buildPath": "project://build",
+  "startScene": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83",
+  "scenes": [
+    {
+      "url": "db://assets/scenes/main.scene",
+      "uuid": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83"
+    }
+  ],
+  "platform": "ios",
+  "outputName": "ios",
+  "packages": {
+    "ios": {
+      "packageName": "com.poppoprescue.game",
+      "orientation": {
+        "portrait": true,
+        "upsideDown": false,
+        "landscapeRight": false,
+        "landscapeLeft": false
+      },
+      "osTarget": {
+        "iphoneos": true,
+        "simulator": true
+      },
+      "targetVersion": "15.0",
+      "developerTeam": "",
+      "skipUpdateXcodeProject": false
+    }
+  }
+}

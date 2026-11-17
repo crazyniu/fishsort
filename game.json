@@ -1,0 +1,47 @@
+{
+  "_comment": "这款游戏的身份信息（docs/10-开发底座.md）。打包前 tools/native/apply.mjs 按它改写各平台的构建配置和原生工程；做新游戏先改这里。广告 ID 现在是 Google 官方的测试 ID，上架前换成自己的",
+  "codeName": "fishsort",
+  "name": {
+    "zh_CN": "啵啵救援队",
+    "en": "Pop Pop Rescue"
+  },
+  "version": "1.0.0",
+  "build": 1,
+  "ios": {
+    "bundleId": "com.poppoprescue.game",
+    "team": "",
+    "minVersion": "15.0",
+    "admobAppId": "ca-app-pub-3940256099942544~1458002511",
+    "trackingText": {
+      "en": "This lets us show you ads that are more relevant to you.",
+      "zh_CN": "用来给你推荐更相关的广告。"
+    }
+  },
+  "android": {
+    "packageName": "com.poppoprescue.game",
+    "minSdk": 24,
+    "targetSdk": 35,
+    "admobAppId": "ca-app-pub-3940256099942544~3347511713"
+  },
+  "wechat": {
+    "appid": "wx6ac3f5090a6b99c5"
+  },
+  "ads": {
+    "_comment": "广告位 ID。iOS / Android 现在是 Google 官方的测试广告位；微信要开通流量主后在后台建广告位填进来，空着就当没有广告",
+    "ios": {
+      "rewarded": "ca-app-pub-3940256099942544/1712485313",
+      "interstitial": "ca-app-pub-3940256099942544/4411468910",
+      "banner": "ca-app-pub-3940256099942544/2934735716"
+    },
+    "android": {
+      "rewarded": "ca-app-pub-3940256099942544/5224354917",
+      "interstitial": "ca-app-pub-3940256099942544/1033173712",
+      "banner": "ca-app-pub-3940256099942544/6300978111"
+    },
+    "wechat": {
+      "rewarded": "",
+      "interstitial": "",
+      "banner": ""
+    }
+  }
+}

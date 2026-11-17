@@ -1,0 +1,3 @@
+/* 由 tools/native/apply.mjs 按 game.json 生成 */
+"CFBundleDisplayName" = "啵啵救援队";
+"NSUserTrackingUsageDescription" = "用来给你推荐更相关的广告。";

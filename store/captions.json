@@ -1,0 +1,28 @@
+{
+  "_comment": "上架图的文字（tools/store/compose.py）。langs 是出哪几种语言（用户 2026-11-18：先只要英文和简体中文）；每张图 title 是大标题（\\n 手动换行），ribbon 是缎带上的副标题，badge 是星形徽章 [大字, 小字]。只写游戏里真有的东西",
+  "langs": ["en", "zh_CN"],
+  "name": { "en": "Pop Pop Rescue", "zh_CN": "啵啵救援队" },
+  "feature": { "en": "Rescue the fish in bubbles!", "zh_CN": "把气泡里的小鱼救回家" },
+  "shots": [
+    {
+      "en": { "title": "Rescue the fish\nin bubbles!", "ribbon": "Free to play · Play offline", "badge": ["FREE", ""] },
+      "zh_CN": { "title": "把气泡里的小鱼\n救回家！", "ribbon": "免费畅玩 · 没网也能玩", "badge": ["免费", ""] }
+    },
+    {
+      "en": { "title": "Three of a kind\nfill a tank", "ribbon": "Tap, match and relax" },
+      "zh_CN": { "title": "三条一样\n装满一缸", "ribbon": "点一点，轻松又解压" }
+    },
+    {
+      "en": { "title": "Plan your moves", "ribbon": "Only the front fish can come out" },
+      "zh_CN": { "title": "想好顺序再出手", "ribbon": "排队的鱼只有排头能出来" }
+    },
+    {
+      "en": { "title": "Explore 18 seas", "ribbon": "From Sunrise Shore to Melody Cove", "badge": ["360", "LEVELS"] },
+      "zh_CN": { "title": "探索 18 片海域", "ribbon": "从晨光沙滩到歌声海湾", "badge": ["360", "关"] }
+    },
+    {
+      "en": { "title": "Collect 705\nsea creatures", "ribbon": "From cute to dazzling epic" },
+      "zh_CN": { "title": "收集 705 种\n海洋生物", "ribbon": "从萌萌哒到闪耀史诗" }
+    }
+  ]
+}

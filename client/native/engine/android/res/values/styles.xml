@@ -1,0 +1,4 @@
+<resources>
+    <!-- 全屏竖屏；刘海屏的适配在 values-v28 -->
+    <style name="FsGameTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen" />
+</resources>

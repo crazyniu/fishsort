@@ -1,0 +1,6 @@
+<resources>
+    <!-- Android 9 起：画面铺进刘海两边，游戏按安全区自己让开（docs/04 第 9 节） -->
+    <style name="FsGameTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>
