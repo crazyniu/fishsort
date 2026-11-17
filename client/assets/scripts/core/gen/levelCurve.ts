@@ -203,6 +203,23 @@ export function targetRate(curve: CurveConfig, id: number, isChal: boolean): num
   if (id <= t.tutorialUntil) return 100.0;
   const drop = firstDrop(curve);
   const offset = drop > 0 && id >= drop ? t.segmentOffset.drop : t.segmentOffset.layered;
+  // 有 knots 就按它分段线性插值（2026-11-17 第二次调难度：前 60 关不动，后面降得更快），下面的 start / end / tail 不再用
+  if (t.knots && t.knots.length > 0) {
+    const k = t.knots;
+    let base = k[0][1];
+    if (id >= k[k.length - 1][0]) base = k[k.length - 1][1];
+    else {
+      for (let i = 1; i < k.length; i++) {
+        if (id <= k[i][0]) {
+          base = id <= k[i - 1][0] ? k[i - 1][1] : k[i - 1][1] + ((id - k[i - 1][0]) * (k[i][1] - k[i - 1][1])) / (k[i][0] - k[i - 1][0]);
+          break;
+        }
+      }
+    }
+    const normal = base + offset;
+    if (isChal) return Math.max(normal - challengeDrop(curve, id), t.challengeFloor);
+    return normal;
+  }
   // 第 last 关以后（2026-11-17 关卡从 120 加到 240）：第 1–last 关的目标不动，之后从 end 再缓缓降到 tail.end
   const tail = t.tail;
   const base =

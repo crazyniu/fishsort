@@ -225,12 +225,14 @@ function pickBase(id: number, challenge: boolean): Pick | null {
 }
 
 /**
- * 越小越好，都按复测胜率算：出容差或破单调每点 100 分（先满足 2 缸目标）；第 3 缸出区间每点 1 分
+ * 越小越好，都按复测胜率算：出容差或破单调每点 100 分（先满足 2 缸目标）；第 3 缸比 2 缸还低每点 100 分；第 3 缸出区间每点 1 分
  * （g3 传 -1 = 还没量，不计）；离瞄准值每点 0.05 分
  */
 function penalty(id: number, g2: number, lo: number, hi: number, aim: number, g3: number): number {
   let pen = (Math.max(0, lo - g2) + Math.max(0, g2 - hi)) * 100.0;
   if (g3 >= 0) pen += LevelCurve.miss(LevelCurve.bowl3Span(curve, id, g2), g3);
+  // 开第 3 缸不能比 2 缸更难（花钱开缸变成惩罚）：低出 bowl3Worse 个点以上按没达标算（2026-11-17，目标压低以后冒出来两关）
+  if (g3 >= 0 && g2 - g3 > (gen.bowl3Worse ?? 3)) pen += (g2 - g3) * 100.0;
   return pen + Math.abs(g2 - aim) * 0.05;
 }
 

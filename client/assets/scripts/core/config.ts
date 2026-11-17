@@ -243,6 +243,8 @@ export interface CurveConfig {
     challengeDropUntil: number;
     /** 第 last 关以后的目标：从 end 线性降到 tail.end（第 tail.to 关）；没有就不往后延 */
     tail?: { to: number; end: number };
+    /** 普通关目标胜率的折点 [关卡号, 百分比]，分段线性；有它就不用 start / end / tail（第一个折点之前、最后一个之后取端点值） */
+    knots?: [number, number][];
     challengeFloor: number;
     /** 第 3 缸胜率的区间：下限 2 缸 + plus（2 缸 ≥ easyFrom 时只要不低于 2 缸）；capFrom 关起上限 min(2 缸 + capPlus, cap) */
     bowl3: { plus: number; easyFrom: number; capFrom: number; capPlus: number; cap: number };
