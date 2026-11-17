@@ -56,111 +56,78 @@ export function blink(node: Node, id: string, size: number): void {
   loop();
 }
 
-/** 按轮廓类给整只生物加常驻动作；phase 用来错开同一个气泡里的几条。返回 true = 做了（调用方就不再加默认的摆尾） */
+/**
+ * 按轮廓类给整只生物加常驻动作；phase 用来错开同一处的几只。每一种都**一直在动**：平时轻轻地摇、一伸一缩，
+ * 隔一会儿再做一下这一类的招牌动作（螃蟹夹两下、虾弹尾巴、海星扭一扭、贝壳一开一合），中间不会停住不动
+ * （用户 2026-11-17：有的动物没有动作——原来招牌动作之间是静止的，鱼缸里、目标卡上、收藏里的也没动作）
+ */
 export function idle(node: Node, shape: string, phase: number): boolean {
   const sx = node.scale.x;
   const v = (x: number, y: number) => new Vec3(sx * x, y, 1);
-  const start = phase * 0.37 + Math.random() * 0.6;
+  const start = (phase % 5) * 0.23 + Math.random() * 0.5;
+  const ease = { easing: 'sineInOut' as const };
+  // 平时的摇摆：两个来回（约 2.4 秒）
+  const sway = (t: ReturnType<typeof tween<Node>>, deg: number, k: number) =>
+    t
+      .to(0.6, { angle: deg, scale: v(1 + k, 1 - k) }, ease)
+      .to(0.6, { angle: -deg, scale: v(1 - k, 1 + k) }, ease)
+      .to(0.6, { angle: deg * 0.7, scale: v(1 + k, 1 - k) }, ease)
+      .to(0.6, { angle: 0, scale: v(1, 1) }, ease);
+  let loop = tween(node);
   switch (shape) {
-    case 'claws': {
-      // 夹两下：身子一挺、左右各歪一下（整只画在一张图里，爪子跟着动）
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .delay(1.8 + Math.random() * 1.6)
-            .to(0.08, { scale: v(1.08, 0.95), angle: 6 })
-            .to(0.08, { scale: v(0.98, 1.02), angle: -4 })
-            .to(0.08, { scale: v(1.08, 0.95), angle: 6 })
-            .to(0.12, { scale: v(1, 1), angle: 0 }),
-        )
-        .start();
-      return true;
-    }
-    case 'shrimp': {
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .delay(2 + Math.random() * 1.5)
-            .to(0.07, { scale: v(0.9, 1.05), angle: -9 })
-            .to(0.16, { scale: v(1, 1), angle: 0 }, { easing: 'backOut' }),
-        )
-        .start();
-      return true;
-    }
-    case 'umbrella': {
+    case 'claws':
+      // 螃蟹、龙虾：摇两下，再「夹两下」——身子一挺、左右各歪一下（整只画在一张图里，爪子跟着动）
+      loop = sway(loop, 3, 0.02)
+        .to(0.08, { scale: v(1.08, 0.95), angle: 6 })
+        .to(0.08, { scale: v(0.98, 1.02), angle: -4 })
+        .to(0.08, { scale: v(1.08, 0.95), angle: 6 })
+        .to(0.12, { scale: v(1, 1), angle: 0 });
+      break;
+    case 'shrimp':
+      loop = sway(loop, 3, 0.02)
+        .to(0.07, { scale: v(0.9, 1.05), angle: -9 })
+        .to(0.16, { scale: v(1, 1), angle: 0 }, { easing: 'backOut' });
+      break;
+    case 'umbrella':
       // 水母：一缩一伸地游
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .to(0.35, { scale: v(1.07, 0.9) }, { easing: 'sineOut' })
-            .to(0.6, { scale: v(0.97, 1.05) }, { easing: 'sineInOut' })
-            .to(0.4, { scale: v(1, 1) }, { easing: 'sineIn' }),
-        )
-        .start();
-      return true;
-    }
+      loop = loop
+        .to(0.35, { scale: v(1.07, 0.9) }, { easing: 'sineOut' })
+        .to(0.6, { scale: v(0.97, 1.05) }, ease)
+        .to(0.4, { scale: v(1, 1) }, { easing: 'sineIn' });
+      break;
     case 'legs':
-    case 'tree': {
+    case 'tree':
       // 章鱼、乌贼、海葵、管虫：慢慢地左右摆
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .to(1.1, { angle: 6, scale: v(1.03, 0.98) }, { easing: 'sineInOut' })
-            .to(1.1, { angle: -6, scale: v(0.98, 1.03) }, { easing: 'sineInOut' }),
-        )
-        .start();
-      return true;
-    }
-    case 'star': {
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .delay(2.4 + Math.random() * 1.5)
-            .to(0.18, { angle: 12 }, { easing: 'quadOut' })
-            .to(0.22, { angle: -8 }, { easing: 'quadInOut' })
-            .to(0.2, { angle: 0 }, { easing: 'quadIn' }),
-        )
-        .start();
-      return true;
-    }
+      loop = loop.to(1.1, { angle: 6, scale: v(1.03, 0.98) }, ease).to(1.1, { angle: -6, scale: v(0.98, 1.03) }, ease);
+      break;
+    case 'star':
+      loop = sway(loop, 4, 0.02)
+        .to(0.18, { angle: 12 }, { easing: 'quadOut' })
+        .to(0.22, { angle: -8 }, { easing: 'quadInOut' })
+        .to(0.2, { angle: 0 }, { easing: 'quadIn' });
+      break;
     case 'shell':
-    case 'snail': {
-      // 贝壳、螺：一开一合（压扁一下再弹回来）
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .delay(2.2 + Math.random() * 1.8)
-            .to(0.12, { scale: v(1.06, 0.88) }, { easing: 'quadOut' })
-            .to(0.2, { scale: v(1, 1) }, { easing: 'backOut' }),
-        )
-        .start();
-      return true;
-    }
+    case 'snail':
+      // 贝壳、螺：轻轻地「呼吸」，隔一会儿一开一合（压扁一下再弹回来）
+      loop = sway(loop, 2, 0.025)
+        .to(0.12, { scale: v(1.06, 0.88) }, { easing: 'quadOut' })
+        .to(0.2, { scale: v(1, 1) }, { easing: 'backOut' });
+      break;
     case 'bird':
     case 'seal':
     case 'otter':
     case 'whale':
     case 'angel':
-    case 'ghost': {
+    case 'ghost':
       // 企鹅、海豹、水獭、鲸、海天使、小幽灵：轻轻摇晃着浮
-      tween(node)
-        .delay(start)
-        .repeatForever(
-          tween(node)
-            .to(0.9, { angle: 5, scale: v(1.03, 1) }, { easing: 'sineInOut' })
-            .to(0.9, { angle: -4, scale: v(1, 1.03) }, { easing: 'sineInOut' }),
-        )
-        .start();
-      return true;
-    }
+      loop = loop.to(0.9, { angle: 5, scale: v(1.03, 1) }, ease).to(0.9, { angle: -4, scale: v(1, 1.03) }, ease);
+      break;
+    default:
+      // 其余的鱼：摆尾、轻轻游
+      loop = loop.to(0.7, { scale: v(1.04, 0.96), angle: 4 }, ease).to(0.7, { scale: v(1, 1), angle: -3 }, ease);
   }
-  return false;
+  tween(node).delay(start).repeatForever(loop).start();
+  return true;
 }
 
 /** 一只生物的轮廓类（species.json 的 shape） */

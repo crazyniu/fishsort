@@ -12,6 +12,7 @@ import { App } from '../services/app';
 import { buzz, applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
+import * as Alive from './alive';
 import { language, setLanguage, tr } from './i18n';
 import { at, box, button, COLOR, DARK_INK, fit, fmt, hex, img, INK, onTap, opacity, setImg, setInk, slice, text, textWidth, twoLines } from './kit';
 
@@ -98,6 +99,11 @@ export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
     at(f, 0, fy);
     const top = fy + fh / 2;
     const icon = img(n, it.icon, s * 0.64, s * 0.64, 'icon');
+    const cid = it.icon.startsWith('fish/') ? it.icon.slice(5) : '';
+    if (cid) {
+      Alive.idle(icon, Alive.shapeOf(cid), 0);
+      Alive.blink(icon, cid, s * 0.64);
+    }
     at(icon, 0, top - fh * 0.371);
     if (it.name && s >= 140) {
       const nm = text(n, it.name, Math.round(s * 0.11));
@@ -478,6 +484,8 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   const art = img(front, `fish/${c.id}`, 270, 270, 'art');
   at(art, 0, 64);
   fx.bob(art, 6, 2.2);
+  Alive.idle(art, Alive.shapeOf(c.id), 0);
+  Alive.blink(art, c.id, 270);
   const sp = App.config.speciesById.get(c.id);
   // 名字在卡框下面那条浅色名字条上：深蓝字、不描边
   const name = text(front, sp ? speciesName(sp.id) : c.id, 40, { color: INK.ink, outline: null, shadow: false });

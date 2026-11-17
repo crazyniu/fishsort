@@ -144,6 +144,8 @@ export class CollectPage extends Page {
     at(cover, 0, h / 2 - 18 - cs / 2);
     const star = App.config.speciesById.get(cards[cards.length - 1]);
     const fish = img(cover, `fish/${star?.id ?? cards[0]}`, cs * 0.68, cs * 0.68, 'fish');
+    // 开放了的册子，封面上的生物会眨眼（没开放的是灰色剪影，不眨）
+    if (open) Alive.blink(fish, star?.id ?? cards[0], cs * 0.68);
     at(fish, cs * 0.04, cs * 0.03);
     const name = text(card, tr(`ALBUM_BOOK_${i + 1}`), 32);
     at(name.node, 0, h / 2 - 18 - cs - 30);
@@ -276,7 +278,7 @@ export class CollectPage extends Page {
       (plate.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
       setInk(plate, WHITE_INK);
       fit(text(plate, speciesName(sp.id), 30), 170, 30, 18);
-      fx.wiggle(fish, 4, 2 + Math.random());
+      Alive.idle(fish, Alive.shapeOf(sp.id), Math.floor(Math.random() * 5));
       Alive.blink(fish, sp.id, 140);
       const ring = RARITY_GLOW[sp.rarity];
       if (ring && sp.rarity !== 'common') {

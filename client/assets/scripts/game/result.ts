@@ -9,6 +9,7 @@ import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
+import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
 import { at, box, Btn, button, COLOR, fit, img, lazyImg, onTap, opacity, plate, setImg, slice, text, textWidth } from '../ui/kit';
 import { cardItem, prizeCell, watchAd } from '../ui/popups';
@@ -83,8 +84,10 @@ export class ResultPage extends Page {
     }
     // 两条开心的鱼 + 宝箱
     const left = img(c, 'fish/c01', 210, 210, 'fishL');
+    Alive.blink(left, 'c01', 210);
     at(left, -240, chestY);
     const right = img(c, 'fish/c02', 190, 190, 'fishR');
+    Alive.blink(right, 'c02', 190);
     at(right, 240, chestY + 20);
     right.setScale(-1, 1, 1);
     const rays = fx.rays(c, 420);
