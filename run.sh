@@ -2,6 +2,8 @@
 # 项目统一入口。不带参数 = 构建网页版并打开试玩。
 set -euo pipefail
 cd "$(dirname "$0")"
+# 原样留一份参数：拉到新代码后用新的 run.sh 重跑一遍
+ORIG_ARGS=("$@")
 
 # 找 Cocos Creator：优先用 COCOS_CREATOR 环境变量，其次 macOS 上 3.8.8 的默认安装位置
 COCOS_VERSION=3.8.8
@@ -47,7 +49,10 @@ usage() {
   art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
   font-subset           重新裁剪字体（需要 python3 与 fonttools、brotli）
 
-环境变量：WEB_PORT（本地服务端口，默认 8080）、COCOS_CREATOR（Cocos Creator 可执行文件的路径）
+试玩、serve、build、wechat-build、editor 运行前会先拉当前分支的最新代码（git pull --ff-only；Mac 上先还原 client/ 下
+编辑器写的改动）。拉不下来只提示、用当前代码继续。
+
+环境变量：WEB_PORT（本地服务端口，默认 8080）、COCOS_CREATOR（Cocos Creator 可执行文件的路径）、NO_PULL=1（不自动拉代码）
 EOF
 }
 
@@ -142,11 +147,52 @@ need_node_modules() {
 
 need_file() { [ -e "$1" ] || die "还没有 $1：$2"; }
 
+# 试玩、构建、开编辑器之前先拉当前分支的最新代码（用户 2026-11-17）。NO_PULL=1 ./run.sh … 跳过。
+# Mac 上只试玩、不改文件（CLAUDE.md 第 13 条）：client/ 下已跟踪文件的改动是 Cocos 编辑器 / 构建自己写的（.meta、设置），
+# 先丢掉再拉，和手动同步的 git checkout -- client && git pull --ff-only 一样；Linux 上不丢任何改动，拉不下来就提示一句照常运行。
+# 没网、本地有自己的提交、不在分支上、分支没有远程，都只提示，用当前代码继续
+PULLED_NEW=0
+pull_latest() {
+  [ "${NO_PULL:-}" = "1" ] && return 0
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+  local branch before after
+  branch="$(git symbolic-ref --short -q HEAD)" || { echo "（不在分支上，不拉取）"; return 0; }
+  git rev-parse -q --verify '@{u}' >/dev/null 2>&1 || { echo "（$branch 没有对应的远程分支，不拉取）"; return 0; }
+  before="$(git rev-parse HEAD)"
+  echo "→ 拉取最新代码（$branch）"
+  if [ "$(uname)" = "Darwin" ] && [ -n "$(git status --porcelain --untracked-files=no -- client)" ]; then
+    echo "  先还原 client/ 下编辑器写的改动："
+    git status --porcelain --untracked-files=no -- client | head -5 | sed 's/^/    /'
+    git checkout -- client
+  fi
+  if ! git pull --ff-only -q; then
+    echo "⚠ 拉取失败（没网、或本地有改动 / 自己的提交），用当前代码继续" >&2
+    return 0
+  fi
+  after="$(git rev-parse HEAD)"
+  if [ "$before" = "$after" ]; then
+    echo "  已经是最新"
+  else
+    git log --oneline "$before..$after" | head -10 | sed 's/^/  /'
+    PULLED_NEW=1
+  fi
+}
+
 cmd="${1:-play}"
 case "$cmd" in
   # 试玩参数直接跟在 ./run.sh 后面：整串都交给 play
   real|level|auto|page) cmd=play ;;
   *) if [ $# -gt 0 ]; then shift; fi ;;
+esac
+
+case "$cmd" in
+  play|serve|build|wechat-build|editor)
+    if [ "${RUN_SH_PULLED:-}" != "1" ]; then
+      pull_latest
+      # 拉到了新代码：用新的 run.sh 重跑（run.sh 自己也可能改了）
+      if [ "$PULLED_NEW" = "1" ]; then RUN_SH_PULLED=1 exec ./run.sh ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"}; fi
+    fi
+    ;;
 esac
 
 case "$cmd" in
