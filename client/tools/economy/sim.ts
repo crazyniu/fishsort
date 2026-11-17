@@ -5,6 +5,9 @@
 //   --casual  只打关卡和签到，不做每日挑战、任务中心、抽奖
 //   --frugal  难关先不花金币白打一次，输了再花
 //   --runs    跑几遍取平均（默认 20）
+//   --no-ads  没有广告（微信小游戏开通流量主之前）：金币不够时不能看广告拿技能、开缸、拿命；
+//             --free=技能,开缸 是没广告时每天能免费领几次（默认 0,0）。连输按 easeAfterFails 换更易的变体；
+//             一天最多打 --levels 的 3 倍局数，卡住的那天就少过几关
 // 关卡难不难不在这里量：按 docs/02 第 0.4 节的目标假设——不花金币 / 花 1 样 / 2 样……各自的过关概率（level_curve.json 的 jam.targets）。
 // 玩家的打法：卡住了就花一样，一局最多花 maxItems 样；四样里约一样是开缸，其余是技能。
 // 技能先用今天的免费次、再用库存；都没有就花金币买，金币不够就看广告拿一个。缸位、命同理。
@@ -44,6 +47,14 @@ function arg(name: string, fallback: string): string {
   return hit ? hit.slice(name.length + 3) : fallback;
 }
 
+/** 连输以后换上的更易变体的目标（变体 1 在这一档和普通关中间，变体 2 按普通关） */
+function targetForEase(level: number, ease: number): { p: number[]; maxItems: number } {
+  if (ease <= 0) return targetFor(level);
+  const p = LevelCurve.jamTargets(curve, level, ease) ?? LevelCurve.jamTargets(curve, level, 0);
+  if (p === null) return EARLY;
+  return { p, maxItems: p.length - 1 };
+}
+
 function targetFor(level: number): { p: number[]; maxItems: number } {
   const p = LevelCurve.jamTargets(curve, level, 0);
   if (p === null) return EARLY;
@@ -76,6 +87,12 @@ function main(): void {
   const frugal = process.argv.includes('--frugal');
   const total = curve.total;
   const runs = Number(arg('runs', '20'));
+  const noAds = process.argv.includes('--no-ads');
+  const [freeToolDay, freeBowlDay] = arg('free', '0,0').split(',').map(Number);
+  let attemptsAll = 0;
+  let passesAll = 0;
+  let worstLevel = 0;
+  const stuckDays: number[] = [];
   const book = new Book();
   let played = 0;
   let coinsLeft = 0;
@@ -107,11 +124,13 @@ function main(): void {
   let day = 20000;
   let level = from;
   const tried = new Set<number>();
+  const failsAt = new Map<number, number>();
+  let freeTool = 0;
+  let freeBowl = 0;
 
-  const useTool = (usedThisLevel: Record<string, number>): void => {
-    book.itemsUsed.tool++;
+  const useTool = (usedThisLevel: Record<string, number>): boolean => {
     const open = Skills.unlockedIds(eco, save.level).filter((id) => (usedThisLevel[id] ?? 0) < Skills.maxPerLevel(eco, level));
-    if (open.length === 0) return;
+    if (open.length === 0) return false;
     // 先用手里有的（今天的免费次、库存），没有就买：买哪种看当时卡在哪，这里随机取一种
     const have = open.filter((id) => Skills.freeAvailable(save, id, eco) || Skills.count(save, id) > 0);
     const id = rng.pick(have.length > 0 ? have : open);
@@ -119,11 +138,16 @@ function main(): void {
       if (spend('买技能', Skills.price(eco, id))) {
         Skills.add(save, id);
         book.toolsPaid.coins++;
-      } else {
+      } else if (!noAds) {
         Skills.add(save, id);
         book.bump(book.ads, '看广告拿技能', 1);
         book.toolsPaid.ad++;
-      }
+      } else if (freeTool > 0) {
+        freeTool--;
+        Skills.add(save, id);
+        book.bump(book.ads, '没广告时免费领技能', 1);
+        book.toolsPaid.ad++;
+      } else return false;
       Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level);
     } else {
       const r = Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level);
@@ -131,35 +155,51 @@ function main(): void {
       else book.toolsPaid.stock++;
     }
     usedThisLevel[id] = (usedThisLevel[id] ?? 0) + 1;
+    book.itemsUsed.tool++;
+    return true;
   };
-  const useBowl = (): void => {
-    book.itemsUsed.bowl++;
+  const useBowl = (): boolean => {
     if (spend('开缸', eco.bowlSlotCoinPrice)) book.bowlsPaid.coins++;
-    else {
+    else if (!noAds) {
       book.bump(book.ads, '看广告开缸', 1);
       book.bowlsPaid.ad++;
-    }
+    } else if (freeBowl > 0) {
+      freeBowl--;
+      book.bump(book.ads, '没广告时免费开缸', 1);
+      book.bowlsPaid.ad++;
+    } else return false;
+    book.itemsUsed.bowl++;
+    return true;
   };
 
   for (let d = 0; d < days && level <= total; d++, day++) {
     played++;
     now += 86400;
+    freeTool = freeToolDay;
+    freeBowl = freeBowlDay;
+    let attempts = 0;
+    let passedToday = 0;
     earn('签到', () => SignIn.claim(save, eco, species, rng, day, now));
     if (!casual) {
       earn('每日挑战', () => {
         if (DailyChallenge.enter(save, eco, day, 'free') && rng.randf() < 0.8) DailyChallenge.win(save, eco, species, day, now, rng, 6);
       });
     }
-    for (let n = 0; n < perDay && level <= total; ) {
+    for (let n = 0; n < perDay && level <= total && attempts < perDay * 3; ) {
       // 没命了：先花金币买，买不起看广告，广告也看完了就等
       if (!Lives.canStart(save, eco, level, now)) {
         if (spend('买命', eco.lives.buyOneCoins)) Lives.add(save, eco, 1, now);
-        else if (Lives.claimAd(save, eco, day, now)) book.bump(book.ads, '看广告拿命', 1);
+        else if (!noAds && Lives.claimAd(save, eco, day, now)) book.bump(book.ads, '看广告拿命', 1);
         else now += Lives.secondsToNext(save, eco, now) + 1;
         continue;
       }
       now += ATTEMPT_SECONDS;
-      const t = targetFor(level);
+      attempts++;
+      attemptsAll++;
+      // 连输换更易的变体（economy.json 的 easeAfterFails，docs/01 第 5.7 节）
+      const fails = failsAt.get(level) ?? 0;
+      const ease = eco.easeAfterFails.filter((k) => fails >= k).length;
+      const t = noAds ? targetForEase(level, ease) : targetFor(level);
       const u = rng.randf();
       // 省着打的人：难关第一次不花，输了再来才花
       const cap = frugal && level % 5 === 0 && !tried.has(level) ? 0 : t.maxItems;
@@ -169,14 +209,28 @@ function main(): void {
       const passed = u < t.p[need];
       const used: Record<string, number> = {};
       let bowls = 0;
+      let got = 0;
       for (let i = 0; i < need; i++) {
+        let ok: boolean;
         if (bowls < 2 && rng.randf() < BOWL_SHARE) {
           bowls++;
-          useBowl();
-        } else useTool(used);
+          ok = useBowl() || useTool(used);
+        } else ok = useTool(used) || (bowls < 2 && useBowl() && ++bowls > 0);
+        if (!ok) break;
+        got++;
+      }
+      // 想花的没拿到（没金币、没广告、免费次用完）：少花几样，过关概率按实际花的算
+      if (got < need && !(u < t.p[got])) {
+        book.fails++;
+        failsAt.set(level, fails + 1);
+        worstLevel = Math.max(worstLevel, fails + 1);
+        Lives.lose(save, eco, level, true, now);
+        continue;
       }
       if (!passed) {
         book.fails++;
+        failsAt.set(level, fails + 1);
+        worstLevel = Math.max(worstLevel, fails + 1);
         Lives.lose(save, eco, level, true, now);
         continue;
       }
@@ -205,7 +259,10 @@ function main(): void {
       });
       level++;
       n++;
+      passedToday++;
+      passesAll++;
     }
+    stuckDays.push(passedToday);
     if (!casual) {
       earn('抽奖', () => {
         let guard = 0;
@@ -245,6 +302,11 @@ function main(): void {
   console.log(`\n一天花掉的金币 ${perDayOf(sum(book.coinsOut))}：\n${lines(book.coinsOut)}`);
   console.log(`\n一天看的广告 ${perDayOf(sum(book.ads))} 次：\n${lines(book.ads)}`);
   console.log(`\n想花的金币（花掉的 + 看广告顶掉的按价格折算）一天 ${perDayOf(wantCoins)}；挣的占想花的 ${Math.round((sum(book.coinsIn) * 100) / Math.max(1, wantCoins))}%`);
+  if (noAds) {
+    const avg = stuckDays.reduce((a, b) => a + b, 0) / Math.max(1, stuckDays.length);
+    const low = stuckDays.filter((x) => x < perDay / 2).length;
+    console.log(`\n没广告（每天免费领技能 ${freeToolDay} 次、开缸 ${freeBowlDay} 次）：一天平均过 ${avg.toFixed(1)} 关（想过 ${perDay} 关，一天最多打 ${perDay * 3} 局）；过不到一半的天占 ${Math.round((low * 100) / Math.max(1, stuckDays.length))}%；平均 ${(attemptsAll / Math.max(1, passesAll)).toFixed(2)} 局过一关；同一关最多输了 ${worstLevel} 次`);
+  }
   console.log(`要花钱的技能占要用的 ${Math.round((paidTools * 100) / Math.max(1, book.itemsUsed.tool))}%；最后手里剩 ${Math.round(coinsLeft / runs)} 金币、${(toolsLeft / runs).toFixed(1)} 个技能`);
 }
 
