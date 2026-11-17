@@ -30,7 +30,7 @@ option(USE_OCCLUSION_QUERY      "Use Occlusion Query"                   ON)
 option(USE_DEBUG_RENDERER       "Use Debug Renderer"                    ON)
 option(USE_GEOMETRY_RENDERER    "Use Geometry Renderer"                 ON)
 # 不用 WebP 图；Cocos 3.8.8 预编译的 libwebp.a 和 Xcode 27 的新链接器不兼容（archive member not 8-byte aligned）
-option(USE_WEBP                 "Use Webp"                              OFF)
+set(USE_WEBP OFF CACHE BOOL "Use Webp" FORCE)
 
 if(NOT RES_DIR)
     message(FATAL_ERROR "RES_DIR is not set!")
