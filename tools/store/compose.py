@@ -65,7 +65,7 @@ def title(canvas: Image.Image, text: str, sub: str, top: int, size: int) -> None
     """白字、深蓝粗描边、柔和的投影；两行以内，居中"""
     w = canvas.width
     f = font(size)
-    lines = wrap(text, f, int(w * 0.86))
+    lines = [l for part in text.split('\n') for l in wrap(part, f, int(w * 0.9))]
     layer = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     y = top
