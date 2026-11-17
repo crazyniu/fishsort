@@ -32,18 +32,41 @@ export function colorDistance(a: Species, b: Species): number {
 /**
  * 按关卡种子洗牌后挑 count 种。每挑一种，都要和已经挑的每一种色差不小于 minGap：
  * 先在满足色差的里面找轮廓也不重复的；没有就只要求色差；还没有就挑「和已挑的最不像」的那一种（尽力而为）。
- * minGap 越大颜色越分得开（前面的关卡），越小越容易出现相近的颜色（后面的关卡），见 level_curve.json 的 colorGap
+ * minGap 越大颜色越分得开（前面的关卡），越小越容易出现相近的颜色（后面的关卡），见 level_curve.json 的 colorGap。
+ *
+ * prefer 是按先后排的几组生物 id（docs/01 5.0：本海域的 → 前面海域的）：先在第一组里按上面的规矩挑，
+ * 第一组里没有满足色差的才去下一组借；都没有就在这几组里挑「和已挑的最不像」的。其余局内生物只在这几组加起来不够 count 种时才用。
+ * 不给 prefer 就是所有局内生物一组。
  */
-export function pickSpecies(all: readonly Species[], levelSeed: number, count: number, minGap = 0): string[] {
-  const order = all.filter((sp) => sp.inLevel === true);
-  new Rng(levelSeed).shuffle(order);
+export function pickSpecies(all: readonly Species[], levelSeed: number, count: number, minGap = 0, prefer: readonly (readonly string[])[] = []): string[] {
+  const inLevel = all.filter((sp) => sp.inLevel === true);
+  const rng = new Rng(levelSeed);
+  const used = new Set<string>();
+  const tiers: Species[][] = [];
+  for (const ids of prefer) {
+    const tier = inLevel.filter((sp) => ids.includes(sp.id) && !used.has(sp.id));
+    for (const sp of tier) used.add(sp.id);
+    if (tier.length > 0) tiers.push(tier);
+  }
+  // 其余局内生物（后面海域的）只在前面几组加起来都不够 count 种时才用，不提前出后面海域的鱼
+  const rest = inLevel.filter((sp) => !used.has(sp.id));
+  if (prefer.length === 0 || used.size < count) tiers.push(rest);
+  for (const t of tiers) rng.shuffle(t);
+  const order = tiers.flat();
   const out: Species[] = [];
   const nearest = (sp: Species) => out.reduce((m, o) => Math.min(m, colorDistance(sp, o)), 999);
   while (out.length < count && out.length < order.length) {
-    const rest = order.filter((sp) => out.indexOf(sp) < 0);
-    const apart = rest.filter((sp) => nearest(sp) >= minGap);
     const shapes = out.map((o) => String(o.shape ?? ''));
-    const pick = apart.find((sp) => shapes.indexOf(String(sp.shape ?? '')) < 0) ?? apart[0] ?? rest.reduce((best, sp) => (nearest(sp) > nearest(best) ? sp : best), rest[0]);
+    let pick: Species | undefined;
+    for (const t of tiers) {
+      const apart = t.filter((sp) => out.indexOf(sp) < 0 && nearest(sp) >= minGap);
+      pick = apart.find((sp) => shapes.indexOf(String(sp.shape ?? '')) < 0) ?? apart[0];
+      if (pick) break;
+    }
+    if (!pick) {
+      const rest = order.filter((sp) => out.indexOf(sp) < 0);
+      pick = rest.reduce((best, sp) => (nearest(sp) > nearest(best) ? sp : best), rest[0]);
+    }
     out.push(pick);
   }
   return out.map((sp) => sp.id);

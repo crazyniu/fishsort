@@ -212,7 +212,9 @@ export class GamePage extends Page {
     this.s = GameState.fromLevel(this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
-    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file));
+    // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
+    const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
+    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;

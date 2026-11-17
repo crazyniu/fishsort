@@ -50,14 +50,14 @@ describe('海域（docs/01 5.0）', () => {
     Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 6 : Seas.list(ECO)[i].levelFrom));
   });
 
-  it('每册 10 张、普通 5 张；60 张各在一册；传说只在海底宫殿；局内 16 种按 ★ 分布', () => {
+  it('每册 15 张、普通 10 张；90 张各在一册；传说只在海底宫殿；局内 46 种，每册 7–9 种', () => {
     const rarity = Object.fromEntries(SPECIES.map((s) => [s.id, s.rarity]));
     const seen = new Set<string>();
     const inLevel = new Set(SPECIES.filter((s) => s.inLevel).map((s) => s.id));
-    const stars = [3, 2, 2, 3, 2, 4];
+    const stars = [8, 7, 7, 8, 7, 9];
     Album.books(ECO).forEach((b, i) => {
-      assert.equal(b.cards.length, 10);
-      assert.equal(b.cards.filter((c) => rarity[c] === 'common').length, 5);
+      assert.equal(b.cards.length, 15);
+      assert.equal(b.cards.filter((c) => rarity[c] === 'common').length, 10);
       assert.equal(b.cards.filter((c) => inLevel.has(c)).length, stars[i], `${b.sea} 的局内生物`);
       for (const c of b.cards) {
         assert.ok(!seen.has(c), `${c} 只在一册`);
@@ -65,8 +65,8 @@ describe('海域（docs/01 5.0）', () => {
         if (rarity[c] === 'legend') assert.equal(b.sea, 'palace');
       }
     });
-    assert.equal(seen.size, 60);
-    assert.equal(inLevel.size, 16);
+    assert.equal(seen.size, 90);
+    assert.equal(inLevel.size, 46);
   });
 });
 
@@ -291,11 +291,11 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(ECO.wheel.tenCost, 9000);
   });
 
-  it('一次性奖励合计：收藏 11200 + 5000，救援记录 7200', () => {
+  it('一次性奖励合计：收藏 11200 + 5000，救援记录 20700（名义）', () => {
     assert.equal(Album.books(ECO).reduce((s, b) => s + (b.reward.coins ?? 0), 0), 11200);
     assert.equal(ECO.album.final.coins, 5000);
     const dex = ECO.dex.coins.reduce((a, b) => a + b, 0) * SPECIES.filter((s) => s.inLevel).length;
-    assert.equal(dex, 7200);
+    assert.equal(dex, 20700);
   });
 
   it('一关的收入不超过 200，一条命至少值两关（第 6.3 节守住的三条）', () => {
@@ -308,21 +308,48 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
 
 describe('局内生物分得清（docs/03 4.1）', () => {
   const inLevel = SPECIES.filter((sp) => sp.inLevel === true);
-  const CLASSES = ['round', 'long', 'tall', 'star', 'claws', 'umbrella', 'diamond', 'legs', 'shell', 'snout'];
+  const CLASSES = ['round', 'long', 'tall', 'star', 'claws', 'umbrella', 'diamond', 'legs', 'shell', 'snout', 'shrimp', 'flat', 'slug', 'disc', 'tree', 'otter', 'snail', 'ghost', 'bird', 'seal', 'whale', 'angel'];
+  const at = (n: number) => Seas.forLevel(ECO, n);
 
-  it('16 种登记在 10 类轮廓里，10 类都有', () => {
-    assert.equal(inLevel.length, 16);
-    assert.deepEqual(Array.from(new Set(inLevel.map((sp) => String(sp.shape)))).sort(), CLASSES.slice().sort());
+  it('46 种都登记了轮廓类和量出来的主色', () => {
+    assert.equal(inLevel.length, 46);
+    for (const sp of inLevel) {
+      assert.ok(CLASSES.includes(String(sp.shape)), `${sp.id} 的轮廓 ${sp.shape}`);
+      assert.ok(sp.rgb && sp.rgb.some((v) => v > 0), `${sp.id} 没量主色`);
+    }
   });
 
-  it('前 10 关：同场的几种色差都不小于下限，轮廓类也不重复', () => {
+  it('前 10 关：同场的几种色差都不小于下限，轮廓类也不重复，全是本海域的', () => {
     const curve = loadCurve();
+    const own = new Set(Seas.speciesPools(ECO, 0)[0]);
     for (let id = 1; id <= 10; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
       const gap = LevelCurve.colorGap(curve, id);
-      const picked = pickSpecies(SPECIES, lv.levelSeed, lv.palette, gap).map((sid) => inLevel.find((sp) => sp.id === sid)!);
+      const picked = pickSpecies(SPECIES, lv.levelSeed, lv.palette, gap, Seas.speciesPools(ECO, at(id))).map((sid) => inLevel.find((sp) => sp.id === sid)!);
       assert.equal(new Set(picked.map((sp) => sp.shape)).size, picked.length, `第 ${id} 关轮廓重复`);
+      for (const sp of picked) assert.ok(own.has(sp.id), `第 ${id} 关出了别的海域的 ${sp.id}`);
       for (let i = 0; i < picked.length; i++) for (let j = 0; j < i; j++) assert.ok(colorDistance(picked[i], picked[j]) >= gap, `第 ${id} 关 ${picked[i].id} 和 ${picked[j].id} 颜色太近`);
     }
+  });
+
+  it('每关以本海域的生物为主，借的只来自前面的海域；色差凑不齐下限的最多 2 关，且同场任两种至少差 20', () => {
+    const curve = loadCurve();
+    let short = 0;
+    for (let id = 1; id <= 120; id++) {
+      const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
+      const gap = LevelCurve.colorGap(curve, id);
+      const [own, earlier] = Seas.speciesPools(ECO, at(id));
+      const picked = pickSpecies(SPECIES, lv.levelSeed, lv.palette, gap, [own, earlier]);
+      const mine = picked.filter((sid) => own.includes(sid)).length;
+      assert.ok(mine * 2 >= picked.length, `第 ${id} 关本海域的只有 ${mine}/${picked.length}`);
+      for (const sid of picked) assert.ok(own.includes(sid) || earlier.includes(sid), `第 ${id} 关出了后面海域的 ${sid}`);
+      const sps = picked.map((sid) => inLevel.find((sp) => sp.id === sid)!);
+      let min = 999;
+      for (let i = 0; i < sps.length; i++) for (let j = 0; j < i; j++) min = Math.min(min, colorDistance(sps[i], sps[j]));
+      assert.ok(min >= 20, `第 ${id} 关有两种颜色几乎一样（${min.toFixed(0)}）`);
+      if (min < gap) short++;
+    }
+    // 换成按海域挑之前（16 种混着挑）是 8 关凑不齐
+    assert.ok(short <= 2, `${short} 关凑不齐色差`);
   });
 });

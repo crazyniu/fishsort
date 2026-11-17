@@ -287,6 +287,306 @@
    "shape": "shell"
   },
   {
+   "id": "c31",
+   "name": "螺居居",
+   "rarity": "common",
+   "group": "pink-shell",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "shell",
+   "inLevel": true, "rgb": [247, 96, 145]
+  },
+  {
+   "id": "c32",
+   "name": "圆胆胆",
+   "rarity": "common",
+   "group": "violet-round",
+   "hue": "violet",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [183, 89, 237]
+  },
+  {
+   "id": "c33",
+   "name": "参参",
+   "rarity": "common",
+   "group": "mint-long",
+   "hue": "mint",
+   "pattern": "spot",
+   "shape": "long",
+   "inLevel": true, "rgb": [91, 227, 150]
+  },
+  {
+   "id": "c34",
+   "name": "虾米米",
+   "rarity": "common",
+   "group": "sky-shrimp",
+   "hue": "sky",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [75, 209, 252]
+  },
+  {
+   "id": "c35",
+   "name": "鲽饼饼",
+   "rarity": "common",
+   "group": "gold-flat",
+   "hue": "gold",
+   "pattern": "spot",
+   "shape": "flat",
+   "inLevel": true, "rgb": [252, 196, 36]
+  },
+  {
+   "id": "c36",
+   "name": "花海兔",
+   "rarity": "common",
+   "group": "magenta-slug",
+   "hue": "magenta",
+   "pattern": "solid",
+   "shape": "slug",
+   "inLevel": true, "rgb": [227, 45, 131]
+  },
+  {
+   "id": "c37",
+   "name": "蓝吊吊",
+   "rarity": "common",
+   "group": "royal-round",
+   "hue": "royal",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [38, 109, 245]
+  },
+  {
+   "id": "c38",
+   "name": "鹦嘴嘴",
+   "rarity": "common",
+   "group": "leaf-long",
+   "hue": "leaf",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [73, 220, 108]
+  },
+  {
+   "id": "c39",
+   "name": "斑马马",
+   "rarity": "common",
+   "group": "white-disc",
+   "hue": "white",
+   "pattern": "stripe",
+   "shape": "disc",
+   "inLevel": true, "rgb": [229, 225, 245]
+  },
+  {
+   "id": "c40",
+   "name": "管花花",
+   "rarity": "common",
+   "group": "turquoise-tree",
+   "hue": "turquoise",
+   "pattern": "solid",
+   "shape": "tree",
+   "inLevel": true, "rgb": [16, 237, 241]
+  },
+  {
+   "id": "c41",
+   "name": "獭宝宝",
+   "rarity": "common",
+   "group": "brown-otter",
+   "hue": "brown",
+   "pattern": "solid",
+   "shape": "otter",
+   "inLevel": true, "rgb": [184, 106, 59]
+  },
+  {
+   "id": "c42",
+   "name": "金橙橙",
+   "rarity": "common",
+   "group": "orange-round",
+   "hue": "orange",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [252, 113, 1]
+  },
+  {
+   "id": "c43",
+   "name": "蜗蜗",
+   "rarity": "common",
+   "group": "purple-snail",
+   "hue": "purple",
+   "pattern": "solid",
+   "shape": "snail",
+   "inLevel": true, "rgb": [192, 61, 236]
+  },
+  {
+   "id": "c44",
+   "name": "鳗条条",
+   "rarity": "common",
+   "group": "cobalt-long",
+   "hue": "cobalt",
+   "pattern": "solid",
+   "shape": "long",
+   "inLevel": true, "rgb": [26, 104, 251]
+  },
+  {
+   "id": "c45",
+   "name": "粉伞伞",
+   "rarity": "common",
+   "group": "pink-umbrella",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true, "rgb": [250, 112, 210]
+  },
+  {
+   "id": "c46",
+   "name": "金币币",
+   "rarity": "common",
+   "group": "gold-round",
+   "hue": "gold",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [252, 204, 16]
+  },
+  {
+   "id": "c47",
+   "name": "绿鳗鳗",
+   "rarity": "common",
+   "group": "green-long",
+   "hue": "green",
+   "pattern": "spot",
+   "shape": "long",
+   "inLevel": true, "rgb": [159, 195, 37]
+  },
+  {
+   "id": "c48",
+   "name": "葵葵",
+   "rarity": "common",
+   "group": "coral-tree",
+   "hue": "coral",
+   "pattern": "solid",
+   "shape": "tree",
+   "inLevel": true, "rgb": [250, 128, 110]
+  },
+  {
+   "id": "c49",
+   "name": "海螺螺",
+   "rarity": "common",
+   "group": "peach-snail",
+   "hue": "peach",
+   "pattern": "solid",
+   "shape": "snail",
+   "inLevel": true, "rgb": [252, 170, 103]
+  },
+  {
+   "id": "c50",
+   "name": "幽幽",
+   "rarity": "common",
+   "group": "white-ghost",
+   "hue": "white",
+   "pattern": "solid",
+   "shape": "ghost",
+   "inLevel": true, "rgb": [229, 237, 251]
+  },
+  {
+   "id": "c51",
+   "name": "企企",
+   "rarity": "common",
+   "group": "navy-bird",
+   "hue": "navy",
+   "pattern": "solid",
+   "shape": "bird",
+   "inLevel": true, "rgb": [57, 67, 115]
+  },
+  {
+   "id": "c52",
+   "name": "海豹豹",
+   "rarity": "common",
+   "group": "white-seal",
+   "hue": "white",
+   "pattern": "solid",
+   "shape": "seal",
+   "inLevel": true, "rgb": [224, 222, 236]
+  },
+  {
+   "id": "c53",
+   "name": "磷虾虾",
+   "rarity": "common",
+   "group": "red-shrimp",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "shrimp",
+   "inLevel": true, "rgb": [246, 108, 136]
+  },
+  {
+   "id": "c54",
+   "name": "圆球球",
+   "rarity": "common",
+   "group": "lime-round",
+   "hue": "lime",
+   "pattern": "spot",
+   "shape": "round",
+   "inLevel": true, "rgb": [155, 229, 24]
+  },
+  {
+   "id": "c55",
+   "name": "一角角",
+   "rarity": "common",
+   "group": "lilac-whale",
+   "hue": "lilac",
+   "pattern": "solid",
+   "shape": "whale",
+   "inLevel": true, "rgb": [183, 135, 240]
+  },
+  {
+   "id": "c56",
+   "name": "金蟹蟹",
+   "rarity": "common",
+   "group": "gold-claws",
+   "hue": "gold",
+   "pattern": "solid",
+   "shape": "claws",
+   "inLevel": true, "rgb": [252, 195, 7]
+  },
+  {
+   "id": "c57",
+   "name": "小天使",
+   "rarity": "common",
+   "group": "pink-angel",
+   "hue": "pink",
+   "pattern": "solid",
+   "shape": "angel",
+   "inLevel": true, "rgb": [249, 137, 216]
+  },
+  {
+   "id": "c58",
+   "name": "锦锦",
+   "rarity": "common",
+   "group": "red-round",
+   "hue": "red",
+   "pattern": "solid",
+   "shape": "round",
+   "inLevel": true, "rgb": [248, 52, 57]
+  },
+  {
+   "id": "c59",
+   "name": "灯灯伞",
+   "rarity": "common",
+   "group": "lime-umbrella",
+   "hue": "lime",
+   "pattern": "solid",
+   "shape": "umbrella",
+   "inLevel": true, "rgb": [206, 246, 36]
+  },
+  {
+   "id": "c60",
+   "name": "月月",
+   "rarity": "common",
+   "group": "silver-disc",
+   "hue": "silver",
+   "pattern": "solid",
+   "shape": "disc",
+   "inLevel": true, "rgb": [214, 214, 236]
+  },
+  {
    "id": "u01",
    "name": "叶卷龙",
    "rarity": "uncommon",
