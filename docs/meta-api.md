@@ -63,7 +63,7 @@
 
 ## Album（收藏分册）
 
-90 张卡分 6 册，每册按关开放，集齐领册子大奖，全部集齐领终极大奖。数值在 `eco["album"]`（`books[{id, unlock, cards[], reward}]`、`final`）。
+230 张卡分 6 册，每册按关开放，集齐领册子大奖，全部集齐领终极大奖。数值在 `eco["album"]`（`books[{id, unlock, cards[], reward}]`、`final`）。
 
 | 函数 | 说明 |
 |---|---|

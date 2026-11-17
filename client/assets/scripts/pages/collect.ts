@@ -12,6 +12,7 @@ import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { now } from '../services/clock';
 import * as fx from '../ui/fx';
+import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
 import { at, box, button, COLOR, fit, hex, img, lazyImg, onTap, opacity, progressBar, redDot, setInk, slice, text, textWidth, WHITE_INK } from '../ui/kit';
 import { RARITY_GLOW, coinsFly, prizeItems, rewardPopup, speciesName } from '../ui/popups';
@@ -276,6 +277,7 @@ export class CollectPage extends Page {
       setInk(plate, WHITE_INK);
       fit(text(plate, speciesName(sp.id), 30), 170, 30, 18);
       fx.wiggle(fish, 4, 2 + Math.random());
+      Alive.blink(fish, sp.id, 140);
       const ring = RARITY_GLOW[sp.rarity];
       if (ring && sp.rarity !== 'common') {
         const glow = img(cell, 'kit/fx_glow', 190, 190, 'glow');
@@ -284,10 +286,7 @@ export class CollectPage extends Page {
         (glow.getComponent(Sprite) as Sprite).color = ring;
         opacity(glow).opacity = 120;
       }
-      if (owned >= 2) {
-        const dot = redDot(cell, 80, 120, 46);
-        at(text(dot, String(owned), 24).node, 0, 1);
-      }
+      // 不显示「拥有几张」：重复卡开出来就自动换成金币了，角标的数字会让人以为能拿去用（用户 2026-11-17）
     } else {
       silhouette(fish);
       opacity(bowl).opacity = 170;

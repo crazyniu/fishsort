@@ -16,6 +16,7 @@ import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
+import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
 import { Btn, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
@@ -127,6 +128,7 @@ export class HomePage extends Page {
       const f = img(drift, `fish/${id}`, d, d, 'fish');
       const dir = x > 0 ? -1 : 1;
       f.setScale(dir, 1, 1);
+      Alive.blink(f, id, d);
       const shell = box('shell', b, D, D);
       img(shell, 'kit/bubble', D, D, 'film');
       const sheen = img(shell, 'kit/bubble', D, D, 'sheen');

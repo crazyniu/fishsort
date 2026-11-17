@@ -73,27 +73,44 @@ export function prizeItems(prizes: Prize[]): PrizeItem[] {
     else if (p.kind === 'skill') out.push({ icon: skillIcon(p.skill ?? 'shuffle'), amount: `×${p.amount ?? 1}`, name: skillName(p.skill ?? 'shuffle') });
     else if (p.kind === 'inf_life') out.push({ icon: 'icon/heart_inf', amount: tr('UI_MINUTES', p.amount ?? 0) });
     else if (p.kind === 'frame') out.push({ icon: 'kit/fx_ring', amount: tr('H_PRIZE_FRAME') });
-    else if (p.kind === 'card' && p.card_id) out.push({ icon: `fish/${p.card_id}`, amount: tr(`UI_RARITY_${(p.rarity ?? 'common').toUpperCase()}`), rarity: p.rarity });
+    else if (p.kind === 'card' && p.card_id) out.push({ icon: `fish/${p.card_id}`, amount: tr(`UI_RARITY_${(p.rarity ?? 'common').toUpperCase()}`), rarity: p.rarity, name: speciesName(p.card_id) });
   }
   return out;
 }
 
 export function cardItem(c: CardResult): PrizeItem {
-  return { icon: `fish/${c.id}`, amount: tr(`UI_RARITY_${c.rarity.toUpperCase()}`), rarity: c.rarity };
+  return { icon: `fish/${c.id}`, amount: tr(`UI_RARITY_${c.rarity.toUpperCase()}`), rarity: c.rarity, name: speciesName(c.id) };
 }
 
-/** 一个奖品格：图标（收藏卡带稀有度框）+ 数量 */
+/**
+ * 一个奖品格：图标 + 数量。收藏卡是一张小卡（稀有度框）：上面的窗里是生物，下面的名字条里写名字（格子够大时），
+ * 稀有度写在卡片下面、不压在卡上（用户 2026-11-17：名字条空着、「精良」压在卡的下沿）
+ */
 export function prizeCell(parent: Node, it: PrizeItem, s = 110): Node {
-  const n = box('prize', parent, s, s + 40);
   if (it.rarity) {
-    const f = img(n, `skin/f_card_${it.rarity}`, s * 0.82, s * 1.1, 'frame');
-    at(f, 0, 14);
+    // 卡框 600×803：生物窗在上 5%–69%，名字条在 74%–90%
+    const fw = s * 0.82;
+    const fh = s * 1.1;
+    const fs = Math.max(22, Math.round(s * 0.2));
+    const n = box('prize', parent, s, fh + fs + 10);
+    const fy = (fs + 10) / 2;
+    const f = img(n, `skin/f_card_${it.rarity}`, fw, fh, 'frame');
+    at(f, 0, fy);
+    const top = fy + fh / 2;
     const icon = img(n, it.icon, s * 0.64, s * 0.64, 'icon');
-    at(icon, 0, 26);
-  } else {
-    const icon = img(n, it.icon, s * 0.86, s * 0.86, 'icon');
-    at(icon, 0, 16);
+    at(icon, 0, top - fh * 0.371);
+    if (it.name && s >= 140) {
+      const nm = text(n, it.name, Math.round(s * 0.11));
+      at(nm.node, 0, top - fh * 0.817);
+      fit(nm, fw * 0.78, Math.round(s * 0.11), 12);
+    }
+    const l = text(n, it.amount, fs);
+    at(l.node, 0, fy - fh / 2 - 6 - fs / 2);
+    return n;
   }
+  const n = box('prize', parent, s, s + 40);
+  const icon = img(n, it.icon, s * 0.86, s * 0.86, 'icon');
+  at(icon, 0, 16);
   const l = text(n, it.amount, Math.max(28, Math.round(s * 0.28)));
   at(l.node, 0, -s / 2 - 8);
   return n;

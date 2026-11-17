@@ -255,7 +255,8 @@ export interface CurveConfig {
 /** 界面数值（动画时长、场地、主页装饰），assets/resources/config/game_ui.json */
 export interface GameUiConfig {
   fly: { seconds: number; tapPop: number; stagger: number; bufferSeconds: number };
-  bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number };
+  /** unlockDropAt：开新缸位时缸多久后开始落下（不等满缸送走的演出） */
+  bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number; unlockDropAt: number };
   praise: { keys: string[]; streakSeconds: number };
   intro: { startDelay: number; batchSize: number; batchGap: number };
   /** 掉落关：气泡破了之后隔多久放下一个 */
@@ -267,6 +268,8 @@ export interface GameUiConfig {
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
+  autoFinish: { delay: number; interval: number };
   buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[] };
   current: { lead: number; stagger: number };
   tips: Record<string, string>;

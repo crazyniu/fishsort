@@ -2,6 +2,8 @@
 // 版式：顶栏（进度 · 连击 · 关卡号 · 设置）→ 木架鱼缸 → 暂存槽 → 场地（尽量大）→ 技能栏。
 import { Color, Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import { Combo } from '../core/meta/combo';
+import * as Daily from '../core/meta/daily';
+import * as LevelChest from '../core/meta/levelChest';
 import * as Features from '../core/meta/features';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
@@ -11,6 +13,7 @@ import { pickSpecies } from '../core/model/speciesPick';
 import { Bowl, GameState, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, Status } from '../core/model/gameState';
 import { LevelData } from '../core/model/levelData';
 import { Rng } from '../core/rng/rng';
+import * as AutoFinish from '../core/rules/autoFinish';
 import * as Rules from '../core/rules/rules';
 import type { GameEvent } from '../core/rules/rules';
 import * as Bots from '../core/solver/bots';
@@ -18,10 +21,12 @@ import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
 import * as fx from '../ui/fx';
+import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { popupCount } from '../ui/popup';
+import { RARITY_GLOW, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
@@ -163,6 +168,13 @@ export class GamePage extends Page {
   private tutorNode: Node | null = null;
   private idle = 0;
   private autoplayT = 0;
+  /** 这关宝箱开局定好的结果（docs/01 3.4）；开出卡时那只生物困在 guest.bubble 号气泡里当稀客，过关时按它入账 */
+  chestPlan: LevelChest.ChestPlan | null = null;
+  private guest: { bubble: number; id: string; node: Node; saved: boolean } | null = null;
+  /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点）；dirty = 局面变了要重算 */
+  private autoTaps: AutoFinish.AutoTap[] | null = null;
+  private autoDirty = false;
+  private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
   private nudged = new Set<string>();
@@ -220,6 +232,8 @@ export class GamePage extends Page {
     this.comboBreaking = false;
     this.clock = 0;
     this.moved = false;
+    this.autoTaps = null;
+    this.autoDirty = false;
     this.tallied = false;
     this.ended = false;
     this.paused = false;
@@ -228,6 +242,7 @@ export class GamePage extends Page {
     this.idle = 0;
     this.total = this.s.fishLeft();
     this.layout(file);
+    this.planChest();
     const ev = Rules.start(this.s);
     this.play(ev, true);
     Flow.onLevelStart(this);
@@ -261,9 +276,11 @@ export class GamePage extends Page {
     const top = Screen.top;
     // 顶栏：左进度、中连击、右关卡号 + 设置
     const hudY = top - 52;
-    this.progress = capsule(this.stage, 196, 66, `fish/${this.species[0]}`, '', 34);
+    // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标是通用的小鱼（白色平面图标），不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）。
+    // 顶上两块信息条都是半透明深蓝 + 白字，和技能格子一样，不用白色卡片（用户 2026-11-17：白卡片显得廉价）
+    this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
     at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30);
+    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30, 'skin/f_hud');
     at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
     if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
     const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
@@ -454,8 +471,13 @@ export class GamePage extends Page {
 
   // ---------------------------------------------------------------- 输入
 
+  /** 收尾自动入缸中：玩家的点击、道具都不响应 */
+  get finishing(): boolean {
+    return this.autoTaps !== null;
+  }
+
   private tapFish(b: number, k: number): void {
-    if (this.ended || this.paused || this.s.status !== Status.PLAYING) return;
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
     if (this.netMode) {
       ui.toast(tr('UI_NET_HINT'));
       return;
@@ -477,7 +499,7 @@ export class GamePage extends Page {
   }
 
   tapReturn(k: number): void {
-    if (this.ended || this.paused || this.s.status !== Status.PLAYING) return;
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
     if (this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k)).length) sfx('bo');
   }
 
@@ -496,6 +518,7 @@ export class GamePage extends Page {
     }
     this.clearHint();
     this.play(ev, false);
+    this.autoDirty = true;
     return ev;
   }
 
@@ -523,6 +546,8 @@ export class GamePage extends Page {
     let t = intro ? cfg.intro.startDelay : 0;
     let flyIdx = 0;
     let lastPop = -1;
+    /** 这一批里刚开的缸位（新缸直接落下，不等满缸演出） */
+    const opened = new Set<number>();
     const hitAt: [number, number][] = [];
     for (const e of events) {
       switch (e.t) {
@@ -567,10 +592,13 @@ export class GamePage extends Page {
           break;
         }
         case 'bowl_in': {
-          this.bowlIn(e.slot as number, e.species as number, e.cap as number, e.timer as number, intro ? t + (e.slot as number) * 0.1 : t + cfg.bowlDone.dropAt);
+          // 新开的缸位不用等满缸送走的演出，直接落下（用户 2026-11-17：开缸位太慢，时间减半）
+          const wait = intro ? (e.slot as number) * 0.1 : opened.has(e.slot as number) ? cfg.bowlDone.unlockDropAt : cfg.bowlDone.dropAt;
+          this.bowlIn(e.slot as number, e.species as number, e.cap as number, e.timer as number, t + wait);
           break;
         }
         case 'slot_open': {
+          opened.add(e.slot as number);
           const plus = this.plusNodes[e.slot as number];
           if (plus) plus.active = false;
           break;
@@ -578,7 +606,10 @@ export class GamePage extends Page {
         case 'bubble_pop': {
           lastPop = e.b as number;
           const b = e.b as number;
-          fx.delay(this.fly, t + 0.18, () => this.field.pop(b));
+          fx.delay(this.fly, t + 0.18, () => {
+            if (this.guest && this.guest.bubble === b) this.releaseGuest();
+            this.field.pop(b);
+          });
           fx.delay(this.fly, t + 0.18, () => sfx('pop'));
           break;
         }
@@ -765,6 +796,7 @@ export class GamePage extends Page {
     at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
     const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
     at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
+    Alive.blink(tagFish, this.field.idFor(sp), GOAL_H * 0.68);
     // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
     const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
     at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
@@ -813,6 +845,7 @@ export class GamePage extends Page {
     const k = n - 1;
     if (k >= spots.length) return;
     const f = img(view.inside, this.field.spriteFor(view.sp), size, size, `in${k}`);
+    Alive.blink(f, this.field.idFor(view.sp), size);
     at(f, spots[k][0] * s, spots[k][1] * view.h);
     f.setScale(k % 2 === 0 ? 0.3 : -0.3, 0.3, 1);
     const sx = k % 2 === 0 ? 1 : -1;
@@ -1304,6 +1337,8 @@ export class GamePage extends Page {
     const wait = this.arg.level <= hint.tutorialLevels ? hint.tutorialSeconds : hint.seconds;
     if (!this.hintNode && !this.tutorNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
     if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
+    this.autoFinish(dt);
+    if (this.guest && !this.guest.saved && this.guest.node.isValid) this.field.guestFollow(this.guest.node, this.guest.bubble);
     // 机器人代打（调试，?autoplay=1）
     if (App.flags.autoplay && this.s.status === Status.PLAYING) {
       this.autoplayT += dt;
@@ -1313,6 +1348,110 @@ export class GamePage extends Page {
         if (t) this.act(() => Rules.tap(this.s, t[0], t[1]));
       }
     }
+  }
+
+  /**
+   * 收尾自动入缸（docs/01 第 2 节）：只剩「无脑点」的最后几个气泡时，自己一条条送进缸，玩家不用再点。
+   * 局面一变就重算一次（AutoFinish.plan，纯规则）；算出来以后等一小会儿（让上一步的动画走完）再按顺序点，每条之间隔一点
+   */
+  private autoFinish(dt: number): void {
+    if (App.flags.autoplay || this.s.status !== Status.PLAYING || !this.moved) return;
+    if (this.autoDirty && this.autoTaps === null) {
+      this.autoDirty = false;
+      this.autoTaps = AutoFinish.plan(this.s);
+      this.autoT = -App.config.ui.autoFinish.delay;
+      if (this.autoTaps) this.clearHint();
+    }
+    if (this.autoTaps === null) return;
+    this.autoT += dt;
+    if (this.autoT < App.config.ui.autoFinish.interval) return;
+    this.autoT = 0;
+    const t = this.autoTaps.shift();
+    if (!t) {
+      this.autoTaps = null;
+      return;
+    }
+    const isReturn = t.b === RETURN_BUBBLE;
+    const pos = isReturn ? null : this.field.fishPos(t.b, t.k);
+    const ev = this.act(() => Rules.tap(this.s, t.b, t.k));
+    // 万一和算的不一样（不该发生），停下来让玩家自己点
+    if (ev.length === 0) {
+      this.autoTaps = null;
+      return;
+    }
+    this.autoDirty = false;
+    if (this.autoTaps.length === 0) this.autoTaps = null;
+    sfx('bo');
+    if (!isReturn && pos) {
+      this.field.wobble(t.b);
+      const holder = this.field.node.parent as Node;
+      fx.ripple(this.fly, pos[0] + holder.position.x, pos[1] + holder.position.y, 120, [1, 1], 0.3, 0, 220);
+    }
+  }
+
+  /**
+   * 稀客（docs/01 3.4，用户 2026-11-17：收藏卡要在关卡里出现）：开局就定好这关宝箱开出什么；开出卡的话，
+   * 把这只生物困在一个一开始点不到的气泡里（被压着的或还在候场的，没有就随便一个）。
+   * 种子由关卡、保底计数、已有卡数（重玩时再加日期）定，重开这一关还是同一只，刷不出更好的卡。
+   * 每日挑战、今天重玩奖励领完的关没有宝箱，也就没有稀客
+   */
+  private planChest(): void {
+    this.chestPlan = null;
+    this.guest = null;
+    if (this.arg.daily) return;
+    const s = App.save.data;
+    const eco = App.config.eco;
+    Daily.roll(s, today());
+    const replay = this.arg.level < s.level;
+    if (replay && s.daily.replay >= eco.replay.rewardedPerDay) return;
+    const seed = (this.lv.levelSeed * 31 + s.chest.dry * 7919 + Object.keys(s.cards).length * 104729 + (replay ? today() : 0)) >>> 0;
+    const rng = new Rng(seed);
+    this.chestPlan = LevelChest.plan(s, eco, App.config.species, this.lv.challenge, rng);
+    if (this.chestPlan.kind !== 'card') return;
+    const open = new Set(Rules.openBubbles(this.s));
+    const all = this.s.bubbles.map((_, i) => i).filter((i) => this.s.bubbles[i].count() > 0);
+    const hidden = all.filter((i) => !open.has(i));
+    const pool = hidden.length > 0 ? hidden : all;
+    if (pool.length === 0) return;
+    const b = pool[rng.rangeI(0, pool.length - 1)];
+    const id = this.chestPlan.cardId;
+    const rar = App.config.speciesById.get(id)?.rarity ?? 'common';
+    this.guest = { bubble: b, id, saved: false, node: this.field.addGuest(b, id, rar, RARITY_GLOW[rar] ?? COLOR.white) };
+  }
+
+  /** 关着稀客的气泡破了：它游出来、放大亮个相、往上飞走（进收藏），提示一句；过关后在结算里翻卡 */
+  private releaseGuest(): void {
+    const g = this.guest;
+    if (!g || g.saved || !g.node.isValid) return;
+    g.saved = true;
+    const tf = this.fly.getComponent(UITransform) as UITransform;
+    const p = tf.convertToNodeSpaceAR(g.node.worldPosition.clone());
+    const rar = App.config.speciesById.get(g.id)?.rarity ?? 'common';
+    const col = RARITY_GLOW[rar] ?? COLOR.white;
+    g.node.destroy();
+    const n = box('guestFree', this.fly, 160, 214);
+    at(n, p.x, p.y);
+    n.setScale(0.5, 0.5, 1);
+    const ray = fx.rays(n, 360);
+    (ray.getComponent(Sprite) as Sprite).color = col;
+    opacity(ray).opacity = 150;
+    const glow = img(n, 'kit/fx_glow', 300, 300, 'glow');
+    (glow.getComponent(Sprite) as Sprite).color = col;
+    img(n, `skin/f_card_${rar}`, 160, 214, 'card');
+    const f = img(n, `fish/${g.id}`, 124, 124, 'fish');
+    at(f, 0, 107 - 214 * 0.371);
+    Alive.blink(f, g.id, 124);
+    sfx('card');
+    buzz('light');
+    fx.sparkle(this.fly, p.x, p.y, 10, 120);
+    const up = new Vec3(p.x * 0.5, p.y + 140, 0);
+    tween(n)
+      .to(0.32, { position: up, scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .delay(0.75)
+      .to(0.35, { position: new Vec3(0, Screen.top + 80, 0), scale: new Vec3(0.3, 0.3, 1) }, { easing: 'quadIn' })
+      .call(() => n.destroy())
+      .start();
+    ui.toast(tr('GUEST_SAVED', speciesName(g.id)));
   }
 
   private lastHit(): number {

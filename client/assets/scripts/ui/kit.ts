@@ -80,6 +80,7 @@ const PART_INK: Record<string, Ink> = {
   'skin/j_btn_gray': ON_GRAY,
   'skin/f_plate_blue': ON_FLAT_BLUE,
   'skin/f_dock': ON_LIGHT,
+  'skin/f_hud': ON_DARK,
   'skin/f_card': ON_LIGHT,
   'skin/f_card_s': ON_LIGHT,
   'skin/f_popup': ON_LIGHT,
@@ -257,6 +258,7 @@ const IMG_ALIAS: Record<string, string> = {
   'kit/ic_vibrate': 'skin/f_g_vibrate',
   'kit/ic_globe': 'skin/f_g_globe',
   'kit/ic_timer': 'skin/f_g_timer',
+  'kit/ic_fish': 'skin/f_g_fish',
 };
 const plates = new WeakSet<Node>();
 
@@ -741,8 +743,8 @@ export interface Capsule {
   set(s: string): void;
 }
 
-export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56)): Capsule {
-  const n = plate(parent, 'skin/f_dock', w, h, 'capsule');
+export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56), skin = 'skin/f_dock'): Capsule {
+  const n = plate(parent, skin, w, h, 'capsule');
   let icon: Node | null = null;
   if (iconPath) {
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');

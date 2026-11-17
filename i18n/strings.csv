@@ -33,6 +33,7 @@ UI_COMBO_T2,漂亮！,Nice!
 UI_COMBO_T3,太强了！,Awesome!
 UI_COMBO_T4,无敌！,Unstoppable!
 UI_COMBO_CARD,连击送卡！,Combo card!
+GUEST_SAVED,救出 %s！,Rescued %s!
 TIP_LAYER,先点开压在上面的气泡,Pop the top bubbles first
 TIP_CHAIN,锁链泡：每装满一缸减 1，到 0 解开,Chains: each full tank counts down
 TIP_TIMER,限时缸：时间到之前装满它,Timer tank: fill it before time's up
@@ -236,6 +237,81 @@ SPECIES_U12,雪领领,Snowy
 SPECIES_U13,星帽帽,Star Cap
 SPECIES_U14,芋飘飘,Drifty
 SPECIES_U15,桃绒条,Peach Pickle
+SPECIES_U16,草帽蟹,Sunhat
+SPECIES_U17,沙钻钻,Lance
+SPECIES_U18,潮池虾,Pooly
+SPECIES_U19,鳚宝宝,Blenny
+SPECIES_U20,帽贝贝,Limpy
+SPECIES_U21,螳螳虾,Mantis
+SPECIES_U22,虾虎虎,Goby
+SPECIES_U23,瓷瓷蟹,Porcy
+SPECIES_U24,宝螺螺,Cowry
+SPECIES_U25,破壳龟,Hatchy
+SPECIES_U26,跳跳泥,Skippy
+SPECIES_U27,鸟蛤蛤,Cockle
+SPECIES_U28,蝶蝶鱼,Butterfly
+SPECIES_U29,狮鬃鱼,Leo
+SPECIES_U30,擦擦虾,Scrubby
+SPECIES_U31,迷彩彩,Swirly
+SPECIES_U32,砗砗,Tridac
+SPECIES_U33,牛牛鱼,Moo
+SPECIES_U34,花鮨鮨,Anthy
+SPECIES_U35,羽星星,Feathers
+SPECIES_U36,礁鲨宝,Reefy
+SPECIES_U37,隆头头,Wrassy
+SPECIES_U38,鹰鹰鱼,Hawky
+SPECIES_U39,蛙蛙鱼,Froggy
+SPECIES_U40,藻藻蟹,Kelpy
+SPECIES_U41,羊头头,Sheepy
+SPECIES_U42,海狮狮,Lion
+SPECIES_U43,向日星,Sunny
+SPECIES_U44,狼鳗鳗,Wolfy
+SPECIES_U45,鲍鲍,Abby
+SPECIES_U46,岩岩鱼,Rocky
+SPECIES_U47,绿翅翅,Greeny
+SPECIES_U48,豹鲨宝,Leopard
+SPECIES_U49,藻鱼鱼,Twiggy
+SPECIES_U50,石鳖鳖,Chitty
+SPECIES_U51,瓶瓶章,Bottle
+SPECIES_U52,海盗蟹,Pirate
+SPECIES_U53,锚锚鱼,Anchor
+SPECIES_U54,船长鱼,Captain
+SPECIES_U55,藤壶壶,Barney
+SPECIES_U56,铠虾虾,Squat
+SPECIES_U57,蝙蝠鱼,Batty
+SPECIES_U58,胡子鱼,Musty
+SPECIES_U59,兵兵鱼,Soldier
+SPECIES_U60,短尾尾,Bobby
+SPECIES_U61,茶杯蟹,Teacup
+SPECIES_U62,口孵鱼,Jawsy
+SPECIES_U63,钥匙鱼,Keys
+SPECIES_U64,海绵绵,Spongy
+SPECIES_U65,红点鲑,Char
+SPECIES_U66,雪蟹蟹,Earmuff
+SPECIES_U67,软软鱼,Softy
+SPECIES_U68,白熊熊,Polar
+SPECIES_U69,睡鲨鲨,Sleepy
+SPECIES_U70,栉水母,Comby
+SPECIES_U71,冰鳕鳕,Cod
+SPECIES_U72,海鹦鹦,Puffin
+SPECIES_U73,玻璃鱿,Glassy
+SPECIES_U74,雪花星,Flake
+SPECIES_U75,毛鳞鳞,Capy
+SPECIES_U76,弓头鲸,Bowie
+SPECIES_U77,霜螺螺,Rime
+SPECIES_U78,卫兵鱼,Guard
+SPECIES_U79,皇带鱼,Oar
+SPECIES_U80,管眼鱼,Barrel
+SPECIES_U81,腔棘棘,Fossil
+SPECIES_U82,海猪猪,Piggy
+SPECIES_U83,具足足,Isopod
+SPECIES_U84,萤乌贼,Firefly
+SPECIES_U85,管家贝,Butler
+SPECIES_U86,皇家鱼,Gramma
+SPECIES_U87,水滴鱼,Blobby
+SPECIES_U88,雪人蟹,Yeti
+SPECIES_U89,斗篷鱼,Cloaky
+SPECIES_U90,啦啦蟹,Cheery
 SPECIES_R01,珠卷卷,Pearl Curl
 SPECIES_R02,琉璃伞,Glass Brolly
 SPECIES_R03,花鼓鼓,Drum
@@ -244,11 +320,76 @@ SPECIES_R05,金扇饼,Gold Fan
 SPECIES_R06,星灯灯,Star Lamp
 SPECIES_R07,珠星酥,Pearl Star
 SPECIES_R08,珊钳钳,Coral Claws
+SPECIES_R09,珠居居,Pearl Home
+SPECIES_R10,晨光兔,Dawny
+SPECIES_R11,月砂饼,Moonsand
+SPECIES_R12,花环龟,Lei
+SPECIES_R13,虹虾虾,Rainbow
+SPECIES_R14,蓝龙龙,Glaucus
+SPECIES_R15,杜父父,Sculpy
+SPECIES_R16,炫炫墨,Flair
+SPECIES_R17,帝帝鱼,Regal
+SPECIES_R18,小丑虾,Harley
+SPECIES_R19,灯兔兔,Lumi
+SPECIES_R20,丝带鳗,Silk
+SPECIES_R21,珠丑丑,Pearl Clown
+SPECIES_R22,花园蟹,Garden
+SPECIES_R23,草龙龙,Weedy
+SPECIES_R24,花冠獭,Petal
+SPECIES_R25,藻灵灵,Sprite
+SPECIES_R26,塔螺螺,Toppy
+SPECIES_R27,鼠海豚,Porpy
+SPECIES_R28,海蝶蝶,Flutter
+SPECIES_R29,银鲛鲛,Chimera
+SPECIES_R30,宝藏蟹,Treasure
+SPECIES_R31,墨船长,Captain Ink
+SPECIES_R32,罗盘龟,Compass
+SPECIES_R33,闪光鱼,Flashy
+SPECIES_R34,斧头头,Mirror
+SPECIES_R35,海百合,Lily
+SPECIES_R36,雪天使,Snow Angel
+SPECIES_R37,冰钳钳,Icicle
+SPECIES_R38,冠白鲸,Crowny
+SPECIES_R39,冰晶鱼,Crystalfin
+SPECIES_R40,冰屋蟹,Igloo
+SPECIES_R41,竖琴豹,Harpy
+SPECIES_R42,斗篷鱿,Vamp
+SPECIES_R43,宫灯链,Lanterns
+SPECIES_R44,珠耳章,Princess
+SPECIES_R45,海鳃鳃,Quill
+SPECIES_R46,夜光鲨,Glimmer
+SPECIES_R47,金螺螺,Gilded
+SPECIES_R48,萤管管,Glowtube
 SPECIES_E01,晶背宝,Crystal Back
 SPECIES_E02,星披披,Star Cape
 SPECIES_E03,珠角团,Pearl Horn
 SPECIES_E04,云冠鲨,Cloud Shark
 SPECIES_E05,珠旋旋,Pearl Swirl
+SPECIES_E06,宝晶蟹,Gemshell
+SPECIES_E07,日冕马,Sunmane
+SPECIES_E08,星砂灵,Stardust
+SPECIES_E09,珠后贝,Pearl Queen
+SPECIES_E10,珊瑚龙,Coral Dragon
+SPECIES_E11,琉璃鹦,Prism
+SPECIES_E12,宝石葵,Jewelia
+SPECIES_E13,光蝶蝶,Lumina
+SPECIES_E14,翡翠龙,Emerald
+SPECIES_E15,獭王王,Otter King
+SPECIES_E16,极光母,Aurora
+SPECIES_E17,星鲍鲍,Galaxy
+SPECIES_E18,金阳星,Sunburst
+SPECIES_E19,宝龙龙,Hoard
+SPECIES_E20,幽灵帆,Phantom Sail
+SPECIES_E21,金锚章,Anchora
+SPECIES_E22,冰后母,Ice Queen
+SPECIES_E23,晶企鹅,Frost Knight
+SPECIES_E24,极光鲸,Borealis
+SPECIES_E25,钻石蟹,Diamond
+SPECIES_E26,龙王王,Dragon King
+SPECIES_E27,宫灯后,Lantern Queen
+SPECIES_E28,凤羽鱼,Phoenix
+SPECIES_E29,星云章,Nebula
+SPECIES_E30,月神马,Selene
 SPECIES_L01,曦尾锦,Dawn Koi
 SPECIES_L02,月眠鲸,Moon Whale
 PROFILE_CHANGE_AVATAR,换头像,Change
