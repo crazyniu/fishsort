@@ -25,7 +25,7 @@
         "iphoneos": true,
         "simulator": true
       },
-      "targetVersion": "13.0",
+      "targetVersion": "15.0",
       "developerTeam": "",
       "skipUpdateXcodeProject": false
     }

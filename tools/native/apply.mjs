@@ -67,6 +67,8 @@ if (existsSync(ios)) {
   });
   const strings = (lang) =>
     `/* 由 tools/native/apply.mjs 按 game.json 生成 */\n"CFBundleDisplayName" = "${game.name[lang]}";\n"NSUserTrackingUsageDescription" = "${game.ios.trackingText[lang]}";\n`;
+  // 工程名：Cocos 构建时也会这样改写，先写好免得每次构建都有改动
+  edit(join(ios, 'CMakeLists.txt'), (s) => s.replace(/set\(APP_NAME "[^"]*"/, `set(APP_NAME "${projectName}"`));
   write(join(ios, 'Base.lproj/InfoPlist.strings'), strings('en'));
   write(join(ios, 'zh-Hans.lproj/InfoPlist.strings'), strings('zh_CN'));
 }

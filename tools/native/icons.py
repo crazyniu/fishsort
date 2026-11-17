@@ -46,7 +46,15 @@ def ios() -> None:
     bg = bg.crop(((bg.width - w) // 2, (bg.height - h) // 2, (bg.width - w) // 2 + w, (bg.height - h) // 2 + h))
     logo = rounded(560)
     bg.paste(logo, ((w - 560) // 2, round(h * 0.36) - 280), logo)
-    bg.save(ENGINE / 'ios/LaunchScreenBackground.png')
+    # Cocos 构建时按方向把 LaunchScreenBackgroundPortrait.png 拷成 LaunchScreenBackground.png，三张都放我们的
+    for name in ('LaunchScreenBackground', 'LaunchScreenBackgroundPortrait'):
+        bg.save(ENGINE / f'ios/{name}.png')
+    land = Image.open(BG).convert('RGB')
+    k = max(2796 / land.width, 1290 / land.height)
+    land = land.resize((round(land.width * k), round(land.height * k)), Image.LANCZOS)
+    land = land.crop(((land.width - 2796) // 2, (land.height - 1290) // 2, (land.width - 2796) // 2 + 2796, (land.height - 1290) // 2 + 1290))
+    land.paste(logo, ((2796 - 560) // 2, (1290 - 560) // 2), logo)
+    land.save(ENGINE / 'ios/LaunchScreenBackgroundLandscape.png')
     print('ios', len(meta['images']), 'icons + launch screen')
 
 

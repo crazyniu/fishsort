@@ -10,7 +10,7 @@
   "ios": {
     "bundleId": "com.poppoprescue.game",
     "team": "",
-    "minVersion": "13.0",
+    "minVersion": "15.0",
     "admobAppId": "ca-app-pub-3940256099942544~1458002511",
     "trackingText": {
       "en": "This lets us show you ads that are more relevant to you.",
