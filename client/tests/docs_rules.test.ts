@@ -364,9 +364,9 @@ describe('局内生物分得清（docs/03 4.1）', () => {
 });
 
 describe('限时关（docs/01 第 4 节）', () => {
-  it('第 61 关起挑战关限时、第 121 关起每关限时；时间比机器人点完要的长', () => {
+  it('第 61 关起只有挑战关限时，普通关不限时；时间比机器人点完要的长', () => {
     const curve = loadCurve();
-    for (let id = 1; id <= 120; id++) {
+    for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
       const t = LevelCurve.clockFor(curve, id, lv);
       const chal = LevelCurve.isChallenge(curve, id);
@@ -374,11 +374,17 @@ describe('限时关（docs/01 第 4 节）', () => {
         let fish = 0;
         for (const b of lv.bubbles) fish += b.fish.length;
         const bot = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
-        assert.ok(t > bot, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
+        assert.ok(t >= bot * 1.4, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
       } else assert.equal(t, NO_TIMER, `第 ${id} 关不该限时`);
     }
-    const lv = levelFile('level_0120');
-    assert.notEqual(LevelCurve.clockFor(curve, 121, lv), NO_TIMER);
-    assert.ok(LevelCurve.clockFor(curve, 240, lv) < LevelCurve.clockFor(curve, 121, lv), '越往后越紧');
+  });
+
+  it('暂存槽：前 180 关 5 格，第 181 关起 4 格；第 26 关起同时在场至少 14 个气泡', () => {
+    const curve = loadCurve();
+    for (let id = 1; id <= curve.total; id++) {
+      const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
+      assert.equal(lv.buffer, id >= 181 ? 4 : 5, `第 ${id} 关暂存槽`);
+      if (id >= 26) assert.ok(lv.fieldCap >= 14, `第 ${id} 关同时在场 ${lv.fieldCap} 个`);
+    }
   });
 });

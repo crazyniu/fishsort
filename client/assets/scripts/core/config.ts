@@ -252,11 +252,13 @@ export interface CurveConfig {
   /** 机器人计时：每点一次、每满一缸各算几秒（限时缸会超时） */
   bot: { tapSec: number; bowlSec: number };
   /**
-   * 限时关（docs/01 第 4 节）：challengeFrom 关起的挑战关、allFrom 关起的每一关整关限时。
-   * 时间 = （鱼数 × bot.tapSec + 缸数 × bot.bowlSec）× 系数，按 step 秒取整；系数从 allFrom 关的 factor[0] 线性降到 total 关的 factor[1]，
-   * 挑战关再乘 challengeMul。没有这一项就都不限时
+   * 限时关（docs/01 第 4 节）：challengeFrom 关起的挑战关整关限时，普通关不限时（2026-11-17 定：每关都限时考的是手速，只留给挑战关）。
+   * 时间 = （鱼数 × bot.tapSec + 缸数 × bot.bowlSec）× 系数，按 step 秒取整；系数从 challengeFrom 关的 factor[0] 线性降到 total 关的 factor[1]。
+   * 没有这一项就都不限时
    */
-  clock?: { challengeFrom: number; allFrom: number; factor: [number, number]; challengeMul: number; step: number; min: number };
+  clock?: { challengeFrom: number; factor: [number, number]; step: number; min: number };
+  /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
+  buffer?: [number, number][];
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;
@@ -289,7 +291,7 @@ export interface GameUiConfig {
   unlockGuide: { delay: number; lockSeconds: number; sparks: number };
   win: Record<string, number | string>;
   /** 场地：…maxRadius 是气泡半径的上限（气泡少的关卡放大到它为止） */
-  field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; maxRadius: number };
+  field: { fill: number; maxScale: number; gap: number; relaxSteps: number; fishMin: number; fishMax: number; layerBoost?: number; radiusSpread?: number; maxRadius: number };
   badgeCap: number;
   homeDeco: { school: [string, number, number, number][] };
 }

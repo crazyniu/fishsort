@@ -110,13 +110,22 @@ function makeLevel(id: number): [string, LevelData][] | null {
   return out;
 }
 
-/** d 是难度旋钮：0–1 对应打乱 0–50% 的鱼，超过 1 的部分每 0.125 把场上容量再减 1 */
+/**
+ * d 是难度旋钮：0–1 对应打乱 0–50% 的鱼；超过 1 的部分每 0.125 把场上容量再减 1（最少 gen.capMin），
+ * 同时把平均一个气泡几条鱼从 3 条往下调到 gen.perAvgMin（d 到 knobMax 时）——在场的气泡数不少，看得见、点得到的鱼少了
+ * （2026-11-17：只靠缩容凑难度，场上只剩 9–11 个气泡，长屏上面是空的）
+ */
 function candidate(id: number, ease: number, i: number, d: number): LevelData | null {
   const p = LevelCurve.params(curve, id, ease);
   const nudge = gen.fishNudge;
   if (ease === 0 && id > 2) p.fish = idiv(Math.max(9, p.fish + [0, -nudge, nudge][i % 3]), 3) * 3;
   p.scramble = Math.trunc(p.fish * 0.5 * clampf(d, 0.0, 1.0));
-  if ((p.cap ?? 0) > 0 && d > 1.0) p.cap = Math.max(gen.capMin, (p.cap as number) - Math.trunc((d - 1.0) * 8.0));
+  if ((p.cap ?? 0) > 0 && d > 1.0) {
+    p.cap = Math.max(gen.capMin, (p.cap as number) - Math.trunc((d - 1.0) * 8.0));
+    const k = clampf((d - 1.0) / (gen.knobMax - 1.0), 0.0, 1.0);
+    p.per_avg = 3.0 - (3.0 - gen.perAvgMin) * k;
+    if (p.per_avg < 2.6) p.per_min = 1;
+  }
   return generate(p, LevelCurve.seedFor(id, ease) + i * 10007);
 }
 

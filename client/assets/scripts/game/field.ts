@@ -118,6 +118,13 @@ export class Field {
       covered = covered || d.under.length > 0;
     }
     this.layered = covered;
+    if (!covered) {
+      // 掉落关：气泡大小的差别压小一半（1 条鱼的泡不那么小、5 条鱼的不那么大）。气泡的大小是按「最大的那几个同时在场」
+      // 定的，差别大时平时在场的都偏小，场地上面空一截（用户 2026-11-17：开局气泡少、上面空）
+      const k = App.config.ui.field.radiusSpread ?? 1;
+      const mean = radii.reduce((x, y) => x + y, 0) / Math.max(1, radii.length);
+      for (let i = 0; i < radii.length; i++) radii[i] = mean + (radii[i] - mean) * k;
+    }
     const onField = Math.min(this.lv.fieldCap > 0 ? this.lv.fieldCap : radii.length, radii.length);
     if (!covered) {
       this.fit(centers, radii, onField);
