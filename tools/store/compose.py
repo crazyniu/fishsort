@@ -2,12 +2,12 @@
 
 用法：python3 tools/store/compose.py
 输入：art/raw/store/shot_1..5.png（竖版插画，store/gen.sh 出）、feature.png（横版）；标题在 store/captions.json。
-输出：store/images/<商店>/<语言>/<序号>.png，每个尺寸 5 张：
+输出：store/images/<商店>/<语言>/<序号>.jpg（JPEG 质量 92，商店都收；PNG 一套一百多兆，不适合进仓库），每个尺寸 5 张：
   app_store_6.9   1320×2868（iPhone 6.9 英寸，App Store 必交）
   app_store_6.5   1284×2778（iPhone 6.5 英寸）
   google_play     1080×1920（手机，9:16）
   wechat          1080×1920（微信小游戏详情页的宣传图，只出中文）
-  另有 google_play/<语言>/feature.png 1024×500（Google Play 的置顶大图）
+  另有 google_play/<语言>/feature.jpg 1024×500（Google Play 的置顶大图）
 标题用游戏的圆体（完整字库 art/raw/fonts/ResourceHanRoundedCN-Bold.ttf，没有就退回包里的子集字体），白字深蓝描边，
 放在插画上面那段留空的水里；插画按「盖满」缩放后居中裁两边（出图时要求主体在中间六成宽里）。
 """
@@ -97,7 +97,7 @@ def shots() -> None:
                 canvas = cover(art, w, h, focus_y=0.5)
                 size = round(w * (0.105 if lang == 'zh_CN' else 0.092))
                 title(canvas, cap[lang], cap.get(f'{lang}_sub', ''), round(h * 0.055), size)
-                canvas.convert('RGB').save(folder / f'{i}.png', optimize=True)
+                canvas.convert('RGB').save(folder / f'{i}.jpg', quality=92, optimize=True)
             print(store, lang, len(caps['shots']))
 
 
@@ -119,7 +119,7 @@ def feature() -> None:
         canvas.alpha_composite(layer)
         folder = OUT / 'google_play' / lang
         folder.mkdir(parents=True, exist_ok=True)
-        canvas.convert('RGB').save(folder / 'feature.png', optimize=True)
+        canvas.convert('RGB').save(folder / 'feature.jpg', quality=92, optimize=True)
     print('feature 2')
 
 
