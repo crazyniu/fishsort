@@ -79,7 +79,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh art-compress          # 包体压缩：PNG 量化、背景音乐转 mp3
 ./run.sh font-subset           # 按文案重新裁字体
 ./run.sh native-icons          # 从图标生成各平台应用图标、iOS 启动屏、商店图标（结果要提交）
-./store/gen.sh && python3 tools/store/compose.py   # 上架插画（Codex）→ 加标题、裁成各商店尺寸（store/images）
+./store/gen.sh && python3 tools/store/export.py    # 上架图：Codex 整张画（字也画在图里）→ 缩放裁成各商店尺寸（store/images）
 ```
 
 Cocos Creator 由 `run.sh` 自动查找（`COCOS_CREATOR` 环境变量 → `/Applications/Cocos/Creator/3.8.8/`）。
