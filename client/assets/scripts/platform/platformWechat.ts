@@ -19,6 +19,7 @@ export class PlatformWechat extends PlatformBase {
   private units: AdUnits = { rewarded: '', interstitial: '', banner: '' };
   private rewarded: any = null;
   private rewardedReady = false;
+  private playingRewarded = false;
   private interstitial: any = null;
   private banner: any = null;
   private title = '';
@@ -42,7 +43,11 @@ export class PlatformWechat extends PlatformBase {
       this.rewarded = wx.createRewardedVideoAd({ adUnitId: this.units.rewarded });
       this.rewarded.onLoad(() => (this.rewardedReady = true));
       this.rewarded.onError(() => (this.rewardedReady = false));
-      this.rewarded.load().catch(() => (this.rewardedReady = false));
+      const preload = () => {
+        if (!this.rewardedReady && !this.playingRewarded) this.rewarded.load().catch(() => (this.rewardedReady = false));
+      };
+      preload();
+      wx.onShow(preload);
     }
     if (this.units.interstitial && typeof wx.createInterstitialAd === 'function') {
       this.interstitial = wx.createInterstitialAd({ adUnitId: this.units.interstitial });
@@ -51,30 +56,32 @@ export class PlatformWechat extends PlatformBase {
   }
 
   override adsAvailable(): boolean {
-    return this.rewarded !== null && this.rewardedReady;
+    return this.rewarded !== null && this.rewardedReady && !this.playingRewarded;
   }
 
   override showRewarded(_placement: string): Promise<AdResult> {
     const ad = this.rewarded;
-    if (!ad) return Promise.resolve('unavailable');
-    return new Promise((resolve) => {
-      const onClose = (res: { isEnded?: boolean } | undefined) => {
+    if (!ad || !this.rewardedReady || this.playingRewarded) return Promise.resolve('unavailable');
+    this.playingRewarded = true;
+    this.rewardedReady = false;
+    return new Promise<AdResult>((resolve) => {
+      let settled = false;
+      const finish = (result: AdResult) => {
+        if (settled) return;
+        settled = true;
         ad.offClose(onClose);
-        // 基础库 2.1.0 以下 res 是 undefined，按看完算
-        resolve(res === undefined || res.isEnded ? 'done' : 'skipped');
+        ad.offError(onError);
+        this.playingRewarded = false;
+        resolve(result);
+      };
+      const onError = () => finish('unavailable');
+      const onClose = (res?: { isEnded?: boolean }) => {
+        finish(res?.isEnded === true ? 'done' : 'skipped');
         ad.load().catch(() => (this.rewardedReady = false));
       };
       ad.onClose(onClose);
-      ad.show().catch(() =>
-        ad
-          .load()
-          .then(() => ad.show())
-          .catch(() => {
-            ad.offClose(onClose);
-            this.rewardedReady = false;
-            resolve('unavailable');
-          }),
-      );
+      ad.onError(onError);
+      ad.show().catch(onError);
     });
   }
 
@@ -120,9 +127,9 @@ export class PlatformWechat extends PlatformBase {
   }
 
   override async share(payload: Record<string, unknown>): Promise<boolean> {
-    // 微信不再告诉游戏分享成没成功，调起就算（奖励额度很小，docs/01 5.8）
+    // 分享面板没有完成回执，只做普通分享。
     wx.shareAppMessage({ title: String(payload.title ?? this.title) });
-    return true;
+    return false;
   }
 
   override vibrate(kind: VibrateKind): void {

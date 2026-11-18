@@ -61,7 +61,7 @@ export class PlatformNative extends PlatformBase {
   private ask(ev: string, payload: Record<string, unknown>, timeoutSec: number): Promise<Record<string, unknown>> {
     return new Promise((resolve) => {
       // 同一种请求同时只有一个（广告一次只播一个）
-      this.waiting.get(ev)?.('{}');
+      if (this.waiting.has(ev)) { resolve({}); return; }
       let settled = false;
       const timer = setTimeout(() => {
         if (settled) return;
@@ -123,7 +123,7 @@ export class PlatformNative extends PlatformBase {
   }
 
   override hasCapability(cap: Capability): boolean {
-    return cap === 'share' || cap === 'vibrate' || cap === 'privacy_options';
+    return (cap === 'confirmed_share' && this.id === 'ios') || cap === 'share' || cap === 'vibrate' || cap === 'privacy_options';
   }
 
   override openPrivacyOptions(): void {

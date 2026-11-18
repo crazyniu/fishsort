@@ -324,7 +324,7 @@ export function livesPopup(onChange?: () => void): void {
       },
     });
   }
-  opts.push({
+  if (App.platform.hasCapability('confirmed_share')) opts.push({
     color: 'blue',
     main: '+1',
     mainIcon: 'kit/ic_share',

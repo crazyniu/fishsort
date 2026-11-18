@@ -203,8 +203,8 @@ public final class FsBridge {
         send.setType("text/plain");
         send.putExtra(Intent.EXTRA_TEXT, text);
         activity.startActivity(Intent.createChooser(send, null));
-        // Android 不告诉应用分享成没成功，调起就算
-        send("fs.share", "{\"ok\":true}");
+        // 打开系统选择器不代表用户完成分享。
+        send("fs.share", "{\"ok\":false}");
     }
 
     // ---------------------------------------------------------------- 工具

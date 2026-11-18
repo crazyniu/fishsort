@@ -58,7 +58,7 @@ export class ResultPage extends Page {
     const top = Screen.top;
     // 从下往上排：底部给 Banner 留位（docs/01 7.1），最下面一行「主页」「分享」「翻倍」并排 → 下一关 → 奖励条 → 宝箱；
     // 横幅和星星贴顶（用户 2026-11-17：翻倍和主页放一行）
-    const hasDouble = r.rewarded && r.coins > 0;
+    const hasDouble = r.rewarded && r.coins > 0 && App.platform.adsAvailable();
     const homeY = Screen.bottom + BANNER_H + 64;
     const nextY = homeY + 140;
     const rowY = nextY + 175;
@@ -149,7 +149,9 @@ export class ResultPage extends Page {
     const eco = App.config.eco;
     let dbl: Btn | null = null;
     const bestCard = d.cards.reduce((m, cd) => Math.max(m, Cards.rank(eco, cd.rarity)), -1);
-    const showShare = bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare')) && Share.remaining(s, eco, 'card', today()) > 0;
+    const canRewardShare = App.platform.hasCapability('confirmed_share');
+    const showShare = App.platform.hasCapability('share') && bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare'))
+      && (!canRewardShare || Share.remaining(s, eco, 'card', today()) > 0);
     // 最下面一行：主页（蓝）· 分享（蓝，开出稀有以上的卡时才有）· 翻倍（黄，今天重玩奖励领完时没有），按个数等宽排开
     const count = 1 + (showShare ? 1 : 0) + (hasDouble ? 1 : 0);
     const bw = count >= 3 ? 214 : count === 2 ? 290 : 340;
@@ -181,7 +183,7 @@ export class ResultPage extends Page {
         label: tr('UI_SHARE_SHORT'),
         onTap: async () => {
           if (!share?.enabled) return;
-          if (!(await App.platform.share({ kind: 'card' }))) return;
+          if (!(await App.platform.share({ kind: 'card' })) || !canRewardShare) return;
           Share.claim(s, eco, 'card', today(), now(), new Rng(Date.now() >>> 0));
           App.save.write();
           share.setEnabled(false);

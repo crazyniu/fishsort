@@ -16,7 +16,7 @@ export interface RankEntry {
 }
 
 /** 平台能力名 */
-export type Capability = 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options';
+export type Capability = 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'confirmed_share' | 'vibrate' | 'ad_test' | 'privacy_options';
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';
 
@@ -68,6 +68,7 @@ export abstract class PlatformBase {
 
   saveData(_key: string, _value: string): void {}
 
+  /** true 表示用户已经完成分享；仅弹出分享界面不能领取奖励。 */
   async share(_payload: Record<string, unknown>): Promise<boolean> {
     return false;
   }

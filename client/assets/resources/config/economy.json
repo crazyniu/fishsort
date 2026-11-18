@@ -1186,7 +1186,7 @@
         "id": "share",
         "goal": 1,
         "points": 20,
-        "cap": "share"
+        "cap": "confirmed_share"
       }
     ],
     "dayTiers": [
