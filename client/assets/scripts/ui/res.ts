@@ -78,14 +78,14 @@ export function startupFrames(): string[] {
 
 let fontLoading: Promise<Font> | null = null;
 
-/** 读游戏字体（boot 包的 round.ttf）；加载页和启动步骤都会调，只读一次 */
+/** 读游戏字体（boot 包的 game.ttf）；加载页和启动步骤都会调，只读一次 */
 export function loadFont(): Promise<Font> {
   if (font) return Promise.resolve(font);
   if (!fontLoading) {
     fontLoading = loadBootBundle().then(
       (b) =>
         new Promise<Font>((resolve, reject) => {
-          b.load('round', TTFFont, (err: Error | null, f: TTFFont) => {
+          b.load('game', TTFFont, (err: Error | null, f: TTFFont) => {
             if (err) return reject(err);
             // 小游戏上 wx.loadFont 失败时引擎不报错，family 静默变成 'Arial'，界面全成系统字——这里报出来
             const family: unknown = Reflect.get(f, '_fontFamily');

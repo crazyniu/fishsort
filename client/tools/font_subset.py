@@ -6,12 +6,13 @@ client/assets/scripts 里字符串字面量中的汉字（core/ 除外；少数�
 再加 ASCII 可打印字符、常用中英文标点。只扫字面量、不扫注释：注释里的汉字会让字体大一倍。
 不再带 GB2312 一级汉字（原来为玩家昵称留的 3755 个字，字体 1.5 MB）：字体要打进微信安装包（boot 包，主包限 4 MB），
 裁完约 0.3 MB；昵称里字体没有的字由系统字体逐字补上。
-字体放在本地 boot 包（client/assets/boot/round.ttf）而不是 resources：微信版的 resources 在网上，
+字体放在本地 boot 包（client/assets/boot/game.ttf）而不是 resources：微信版的 resources 在网上，
 引擎适配层对下载来的 TTF 调 wx.loadFont 失败时会静默退回 Arial，界面就全成了系统字体（2026-11-18）。
 
 用法: ./run.sh font-subset [--src 原字体.ttf] [--out 输出.ttf]
-字重用 Bold（用户 2026-11-16：原来的 Heavy 看着太粗太重）。不带 --src 时用 art/raw/fonts/ResourceHanRoundedCN-Bold.ttf
-（不进仓库；没有就从 https://github.com/CyanoHao/Resource-Han-Rounded/releases 的 RHR-CN-0.990.7z 里解出来放过去，OFL 许可）。
+字体是荆南波波黑 Bold（用户 2026-11-18 从五款里选的：原来的资源圆体太像系统字体，没有游戏感）。
+不带 --src 时用 art/raw/fonts/KNBobohei-Bold.ttf（不进仓库；没有就从
+https://github.com/maoken-fonts/KNBobohei/releases 下载 KNBobohei-Bold.ttf 放过去，OFL 许可）。
 需要 fonttools 与 brotli：pip install fonttools brotli（Linux 上建议装进虚拟环境）。
 """
 import argparse
@@ -22,10 +23,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CLIENT = ROOT / "client"
-FONT = CLIENT / "assets/boot/round.ttf"
-# 未裁剪的完整原字体（13 MB，不进仓库）
-FULL_FONT = ROOT / "art/raw/fonts/ResourceHanRoundedCN-Bold.ttf"
-FULL_FONT_URL = "https://github.com/CyanoHao/Resource-Han-Rounded/releases/tag/v0.990"
+FONT = CLIENT / "assets/boot/game.ttf"
+# 未裁剪的完整原字体（5 MB，不进仓库）
+FULL_FONT = ROOT / "art/raw/fonts/KNBobohei-Bold.ttf"
+FULL_FONT_URL = "https://github.com/maoken-fonts/KNBobohei/releases"
 CJK = re.compile(r"[　-〿一-鿿＀-￯ -⁯]")
 # 字符串字面量；行尾 // 注释（前面不是 : 免得切掉 https://）和整行 * 注释先去掉
 LITERAL = re.compile(r"'[^']*'|\"[^\"]*\"|`[^`]*`")
@@ -51,9 +52,9 @@ def used_chars() -> str:
     return "".join(sorted(chars))
 
 
-# 字体内部的名字换成不带空格的：原名「Resource Han Rounded CN」带空格，微信的 wx.loadFont 读出的 family
+# 字体内部的名字换成不带空格的：原名（「Resource Han Rounded CN」「KN Bobohei」）带空格，微信的 wx.loadFont 读出的 family
 # 拼进 canvas 的 font 串里认不出来，界面退回系统字体（2026-11-18；Cocos 论坛 topic/145453 同样的问题，去掉空格解决）
-FAMILY = "FishRound"
+FAMILY = "FishGame"
 
 
 def rename(path: Path) -> None:
@@ -66,7 +67,7 @@ def rename(path: Path) -> None:
         elif rec.nameID == 6:
             rec.string = f"{FAMILY}-Bold"
         elif rec.nameID == 3:
-            rec.string = f"{FAMILY}-Bold-0.990"
+            rec.string = f"{FAMILY}-Bold"
         elif rec.nameID in (2, 17):
             rec.string = "Bold"
     f.save(str(path))
@@ -79,7 +80,7 @@ def main() -> int:
     args = ap.parse_args()
     if not args.src:
         if not FULL_FONT.exists():
-            print(f"缺原字体 {FULL_FONT}：从 {FULL_FONT_URL} 下载 RHR-CN 包，解出 {FULL_FONT.name} 放到这个位置", file=sys.stderr)
+            print(f"缺原字体 {FULL_FONT}：从 {FULL_FONT_URL} 下载 {FULL_FONT.name} 放到这个位置", file=sys.stderr)
             return 1
         args.src = str(FULL_FONT)
     text = used_chars()

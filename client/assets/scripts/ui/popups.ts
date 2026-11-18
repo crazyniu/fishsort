@@ -263,15 +263,24 @@ const mmss = (sec: number) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:
 export function livesPopup(onChange?: () => void): void {
   const eco = App.config.eco;
   const s = App.save.data;
-  const p = openPopup({ w: 620, h: 530, title: tr('H_LIVES_TITLE') });
+  const day = today();
+  const adLeft = Lives.adLeft(s, eco, day);
+  const adOn = adLeft > 0 && App.platform.adsAvailable();
+  // 按钮两个一行：有看广告那个是三个、两行；没有（第一版不接广告）只有一行，弹窗跟着矮一截（用户 2026-11-18：底下空太多）
+  const rows = adOn ? 2 : 1;
+  const ROW_H = 112;
+  const ROW_G = 16;
+  const popH = 402 + (rows - 1) * (ROW_H + ROW_G);
+  const top = popH / 2;
+  const p = openPopup({ w: 620, h: popH, title: tr('H_LIVES_TITLE') });
   const hearts: Node[] = [];
   for (let i = 0; i < eco.lives.max; i++) {
     const h = img(p.body, 'icon/heart', 92, 92, 'heart');
-    at(h, (i - (eco.lives.max - 1) / 2) * 102, 176);
+    at(h, (i - (eco.lives.max - 1) / 2) * 102, top - 89);
     hearts.push(h);
   }
   const pill = slice(p.body, 'kit/row', 380, 68, 'timer');
-  at(pill, 0, 82);
+  at(pill, 0, top - 183);
   const tIcon = img(pill, 'kit/ic_timer', 40, 40, 'icon');
   const tLabel = text(pill, '', 32);
   const refresh = () => {
@@ -300,12 +309,10 @@ export function livesPopup(onChange?: () => void): void {
     onChange?.();
   };
   const isFull = () => Lives.count(s, eco, now()) >= eco.lives.max;
-  const day = today();
-  const adLeft = Lives.adLeft(s, eco, day);
   // [颜色, 主文字, 主文字前的图标, 小字, 小字前的图标, 能不能点, 点了做什么]
   type Opt = { color: 'yellow' | 'blue' | 'green'; main: string; mainIcon: string | null; sub: string; subIcon: string | null; on: boolean; tap: () => void };
   const opts: Opt[] = [];
-  if (adLeft > 0 && App.platform.adsAvailable()) {
+  if (adOn) {
     opts.push({
       color: 'yellow',
       main: '+1',
@@ -351,9 +358,9 @@ export function livesPopup(onChange?: () => void): void {
   });
   // 两个一行；只有三个时第一个占一整行
   const W = 270;
-  const H = 112;
-  const G = 16;
-  let y = -28;
+  const H = ROW_H;
+  const G = ROW_G;
+  let y = top - 293;
   let i = 0;
   while (i < opts.length) {
     const wide = (opts.length - i) % 2 === 1;
