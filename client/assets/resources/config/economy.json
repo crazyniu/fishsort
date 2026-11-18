@@ -20,7 +20,7 @@
     "max": 3
   },
   "bowlSlotCoinPrice": 300,
-  "bowlSlotOnce": true,
+  "bowlSlotOnce": false,
   "freeBowlSlotAfterFails": 4,
   "dupeCoins": {
     "common": 10,
