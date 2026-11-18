@@ -51,6 +51,27 @@ def used_chars() -> str:
     return "".join(sorted(chars))
 
 
+# 字体内部的名字换成不带空格的：原名「Resource Han Rounded CN」带空格，微信的 wx.loadFont 读出的 family
+# 拼进 canvas 的 font 串里认不出来，界面退回系统字体（2026-11-18；Cocos 论坛 topic/145453 同样的问题，去掉空格解决）
+FAMILY = "FishRound"
+
+
+def rename(path: Path) -> None:
+    from fontTools.ttLib import TTFont
+
+    f = TTFont(str(path))
+    for rec in f["name"].names:
+        if rec.nameID in (1, 4, 16):
+            rec.string = FAMILY
+        elif rec.nameID == 6:
+            rec.string = f"{FAMILY}-Bold"
+        elif rec.nameID == 3:
+            rec.string = f"{FAMILY}-Bold-0.990"
+        elif rec.nameID in (2, 17):
+            rec.string = "Bold"
+    f.save(str(path))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default="")
@@ -78,6 +99,7 @@ def main() -> int:
         )
     finally:
         tmp.unlink(missing_ok=True)
+    rename(Path(args.out))
     print(f"游戏用字 {len(text)}，输出 {Path(args.out).stat().st_size} 字节")
     return 0
 

@@ -87,6 +87,10 @@ export function loadFont(): Promise<Font> {
         new Promise<Font>((resolve, reject) => {
           b.load('round', TTFFont, (err: Error | null, f: TTFFont) => {
             if (err) return reject(err);
+            // 小游戏上 wx.loadFont 失败时引擎不报错，family 静默变成 'Arial'，界面全成系统字——这里报出来
+            const family: unknown = Reflect.get(f, '_fontFamily');
+            if (typeof family !== 'string' || !family || family === 'Arial') console.warn(`游戏字体没装上（family=${String(family)}），界面会用系统字体`);
+            else console.log(`游戏字体：${family}`);
             font = f;
             resolve(f);
           });
