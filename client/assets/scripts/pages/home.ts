@@ -18,8 +18,9 @@ import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
-import { Btn, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
+import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
+import { settingsPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, enterStagger, ui } from '../ui/shell';
 import { signInPopup } from './signin';
@@ -45,6 +46,8 @@ const SHEEN = new Color(255, 200, 240, 255);
 const WHITE = new Color(255, 255, 255, 255);
 /** 「开始」按钮：上面大字「开始」，下面小字「第 N 关」；按钮底边离屏幕底 START_BOTTOM。右边紧挨着一个选关键（选哪一关和开始是一件事，放一起） */
 const START_W = 430;
+/** 微信小游戏里左边多一个设置键，开始窄一点，三个按钮一共 702 宽 */
+const START_W_WITH_SETTINGS = 390;
 const START_H = 156;
 const START_BOTTOM = 50;
 const LEVELS_W = 140;
@@ -111,7 +114,8 @@ export class HomePage extends Page {
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
     // 「开始」在最下面；顶栏和它之间是入口和气泡
     const btnY = -Screen.H / 2 + Math.max(START_BOTTOM, Screen.safeBottom + 24) + START_H / 2;
-    const zoneTop = Screen.top - TOP_H;
+    // 有胶囊时顶栏在胶囊那一行，内容跟着上移（Screen.headTop）
+    const zoneTop = Screen.headTop - TOP_H;
     const zoneBottom = btnY + START_H / 2;
     const k = Math.max(1, Math.min(1.3, (zoneTop - zoneBottom) / ZONE_H));
     // 气泡：一个大的做主角，下面两个小的，摆在两列入口之间；大气泡对着两列的中段，小气泡落在两列下面，左右不顶在一起
@@ -154,20 +158,23 @@ export class HomePage extends Page {
     const step = (ENTRY_H + ENTRY_GAP) * Math.min(1.2, k);
     left.forEach((d, i) => this.entry(root, d, -x0, row1 - i * step));
     right.forEach((d, i) => this.entry(root, d, x0, row1 - i * step));
-    // 「开始」：全屏唯一的主按钮，平面绿色大按钮，两行字
-    this.start = button(root, { color: 'green', w: START_W, h: START_H, onTap: () => Flow.startLevel(App.save.data.level) });
-    const startX = -(LEVELS_W + START_GAP) / 2;
+    // 「开始」：全屏唯一的主按钮，平面绿色大按钮，两行字。
+    // 微信小游戏：顶栏挤在胶囊那一行，设置键放不下（用户 2026-11-18），挪到这里：「设置 · 开始 · 选关」三个对称排，开始窄一点
+    const startW = Screen.cap ? START_W_WITH_SETTINGS : START_W;
+    this.start = button(root, { color: 'green', w: startW, h: START_H, onTap: () => Flow.startLevel(App.save.data.level) });
+    const startX = Screen.cap ? 0 : -(LEVELS_W + START_GAP) / 2;
     at(this.start.node, startX, btnY);
-    this.levelsKey(root, startX + START_W / 2 + START_GAP + LEVELS_W / 2, btnY);
+    this.levelsKey(root, startX + startW / 2 + START_GAP + LEVELS_W / 2, btnY);
+    if (Screen.cap) this.settingsKey(root, startX - startW / 2 - START_GAP - LEVELS_W / 2, btnY);
     const row = this.start.node.getChildByName('row') as Node;
     const play = text(row, tr('UI_PLAY'), 66);
     at(play.node, 0, 22);
-    fit(play, START_W - 80, 66, 40);
+    fit(play, startW - 80, 66, 40);
     this.levelLabel = text(row, '', 30, { color: hex('#E9FFE0') });
     at(this.levelLabel.node, 0, -38);
     // 挑战关：按钮右上角压一块红色「挑战」小标
     this.tag = slice(this.start.node, 'kit/tag_red', 96, 44, 'tag');
-    at(this.tag, START_W / 2 - 70, START_H / 2 - 6);
+    at(this.tag, startW / 2 - 70, START_H / 2 - 6);
     at(text(this.tag, tr('UI_CHALLENGE_TAG'), 26).node, 0, 3);
   }
 
@@ -182,13 +189,22 @@ export class HomePage extends Page {
     const pl = plate(n, 'skin/f_plate_blue', LABEL_W, LABEL_H, 'plate');
     at(pl, 0, -ENTRY_TILE / 2 - 2);
     const label = text(pl, tr(def.name), LABEL_FONT);
-    at(label.node, 0, 3);
+    at(label.node, 0, LABEL_H * PLATE_TEXT_LIFT);
     const lock = img(n, 'kit/ic_lock', 40, 40, 'lock');
     at(lock, ENTRY_TILE / 2 - 20, -ENTRY_TILE / 2 + 40);
     const dot = redDot(n, ENTRY_TILE / 2 - 6, ENTRY_TILE / 2 - 6, 28);
     // 没有底栏了，切页的「嘟嘟」声放在入口上
     onTap(n, () => this.tapEntry(def), { sound: 'tab' });
     this.entries.set(def.id, { def, labelW: LABEL_W, node: n, icon: ic, lock, dot, label });
+  }
+
+  /** 设置键（只在微信小游戏里放这儿，平常在顶栏右端）：和选关键一样的蓝色高按钮，齿轮 + 小字 */
+  private settingsKey(root: Node, x: number, y: number): void {
+    const b = button(root, { color: 'blue', w: LEVELS_W, h: START_H, onTap: () => settingsPopup('home') });
+    at(b.node, x, y);
+    const row = b.node.getChildByName('row') as Node;
+    at(img(row, 'kit/ic_gear', 76, 76, 'icon'), 0, 20);
+    at(text(row, tr('UI_SETTINGS'), 26).node, 0, -44);
   }
 
   /** 选关键：和「开始」一样高的蓝色按钮，图标 + 小字；红点、锁、解锁引导和别的入口一样 */

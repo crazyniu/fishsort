@@ -580,7 +580,7 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
 }
 
 /** 金币从 from 飞向 to（默认顶栏金币，ui.fx 坐标） */
-export function coinsFly(from: [number, number], label?: Label, to: [number, number] = [-60, Screen.top - 64]): void {
+export function coinsFly(from: [number, number], label?: Label, to: [number, number] = [-60, Screen.headY + 12]): void {
   for (let i = 0; i < 8; i++) {
     const c = img(ui.fx, 'icon/coin', 48, 48, 'coin');
     at(c, from[0] + (Math.random() - 0.5) * 60, from[1] + (Math.random() - 0.5) * 60);

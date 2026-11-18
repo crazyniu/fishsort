@@ -161,9 +161,7 @@ def main() -> None:
         if t >= 3:
             notes += [(land, TIMPANI, 48, 112, 0.8), (land, DRUMS, 36, 110, 0.3), (land, TRUMPET, chord[-1], 100, 0.55)]
         save(f"tier_{t + 1}", reverb(r.render(notes, land + 1.6), 0.16, 0.6), 0.86, land + 1.5, 0.25)
-    # 断连：两个往下的低音，轻
-    x = r.render([(0, MARIMBA, C4 + 7, 80, 0.2), (0.11, MARIMBA, C4 + 1, 74, 0.3), (0.11, PIZZ, C4 - 11, 70, 0.3)], 0.8)
-    save("combo_break", reverb(x, 0.1, 0.3), 0.5, 0.6)
+    # 断连不出声（用户 2026-11-18：原来两个往下的低音像「叮咚」，不好听）
 
     # ---- 局内
     # 满缸：马林巴上行琶音 + 钟琴收尾

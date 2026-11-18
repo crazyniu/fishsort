@@ -11,10 +11,10 @@ import { sfx } from '../services/audio';
 import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tr } from '../ui/i18n';
-import { Btn, COLOR, Capsule, at, hex, button, fitPair, fmt, img, lazyImg, opacity, plate, slice, text } from '../ui/kit';
+import { Btn, COLOR, Capsule, at, hex, button, fitPair, fmt, fmtCoins, img, lazyImg, opacity, plate, slice, text } from '../ui/kit';
 import { coinsFly, spend, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { HEAD_BOTTOM, PAGE_BOTTOM, Page, enterStagger, pageHead, ui } from '../ui/shell';
+import { PAGE_BOTTOM, Page, enterStagger, headBottom, pageHead, ui } from '../ui/shell';
 
 interface SkillCard {
   id: string;
@@ -68,11 +68,12 @@ export class ShopPage extends Page {
     const cardW = (Screen.W - M * 2 - G) / 2;
     const y1 = Screen.bottom + PAGE_BOTTOM;
     const rowH = 168;
-    const top = Screen.top - HEAD_BOTTOM - 14;
+    // 页头下面（微信小游戏里金币条在胶囊那一行下面，再往下让出那一行）
+    const top = headBottom(true) - 14;
     const room = top - y1;
     const cardH = Math.min(430, (room - rowH - G * 2) / 2);
-    // 屏幕高、放不满时整块略往下放，不贴着页头
-    const y0 = top - (room - (cardH * 2 + rowH + G * 2)) / 3;
+    // 屏幕高、放不满时整块略往下放，不贴着页头；微信小游戏里页头下面已经有一行金币条，不再往下推（用户 2026-11-18：间距太大）
+    const y0 = Screen.cap ? top : top - (room - (cardH * 2 + rowH + G * 2)) / 3;
     const cx = cardW / 2 + G / 2;
     Skills.ids(eco).forEach((id, i) => {
       const x = (i % 2 === 0 ? -1 : 1) * cx;
@@ -195,7 +196,7 @@ export class ShopPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const t = now();
-    this.coins.set(fmt(s.coins));
+    this.coins.set(fmtCoins(s.coins));
     for (const c of this.cards) {
       const open = Skills.isUnlocked(eco, c.id, s.level);
       (c.icon.getComponent(Sprite) as Sprite).grayscale = !open;

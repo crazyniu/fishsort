@@ -1,7 +1,7 @@
 {
   "name": "fishsort",
   "debug": false,
-  "md5Cache": false,
+  "md5Cache": true,
   "buildPath": "project://build",
   "startScene": "eb8b0f71-d00b-5eb5-b7ad-37219783ac83",
   "scenes": [

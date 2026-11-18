@@ -7,7 +7,7 @@ import * as Lives from '../core/meta/lives';
 import { App } from '../services/app';
 import { now } from '../services/clock';
 import { fadeIn, popIn } from './fx';
-import { COLOR, Capsule, at, hex, blockInput, box, capsule, fit, fmt, img, keyButton, onTap, opacity, pageTitle, plate, setImg, slice, text, tint } from './kit';
+import { COINS_SHOWN_MAX, COLOR, Capsule, at, fmtCoins, hex, blockInput, box, capsule, fit, img, keyButton, onTap, opacity, pageTitle, plate, setImg, slice, text, tint, resizePlate, textWidth } from './kit';
 import { closeAllPopups, initPopups } from './popup';
 import { Screen } from './screen';
 
@@ -25,20 +25,56 @@ const HEAD_TITLE = 76;
 /** 页头下面的内容从这里开始（离屏幕顶） */
 export const HEAD_BOTTOM = 136;
 
+/** 金币条：宽、高、字号 */
+const COINS_W = 196;
+const COINS_H = 64;
+
+/** 微信小游戏里子页面的金币条放在胶囊那一行下面：它的中线 */
+function coinsRowY(): number {
+  return Screen.headY - Screen.headH / 2 - 10 - COINS_H / 2;
+}
+
 /**
  * 子页面的页头（各页同一个位置、同一个大小）：左上角返回键，标题牌居中；要花金币的页面右边再放一条金币数。
- * 返回金币条（没要就是 null），页面刷新时自己改数字
+ * 微信小游戏（有胶囊按钮）：返回键和标题挪到胶囊那一行、和胶囊一样高（标题居中，太长就缩小，不压胶囊），
+ * 金币条放到下一行的右上角（用户 2026-11-18：上面太空；金币别和标题挤一行）。
+ * 金币条是局内那种半透明深蓝底、白字（用户 2026-11-18：不要白底）。
+ * 页面内容从 headBottom(有没有金币条) 往下排。返回金币条（没要就是 null），页面刷新时自己改数字
  */
 export function pageHead(parent: Node, title: string, o: { onBack?: () => void; coins?: boolean } = {}): Capsule | null {
-  const y = Screen.top - HEAD_Y;
-  const back = keyButton(parent, 'blue', 'kit/ic_back', HEAD_KEY, o.onBack ?? (() => ui.back()));
-  at(back, -Screen.W / 2 + 24 + HEAD_KEY / 2, y);
+  const y = Screen.headY;
+  const onBack = o.onBack ?? (() => ui.back());
+  const key = Screen.cap ? Screen.headH : HEAD_KEY;
+  const back = keyButton(parent, 'blue', 'kit/ic_back', key, onBack);
+  at(back, -Screen.W / 2 + 24 + key / 2, y);
   back.name = 'back';
-  at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  if (Screen.cap) {
+    // 标题牌和平常一样大（用户 2026-11-18：缩到胶囊高太小了），居中；最宽只能到胶囊左边那个圆按钮前面（两边对称），字太长就缩小
+    // 宽度按字来、两边留得窄一点，不撑到最小 220（用户 2026-11-18：标题牌再小一点，别贴着胶囊左边的圆按钮）。
+    // 字号各页统一、不缩（用户 2026-11-18：标题文字大小统一）：放得下就居中；长标题（每日挑战）往左挪到圆按钮前面，
+    // 返回键和圆按钮之间也放不下（很长的英文）才缩字
+    const lo = -Screen.W / 2 + 24 + key + 12;
+    const hi = Screen.headRight - 8;
+    const t = pageTitle(parent, title, HEAD_TITLE, Math.floor(hi - lo), 150, 1.0);
+    const tw = (t.getComponent(UITransform) as UITransform).width;
+    at(t, Math.max(lo + tw / 2, Math.min(0, hi - tw / 2)), y);
+  } else {
+    at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  }
   if (!o.coins) return null;
-  const c = capsule(parent, 196, 64, 'icon/coin', fmt(App.save.data.coins), 30);
-  at(c.node, Screen.W / 2 - 24 - 98, y);
+  // 宽度按「9999」定（用户 2026-11-18：宽度自适应，右边别空一大截；数字多少条都一样宽，不跳）
+  const c = capsule(parent, COINS_W, COINS_H, 'icon/coin', fmtCoins(App.save.data.coins), 30, 'skin/f_hud', String(COINS_SHOWN_MAX));
+  const cw = (c.node.getComponent(UITransform) as UITransform).width;
+  at(c.node, Screen.W / 2 - 24 - cw / 2, Screen.cap ? coinsRowY() : y);
   return c;
+}
+
+/**
+ * 子页面的内容从哪往下排（y）：页头下面。微信小游戏里有金币条的页面（金币条在胶囊那一行下面）再往下让出金币那一行
+ */
+export function headBottom(coins = false): number {
+  const base = Screen.headTop - HEAD_BOTTOM;
+  return Screen.cap && coins ? Math.min(base, coinsRowY() - COINS_H / 2 - 8) : base;
 }
 
 export abstract class Page {
@@ -75,48 +111,73 @@ class TopBar {
   private frame: Node;
   private shownCoins = -1;
   private shownAvatar = '';
+  /** 尺寸倍数：平常 1；微信小游戏里整条缩到和胶囊一样高 */
+  private k = 1;
+  /**
+   * 微信小游戏里两条小条按内容定宽、从左往右挨着排（用户 2026-11-18：宽度自适应）：金币条按「9999」定宽（不随数字跳），
+   * 生命条随内容（回满前多一截倒计时）。平常（App、浏览器）两条平分头像和设置键之间的宽
+   */
+  private fitWidth = false;
+  private lifeTap!: Node;
+  private lifeX0 = 0;
+  private PH = 72;
 
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
-    this.node = box('topbar', parent, Screen.W, 120);
-    at(this.node, 0, Screen.top - 76);
     // 平面顶栏（新设计，用户 2026-11-16）：不再有一整条底板，四块东西各自浮在场景上——
-    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。两条小条是不凸起的白色圆角块，字深蓝不描边（容器一律是白的）
-    const BW = Screen.W - 40;
-    const L = -BW / 2;
-    const G = 14;
-    const AV = 92;
-    const KEY = 84;
-    const PH = 72;
+    // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。两条小条是不凸起的白色圆角块，字深蓝不描边（容器一律是白的）。
+    // 微信小游戏（有胶囊按钮）：整条挪到胶囊那一行、和胶囊一样高，右边停在胶囊左边（用户 2026-11-18：上面太空）；
+    // 那一行放上设置键太挤（用户 2026-11-18），设置键挪到主页底部「开始」的左边（HomePage），这里只放头像、金币、生命
+    const withKey = !Screen.cap;
+    const k = Screen.cap ? Screen.headH / 84 : 1;
+    this.k = k;
+    const left = -Screen.W / 2 + 20;
+    const right = Screen.cap ? Screen.headRight : Screen.W / 2 - 20;
+    const BW = right - left;
+    this.node = box('topbar', parent, Screen.W, 120 * k);
+    at(this.node, 0, Screen.headY);
+    const L = left;
+    const G = Math.round(14 * k);
+    const AV = 92 * k;
+    const KEY = withKey ? 84 * k : 0;
+    const PH = 72 * k;
     // 头像
     this.frame = img(this.node, 'skin/f_avatar', AV, AV, 'avatarFrame');
     at(this.frame, L + AV / 2, 0);
-    this.avatar = img(this.frame, 'icon/avatar', 70, 70, 'avatar');
-    at(this.avatar, 0, 5);
+    this.avatar = img(this.frame, 'icon/avatar', 70 * k, 70 * k, 'avatar');
+    at(this.avatar, 0, 5 * k);
     onTap(this.frame, actions.profile);
     // 设置
-    at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), BW / 2 - KEY / 2, 0);
+    if (withKey) at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), right - KEY / 2, 0);
     // 两条小条平分头像和设置键之间的宽：金币略宽（最多 7 位数 + 加号）
-    const room = BW - AV - KEY - G * 3;
+    const room = BW - AV - KEY - G * (withKey ? 3 : 2);
     const CW = Math.round(room * 0.54);
     const lw = room - CW;
+    this.fitWidth = !withKey;
+    this.PH = PH;
     const coinTap = plate(this.node, 'skin/f_dock', CW, PH, 'coins');
-    at(coinTap, L + AV + G + CW / 2, 0);
-    this.coinIcon = img(coinTap, 'icon/coin', 58, 58, 'icon');
-    at(this.coinIcon, -CW / 2 + 38, 0);
-    this.coins = text(coinTap, '0', 36, { align: 'left' });
-    at(this.coins.node, -CW / 2 + 76, 1);
-    at(keyButton(coinTap, 'green', 'kit/ic_plus', 50, null, 0.5), CW / 2 - 36, 0);
-    this.coinRoom = CW - 76 - 36 - 25 - 10;
+    // 数字放在条的正中线上（按字体量过：数字的字形中心就在节点中心，用户 2026-11-18：字没上下居中）
+    this.coins = text(coinTap, String(COINS_SHOWN_MAX), Math.round(36 * k), { align: 'left' });
+    // 按内容定宽：图标区 76 + 「9999」的宽 + 10 + 加号区 61
+    const cw = this.fitWidth ? Math.round((76 + 10 + 61) * k + textWidth(this.coins)) : CW;
+    if (this.fitWidth) resizePlate(coinTap, cw, PH);
+    at(coinTap, L + AV + G + cw / 2, 0);
+    this.coinIcon = img(coinTap, 'icon/coin', 58 * k, 58 * k, 'icon');
+    at(this.coinIcon, -cw / 2 + 38 * k, 0);
+    at(this.coins.node, -cw / 2 + 76 * k, 0);
+    at(keyButton(coinTap, 'green', 'kit/ic_plus', 50 * k, null, 0.5), cw / 2 - 36 * k, 0);
+    this.coinRoom = cw - (76 + 36 + 25 + 10) * k;
     onTap(coinTap, actions.coins);
     // 生命：图标 + 数量，回满前后面跟一个小号倒计时
     const lifeTap = plate(this.node, 'skin/f_dock', lw, PH, 'lives');
-    this.lifeRoom = lw;
-    at(lifeTap, L + AV + G + CW + G + lw / 2, 0);
-    this.heart = img(lifeTap, 'icon/heart', 58, 58, 'icon');
-    at(this.heart, -lw / 2 + 38, 0);
-    this.lives = text(lifeTap, '5/5', 36, { align: 'left' });
-    at(this.lives.node, -lw / 2 + 76, 1);
-    this.timer = text(lifeTap, '', 24, { align: 'left', color: hex('#5E86C0') });
+    this.lifeTap = lifeTap;
+    this.lifeRoom = this.fitWidth ? right - (L + AV + G + cw + G) : lw;
+    this.lifeX0 = L + AV + G + cw + G;
+    at(lifeTap, this.lifeX0 + lw / 2, 0);
+    this.heart = img(lifeTap, 'icon/heart', 58 * k, 58 * k, 'icon');
+    at(this.heart, -lw / 2 + 38 * k, 0);
+    this.lives = text(lifeTap, '5/5', Math.round(36 * k), { align: 'left' });
+    at(this.lives.node, -lw / 2 + 76 * k, 0);
+    this.timer = text(lifeTap, '', Math.round(24 * k), { align: 'left', color: hex('#5E86C0') });
     onTap(lifeTap, actions.lives);
   }
 
@@ -125,27 +186,28 @@ class TopBar {
     const eco = App.config.eco;
     const t = now();
     if (this.shownCoins !== s.coins) {
-      this.coins.string = fmt(s.coins);
-      fit(this.coins, this.coinRoom, 36, 22);
+      this.coins.string = fmtCoins(s.coins);
+      fit(this.coins, this.coinRoom, Math.round(36 * this.k), Math.round(22 * this.k));
       if (this.shownCoins >= 0) popIn(this.coins.node, 0, 0.2);
       this.shownCoins = s.coins;
     }
     // 集齐收藏的头像框：换成金色
-    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', 92, 92);
+    const k = this.k;
+    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', 92 * k, 92 * k);
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 70, 70);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 70 * k, 70 * k);
     }
     const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
     let tail = '';
     if (Lives.isUnlimited(s, t)) {
-      setImg(this.heart, 'icon/heart_inf', 58, 58);
+      setImg(this.heart, 'icon/heart_inf', 58 * k, 58 * k);
       this.lives.string = '∞';
       tail = mmss(Lives.unlimitedLeft(s, t));
     } else {
-      setImg(this.heart, 'icon/heart', 58, 58);
+      setImg(this.heart, 'icon/heart', 58 * k, 58 * k);
       const n = Lives.count(s, eco, t);
       const full = n >= eco.lives.max;
       this.lives.string = full ? `${n}/${eco.lives.max}` : String(n);
@@ -154,10 +216,22 @@ class TopBar {
     this.timer.string = tail;
     this.lives.updateRenderData(true);
     const lw = (this.lives.node.getComponent(UITransform) as UITransform).width;
-    const tx = this.lives.node.position.x + lw + 8;
-    at(this.timer.node, tx, -2);
+    if (this.fitWidth) {
+      // 生命条随内容定宽：图标区 76 + 数量 +（倒计时：8 + 倒计时宽）+ 右边留 20，最宽到胶囊左边
+      fit(this.timer, this.lifeRoom - (76 + 8 + 20) * k - lw, Math.round(24 * k), Math.round(18 * k));
+      const tw = tail ? 8 * k + textWidth(this.timer) : 0;
+      const w = Math.min(this.lifeRoom, Math.round(76 * k + lw + tw + 20 * k));
+      resizePlate(this.lifeTap, w, this.PH);
+      at(this.lifeTap, this.lifeX0 + w / 2, 0);
+      at(this.heart, -w / 2 + 38 * k, 0);
+      at(this.lives.node, -w / 2 + 76 * k, 0);
+      at(this.timer.node, -w / 2 + 76 * k + lw + 8 * k, -2 * k);
+      return;
+    }
+    const tx = this.lives.node.position.x + lw + 8 * k;
+    at(this.timer.node, tx, -2 * k);
     // 倒计时最多写到这一条的右边留 18 的地方
-    fit(this.timer, this.lifeRoom / 2 - 18 - tx, 24, 18);
+    fit(this.timer, this.lifeRoom / 2 - 18 * k - tx, Math.round(24 * k), Math.round(18 * k));
   }
 }
 

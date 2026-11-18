@@ -75,7 +75,7 @@ function lockView(parent: Node, feature: string): void {
   const eco = App.config.eco;
   const bgH = Math.max(Screen.H, Screen.W * 1.5);
   lazyImg(parent, 'bg/home', (bgH * 1024) / 1536, bgH);
-  const top = Screen.top;
+  const top = Screen.headTop;
   pageHead(parent, tr(NAME[feature] ?? feature));
   const span = top - 170 - (Screen.bottom + PAGE_BOTTOM);
   const artY = top - 170 - span * 0.32;

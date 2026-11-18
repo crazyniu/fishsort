@@ -13,6 +13,30 @@ cocos_build() {
   echo "构建完成：client/build/$platform"
 }
 
+# ---------------------------------------------------------------- 微信小游戏（docs/10 第 4 节）
+
+# 构建 → resources 挪到网上并瘦身（tools/wechat/remote.mjs）→ 有 tcb（云开发命令行）就传到云开发的静态网站托管；NO_UPLOAD=1 只打包不传
+wechat_build() {
+  local env remote="client/build/wechatgame-remote/remote"
+  node tools/native/apply.mjs
+  cocos_build wechatgame
+  node tools/wechat/remote.mjs
+  [ -d "$remote" ] || return 0
+  env="$(node -p "require('./game.json').wechat.cloudEnv || ''")"
+  if [ "${NO_UPLOAD:-}" = 1 ]; then
+    echo "· NO_UPLOAD=1：这次不上传，资源在 ${remote}"
+  elif [ -n "$env" ] && command -v tcb >/dev/null 2>&1; then
+    echo "· 上传资源到云开发环境 ${env} 的静态网站托管 …"
+    tcb hosting deploy "$remote" remote -e "$env" || die "上传失败：先 tcb login，或在云开发控制台「静态网站托管」里手动上传 ${remote} 整个文件夹"
+    echo "✓ 资源已上传"
+    # 网上只留这次用到的文件：文件名带 MD5，改过的资源换了名字，旧的清掉（tools/wechat/prune.mjs，网上缺文件时不清）
+    node tools/wechat/prune.mjs "$env" || echo "! 旧文件没清掉，资源照常能用；下次打包会再清"
+  else
+    echo "! 还要把 ${remote} 整个文件夹传到静态网站托管的根目录（云开发控制台 → 静态网站托管 → 上传文件夹；装了 tcb 并 tcb login 过会自动传）"
+  fi
+  echo "微信开发者工具导入 client/build/wechatgame 即可预览、上传"
+}
+
 # ---------------------------------------------------------------- 原生包（docs/10-开发底座.md）
 
 # iOS 的 Google Mobile Ads + UMP：下载到 client/native/engine/ios/sdk/（不进仓库），iOS 工程的 CMakeLists 链它。
@@ -142,7 +166,7 @@ while :; do
   printf '%s\n' '打包平台' '1 微信小游戏' '2 iOS' '3 Android' '4 网页版' '0 退出'
   read_choice
   case "$choice" in
-    1) node tools/native/apply.mjs; cocos_build wechatgame; break ;;
+    1) wechat_build; break ;;
     2)
       while :; do
         printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '0 返回'

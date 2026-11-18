@@ -17,7 +17,7 @@ import { tr } from '../ui/i18n';
 import { at, box, button, COLOR, fmt, img, lazyImg, opacity, setImg, slice, text, twoLines } from '../ui/kit';
 import { PrizeItem, cardItem, needCoins, revealCards, rewardPopup, skillIcon, skillName, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
-import { Page, pageHead, ui } from '../ui/shell';
+import { Page, headBottom, pageHead, ui } from '../ui/shell';
 
 /** 一次抽奖结果 → 奖品格 */
 export function spinItem(r: Wheel.SpinResult): PrizeItem {
@@ -76,8 +76,7 @@ export class WheelPage extends Page {
     this.view?.destroy();
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
-    const top = Screen.top;
-    // 标题行：左返回 · 中标题 · 右金币（同一行）
+    // 标题行：左返回 · 中标题 · 右金币（微信小游戏里金币在下一行右上角，内容从 headBottom 往下）
     pageHead(v, tr('H_FEAT_WHEEL'), { coins: true });
 
     // 自下而上：次按钮一排 → 主按钮；上面剩下的空间里，宝箱（连同一圈奖品气泡）和紧贴在箱子下面的「剩几次」作为一组居中
@@ -85,7 +84,7 @@ export class WheelPage extends Page {
     const y2 = Screen.bottom + 40 + 54;
     const btnY = y2 + 54 + 24 + 64;
     const lo = btnY + 64 + 24;
-    const hi = top - 140;
+    const hi = headBottom(true) - 4;
     // 一组的高：气泡最高处在箱子中心上方 0.64cs + 68，箱底在中心下方约 0.45cs，再往下是 20 的空和 72 高的牌子
     const cs = Math.min(420, (hi - lo - 160) / 1.09);
     const mid = hi - 0.64 * cs - 68 - (hi - lo - (1.09 * cs + 160)) / 2;

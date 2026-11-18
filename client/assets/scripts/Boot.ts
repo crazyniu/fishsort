@@ -1,4 +1,5 @@
-// 启动：画布与相机 → 平台、配置、存档 → 文案、图、音效 → 界面外壳 → 主页。
+// 启动：画布与相机 → 加载页 → 资源包（微信版从网上下）→ 平台、配置、存档 → 文案、字体、界面图、眼前海域的鱼 → 界面外壳 → 主页。
+// 加载页见 docs/ux/loading.md：每一步按量占一段进度；哪步下载失败就停在那步，点「重试」从那步接着来。
 // 唯一挂在场景里的脚本，界面全部由代码生成（docs/09 第 8 节）。
 import { _decorator, Camera, Canvas, Color, Component, Label, Layers, Node, ResolutionPolicy, UITransform, Widget, profiler, tween, view } from 'cc';
 import { DEBUG } from 'cc/env';
@@ -20,14 +21,18 @@ import { ShopPage } from './pages/shop';
 import { LockPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx, startMusic } from './services/audio';
-import { loadStrings, onLanguage, tr } from './ui/i18n';
+import { loadStrings, onLanguage } from './ui/i18n';
 import { setTapSound } from './ui/kit';
 import * as Popups from './ui/popups';
 import { livesPopup, settingsPopup } from './ui/popups';
 import { closeAllPopups } from './ui/popup';
 import { signInPopup } from './pages/signin';
 import * as Flow from './game/flow';
-import { preload } from './ui/res';
+import { ensureResources, loadBootBundle, loadFont, loadFrames, startupFrames } from './ui/res';
+import { LoadingView } from './ui/loading';
+import { loadPlatformConfig } from './platform/platformConfig';
+import * as Seas from './core/meta/seas';
+import * as Meta from './core/meta/meta';
 import { Screen } from './ui/screen';
 import { reportError, setErrorSink, ui } from './ui/shell';
 
@@ -45,19 +50,78 @@ export class Boot extends Component {
     profiler.hideStats();
     const canvas = this.createCanvas();
     if (DEBUG) this.errorOverlay(canvas);
-    const loading = this.loading(canvas);
-    this.boot(canvas)
-      .then(() => loading.destroy())
+    const loading = new LoadingView(canvas);
+    loadBootBundle()
+      .then((b) => loading.useBundle(b))
+      .catch((e: unknown) => console.warn('boot 包读不出来', e));
+    this.load(loading)
+      .then(() => this.boot(canvas))
+      .then(() => loading.finish())
       .catch((e: unknown) => {
-        (loading.getComponent(Label) as Label).string = `启动失败：${String(e)}`;
+        if (DEBUG) reportError('启动失败', e);
         console.error(e);
       });
   }
 
+  /** 加载的几步（[进度占比, 做什么]）；失败停在那一步，显示「重试」，点了从那一步接着来 */
+  private load(view: LoadingView): Promise<void> {
+    let fishKeys: string[] = [];
+    const steps: [number, (p: (done: number, total: number) => void) => Promise<void>][] = [
+      [0.04, () => ensureResources()],
+      [
+        0.04,
+        async () => {
+          await App.start();
+          Screen.applyPlatform(App.platform);
+          view.setLanguage(App.save.data.settings.lang ?? 'zh_CN', App.platform.hasCapability('health_notice'));
+          void loadPlatformConfig().then((c) => view.setVersion(c.version));
+        },
+      ],
+      [0.02, () => loadStrings(App.save.data.settings.lang ?? 'zh_CN')],
+      [0.15, () => loadFont()],
+      [
+        0.75,
+        (p) => {
+          fishKeys = this.startupFish();
+          return loadFrames([...startupFrames(), ...fishKeys], p);
+        },
+      ],
+    ];
+    let i = 0;
+    let base = 0;
+    return new Promise((resolve) => {
+      const next = (): void => {
+        if (i >= steps.length) return resolve();
+        const [w, run] = steps[i];
+        run((done, total) => view.setProgress(base + (w * done) / Math.max(1, total)))
+          .then(() => {
+            base += w;
+            view.setProgress(base);
+            i++;
+            next();
+          })
+          .catch((e: unknown) => {
+            console.warn('加载失败', e);
+            view.showFail(next);
+          });
+      };
+      next();
+    });
+  }
+
+  /** 启动时就读好的鱼：眼前这片海域的整本、主页气泡里的、头像（别的用到时再读，docs/04 第 8 节） */
+  private startupFish(): string[] {
+    const { config, save } = App;
+    const eco = config.eco;
+    const sea = Seas.forLevel(eco, Meta.levelFile(Math.max(1, save.data.level), config.levelCount));
+    const ids = [...Seas.speciesPools(eco, sea)[0], ...config.ui.homeDeco.school.map(([id]) => id), 'c01', 'c02'];
+    if (save.data.avatar) ids.push(save.data.avatar);
+    return ids.map((id) => `fish/${id}`);
+  }
+
   private async boot(canvas: Node): Promise<void> {
-    await App.start();
-    Screen.applyPlatform(App.platform);
-    await Promise.all([loadStrings(App.save.data.settings.lang ?? 'zh_CN'), preload(), initAudio(this.node)]);
+    // 音效不挡启动：后台读，读到之前没声音
+    void initAudio(this.node);
     setTapSound((n) => sfx(n));
     startMusic();
     const topActions = {
@@ -145,19 +209,5 @@ export class Boot extends Component {
     const g = globalThis as unknown as { addEventListener?: (t: string, f: (e: { error?: unknown; reason?: unknown; message?: string }) => void) => void };
     g.addEventListener?.('error', (e) => reportError('error', e.error ?? e.message));
     g.addEventListener?.('unhandledrejection', (e) => reportError('promise', e.reason));
-  }
-
-  /** 载入页：文案还没读到，先用系统字体 */
-  private loading(canvas: Node): Node {
-    const n = new Node('loading');
-    n.layer = Layers.Enum.UI_2D;
-    n.addComponent(UITransform);
-    canvas.addChild(n);
-    const l = n.addComponent(Label);
-    l.string = '…';
-    l.fontSize = 48;
-    l.isBold = true;
-    void tr;
-    return n;
   }
 }

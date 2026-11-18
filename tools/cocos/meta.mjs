@@ -156,6 +156,8 @@ const IMPORTERS = {
 // assets/resources 是 Cocos 的内置资源包，编辑器会给它写上这几项；先写好，免得 Mac 上构建后出现改动
 const USER_DATA = {
   'assets/resources': { isBundle: true, bundleConfigID: 'default', bundleName: 'resources', priority: 8 },
+  // 加载页的背景、图标、文案：打在安装包里（微信版的 resources 放在网上，加载页出来时还没下载），docs/04 第 8 节
+  'assets/boot': { isBundle: true, bundleConfigID: 'default', bundleName: 'boot', priority: 8 },
 };
 
 function metaFor(abs, rel, isDir) {

@@ -25,6 +25,7 @@ import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
+import { loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
 import { CARD_ASPECT, RARITY_GLOW, miniCard, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
@@ -136,7 +137,6 @@ export class GamePage extends Page {
   private fly!: Node;
   private field!: Field;
   private progress!: Capsule;
-  private levelCap!: Capsule;
   /** 限时关的倒计时条（顶栏正中）；不限时的关没有 */
   private clockCap: Capsule | null = null;
   private clockWarn = false;
@@ -229,8 +229,18 @@ export class GamePage extends Page {
     const id = this.arg.level;
     const file = Meta.levelFile(id, config.levelCount);
     const ease = this.arg.daily ? 0 : Meta.easeFor(save.data, eco, id);
+    // 关卡文件和这关的鱼：微信版放在网上，用到时才下（docs/04 第 8 节）。下不下来就提示、回主页（不扣命）
+    let species: string[];
     try {
       this.lv = await config.loadLevel(file, ease);
+      const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
+      species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
+      await loadFrames(species.map((sp) => `fish/${sp}`));
+    } catch (e) {
+      console.warn('关卡读不出来', e);
+      ui.toast(tr('BOOT_FAIL'));
+      ui.go('home');
+      return;
     } finally {
       ui.busy(false);
     }
@@ -242,8 +252,7 @@ export class GamePage extends Page {
     this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
-    const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
-    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
+    this.species = species;
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;
@@ -291,25 +300,46 @@ export class GamePage extends Page {
     Tween.stopAllByTag(AMBIENT_TAG, this.under);
     this.ambientBubbles();
 
-    const top = Screen.top;
-    // 顶栏：左进度、中连击、右关卡号 + 设置
-    const hudY = top - 52;
+    // 顶栏：左进度、中倒计时（限时关）、右关卡号 + 设置。
+    // 微信小游戏（有胶囊按钮）：顶栏挪到胶囊那一行（用户 2026-11-18：上面太空），设置键放最左、进度紧跟着（样式不变），
+    // 关卡号去掉底板、居中；限时关中间放倒计时，关卡号不显示（暂停弹窗里有）。下面的鱼缸、气泡跟着整体上移
+    const hudY = Screen.cap ? Screen.headY : Screen.top - 52;
+    const top = hudY + 52;
     // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标是通用的小鱼（白色平面图标），不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）。
     // 顶上两块信息条都是半透明深蓝 + 白字，和技能格子一样，不用白色卡片（用户 2026-11-17：白卡片显得廉价）
-    this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
-    at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-    this.levelCap = capsule(this.stage, 160, 66, null, tr('UI_LEVEL', this.arg.level), 30, 'skin/f_hud');
-    at(this.levelCap.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
-    if (this.arg.daily) this.levelCap.set(tr('UI_TAB_DAILY'));
+    const levelName = this.arg.daily ? tr('UI_TAB_DAILY') : tr('UI_LEVEL', this.arg.level);
+    const timed = this.s.clock !== NO_TIMER;
+    if (Screen.cap) {
+      const h = Screen.headH;
+      const gearW = h;
+      const pw = Math.round((196 * h) / 66);
+      const x0 = -Screen.W / 2 + 24;
+      at(iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', gearW, () => Flow.pause(this)), x0 + gearW / 2, hudY);
+      // 宽度贴着内容：按这一关最长的写法（「39/39」）定，整关不变（用户 2026-11-18：右边空太大）
+      this.progress = capsule(this.stage, pw, h, 'kit/ic_fish', '', Math.round((34 * h) / 66), 'skin/f_hud', `${this.total}/${this.total}`);
+      const realW = (this.progress.node.getComponent(UITransform) as UITransform).width;
+      at(this.progress.node, x0 + gearW + 10 + realW / 2, hudY);
+      const lv = text(this.stage, levelName, 36);
+      at(lv.node, 0, hudY);
+      lv.node.active = !timed;
+    } else {
+      this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
+      at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
+      const lc = capsule(this.stage, 160, 66, null, levelName, 30, 'skin/f_hud');
+      at(lc.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
+    }
     // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
     this.clockCap = null;
     this.clockWarn = false;
-    if (this.s.clock !== NO_TIMER) {
-      this.clockCap = capsule(this.stage, 120, 66, null, mmss(this.s.clock), 34, 'skin/f_hud');
-      at(this.clockCap.node, -22, hudY);
+    if (timed) {
+      const ch = Screen.cap ? Screen.headH : 66;
+      this.clockCap = capsule(this.stage, Math.round((120 * ch) / 66), ch, null, mmss(this.s.clock), Math.round((34 * ch) / 66), 'skin/f_hud');
+      at(this.clockCap.node, Screen.cap ? 0 : -22, hudY);
     }
-    const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
-    at(gear, Screen.W / 2 - 24 - 37, hudY);
+    if (!Screen.cap) {
+      const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
+      at(gear, Screen.W / 2 - 24 - 37, hudY);
+    }
     // 连击计（docs/01 3.2，用户 2026-11-16 定）：不带底板的大号「连击 ×N」，下面一条倒计时细条。
     // 放在暂存槽那一排（和下面的 bufferY 同一行）：不盖鱼缸，看得见缸里还差什么（用户 2026-11-16：放在鱼缸那一排把缸盖住了）。
     // 升档的夸奖字也在这一排，出夸奖字时连击计先让开（见 praise）。放在最上面的特效层里，不挡点击
@@ -1395,8 +1425,7 @@ export class GamePage extends Page {
     this.combo.miss();
     this.setFever(-1, COLOR.white);
     if (!had) return;
-    // 断连：一声往下走的闷音，数字变灰，整块抖一下往下掉、淡出
-    sfx('comboBreak', 0, 0.8);
+    // 断连：数字变灰，整块抖一下往下掉、淡出。不出声（用户 2026-11-18：断连那一声「叮咚」不好听，不要了）
     this.comboBreaking = true;
     for (const g of this.comboNum.children) {
       const sp = g.getComponent(Sprite);

@@ -58,7 +58,7 @@ export class DailyPage extends Page {
     this.view?.destroy();
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
-    const top = Screen.top;
+    const top = Screen.headTop;
     pageHead(v, tr('DAILY_TITLE'), { onBack: () => this.back() });
 
     // 自下而上：按钮 → 一行小字 → 一块白色面板（上半连续过关的进度，下半今日宝箱的奖品）→ 剩下的地方放大宝箱

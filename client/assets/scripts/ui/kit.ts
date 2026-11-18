@@ -18,7 +18,7 @@ import {
   VerticalTextAlignment,
   tween,
 } from 'cc';
-import { frame, frameAsync, uiFont } from './res';
+import { frame, frameAsync, peek, uiFont } from './res';
 
 export const RES = 3;
 
@@ -126,6 +126,12 @@ export function fmt(n: number): string {
   return String(Math.round(n));
 }
 
+/** 顶栏、页头上的金币数：最多显示 9999（用户 2026-11-18：最多显示 4 个 9），条的宽度按它定 */
+export const COINS_SHOWN_MAX = 9999;
+export function fmtCoins(n: number): string {
+  return fmt(Math.min(COINS_SHOWN_MAX, n));
+}
+
 export function hex(s: string, a = 255): Color {
   const n = parseInt(s.replace('#', ''), 16);
   return new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, a);
@@ -155,14 +161,13 @@ export function at(n: Node, x: number, y: number): Node {
   return n;
 }
 
-/** 普通图片。不给尺寸就按图的显示尺寸；只给宽就按比例 */
+/** 普通图片。不给尺寸就按图的显示尺寸；只给宽就按比例。图还没读（鱼、收藏册封面）就先占位、读到再显示 */
 export function img(parent: Node | null, path: string, w?: number, h?: number, name = path): Node {
   path = IMG_ALIAS[path] ?? path;
   const n = box(name, parent);
   const sp = n.addComponent(Sprite);
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
-  const f = frame(path);
-  setFrame(n, f, w, h);
+  showFrame(n, path, w, h);
   const k = PART_INK[path];
   if (k) inks.set(n, k);
   // 平面的白色图标：在白色容器里染成蓝色，在彩色部件上保持白色
@@ -186,7 +191,22 @@ export function setFrame(n: Node, f: SpriteFrame | null, w?: number, h?: number)
 }
 
 export function setImg(n: Node, path: string, w?: number, h?: number): void {
-  setFrame(n, frame(IMG_ALIAS[path] ?? path), w, h);
+  showFrame(n, IMG_ALIAS[path] ?? path, w, h);
+}
+
+/** 节点最后一次要显示的图：晚到的旧图不覆盖新图 */
+const wanted = new WeakMap<Node, string>();
+
+/** 读好了就直接显示；没读的先按给的尺寸占位（没给尺寸就是 0），读到再显示 */
+function showFrame(n: Node, path: string, w?: number, h?: number): void {
+  wanted.set(n, path);
+  const f = peek(path);
+  if (f) return setFrame(n, f, w, h);
+  (n.getComponent(Sprite) as Sprite).spriteFrame = null;
+  size(n, w ?? h ?? 0, h ?? w ?? 0);
+  void frameAsync(path).then((sf) => {
+    if (sf && n.isValid && wanted.get(n) === path) setFrame(n, sf, w, h);
+  });
 }
 
 /** 大图（背景、家园场景）：先建节点，读到再显示 */
@@ -460,13 +480,18 @@ export function fitPair(left: Label, right: Label, room: number, leftBase: numbe
  * 页标题牌（各页统一：同一块牌、同一个高度和字号，牌的宽度跟着字走）。
  * h 默认 80；夹在顶栏和内容之间的（商店）给小一点
  */
-export function pageTitle(parent: Node, s: string, h = 80): Node {
+/** 立体牌（标题牌、入口标签）上的字往上提多少（占牌高）：牌的正面比外框高半道下边（0.06），
+ * 对准正面中心看着偏上（用户 2026-11-18：字没上下居中），取正面中心和外框中心的中间 */
+export const PLATE_TEXT_LIFT = 0.03;
+
+/** 页面标题牌：宽度随字（两边各留 padK/2 个牌高），最窄 minW、最宽 maxW（字太长就缩小） */
+export function pageTitle(parent: Node, s: string, h = 80, maxW = 630, minW = 220, padK = 1.4): Node {
   const n = plate(parent, 'skin/f_plate_blue', 240, h, 'title');
   const l = text(n, s, Math.round(h * 0.56));
-  // 面的中心比外框高半道下边
-  l.node.setPosition(0, h * 0.06, 0);
-  fit(l, 520);
-  resizePlate(n, Math.max(220, Math.round(textWidth(l) + 110)), h);
+  l.node.setPosition(0, h * PLATE_TEXT_LIFT, 0);
+  const pad = Math.round(h * padK);
+  fit(l, Math.min(520, maxW - pad));
+  resizePlate(n, Math.max(minW, Math.min(maxW, Math.round(textWidth(l) + pad))), h);
   return n;
 }
 
@@ -743,17 +768,25 @@ export interface Capsule {
   set(s: string): void;
 }
 
-export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56), skin = 'skin/f_dock'): Capsule {
+/**
+ * widest：给了就按这串字（最长会写成什么样）定宽，w 不用；条的宽度贴着内容，右边不空一大截（用户 2026-11-18：宽度自适应）
+ */
+export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56), skin = 'skin/f_dock', widest?: string): Capsule {
   const n = plate(parent, skin, w, h, 'capsule');
+  // 有图标：数字左对齐紧跟图标；没图标：居中
+  const lead = iconPath ? h * 0.96 + 8 : 0;
+  const label = text(n, widest ?? s, fontSize, iconPath ? { align: 'left' } : {});
+  if (widest !== undefined) {
+    w = Math.round(lead + textWidth(label) + (iconPath ? h * 0.45 : h * 0.9));
+    resizePlate(n, w, h);
+  }
   let icon: Node | null = null;
   if (iconPath) {
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
     icon.setPosition(-w / 2 + h * 0.5, 0, 0);
   }
-  // 有图标：数字左对齐紧跟图标；没图标：居中
-  const label = text(n, s, fontSize, iconPath ? { align: 'left' } : {});
-  label.node.setPosition(iconPath ? -w / 2 + h * 0.96 + 8 : 0, 0, 0);
-  const room = w - (iconPath ? h * 0.96 + 8 : 0) - 24;
+  label.node.setPosition(iconPath ? -w / 2 + lead : 0, 0, 0);
+  const room = w - lead - (widest !== undefined ? h * 0.3 : 24);
   const set = (v: string) => {
     label.string = v;
     fit(label, room, fontSize);

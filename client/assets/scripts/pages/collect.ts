@@ -90,7 +90,7 @@ export class CollectPage extends Page {
   private listView(v: Node, enter: boolean): void {
     const s = App.save.data;
     const eco = App.config.eco;
-    const top = Screen.top;
+    const top = Screen.headTop;
     pageHead(v, tr('UI_TAB_COLLECTION'));
 
     // 总进度 + 终极大奖宝箱
@@ -218,7 +218,7 @@ export class CollectPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     const b = Album.books(eco)[i];
-    const top = Screen.top;
+    const top = Screen.headTop;
     pageHead(v, tr(`ALBUM_BOOK_${i + 1}`), { onBack: () => this.back() });
 
     // 大奖条：金币 + 每种技能 ×n + 进度
@@ -324,7 +324,7 @@ export class CollectPage extends Page {
             sfx('coins');
             const tf = ui.fx.getComponent(UITransform) as UITransform;
             const f = tf.convertToNodeSpaceAR(btn.node.worldPosition.clone());
-            coinsFly([f.x, f.y], undefined, [0, Screen.top - 200]);
+            coinsFly([f.x, f.y], undefined, [0, Screen.headTop - 200]);
             ui.toast(tr('UI_COINS_GAIN', coins));
             ui.refresh();
           },

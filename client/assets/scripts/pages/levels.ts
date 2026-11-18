@@ -109,7 +109,7 @@ export class LevelsPage extends Page {
     // 版面：页头下面到翻页键上面，是一块白色面板；面板顶上一行写今日重玩奖励还剩几次（原来是浮在面板上面的一根细条），
     // 下面是格子
     const navY = Screen.bottom + PAGE_BOTTOM + 50;
-    const top = Screen.top - HEAD_BOTTOM - 16;
+    const top = Screen.headTop - HEAD_BOTTOM - 16;
     const bottom = navY + 70;
     const panelH = Math.min(ROWS * CELL + 44 + HEAD_ROW, top - bottom);
     const rowH = (panelH - 44 - HEAD_ROW) / ROWS;
