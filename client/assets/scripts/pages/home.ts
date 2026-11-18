@@ -85,6 +85,8 @@ interface Entry {
   def: EntryDef;
   /** 标签牌多宽（字太长时按它缩小） */
   labelW: number;
+  /** 标签的字号（入口 24，选关键 26） */
+  font: number;
   node: Node;
   icon: Node;
   lock: Node;
@@ -195,7 +197,7 @@ export class HomePage extends Page {
     const dot = redDot(n, ENTRY_TILE / 2 - 6, ENTRY_TILE / 2 - 6, 28);
     // 没有底栏了，切页的「嘟嘟」声放在入口上
     onTap(n, () => this.tapEntry(def), { sound: 'tab' });
-    this.entries.set(def.id, { def, labelW: LABEL_W, node: n, icon: ic, lock, dot, label });
+    this.entries.set(def.id, { def, labelW: LABEL_W, font: LABEL_FONT, node: n, icon: ic, lock, dot, label });
   }
 
   /** 设置键（只在微信小游戏里放这儿，平常在顶栏右端）：和选关键一样的蓝色高按钮，齿轮 + 小字 */
@@ -221,7 +223,7 @@ export class HomePage extends Page {
     at(lock, LEVELS_W / 2 - 26, START_H / 2 - 30);
     const dot = redDot(b.node, LEVELS_W / 2 - 6, START_H / 2 - 6, 28);
     onTap(b.node, () => this.tapEntry(def), { press: 0.96, sound: 'tab' });
-    this.entries.set(def.id, { def, labelW: LEVELS_W, node: b.node, icon: ic, lock, dot, label });
+    this.entries.set(def.id, { def, labelW: LEVELS_W, font: 26, node: b.node, icon: ic, lock, dot, label });
   }
 
   private tapEntry(def: EntryDef): void {
@@ -497,9 +499,10 @@ export class HomePage extends Page {
       e.lock.active = !open;
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;
-      // 没开放时标签写「第 N 关解锁」；字比标签牌宽就缩小，牌的大小不变（一列里的牌一样宽才整齐）
-      e.label.string = f === null || open ? tr(e.def.name) : tr('H_UNLOCKS_AT', Features.unlockLevel(eco, f));
-      fit(e.label, e.labelW - 16, LABEL_FONT, 16);
+      // 没开放时标签写「等级 N」/「Level N」。字号各入口一样、不缩（用户 2026-11-18：文字多了别缩字，放不下就精简文字），
+      // 现有的中英文都按 round.ttf 量过放得下；fit 只防以后的新文案越界
+      e.label.string = f === null || open ? tr(e.def.name) : tr('H_ENTRY_LOCKED', Features.unlockLevel(eco, f));
+      fit(e.label, e.labelW - 16, e.font, 16);
       e.dot.active = open && this.hasNews(e.def.id);
     }
   }

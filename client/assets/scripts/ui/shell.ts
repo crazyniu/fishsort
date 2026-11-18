@@ -158,7 +158,8 @@ class TopBar {
     // 数字放在条的正中线上（按字体量过：数字的字形中心就在节点中心，用户 2026-11-18：字没上下居中）
     this.coins = text(coinTap, String(COINS_SHOWN_MAX), Math.round(36 * k), { align: 'left' });
     // 按内容定宽：图标区 76 + 「9999」的宽 + 10 + 加号区 61
-    const cw = this.fitWidth ? Math.round((76 + 10 + 61) * k + textWidth(this.coins)) : CW;
+    // +2：留一点余量，免得「9999」差零点几像素被缩一号字
+    const cw = this.fitWidth ? Math.round((76 + 10 + 61) * k + textWidth(this.coins) + 2) : CW;
     if (this.fitWidth) resizePlate(coinTap, cw, PH);
     at(coinTap, L + AV + G + cw / 2, 0);
     this.coinIcon = img(coinTap, 'icon/coin', 58 * k, 58 * k, 'icon');

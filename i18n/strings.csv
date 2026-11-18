@@ -8,7 +8,7 @@ UI_LOSE_TIMEOUT,时间到了,Time's up
 UI_LOSE_STUCK,无路可走,Out of moves
 UI_COINS_GAIN,+%d 金币,+%d coins
 UI_NEXT_LEVEL,下一关,Next
-UI_NO_COINS,金币不足,Not enough coins
+UI_NO_COINS,金币不足,Out of Coins
 UI_TOOL_LIMIT,本关已用完,Used up this level
 UI_SETTINGS,设置,Settings
 UI_AD_UNAVAILABLE,暂无广告,No ads right now
@@ -51,7 +51,7 @@ UI_SKILL_TRY,新道具：%s,New booster: %s
 UI_BLOW_EMPTY,槽位里没有鱼,Slots are empty
 UI_CURRENT_EMPTY,没有能直接进缸的鱼,No fish can go in
 UI_SHUFFLE_EMPTY,现在不能洗牌,Can't shuffle now
-UI_REPLAY_NO_REWARD,今日重玩奖励已领完,No replay rewards left today
+UI_REPLAY_NO_REWARD,今日重玩奖励已领完,No rewards left today
 H_LIVES_TITLE,生命,Lives
 H_BUY_ONE,买1条,Buy 1
 H_REFILL,补满,Refill
@@ -72,15 +72,16 @@ H_UNLOCK_TITLE,新功能,Unlocked!
 H_UNLOCK_LINE,%s 已解锁,%s unlocked
 H_GO_LOOK,去看看,Go
 H_UNLOCKS_AT,第 %d 关解锁,Level %d
-H_FEAT_SIGNIN,签到,Daily Gift
+H_ENTRY_LOCKED,等级 %d,Level %d
+H_FEAT_SIGNIN,签到,Check-in
 H_FEAT_LEVELS,选关,Levels
 H_FEAT_COLLECTION,收藏,Album
-H_FEAT_WHEEL,抽奖,Lucky Box
+H_FEAT_WHEEL,抽奖,Treasure
 H_SKILL_SHUFFLE,洗牌,Shuffle
 H_SKILL_BLOW,吹泡,Blow
 H_SKILL_NET,渔网,Net
 H_SKILL_FLOW,洋流,Current
-H_NEED_COINS,金币不足,Not enough coins
+H_NEED_COINS,金币不足,Out of Coins
 H_NEED_COINS_LINE,还差 %d 金币,Need %d more coins
 H_MUSIC,音乐,Music
 H_SOUND,音效,Sound
@@ -106,11 +107,11 @@ H_GRAND_PRIZE,大奖,Grand prize
 ALBUM_BOOK_1,晨光沙滩,Sunrise Shore
 ALBUM_BOOK_2,珊瑚花园,Coral Garden
 ALBUM_BOOK_3,海草森林,Kelp Forest
-ALBUM_BOOK_4,沉船湾,Shipwreck Bay
+ALBUM_BOOK_4,沉船湾,Sunken Ship
 ALBUM_BOOK_5,水晶洞窟,Crystal Cave
 ALBUM_BOOK_6,海底宫殿,Sea Palace
 ALBUM_BOOK_7,红树林,Mangroves
-ALBUM_BOOK_8,月光潟湖,Moonlit Lagoon
+ALBUM_BOOK_8,月光潟湖,Moonlit Cove
 ALBUM_BOOK_9,火山热泉,Volcano Vents
 ALBUM_BOOK_10,远古遗迹,Ancient Ruins
 ALBUM_BOOK_11,深海峡谷,Deep Trench
@@ -119,7 +120,7 @@ ALBUM_BOOK_13,樱花海湾,Blossom Bay
 ALBUM_BOOK_14,海底集市,Sea Market
 ALBUM_BOOK_15,云朵浮岛,Cloud Isles
 ALBUM_BOOK_16,珍珠贝湾,Pearl Cove
-ALBUM_BOOK_17,齿轮钟湾,Clockwork Bay
+ALBUM_BOOK_17,齿轮钟湾,Gear Harbor
 ALBUM_BOOK_18,歌声海湾,Melody Cove
 ALBUM_CLAIMED,已领取,Claimed
 ALBUM_TAKE,领取,Claim
@@ -156,7 +157,7 @@ CARD_RARITY_NEW,新卡片！,New card!
 TAP_CONTINUE,继续,Continue
 UI_PLAY,开始,Play
 UI_CHALLENGE_TAG,困难,Hard
-DAILY_TITLE,每日挑战,Daily Challenge
+DAILY_TITLE,每日挑战,Daily Puzzle
 ADS_LEFT,剩 %d 次,%d left
 MECH_TITLE,新玩法,New!
 GOT_IT,知道了,Got it
@@ -710,27 +711,27 @@ SPECIES_R65,星冠章,Starcrown
 SPECIES_R66,夜明蟹,Night Pearl
 SPECIES_R67,萤冠虾,Glow Crown
 SPECIES_R68,月牙鱼,Crescentfin
-SPECIES_R69,梦冠豚,Dream Crown
+SPECIES_R69,梦冠豚,Dream Puff
 SPECIES_R70,星光鳐,Starray
 SPECIES_R71,夜露螺,Night Dew
 SPECIES_R72,银月鹦,Silver Parrot
-SPECIES_R73,熔晶蟹,Magma Crown
+SPECIES_R73,熔晶蟹,Magma Crab
 SPECIES_R74,火冠虾,Flame Crown
 SPECIES_R75,炎珠章,Ember Pearl
 SPECIES_R76,红玉管虫,Ruby Plume
 SPECIES_R77,金硫鱼,Gold Sulfur
 SPECIES_R78,熔光母,Lava Glow
-SPECIES_R79,火山龟,Volcano Turtle
+SPECIES_R79,火山龟,Ember Turtle
 SPECIES_R80,炉石螺,Hearthstone
 SPECIES_R81,焰尾鳐,Flametail
 SPECIES_R82,神殿蟹,Temple Crab
-SPECIES_R83,金桂鱼,Golden Laurel
+SPECIES_R83,金桂鱼,Gold Laurel
 SPECIES_R84,石灵龟,Stone Spirit
 SPECIES_R85,圣杯母,Chalice
 SPECIES_R86,王冠鳐,Crown Ray
 SPECIES_R87,玉璧鱼,Jade Disc
 SPECIES_R88,宝瓶章,Treasure Jar
-SPECIES_R89,遗迹海马,Relic Seahorse
+SPECIES_R89,遗迹海马,Relic Horse
 SPECIES_R90,金币鳗,Coin Eel
 SPECIES_R91,深渊冠母,Abyss Crown
 SPECIES_R92,光圈鱼,Haloed
@@ -742,20 +743,20 @@ SPECIES_R97,晶眼鱼,Crystal Eye
 SPECIES_R98,夜光参,Night Cuke
 SPECIES_R99,银冠蛛,Silver Spider
 SPECIES_R100,星冠鲸,Star Crown
-SPECIES_R101,银河马,Galaxy Seahorse
-SPECIES_R102,月冠鳐,Moon Crown Ray
-SPECIES_R103,星钻蟹,Star Diamond
-SPECIES_R104,彗星章,Comet Crown
+SPECIES_R101,银河马,Galaxy Pony
+SPECIES_R102,月冠鳐,Moon Ray
+SPECIES_R103,星钻蟹,Gem Crab
+SPECIES_R104,彗星章,Comet Octo
 SPECIES_R105,极光鱼,Aurora Fish
 SPECIES_R106,星珠母,Star Pearl
 SPECIES_R107,星梦豚,Star Dream
 SPECIES_R108,星鹅鱼,Swanfin
-SPECIES_R109,樱冠鲤,Blossom Carp
+SPECIES_R109,樱冠鲤,Bloom Carp
 SPECIES_R110,珠樱虾,Pearl Sakura
 SPECIES_R111,花仙章,Petal Fairy
-SPECIES_R112,月樱鳐,Moon Blossom
-SPECIES_R113,春灯鲷,Lantern Bream
-SPECIES_R114,樱珠蟹,Blossom Crab
+SPECIES_R112,月樱鳐,Bloom Ray
+SPECIES_R113,春灯鲷,Lamp Bream
+SPECIES_R114,樱珠蟹,Bloom Crab
 SPECIES_R115,花冠兔,Bloom Bunny
 SPECIES_R116,露珠龟,Dew Turtle
 SPECIES_R117,柳叶鱼,Willow
@@ -766,10 +767,10 @@ SPECIES_R121,珠伞鱿,Pearl Squid
 SPECIES_R122,银鲳仙,Silver Pompy
 SPECIES_R123,茶仙虾,Tea Sprite
 SPECIES_R124,灯会豚,Lantern Puff
-SPECIES_R125,花帽鲷,Flower Bream
+SPECIES_R125,花帽鲷,Petal Bream
 SPECIES_R126,珠贝商,Pearl Mussel
 SPECIES_R127,云冠豚,Cloud Crown
-SPECIES_R128,虹珠马,Rainbow Pearl
+SPECIES_R128,虹珠马,Prism Pearl
 SPECIES_R129,天使鳐,Sky Angel
 SPECIES_R130,晴光鱼,Sunbeam
 SPECIES_R131,雨珠母,Raindrop
@@ -777,7 +778,7 @@ SPECIES_R132,羽冠龟,Plume Turtle
 SPECIES_R133,云纱章,Veil Octo
 SPECIES_R134,珠云蟹,Cloud Pearl
 SPECIES_R135,霞光虾,Dawn Shrimp
-SPECIES_R136,珠后蝶,Pearl Empress
+SPECIES_R136,珠后蝶,Pearl Belle
 SPECIES_R137,虹贝章,Opal Octo
 SPECIES_R138,月珠鳗,Moon Eel
 SPECIES_R139,珠贝仙,Shell Fairy
@@ -786,9 +787,9 @@ SPECIES_R141,星珠虾,Starbead
 SPECIES_R142,粉珠母,Rose Pearl
 SPECIES_R143,珠冠蟹,Pearl Crown
 SPECIES_R144,雪珠兔,Snow Pearl
-SPECIES_R145,金钟螺,Gold Nautilus
+SPECIES_R145,金钟螺,Gold Shell
 SPECIES_R146,时光鱼,Timekeeper
-SPECIES_R147,铜冠虾,Copper Crown
+SPECIES_R147,铜冠虾,Brass Prawn
 SPECIES_R148,星齿章,Star Gear
 SPECIES_R149,钟楼蟹,Clocktower
 SPECIES_R150,月轮母,Moonwheel
@@ -802,7 +803,7 @@ SPECIES_R157,银铃母,Silver Bell
 SPECIES_R158,月光号,Moon Horn
 SPECIES_R159,和声豚,Harmony
 SPECIES_R160,金笛鳗,Golden Flute
-SPECIES_R161,晨曲螺,Morning Song
+SPECIES_R161,晨曲螺,Dawn Song
 SPECIES_R162,舞会章,Ball Dancer
 SPECIES_E01,晶背宝,Crystal Back
 SPECIES_E02,星披披,Star Cape
@@ -830,66 +831,66 @@ SPECIES_E23,晶企鹅,Frost Knight
 SPECIES_E24,极光鲸,Borealis
 SPECIES_E25,钻石蟹,Diamond
 SPECIES_E26,龙王王,Dragon King
-SPECIES_E27,宫灯后,Lantern Queen
+SPECIES_E27,宫灯后,Lamp Queen
 SPECIES_E28,凤羽鱼,Phoenix
 SPECIES_E29,星云章,Nebula
 SPECIES_E30,月神马,Selene
 SPECIES_E31,翡根龙,Rootdragon
 SPECIES_E32,金鳄王,Croc King
-SPECIES_E33,萤光鲎,Lantern Dome
+SPECIES_E33,萤光鲎,Glow Dome
 SPECIES_E34,森灵儒艮,Grove Spirit
 SPECIES_E35,宝根蟹,Jewel Crab
 SPECIES_E36,月华龙,Moon Dragon
-SPECIES_E37,星河鳐,Milky Way Ray
+SPECIES_E37,星河鳐,Galaxy Ray
 SPECIES_E38,夜后章,Night Queen
-SPECIES_E39,萤光凤,Firefly Phoenix
+SPECIES_E39,萤光凤,Firebird
 SPECIES_E40,月宫兔,Moon Rabbit
 SPECIES_E41,熔岩龙,Lava Dragon
-SPECIES_E42,炎晶鲸,Magma Whale
+SPECIES_E42,炎晶鲸,Lava Whale
 SPECIES_E43,火山神蟹,Volcano Lord
 SPECIES_E44,熔金章,Molten Gold
 SPECIES_E45,红宝管,Ruby Spire
-SPECIES_E46,守护石龙,Guardian Dragon
+SPECIES_E46,守护石龙,Stone Wyrm
 SPECIES_E47,太阳神龟,Sun Turtle
 SPECIES_E48,黄金面具鱼,Golden Mask
 SPECIES_E49,圣杯水母,Grail Jelly
 SPECIES_E50,水晶神鳐,Crystal Ray
-SPECIES_E51,深渊龙,Abyss Dragon
+SPECIES_E51,深渊龙,Deep Dragon
 SPECIES_E52,鮟鱇王,Angler King
 SPECIES_E53,幽光鲸,Ghost Whale
 SPECIES_E54,极光鱿,Aurora Squid
-SPECIES_E55,虹光管母,Rainbow Siphon
-SPECIES_E56,星河龙,Galaxy Dragon
-SPECIES_E57,宇宙鲸王,Cosmos Whale
+SPECIES_E55,虹光管母,Glow Siphon
+SPECIES_E56,星河龙,Star Dragon
+SPECIES_E57,宇宙鲸王,Space Whale
 SPECIES_E58,太阳鳐,Solar Ray
 SPECIES_E59,星环章,Ring Lord
-SPECIES_E60,极光天马,Aurora Pegasus
-SPECIES_E61,樱龙龙,Blossom Dragon
+SPECIES_E60,极光天马,Aurora Steed
+SPECIES_E61,樱龙龙,Bloom Wyrm
 SPECIES_E62,金鲤王,Carp King
-SPECIES_E63,花神鳐,Bloom Goddess
+SPECIES_E63,花神鳐,Flora Ray
 SPECIES_E64,樱晶蟹,Rose Quartz
 SPECIES_E65,春之鲸,Spring Whale
-SPECIES_E66,灯王龙,Lantern Dragon
-SPECIES_E67,宝市鲸,Bazaar Whale
+SPECIES_E66,灯王龙,Lamp Wyrm
+SPECIES_E67,宝市鲸,Trade Whale
 SPECIES_E68,招财蟹,Fortune Crab
-SPECIES_E69,琉璃章,Glass Octopus
+SPECIES_E69,琉璃章,Glass Octo
 SPECIES_E70,宝灯鳐,Jewel Ray
-SPECIES_E71,云龙龙,Cloud Dragon
+SPECIES_E71,云龙龙,Sky Dragon
 SPECIES_E72,天空鲸,Sky Whale
 SPECIES_E73,彩虹鳐,Rainbow Ray
 SPECIES_E74,雷光豚,Thunder
-SPECIES_E75,日轮马,Sun Seahorse
+SPECIES_E75,日轮马,Sun Steed
 SPECIES_E76,珍珠龙,Pearl Dragon
 SPECIES_E77,砗磲王,Clam King
 SPECIES_E78,宝珠鲸,Orb Whale
 SPECIES_E79,欧泊鳐,Opal Ray
 SPECIES_E80,皇冠蝶,Crown Fly
 SPECIES_E81,机械龙,Clock Dragon
-SPECIES_E82,钟表鲸,Chrono Whale
+SPECIES_E82,钟表鲸,Clock Whale
 SPECIES_E83,齿轮王,Gear King
-SPECIES_E84,星轨螺,Orbit Nautilus
+SPECIES_E84,星轨螺,Orbit Shell
 SPECIES_E85,晶钟母,Crystal Bell
-SPECIES_E86,乐章龙,Symphony Dragon
+SPECIES_E86,乐章龙,Song Dragon
 SPECIES_E87,天籁鲸,Choir Whale
 SPECIES_E88,金琴蟹,Lyre King
 SPECIES_E89,歌光母,Aurora Song

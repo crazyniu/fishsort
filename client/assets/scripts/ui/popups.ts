@@ -519,7 +519,8 @@ export function revealCards(cards: CardResult[], done?: () => void): void {
   // 名字在卡框下面那条浅色名字条上：深蓝字、不描边
   const name = text(front, sp ? speciesName(sp.id) : c.id, 40, { color: INK.ink, outline: null, shadow: false });
   at(name.node, 0, -160);
-  fit(name, 250, 40, 24);
+  // 名字条宽 293：生物名都放得下，不缩字
+  fit(name, 270, 40, 24);
   // 稀有度写在卡片上面（用户 2026-11-16：放下面挤着「已自动换成」那一行），翻完才出来
   const rar = text(p.body, tr(`UI_RARITY_${c.rarity.toUpperCase()}`), 44, { color: RARITY_GLOW[c.rarity] });
   at(rar.node, 0, 60 + 254 + 50);

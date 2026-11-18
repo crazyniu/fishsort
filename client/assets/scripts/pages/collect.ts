@@ -280,13 +280,14 @@ export class CollectPage extends Page {
     at(bowl, 0, 50);
     const fish = img(cell, `fish/${sp.id}`, 140, 140, 'fish');
     at(fish, 0, 40);
-    const plate = slice(cell, 'kit/capsule', 190, 52, 'plate');
+    // 名牌几乎和格子一样宽（格子 224）：生物名字号不缩，英文名都按能放 200 起的（用户 2026-11-18：放不下就精简文字）
+    const plate = slice(cell, 'kit/capsule', 216, 52, 'plate');
     at(plate, 0, -58);
     if (owned > 0) {
       // 有的卡：名牌染成稀有度的颜色，白字
       (plate.getChildByName('skin')?.getComponent(Sprite) as Sprite).color = hex(RARITY_PLATE[sp.rarity] ?? '#3C5FA8');
       setInk(plate, WHITE_INK);
-      fit(text(plate, speciesName(sp.id), 30), 170, 30, 18);
+      fit(text(plate, speciesName(sp.id), 30), 200, 30, 18);
       Alive.idle(fish, Alive.shapeOf(sp.id), Math.floor(Math.random() * 5));
       Alive.blink(fish, sp.id, 140);
       const ring = RARITY_GLOW[sp.rarity];

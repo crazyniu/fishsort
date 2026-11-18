@@ -18,6 +18,7 @@ import {
   VerticalTextAlignment,
   tween,
 } from 'cc';
+import { DEBUG } from 'cc/env';
 import { frame, frameAsync, peek, uiFont } from './res';
 
 export const RES = 3;
@@ -468,7 +469,12 @@ export function fit(l: Label, maxW: number, base = l.fontSize, min = 20): void {
   if (w <= maxW) return;
   l.fontSize = Math.max(min, Math.floor((base * maxW) / w));
   l.updateRenderData(true);
+  // 调试构建：记下每次缩字（用户 2026-11-18：文字不缩放，太长就精简文字）。检查工具和控制台 fsDebug.fitLog 能看到
+  if (DEBUG) fitLog.push({ text: l.string, base, size: l.fontSize, need: Math.round(w), room: Math.round(maxW) });
 }
+
+/** 调试构建里每次 fit 缩了字的记录（文字、原字号、缩到几号、需要多宽、能放多宽） */
+export const fitLog: { text: string; base: number; size: number; need: number; room: number }[] = [];
 
 /** 一行里左边标题、右边小字状态，一共 room 宽：右边最多占一半，剩下的给左边，中间至少留 gap */
 export function fitPair(left: Label, right: Label, room: number, leftBase: number, rightBase: number, gap = 14): void {

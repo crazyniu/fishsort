@@ -325,8 +325,10 @@ export class GamePage extends Page {
     } else {
       this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
       at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-      const lc = capsule(this.stage, 160, 66, null, levelName, 30, 'skin/f_hud');
-      at(lc.node, Screen.W / 2 - 24 - 74 - 10 - 80, hudY);
+      // 宽度按最长的写法定（第 360 关、Level 360），字号不缩
+      const lc = capsule(this.stage, 160, 66, null, levelName, 30, 'skin/f_hud', this.arg.daily ? levelName : tr('UI_LEVEL', App.config.levelCount));
+      const lcW = (lc.node.getComponent(UITransform) as UITransform).width;
+      at(lc.node, Screen.W / 2 - 24 - 74 - 10 - lcW / 2, hudY);
     }
     // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
     this.clockCap = null;
@@ -462,7 +464,8 @@ export class GamePage extends Page {
     at(lockIcon, 0, 14);
     const lockLabel = text(lock, '', 22);
     at(lockLabel.node, 0, -46);
-    lockLabel.string = tr('H_UNLOCKS_AT', Skills.unlockLevel(App.config.eco, id));
+    // 技能格子窄，「第 N 关解锁」放不下；和主页入口一样写「等级 N」，字号不缩（用户 2026-11-18：放不下就精简文字）
+    lockLabel.string = tr('H_ENTRY_LOCKED', Skills.unlockLevel(App.config.eco, id));
     fit(lockLabel, S - 8, 22, 14);
     onTap(node, () => Flow.useSkill(this, id));
     this.skillNodes.set(id, { node, icon, count, lock, plus, name: name.node, badge });
