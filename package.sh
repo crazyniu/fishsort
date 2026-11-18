@@ -15,7 +15,7 @@ cocos_build() {
 
 # ---------------------------------------------------------------- 微信小游戏（docs/10 第 4 节）
 
-# 构建 → resources 挪到网上（tools/wechat/remote.mjs）→ 有 tcb（云开发命令行）就传到云开发的静态网站托管
+# 构建 → resources 挪到网上并瘦身（tools/wechat/remote.mjs）→ 有 tcb（云开发命令行）就传到云开发的静态网站托管；NO_UPLOAD=1 只打包不传
 wechat_build() {
   local env remote="client/build/wechatgame-remote/remote"
   node tools/native/apply.mjs
@@ -23,7 +23,9 @@ wechat_build() {
   node tools/wechat/remote.mjs
   [ -d "$remote" ] || return 0
   env="$(node -p "require('./game.json').wechat.cloudEnv || ''")"
-  if [ -n "$env" ] && command -v tcb >/dev/null 2>&1; then
+  if [ "${NO_UPLOAD:-}" = 1 ]; then
+    echo "· NO_UPLOAD=1：这次不上传，资源在 ${remote}"
+  elif [ -n "$env" ] && command -v tcb >/dev/null 2>&1; then
     echo "· 上传资源到云开发环境 ${env} 的静态网站托管 …"
     tcb hosting deploy "$remote" remote -e "$env" || die "上传失败：先 tcb login，或在云开发控制台「静态网站托管」里手动上传 ${remote} 整个文件夹"
     echo "✓ 资源已上传"

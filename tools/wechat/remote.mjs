@@ -9,9 +9,15 @@
 //   3. settings 里写上资源地址（game.json 的 wechat.remoteUrl），把 resources 标成远程包，并且不在启动前预读——
 //      由我们的加载页去下（Boot.ts），这样能显示进度、失败了能重试。
 // 这和在 Cocos 里把资源包勾成「远程包」得到的结果一样，只是不用改编辑器里的配置。
-// 之后把 client/build/wechatgame-remote/remote 整个传到云存储根目录（package.sh 里有 tcb 就自动传）。
+// 挪出去的资源再瘦身，画质和数据都不变（docs/04 第 8 节）：
+//   4. 关卡文件去掉游戏不读的参考解和写成默认值的字段（slimlevel.mjs，client/tests/slimlevel.test.ts 验证全部关卡读出来一样）；
+//   5. PNG 无损重压（pngpack.mjs，每张解码回来逐像素比对，一样才替换）。
+// 文件名里的 MD5 是 Cocos 按构建时的内容算的，这两步不改文件名：同样的源文件每次处理结果都一样。
+// 之后把 client/build/wechatgame-remote/remote 整个传到静态网站托管根目录（package.sh 里有 tcb 就自动传）。
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { packPng } from './pngpack.mjs';
+import { slimImportJson } from './slimlevel.mjs';
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const BUILD = join(ROOT, 'client/build/wechatgame');
@@ -76,6 +82,36 @@ a.server = server;
 a.remoteBundles = Array.from(new Set([...(a.remoteBundles ?? []), 'resources']));
 a.preloadBundles = (a.preloadBundles ?? []).filter((b) => b.bundle !== 'resources');
 writeFileSync(settingsPath, JSON.stringify(settings));
+
+// 4、5. 瘦身
+function files(dir, ext) {
+  const out = [];
+  for (const f of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, f.name);
+    if (f.isDirectory()) out.push(...files(p, ext));
+    else if (f.name.endsWith(ext)) out.push(p);
+  }
+  return out;
+}
+const before = sizeOf(join(OUT, 'remote'));
+let levels = 0;
+for (const p of files(remote, '.json')) {
+  const slim = slimImportJson(readFileSync(p, 'utf8'));
+  if (slim !== null) {
+    writeFileSync(p, slim);
+    levels++;
+  }
+}
+const pngs = files(remote, '.png');
+let pngBefore = 0;
+let pngAfter = 0;
+for (let i = 0; i < pngs.length; i += 8) {
+  for (const [a0, b0] of await Promise.all(pngs.slice(i, i + 8).map(packPng))) {
+    pngBefore += a0;
+    pngAfter += b0;
+  }
+}
+console.log(`✓ 瘦身：${levels} 个关卡文件去掉不用的内容；${pngs.length} 张 PNG 无损重压 ${mb(pngBefore)} → ${mb(pngAfter)}；合计 ${mb(before)} → ${mb(sizeOf(join(OUT, 'remote')))}`);
 
 // 主包大小：微信工程目录里的全部文件
 const main = sizeOf(BUILD);
