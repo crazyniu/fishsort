@@ -145,7 +145,14 @@ export interface EconomyConfig {
     /** 看广告得命，每天几次 */
     adDaily?: number;
   };
-  skills: { order: SkillId[]; grantOnUnlock: number; freePerDay: number; freeDaily?: number };
+  skills: {
+    order: SkillId[];
+    grantOnUnlock: number;
+    freePerDay: number;
+    freeDaily?: number;
+    /** 第 1 关到第几关（含）：每关第一次用技能免费（2026-11-18；没配 = 没有这一条） */
+    freeLevelUntil?: number;
+  };
   seas?: Sea[];
   album: { books: Book[]; final: Reward };
   dex: { tiers: number[]; coins: number[] };

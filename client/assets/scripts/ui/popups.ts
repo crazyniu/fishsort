@@ -228,7 +228,7 @@ export function needCoins(short: number, after?: () => void): void {
   }
 }
 
-/** 花金币：够就扣并返回 true；不够弹「金币不足」 */
+/** 花金币前先问够不够：够返回 true（不扣，扣钱由调用方或 core 的 buy 做一次）；不够弹「金币不足」 */
 export function spend(cost: number): boolean {
   const s = App.save.data;
   if (s.coins >= cost) return true;
