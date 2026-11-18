@@ -183,7 +183,6 @@ RANK_TITLE,周排行,Leaderboard
 RANK_RESET_IN,%d 天后重置,Resets in %dd
 RANK_ME,我,Me
 RANK_LEVELS,%d 关,Lv.%d
-PRIZE_RANDOM_SKILL,随机道具 ×%d,Random booster ×%d
 PROFILE_TITLE,个人资料,Profile
 PROFILE_DEFAULT_NAME,小鱼玩家,Player
 PROFILE_LEVEL,关卡,Level
