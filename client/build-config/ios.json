@@ -14,7 +14,7 @@
   "outputName": "ios",
   "packages": {
     "ios": {
-      "packageName": "com.poppoprescue.game",
+      "packageName": "dabudian.top.fish",
       "orientation": {
         "portrait": true,
         "upsideDown": false,
