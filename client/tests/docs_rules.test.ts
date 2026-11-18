@@ -308,8 +308,8 @@ describe('读档（测试开发版不导入旧存档，docs/09 第 8 节）', ()
 
 describe('经济数字与 docs/01 第 6 节一致', () => {
   it('收入与支出', () => {
-    assert.equal(ECO.levelCoins, 40);
-    assert.equal(ECO.challengeCoins, 80);
+    assert.equal(ECO.levelCoins, 30);
+    assert.equal(ECO.challengeCoins, 60);
     assert.deepEqual(ECO.combo.tiers.map((t) => t.coins), [1, 1, 1, 2]);
     assert.equal(ECO.combo.maxCoinsPerLevel, 12);
     assert.deepEqual(ECO.freeCoin, { amount: 60, daily: 5 });
@@ -332,13 +332,13 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(dex, 6390);
   });
 
-  it('一关的收入不超过 60，一条命至少值一关，一个技能至少值四关（第 6.3 节守住的几条；2026-11-18 过关金币翻倍后重定）', () => {
-    const PER_LEVEL = 54; // 一关约 54：过关 40 + 连击和最高连击奖约 14
-    assert.ok(ECO.levelCoins + ECO.combo.maxCoinsPerLevel + ECO.combo.bestBonus.max <= 60, '普通关最多 60');
-    assert.ok(ECO.challengeCoins <= 80);
-    assert.ok(ECO.lives.buyOneCoins >= PER_LEVEL, '一条命 ≥ 一关收入');
-    for (const p of Object.values(ECO.toolPrice)) assert.ok(p >= 4 * PER_LEVEL, '最便宜的技能也要四关的收入：后期挣的不够买，才会缺金币');
-    assert.ok(ECO.bowlSlotCoinPrice >= 4 * PER_LEVEL);
+  it('一关的收入不超过 50，一条命至少值一关半，一个技能至少值五关（第 6.3 节守住的几条；2026-11-18 过关金币 20 → 30 后重定）', () => {
+    const PER_LEVEL = 44; // 一关约 44：过关 30 + 连击和最高连击奖约 14
+    assert.ok(ECO.levelCoins + ECO.combo.maxCoinsPerLevel + ECO.combo.bestBonus.max <= 50, '普通关最多 50');
+    assert.ok(ECO.challengeCoins <= 60);
+    assert.ok(ECO.lives.buyOneCoins >= 1.5 * PER_LEVEL, '一条命 ≥ 一关半的收入');
+    for (const p of Object.values(ECO.toolPrice)) assert.ok(p >= 5 * PER_LEVEL, '最便宜的技能也要五关的收入：挣的不够买，才会缺金币');
+    assert.ok(ECO.bowlSlotCoinPrice >= 5 * PER_LEVEL);
   });
 });
 

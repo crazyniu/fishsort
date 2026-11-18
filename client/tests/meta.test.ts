@@ -261,9 +261,9 @@ describe('结算（docs/01 3.3）', () => {
   it('金币、进度、首胜', () => {
     const [save, eco] = setup(3);
     let r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW, combo_coins: 9, best_combo: 7 });
-    assert.equal(r.coins_base, 40);
+    assert.equal(r.coins_base, 30);
     assert.equal(r.coins_best, 7, '最高连击奖 7 × 1');
-    assert.equal(r.coins, 40 + 9 + 7);
+    assert.equal(r.coins, 30 + 9 + 7);
     assert.equal(save.coins, r.coins);
     assert.equal(save.level, 4);
     assert.ok(r.first_win && r.wheel_spin);
@@ -272,7 +272,7 @@ describe('结算（docs/01 3.3）', () => {
     assert.deepEqual(r.new_features, ['skill_shuffle']);
     assert.deepEqual(r.new_skills, ['shuffle']);
     r = Settle.win(save, eco, { level: 4, challenge: true, day: 7, now: NOW, best_combo: 40 });
-    assert.equal(r.coins_base, 80);
+    assert.equal(r.coins_base, 60);
     assert.equal(r.coins_best, 8, '最高连击奖封顶 8');
     assert.ok(!r.first_win);
     assert.equal(save.week.cleared, 2);
@@ -283,7 +283,7 @@ describe('结算（docs/01 3.3）', () => {
     for (let i = 0; i < 5; i++) {
       const r = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
       assert.ok(r.replay && r.rewarded && r.chest_ok);
-      assert.equal(r.coins_base, 40);
+      assert.equal(r.coins_base, 30);
     }
     const r6 = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
     assert.ok(!r6.rewarded && !r6.chest_ok && r6.coins === 0);
@@ -295,8 +295,8 @@ describe('结算（docs/01 3.3）', () => {
   it('看广告翻倍', () => {
     const [save, eco] = setup(3);
     const r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW });
-    assert.equal(Settle.doubleCoins(save, eco, r), 40);
-    assert.equal(save.coins, 80);
+    assert.equal(Settle.doubleCoins(save, eco, r), 30);
+    assert.equal(save.coins, 60);
   });
 });
 
