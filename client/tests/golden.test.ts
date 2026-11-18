@@ -2,6 +2,7 @@
 // 黄金数据是迁移时由 Godot 版导出的（docs/09 第 8 节），Godot 工程已删，不能再重新导出。
 // 用的是导出时 Godot 版的配置（golden/economy 等），不是 client 的新配置：这里只证明「逻辑一样」。
 // 局外那一份（meta）2026-11-17 删掉家园建造时重录过：去掉 25 次 HomeBase.build，其余调用按当时逐项一致的实现重放（之后的金币不一样了，没法只跳过那几次）。
+// 2026-11-18 删了分享奖励（微信禁止诱导分享）：数据里的 Share.claim 由下面的 legacyShareClaim 照原规则重放，存档里的 daily.share 不比。
 //
 // 2026-11-16 关卡设计复查（#61）有意改了一部分规则，对应的黄金数据不再比（docs/04 第 3 节的约定），改由 rules / gen 单测按文档守着：
 // - 难度曲线（解锁关、挑战关降幅、障碍节奏）：整项去掉，见 gen.test.ts
@@ -17,6 +18,7 @@ import { generate } from '../assets/scripts/core/gen/levelGen';
 import { GameState } from '../assets/scripts/core/model/gameState';
 import * as Album from '../assets/scripts/core/meta/album';
 import { Combo } from '../assets/scripts/core/meta/combo';
+import * as Daily from '../assets/scripts/core/meta/daily';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Dex from '../assets/scripts/core/meta/dex';
 import * as Features from '../assets/scripts/core/meta/features';
@@ -26,7 +28,6 @@ import * as Meta from '../assets/scripts/core/meta/meta';
 import * as PlayerData from '../assets/scripts/core/meta/playerData';
 import type { SaveData } from '../assets/scripts/core/meta/save';
 import * as Settle from '../assets/scripts/core/meta/settle';
-import * as Share from '../assets/scripts/core/meta/share';
 import * as SignIn from '../assets/scripts/core/meta/signIn';
 import * as Skills from '../assets/scripts/core/meta/skills';
 import * as Wheel from '../assets/scripts/core/meta/wheel';
@@ -42,6 +43,40 @@ const SAVE_SKIP = ['week', 'tasks', 'version'];
 function same(want: unknown, got: unknown, what: string, skip: readonly string[] = []): void {
   const d = diff(want, got, '$', skip);
   assert.equal(d, null, `${what}: ${d}`);
+}
+
+type ShareRule = { daily: number; reward: { coins?: number; life?: number; wheel?: number; skill?: number } };
+
+/** 分享奖励删掉前的 Share.claim（只给黄金数据重放用）：次数按天清零，奖励直接加进存档 */
+function legacyShareClaim(save: SaveData, eco: EconomyConfig, used: { day: number; n: Record<string, number> }, kind: string, day: number, now: number, rng: Rng): unknown {
+  Daily.roll(save, day);
+  if (used.day !== day) {
+    used.day = day;
+    used.n = {};
+  }
+  const rule = (eco as unknown as { share: Record<string, ShareRule> }).share[kind];
+  if ((used.n[kind] ?? 0) >= rule.daily) return null;
+  used.n[kind] = (used.n[kind] ?? 0) + 1;
+  const rw = rule.reward;
+  const res = { kind, coins: 0, life: 0, wheel: 0, skill: '' };
+  if (rw.coins !== undefined) {
+    save.coins += rw.coins;
+    res.coins = rw.coins;
+  }
+  if (rw.life !== undefined) res.life = Lives.add(save, eco, rw.life, now);
+  if (rw.wheel !== undefined) {
+    save.wheel.extra += rw.wheel;
+    res.wheel = rw.wheel;
+  }
+  if (rw.skill !== undefined) res.skill = Skills.grantRandom(save, eco, rng);
+  return res;
+}
+
+/** 黄金存档里去掉已删的 daily.share */
+function noShare(s: unknown): unknown {
+  const c = structuredClone(s) as { daily?: Record<string, unknown> };
+  if (c.daily) delete c.daily.share;
+  return c;
 }
 
 const OBSTACLES = ['chain', 'timer', 'fog', 'ice', 'big', 'pairs'] as const;
@@ -150,7 +185,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
       features: string[];
       odds: unknown;
     }>('meta');
-    same(g.create, PlayerData.create(eco), 'PlayerData.create', SAVE_SKIP);
+    same(noShare(g.create), PlayerData.create(eco), 'PlayerData.create', SAVE_SKIP);
     assert.deepEqual(Features.newlyUnlocked(eco, 0, 200), g.features, 'Features.newly_unlocked');
     same(g.odds, Wheel.odds(eco), 'Wheel.odds');
 
@@ -159,6 +194,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
     let combo = new Combo();
     let lastSign: SignIn.SignInResult | null = null;
     let lastWin: Settle.WinResult | null = null;
+    const shareUsed = { day: -1, n: {} as Record<string, number> };
     const n = (v: unknown) => v as number;
     const call = (op: Op): unknown => {
       const a = op.args;
@@ -225,7 +261,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
         case 'Wheel.spins_left':
           return Wheel.spinsLeft(save, eco, n(a[0]));
         case 'Share.claim':
-          return Share.claim(save, eco, a[0] as string, n(a[1]), n(a[2]), rng);
+          return legacyShareClaim(save, eco, shareUsed, a[0] as string, n(a[1]), n(a[2]), rng);
         case 'DailyChallenge.enter':
           return DailyChallenge.enter(save, eco, n(a[0]), a[1] as 'free' | 'ad' | 'coins');
         case 'DailyChallenge.win':
@@ -241,7 +277,7 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
     g.ops.forEach((op, i) => {
       same(op.ret, call(op), `第 ${i + 1} 次调用 ${op.fn}(${JSON.stringify(op.args)})`);
       while (day < g.days.length && g.days[day].ops === i + 1) {
-        same(g.days[day].save, save, `第 ${day + 1} 天结束时的存档`, SAVE_SKIP);
+        same(noShare(g.days[day].save), save, `第 ${day + 1} 天结束时的存档`, SAVE_SKIP);
         day++;
       }
     });

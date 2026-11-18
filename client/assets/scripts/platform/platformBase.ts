@@ -18,7 +18,7 @@ export interface RankEntry {
 /** 平台能力名 */
 /** ads：这一版有广告（game.json 的 ads.enabled、配了广告位、包里有广告 SDK）；没有时看广告的入口整个隐藏，有但暂时加载不出来时入口变灰（adsAvailable） */
 /** health_notice：加载页显示健康游戏忠告（中国大陆上线的版本，即微信版） */
-export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'confirmed_share' | 'vibrate' | 'ad_test' | 'privacy_options';
+export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options';
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';
 
@@ -70,7 +70,7 @@ export abstract class PlatformBase {
 
   saveData(_key: string, _value: string): void {}
 
-  /** true 表示用户已经完成分享；仅弹出分享界面不能领取奖励。 */
+  /** 调起普通分享（不发奖励：微信禁止诱导分享，docs/01 5.8）。true 表示平台报告分享完成 */
   async share(_payload: Record<string, unknown>): Promise<boolean> {
     return false;
   }

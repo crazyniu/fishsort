@@ -6,7 +6,6 @@
 import { Color, Node, Sprite, Tween, Vec3, tween } from 'cc';
 import * as Cards from '../core/meta/cards';
 import type { CardResult } from '../core/meta/save';
-import * as Share from '../core/meta/share';
 import * as Wheel from '../core/meta/wheel';
 import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
@@ -165,25 +164,6 @@ export class WheelPage extends Page {
       twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
       row.push(ad.node);
       ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
-    }
-    if (App.platform.hasCapability('confirmed_share')) {
-      const shareLeft = Share.remaining(s, eco, 'wheel', day);
-      const sh = button(v, {
-        color: 'blue',
-        w: BW,
-        h: 108,
-        onTap: async () => {
-          if (Share.remaining(App.save.data, eco, 'wheel', today()) <= 0) return;
-          if (!(await App.platform.share({ kind: 'wheel' }))) return;
-          Share.claim(App.save.data, eco, 'wheel', today(), now(), new Rng(Date.now() >>> 0));
-          App.save.write();
-          sfx('coin');
-          ui.refresh();
-        },
-      });
-      twoLines(sh, '+1', tr('ADS_LEFT', shareLeft), null, 'kit/ic_share');
-      row.push(sh.node);
-      sh.setEnabled(shareLeft > 0);
     }
     row.forEach((n, i) => at(n, (i - (row.length - 1) / 2) * (BW + 16), y2));
     if (enter) fx.popIn(this.chest, 0, 0.3);

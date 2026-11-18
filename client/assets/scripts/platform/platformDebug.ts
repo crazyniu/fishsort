@@ -93,7 +93,7 @@ export class PlatformDebug extends PlatformBase {
   override hasCapability(cap: Capability): boolean {
     if (cap === 'ads') return this.hasAds;
     if (cap === 'ad_test') return this.hasAds;
-    return cap === 'friend_rank' || cap === 'share' || cap === 'confirmed_share' || cap === 'vibrate';
+    return cap === 'friend_rank' || cap === 'share' || cap === 'vibrate';
   }
 
   /**

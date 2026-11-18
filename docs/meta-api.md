@@ -14,7 +14,7 @@
 | `skillsGranted` | `{技能id: true}` 已发过解锁礼 |
 | `tools` | 新增 `current`（洋流） |
 | `signin` | 新增 `doubledDay` |
-| `daily` | `{day, firstWin, freeCoin, wheelFree, wheelAd, replay, toolFree{}, share{wheel,life,card,help}}` |
+| `daily` | `{day, firstWin, freeCoin, wheelFree, wheelAd, replay, toolFree{}}` |
 | `bestCombo` | 历史最高连击 |
 | `album` | `{claimed[], final, frame}`：领过的册子序号、终极大奖是否已领、专属头像框是否解锁 |
 | `dex` | `{seen{生物id: 累计只数}, claimed{生物id: 已领到第几档}}` |
@@ -53,7 +53,7 @@
 | `Wheel.claim_ad(save, eco, day)` | 看完广告 +1 次，每天 3 次，用完 false |
 | `Wheel.add_spins(save, n)` | 直接加次数 |
 
-分享 +1 次走 `Share.claim(..., "wheel", ...)`。连续 30 次没出史诗以上，下一次必出（结果里 `pity=true`）。
+连续 30 次没出史诗以上，下一次必出（结果里 `pity=true`）。
 
 ## SignIn（七日签到）
 
@@ -128,11 +128,7 @@
 | `Tasks.tiers(eco, scope)` / `can_claim` / `is_claimed` / `claimable(save, eco, day)` | `scope` = `"day"` / `"week"`；`claimable` 是主页入口红点 |
 | `Tasks.claim(save, eco, species, scope, tier, day, now, rng)` | 领一档宝箱，返回奖品列表；不能领返回空数组 |
 
-进度在哪里记：`win`（`Settle.win`、`DailyChallenge.win`）、`daily`（`DailyChallenge.win`）、`skill`（`Skills.try_use`）、`wheel`（`Wheel.spin` / `ten_pull`）在规则里；`rescue`、`combo`（一局结束时）、`ad`（看完激励视频）、`build`、`share` 由界面层调 `Tasks.add`。
-
-## Share（分享）
-
-`Share.remaining(save, eco, kind, day)`、`Share.claim(save, eco, kind, day, now, rng)`。kind：`wheel`（抽奖 +1，1/天）、`life`（命 +1，3/天）、`card`（200 金币，3/天）、`help`（随机技能 1 个，3/天）。次数用完返回 `{}`，否则 `{kind, coins, life, wheel, skill}`。
+进度在哪里记：`win`（`Settle.win`、`DailyChallenge.win`）、`daily`（`DailyChallenge.win`）、`skill`（`Skills.try_use`）、`wheel`（`Wheel.spin` / `ten_pull`）在规则里；`rescue`、`combo`（一局结束时）、`ad`（看完激励视频）、`build` 由界面层调 `Tasks.add`。
 
 ## 其它
 

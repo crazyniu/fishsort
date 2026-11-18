@@ -16,7 +16,6 @@ import * as Meta from '../assets/scripts/core/meta/meta';
 import * as PlayerData from '../assets/scripts/core/meta/playerData';
 import type { SaveData } from '../assets/scripts/core/meta/save';
 import * as Settle from '../assets/scripts/core/meta/settle';
-import * as Share from '../assets/scripts/core/meta/share';
 import * as SignIn from '../assets/scripts/core/meta/signIn';
 import * as Skills from '../assets/scripts/core/meta/skills';
 import * as Wheel from '../assets/scripts/core/meta/wheel';
@@ -396,7 +395,7 @@ describe('抽奖（docs/01 5.5）', () => {
     for (const [id, p] of Object.entries(want)) assert.ok(Math.abs(by[id] - p) < 1e-3, `${id} ${by[id]}`);
   });
 
-  it('次数来源：每天免费 1、首胜 +1、分享 +1、广告每天 3', () => {
+  it('次数来源：每天免费 1、首胜 +1、广告每天 3', () => {
     const [save, eco, species] = setup(30);
     const rng = new Rng(3);
     assert.equal(Wheel.spinsLeft(save, eco, 10), 1);
@@ -406,12 +405,9 @@ describe('抽奖（docs/01 5.5）', () => {
     assert.equal(Wheel.spinsLeft(save, eco, 11), 1);
     assert.ok(Settle.win(save, eco, { level: 29, challenge: false, day: 11, now: NOW }).first_win);
     assert.equal(Wheel.spinsLeft(save, eco, 11), 2);
-    assert.notEqual(Share.claim(save, eco, 'wheel', 11, NOW, rng), null);
-    assert.equal(Share.claim(save, eco, 'wheel', 11, NOW, rng), null);
-    assert.equal(Wheel.spinsLeft(save, eco, 11), 3);
     for (let i = 0; i < 3; i++) assert.ok(Wheel.claimAd(save, eco, 11));
     assert.ok(!Wheel.claimAd(save, eco, 11));
-    assert.equal(Wheel.spinsLeft(save, eco, 11), 6);
+    assert.equal(Wheel.spinsLeft(save, eco, 11), 5);
   });
 
   it('连续 30 次没出史诗以上，下一次必出', () => {
@@ -446,19 +442,7 @@ describe('抽奖（docs/01 5.5）', () => {
   });
 });
 
-describe('分享、签到、每日计数（docs/01 5.6、5.8）', () => {
-  it('分享次数与奖励', () => {
-    const [save, eco] = setup(30);
-    const rng = new Rng(1);
-    for (let i = 0; i < 5; i++) Lives.lose(save, eco, 20, true, NOW);
-    for (let i = 0; i < 3; i++) assert.equal(Share.claim(save, eco, 'life', 9, NOW, rng)?.life, 1);
-    assert.equal(Share.claim(save, eco, 'life', 9, NOW, rng), null);
-    assert.equal(Lives.count(save, eco, NOW), 3);
-    assert.equal(Share.remaining(save, eco, 'life', 10), 3);
-    assert.equal(Share.claim(save, eco, 'card', 9, NOW, rng)?.coins, 40);
-    assert.notEqual(Share.claim(save, eco, 'help', 9, NOW, rng)?.skill, '');
-  });
-
+describe('签到、每日计数（docs/01 5.6）', () => {
   it('七日签到', () => {
     const [save, eco, species] = setup(30);
     const rng = new Rng(4);
@@ -502,13 +486,11 @@ describe('分享、签到、每日计数（docs/01 5.6、5.8）', () => {
     const [save, eco] = setup(30);
     Skills.tryUse(save, eco, 'shuffle', 0, 3);
     save.daily.replay = 4;
-    save.daily.share.wheel = 1;
     Daily.roll(save, 3);
     assert.equal(save.daily.replay, 4);
     Daily.roll(save, 4);
     assert.equal(save.daily.replay, 0);
     assert.deepEqual(save.daily.toolFree, {});
-    assert.equal(save.daily.share.wheel, 0);
     save.week.cleared = 9;
     save.week.points = 120;
     save.week.taskClaimed = [0];

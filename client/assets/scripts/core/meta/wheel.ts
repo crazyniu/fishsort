@@ -1,5 +1,5 @@
 // 抽奖（宝箱抽奖页），见 docs/01 第 5.5 节。存档 save.wheel = { extra, dry, total }：
-// extra 存下来的额外次数，dry 是连续没出史诗以上的次数；每日计数在 save.daily 的 wheelFree / wheelAd 与 share.wheel。
+// extra 存下来的额外次数，dry 是连续没出史诗以上的次数；每日计数在 save.daily 的 wheelFree / wheelAd。
 import type { EconomyConfig, Species, WheelPrize } from '../config';
 import type { Rng } from '../rng/rng';
 import * as Album from './album';

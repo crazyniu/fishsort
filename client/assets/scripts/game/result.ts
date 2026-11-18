@@ -3,11 +3,8 @@
 import { Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Cards from '../core/meta/cards';
 import * as Settle from '../core/meta/settle';
-import * as Share from '../core/meta/share';
-import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
-import { now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
@@ -149,9 +146,8 @@ export class ResultPage extends Page {
     const eco = App.config.eco;
     let dbl: Btn | null = null;
     const bestCard = d.cards.reduce((m, cd) => Math.max(m, Cards.rank(eco, cd.rarity)), -1);
-    const canRewardShare = App.platform.hasCapability('confirmed_share');
-    const showShare = App.platform.hasCapability('share') && bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare'))
-      && (!canRewardShare || Share.remaining(s, eco, 'card', today()) > 0);
+    // 只是普通分享，不发奖励：微信禁止诱导分享（docs/01 5.8）
+    const showShare = App.platform.hasCapability('share') && bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare'));
     // 最下面一行：主页（蓝）· 分享（蓝，开出稀有以上的卡时才有）· 翻倍（黄，今天重玩奖励领完时没有），按个数等宽排开
     const count = 1 + (showShare ? 1 : 0) + (hasDouble ? 1 : 0);
     const bw = count >= 3 ? 214 : count === 2 ? 290 : 340;
@@ -181,14 +177,7 @@ export class ResultPage extends Page {
         h: 90,
         icon: 'kit/ic_share',
         label: tr('UI_SHARE_SHORT'),
-        onTap: async () => {
-          if (!share?.enabled) return;
-          if (!(await App.platform.share({ kind: 'card' })) || !canRewardShare) return;
-          Share.claim(s, eco, 'card', today(), now(), new Rng(Date.now() >>> 0));
-          App.save.write();
-          share.setEnabled(false);
-          sfx('coins');
-        },
+        onTap: () => void App.platform.share({ kind: 'card' }),
       });
     }
     const next = button(c, { color: 'green', w: 540, h: 130, label: tr('UI_NEXT_LEVEL'), fontSize: 64, onTap: () => void Flow.afterResult(d, true) });

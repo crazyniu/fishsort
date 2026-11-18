@@ -129,7 +129,7 @@ export class PlatformNative extends PlatformBase {
   override hasCapability(cap: Capability): boolean {
     // 隐私选项是广告的同意设置，没有广告就不要
     if (cap === 'ads' || cap === 'privacy_options') return this.hasAds();
-    return (cap === 'confirmed_share' && this.id === 'ios') || cap === 'share' || cap === 'vibrate';
+    return cap === 'share' || cap === 'vibrate';
   }
 
   private hasAds(): boolean {
