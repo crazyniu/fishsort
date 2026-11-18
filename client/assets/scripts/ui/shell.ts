@@ -50,8 +50,14 @@ export function pageHead(parent: Node, title: string, o: { onBack?: () => void; 
   back.name = 'back';
   if (Screen.cap) {
     // 标题牌和平常一样大（用户 2026-11-18：缩到胶囊高太小了），居中；最宽只能到胶囊左边那个圆按钮前面（两边对称），字太长就缩小
-    // 宽度按字来、两边留得窄一点，不撑到最小 220（用户 2026-11-18：标题牌再小一点，别贴着胶囊左边的圆按钮）
-    at(pageTitle(parent, title, HEAD_TITLE, Math.floor(2 * (Screen.headRight - 16)), 150, 1.0), 0, y);
+    // 宽度按字来、两边留得窄一点，不撑到最小 220（用户 2026-11-18：标题牌再小一点，别贴着胶囊左边的圆按钮）。
+    // 字号各页统一、不缩（用户 2026-11-18：标题文字大小统一）：放得下就居中；长标题（每日挑战）往左挪到圆按钮前面，
+    // 返回键和圆按钮之间也放不下（很长的英文）才缩字
+    const lo = -Screen.W / 2 + 24 + key + 12;
+    const hi = Screen.headRight - 8;
+    const t = pageTitle(parent, title, HEAD_TITLE, Math.floor(hi - lo), 150, 1.0);
+    const tw = (t.getComponent(UITransform) as UITransform).width;
+    at(t, Math.max(lo + tw / 2, Math.min(0, hi - tw / 2)), y);
   } else {
     at(pageTitle(parent, title, HEAD_TITLE), 0, y);
   }
