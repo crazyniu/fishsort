@@ -71,7 +71,7 @@ H_GIVE_UP,放弃,Give Up
 H_UNLOCK_TITLE,新功能,Unlocked!
 H_UNLOCK_LINE,%s 已解锁,%s unlocked
 H_GO_LOOK,去看看,Go
-H_UNLOCKS_AT,第 %d 关解锁,Unlocks at Lv.%d
+H_UNLOCKS_AT,第 %d 关解锁,Level %d
 H_FEAT_SIGNIN,签到,Daily Gift
 H_FEAT_LEVELS,选关,Levels
 H_FEAT_COLLECTION,收藏,Album
@@ -97,7 +97,7 @@ UI_SHARE_SHORT,分享,Share
 TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life"
 TIP_DROP,后面还会掉下新气泡,More bubbles will drop in
 TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time
-TIP_QUEUE,排队泡：里面的鱼排着队，只能取最前面最亮的那条,"Queue bubble: fish line up. Only the bright one in front can go"
+TIP_QUEUE,排队泡：里面的鱼排着队，只能取最前面最亮的那条,Queue bubble: fish line up. Only the bright one in front can go
 TIP_TOOLS3,从这里起关卡更难了，每种道具每关能用 3 次,Levels get harder from here. Each booster can be used 3 times per level
 TIP_BUFFER4,从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具,Only 4 holding slots from here on. They fill up fast — use boosters when stuck
 REVIVE_CLOCK,时间 +30 秒,+30s on the clock
@@ -109,14 +109,14 @@ ALBUM_BOOK_3,海草森林,Kelp Forest
 ALBUM_BOOK_4,沉船湾,Shipwreck Bay
 ALBUM_BOOK_5,水晶洞窟,Crystal Cave
 ALBUM_BOOK_6,海底宫殿,Sea Palace
-ALBUM_BOOK_7,红树林,Mangrove Roots
+ALBUM_BOOK_7,红树林,Mangroves
 ALBUM_BOOK_8,月光潟湖,Moonlit Lagoon
 ALBUM_BOOK_9,火山热泉,Volcano Vents
 ALBUM_BOOK_10,远古遗迹,Ancient Ruins
 ALBUM_BOOK_11,深海峡谷,Deep Trench
 ALBUM_BOOK_12,星海秘境,Starry Sea
 ALBUM_BOOK_13,樱花海湾,Blossom Bay
-ALBUM_BOOK_14,海底集市,Seabed Market
+ALBUM_BOOK_14,海底集市,Sea Market
 ALBUM_BOOK_15,云朵浮岛,Cloud Isles
 ALBUM_BOOK_16,珍珠贝湾,Pearl Cove
 ALBUM_BOOK_17,齿轮钟湾,Clockwork Bay
@@ -150,7 +150,7 @@ WIN_DOUBLE,翻倍,Double
 RETURN_HOME,主页,Home
 SKILL_BUY_TITLE,购买%s,Get %s
 SKILL_AD,+1,+1
-SKILL_LOCKED,第 %d 关解锁,Unlocks at level %d
+SKILL_LOCKED,第 %d 关解锁,Level %d
 TEN_REWARD,十连奖励,×10 Rewards
 CARD_RARITY_NEW,新卡片！,New card!
 TAP_CONTINUE,继续,Continue
@@ -178,7 +178,7 @@ UI_FULL,已满,Full
 SHOP_FREE_COINS,免费金币,Free Coins
 ALBUM_FINAL_PREVIEW,集齐全部册子可领,Complete every album
 DEX_RESCUED,已救 %d 只,Rescued %d
-RANK_TITLE,周排行,Weekly Rank
+RANK_TITLE,周排行,Leaderboard
 RANK_RESET_IN,%d 天后重置,Resets in %dd
 RANK_ME,我,Me
 RANK_LEVELS,%d 关,Lv.%d
