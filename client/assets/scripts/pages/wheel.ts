@@ -163,7 +163,7 @@ export class WheelPage extends Page {
     twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
     at(ad.node, 0, y2);
     ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
-    if (App.platform.hasCapability('share')) {
+    if (App.platform.hasCapability('confirmed_share')) {
       const shareLeft = Share.remaining(s, eco, 'wheel', day);
       const sh = button(v, {
         color: 'blue',
