@@ -8,7 +8,7 @@
   "version": "1.0.0",
   "build": 1,
   "ios": {
-    "bundleId": "com.poppoprescue.game",
+    "bundleId": "dabudian.top.fish",
     "team": "",
     "minVersion": "15.0",
     "admobAppId": "ca-app-pub-3940256099942544~1458002511",
@@ -18,7 +18,7 @@
     }
   },
   "android": {
-    "packageName": "com.poppoprescue.game",
+    "packageName": "dabudian.top.fish",
     "minSdk": 24,
     "targetSdk": 35,
     "admobAppId": "ca-app-pub-3940256099942544~3347511713"

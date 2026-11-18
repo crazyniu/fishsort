@@ -14,7 +14,7 @@
   "outputName": "android",
   "packages": {
     "android": {
-      "packageName": "com.poppoprescue.game",
+      "packageName": "dabudian.top.fish",
       "orientation": {
         "portrait": true,
         "upsideDown": false,
