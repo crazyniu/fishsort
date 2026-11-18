@@ -32,6 +32,9 @@ function sizeOf(p) {
 
 const mb = (n) => `${(n / 1024 / 1024).toFixed(2)} MB`;
 
+// 上一次打包挪出去的资源先清掉（这次可能不挪）
+rmSync(OUT, { recursive: true, force: true });
+
 // 环境变量 WECHAT_REMOTE_URL 能临时顶替 game.json 的（试打包、量主包大小时用）
 let server = String(process.env.WECHAT_REMOTE_URL ?? game.wechat?.remoteUrl ?? '').trim();
 if (!server) {
@@ -54,7 +57,6 @@ const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
 
 // 1. 资源挪到工程外面
 const remote = join(OUT, 'remote/resources');
-rmSync(OUT, { recursive: true, force: true });
 mkdirSync(remote, { recursive: true });
 const indexName = readdirSync(res).find((f) => /^index(\.[0-9a-f]+)?\.js$/.test(f));
 if (!indexName) die('assets/resources 里没有 index.js');
