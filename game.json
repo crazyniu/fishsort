@@ -24,7 +24,10 @@
     "admobAppId": "ca-app-pub-3940256099942544~3347511713"
   },
   "wechat": {
-    "appid": "wx405d751378effc2c"
+    "_comment": "remoteUrl：云存储的下载地址（https 开头，后面跟 remote/resources/...）；cloudEnv：云开发环境 ID，打包时用 tcb 自动上传。两个都空着时资源留在包里，只能在模拟器里跑（docs/10 第 4 节）",
+    "appid": "wx405d751378effc2c",
+    "cloudEnv": "",
+    "remoteUrl": ""
   },
   "ads": {
     "_comment": "enabled：总开关。false = 三端都没有广告：看广告的入口全部隐藏，iOS / Android 不把广告 SDK 打进包、不弹广告同意和跟踪授权（用户 2026-11-18：第一版上架不接广告和内购）。下面是广告位 ID：iOS / Android 现在是 Google 官方的测试广告位；微信要开通流量主后在后台建广告位填进来，空着就当没有广告",

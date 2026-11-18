@@ -1,0 +1,30 @@
+{
+ "zh_CN": {
+  "BOOT_TIP_1": "排队泡里只有最前面那条能点",
+  "BOOT_TIP_2": "同一种三条装满一缸",
+  "BOOT_TIP_3": "卡住了试试洗牌",
+  "BOOT_TIP_4": "暂存槽快满时用吹泡清空",
+  "BOOT_TIP_5": "渔网能把一缸直接装满",
+  "BOOT_TIP_6": "连击越高金币越多",
+  "BOOT_TIP_7": "每天来签到领奖励",
+  "BOOT_TIP_8": "收集卡片能集齐整本收藏册",
+  "BOOT_FAIL": "网络不太好，加载失败",
+  "BOOT_RETRY": "重试",
+  "BOOT_HEALTH": "抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。\n适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。",
+  "BOOT_NAME": "啵啵救援队"
+ },
+ "en": {
+  "BOOT_TIP_1": "Only the front fish in a queue bubble can be taken",
+  "BOOT_TIP_2": "Three of a kind fill a tank",
+  "BOOT_TIP_3": "Stuck? Try Shuffle",
+  "BOOT_TIP_4": "Slots almost full? Use Blow",
+  "BOOT_TIP_5": "The Net fills a whole tank",
+  "BOOT_TIP_6": "Bigger combos, more coins",
+  "BOOT_TIP_7": "Sign in daily for rewards",
+  "BOOT_TIP_8": "Collect cards to finish an album",
+  "BOOT_FAIL": "Couldn't load. Check your connection",
+  "BOOT_RETRY": "Retry",
+  "BOOT_HEALTH": "",
+  "BOOT_NAME": "Pop Pop Rescue"
+ }
+}

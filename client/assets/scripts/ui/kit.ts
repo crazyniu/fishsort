@@ -18,7 +18,7 @@ import {
   VerticalTextAlignment,
   tween,
 } from 'cc';
-import { frame, frameAsync, uiFont } from './res';
+import { frame, frameAsync, peek, uiFont } from './res';
 
 export const RES = 3;
 
@@ -155,14 +155,13 @@ export function at(n: Node, x: number, y: number): Node {
   return n;
 }
 
-/** 普通图片。不给尺寸就按图的显示尺寸；只给宽就按比例 */
+/** 普通图片。不给尺寸就按图的显示尺寸；只给宽就按比例。图还没读（鱼、收藏册封面）就先占位、读到再显示 */
 export function img(parent: Node | null, path: string, w?: number, h?: number, name = path): Node {
   path = IMG_ALIAS[path] ?? path;
   const n = box(name, parent);
   const sp = n.addComponent(Sprite);
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
-  const f = frame(path);
-  setFrame(n, f, w, h);
+  showFrame(n, path, w, h);
   const k = PART_INK[path];
   if (k) inks.set(n, k);
   // 平面的白色图标：在白色容器里染成蓝色，在彩色部件上保持白色
@@ -186,7 +185,22 @@ export function setFrame(n: Node, f: SpriteFrame | null, w?: number, h?: number)
 }
 
 export function setImg(n: Node, path: string, w?: number, h?: number): void {
-  setFrame(n, frame(IMG_ALIAS[path] ?? path), w, h);
+  showFrame(n, IMG_ALIAS[path] ?? path, w, h);
+}
+
+/** 节点最后一次要显示的图：晚到的旧图不覆盖新图 */
+const wanted = new WeakMap<Node, string>();
+
+/** 读好了就直接显示；没读的先按给的尺寸占位（没给尺寸就是 0），读到再显示 */
+function showFrame(n: Node, path: string, w?: number, h?: number): void {
+  wanted.set(n, path);
+  const f = peek(path);
+  if (f) return setFrame(n, f, w, h);
+  (n.getComponent(Sprite) as Sprite).spriteFrame = null;
+  size(n, w ?? h ?? 0, h ?? w ?? 0);
+  void frameAsync(path).then((sf) => {
+    if (sf && n.isValid && wanted.get(n) === path) setFrame(n, sf, w, h);
+  });
 }
 
 /** 大图（背景、家园场景）：先建节点，读到再显示 */

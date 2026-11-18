@@ -25,6 +25,7 @@ import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
 import { Screen } from '../ui/screen';
+import { loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
 import { CARD_ASPECT, RARITY_GLOW, miniCard, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
@@ -229,8 +230,18 @@ export class GamePage extends Page {
     const id = this.arg.level;
     const file = Meta.levelFile(id, config.levelCount);
     const ease = this.arg.daily ? 0 : Meta.easeFor(save.data, eco, id);
+    // 关卡文件和这关的鱼：微信版放在网上，用到时才下（docs/04 第 8 节）。下不下来就提示、回主页（不扣命）
+    let species: string[];
     try {
       this.lv = await config.loadLevel(file, ease);
+      const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
+      species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
+      await loadFrames(species.map((sp) => `fish/${sp}`));
+    } catch (e) {
+      console.warn('关卡读不出来', e);
+      ui.toast(tr('BOOT_FAIL'));
+      ui.go('home');
+      return;
     } finally {
       ui.busy(false);
     }
@@ -242,8 +253,7 @@ export class GamePage extends Page {
     this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
-    const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
-    this.species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
+    this.species = species;
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;
