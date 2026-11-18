@@ -50,7 +50,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 
 ## 常用命令
 
-统一入口是根目录的 `run.sh`，不另建 Makefile。新增命令加到 `run.sh` 里。
+试玩和开发使用根目录的 `run.sh`，独立打包入口为 `package.sh`。
 
 ```bash
 # Mac 上（需要 Cocos Creator）
@@ -60,10 +60,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh page shop             # 启动后直接打开某一页
 ./run.sh real                  # 按真实存档进度（可与上面几个连用，如 ./run.sh real level 3）
 ./run.sh serve                 # 不重新构建，直接打开上次的构建（后面同样可跟 level / auto / page / real）
-./run.sh build                 # 只构建不打开
-./run.sh wechat-build          # 构建微信小游戏包（再用微信开发者工具上传）
-./run.sh ios-build [sim|ipa]   # iOS：出 Xcode 工程；sim = 编一个模拟器版验证；ipa = 归档导出上传用的包（docs/10）
-./run.sh android-build [apk|aab]  # Android：测试用 apk / 上传 Google Play 的 aab（要装 Android Studio）
+./package.sh                   # 输入平台和产物编号，见 docs/10 第 4 节
 ./run.sh native-apply          # 按 game.json 改写各平台的构建配置和原生工程（打包时自动跑）
 ./run.sh editor                # 打开 Cocos Creator
 ./run.sh cdp logs | eval '<表达式>' | shot <文件> | burst <目录> <张数> <间隔毫秒>   # 读控制台、页面里求值、截图、连拍
@@ -82,10 +79,10 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./store/gen.sh && python3 tools/store/export.py    # 上架图：Codex 整张画（字也画在图里）→ 缩放裁成各商店尺寸（store/images）
 ```
 
-Cocos Creator 由 `run.sh` 自动查找（`COCOS_CREATOR` 环境变量 → `/Applications/Cocos/Creator/3.8.8/`）。
+两个脚本都自动查找 Cocos Creator（`COCOS_CREATOR` 环境变量 → `/Applications/Cocos/Creator/3.8.8/`）。
 
 ## 测试环境分工（硬性）
 
 13. **Linux 开发机只写代码，不跑 Cocos / Blender**：构建、试玩、截图、界面验收、Blender 出图或导出，一律去用户的 Mac 上做（Node 的检查、单测、关卡校验可以在 Linux 上跑）。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Cocos Creator 3.8.8 在 `/Applications/Cocos/Creator/3.8.8/`），不需要用户手动操作。
-14. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步和 `./run.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
+14. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步、`./run.sh` 和 `./package.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
 15. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
