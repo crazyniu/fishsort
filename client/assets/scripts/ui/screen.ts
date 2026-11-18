@@ -29,7 +29,7 @@ export const Screen = {
    * 微信小游戏右上角的胶囊按钮；没有（App、浏览器）是 null。
    * 有胶囊时页头（返回键、标题、金币，主页顶栏，局内顶栏）挪到胶囊那一行，不再空着（用户 2026-11-18）
    */
-  cap: null as CapsuleRect | null,
+  cap: noCapsule(),
   get top(): number {
     return this.H / 2 - this.safeTop;
   },
@@ -96,6 +96,11 @@ export const Screen = {
     }
   },
 };
+
+/** 初始值「没有胶囊」（Cocos 构建用的 Babel 不认 as X | Y，用函数给类型） */
+function noCapsule(): CapsuleRect | null {
+  return null;
+}
 
 function clampInset(v: number, max: number): number {
   return Number.isFinite(v) ? Math.max(0, Math.min(max, Math.round(v))) : 0;
