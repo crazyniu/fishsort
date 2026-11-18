@@ -188,7 +188,7 @@ export class Field {
 
   private newPile(): Pile {
     const p = App.config.ui.pile;
-    return new Pile(this.w, this.h, { gravity: p.gravity, damping: p.damping, substeps: p.substeps, iterations: p.iterations, gap: App.config.ui.field.gap / 2, sleepSpeed: p.sleepSpeed, sleepTime: p.sleepTime, landSpeed: p.landSpeed, separate: p.separate, linkMin: p.linkMin });
+    return new Pile(this.w, this.h, { gravity: p.gravity, damping: p.damping, substeps: p.substeps, iterations: p.iterations, gap: App.config.ui.field.gap / 2, sleepSpeed: p.sleepSpeed, sleepTime: p.sleepTime, landSpeed: p.landSpeed, separate: p.separate, linkMin: p.linkMin, maxAwake: p.maxAwake });
   }
 
   /** 把气泡 i 从场地上沿放下来（x 是横向位置），交给重力 */

@@ -304,7 +304,7 @@ export interface GameUiConfig {
    * 多快算一次落地、原本叠着的气泡分开的速度、遮挡的一对最近能靠到设计距离的多少、开局气泡一个接一个放下的间隔、
    * 堆的高度最多占场地高度的多少（放不下就把气泡缩小）
    */
-  pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; stagger: number; maxHeight: number };
+  pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number; maxLeft: number };
