@@ -21,8 +21,8 @@ import { ShopPage } from './pages/shop';
 import { LockPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx, startMusic } from './services/audio';
-import { loadStrings, onLanguage } from './ui/i18n';
-import { setTapSound } from './ui/kit';
+import { loadStrings, onLanguage, setLanguage } from './ui/i18n';
+import { fitLog, setTapSound } from './ui/kit';
 import * as Popups from './ui/popups';
 import { livesPopup, settingsPopup } from './ui/popups';
 import { closeAllPopups } from './ui/popup';
@@ -149,7 +149,7 @@ export class Boot extends Component {
     ui.register('adtest', () => new AdTestPage());
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
-    if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups };
+    if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups, fitLog, setLanguage };
     // 调试：直接进关（./run.sh level N、./run.sh auto）；没给关卡号就进当前关
     if (App.flags.play) ui.go('game', { level: App.flags.level > 0 ? App.flags.level : App.save.data.level });
     else if (App.flags.page) ui.go(App.flags.page);
