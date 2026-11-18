@@ -21,6 +21,8 @@ export const PAGE_BOTTOM = 24;
 /** 子页面页头的中线离屏幕顶多远、返回键多大、标题牌多高 */
 export const HEAD_Y = 76;
 const HEAD_KEY = 88;
+/** 微信小游戏里的返回键（页头在胶囊那一行，比平常小一点） */
+const HEAD_KEY_CAP = 76;
 const HEAD_TITLE = 76;
 /** 页头下面的内容从这里开始（离屏幕顶） */
 export const HEAD_BOTTOM = 136;
@@ -44,7 +46,8 @@ function coinsRowY(): number {
 export function pageHead(parent: Node, title: string, o: { onBack?: () => void; coins?: boolean } = {}): Capsule | null {
   const y = Screen.headY;
   const onBack = o.onBack ?? (() => ui.back());
-  const key = Screen.cap ? Screen.headH : HEAD_KEY;
+  // 微信版返回键 76（原来和胶囊一样高 61，用户 2026-11-18：太小）
+  const key = Screen.cap ? HEAD_KEY_CAP : HEAD_KEY;
   const back = keyButton(parent, 'blue', 'kit/ic_back', key, onBack);
   at(back, -Screen.W / 2 + 24 + key / 2, y);
   back.name = 'back';
@@ -55,7 +58,7 @@ export function pageHead(parent: Node, title: string, o: { onBack?: () => void; 
     // 返回键和圆按钮之间也放不下（很长的英文）才缩字
     const lo = -Screen.W / 2 + 24 + key + 12;
     const hi = Screen.headRight - 8;
-    const t = pageTitle(parent, title, HEAD_TITLE, Math.floor(hi - lo), 150, 1.0);
+    const t = pageTitle(parent, title, HEAD_TITLE, Math.floor(hi - lo), 150, 0.8);
     const tw = (t.getComponent(UITransform) as UITransform).width;
     at(t, Math.max(lo + tw / 2, Math.min(0, hi - tw / 2)), y);
   } else {
@@ -111,8 +114,10 @@ class TopBar {
   private frame: Node;
   private shownCoins = -1;
   private shownAvatar = '';
-  /** 尺寸倍数：平常 1；微信小游戏里整条缩到和胶囊一样高 */
+  /** 尺寸倍数：平常 1；微信小游戏里缩一点放进胶囊那一行 */
   private k = 1;
+  /** 头像框边长 */
+  private AV = 92;
   /**
    * 微信小游戏里两条小条按内容定宽、从左往右挨着排（用户 2026-11-18：宽度自适应）：金币条按「9999」定宽（不随数字跳），
    * 生命条随内容（回满前多一截倒计时）。平常（App、浏览器）两条平分头像和设置键之间的宽
@@ -128,7 +133,8 @@ class TopBar {
     // 微信小游戏（有胶囊按钮）：整条挪到胶囊那一行、和胶囊一样高，右边停在胶囊左边（用户 2026-11-18：上面太空）；
     // 那一行放上设置键太挤（用户 2026-11-18），设置键挪到主页底部「开始」的左边（HomePage），这里只放头像、金币、生命
     const withKey = !Screen.cap;
-    const k = Screen.cap ? Screen.headH / 84 : 1;
+    // 微信版：条和字按 0.84 倍（原来缩到胶囊高 0.73 倍，用户 2026-11-18：太小），头像单独放大到 84；整排宽按字体量过放得下
+    const k = Screen.cap ? 0.84 : 1;
     this.k = k;
     const left = -Screen.W / 2 + 20;
     const right = Screen.cap ? Screen.headRight : Screen.W / 2 - 20;
@@ -137,14 +143,15 @@ class TopBar {
     at(this.node, 0, Screen.headY);
     const L = left;
     const G = Math.round(14 * k);
-    const AV = 92 * k;
+    const AV = Screen.cap ? 84 : 92;
+    this.AV = AV;
     const KEY = withKey ? 84 * k : 0;
     const PH = 72 * k;
     // 头像
     this.frame = img(this.node, 'skin/f_avatar', AV, AV, 'avatarFrame');
     at(this.frame, L + AV / 2, 0);
-    this.avatar = img(this.frame, 'icon/avatar', 70 * k, 70 * k, 'avatar');
-    at(this.avatar, 0, 5 * k);
+    this.avatar = img(this.frame, 'icon/avatar', (70 * AV) / 92, (70 * AV) / 92, 'avatar');
+    at(this.avatar, 0, (5 * AV) / 92);
     onTap(this.frame, actions.profile);
     // 设置
     if (withKey) at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), right - KEY / 2, 0);
@@ -194,12 +201,13 @@ class TopBar {
     }
     // 集齐收藏的头像框：换成金色
     const k = this.k;
-    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', 92 * k, 92 * k);
+    const av0 = this.AV;
+    setImg(this.frame, Album.hasFrame(s) ? 'skin/f_avatar_gold' : 'skin/f_avatar', av0, av0);
     // 头像换成收藏生物（docs/01 5.9）
     const av = PlayerData.avatarOf(s);
     if (av !== this.shownAvatar) {
       this.shownAvatar = av;
-      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', 70 * k, 70 * k);
+      setImg(this.avatar, av ? `fish/${av}` : 'icon/avatar', (70 * av0) / 92, (70 * av0) / 92);
     }
     const mmss = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
     let tail = '';
