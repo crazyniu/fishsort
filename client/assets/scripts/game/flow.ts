@@ -642,6 +642,17 @@ export function win(g: GamePage): void {
  * 结算页关掉时：开放了新功能先回主页看解锁动画；否则按插屏频控弹插屏（docs/01 7.1）。
  * 「下一关」接着刚打的那一关往后走（重玩旧关时不跳回最高进度，docs/01 5.7）。
  */
+/**
+ * 过关新开放、还没在主页播过解锁动画的功能。点「下一关」直接进下一关（用户 2026-11-18：开了新功能的那几关点「下一关」回了主页，
+ * 看着像 bug），解锁动画留到下次回主页时播
+ */
+const pendingUnlocks: string[] = [];
+
+/** 主页取走待播的解锁动画（取完清空） */
+export function takeUnlocks(): string[] {
+  return pendingUnlocks.splice(0);
+}
+
 export async function afterResult(d: WinData, next: boolean): Promise<void> {
   const s = App.save.data;
   if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, mono())) {
@@ -649,8 +660,9 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
     App.save.write();
     await App.platform.showInterstitial('int_level_end');
   }
-  if (next && d.result.new_features.length === 0) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));
-  else ui.go('home', { unlocked: d.result.new_features });
+  for (const f of d.result.new_features) if (!pendingUnlocks.includes(f)) pendingUnlocks.push(f);
+  if (next) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));
+  else ui.go('home');
 }
 
 export function revealPending(cards: CardResult[], done: () => void): void {
@@ -680,7 +692,7 @@ export function autoNext(d: WinData): void {
     if (ui.pageName !== 'result') return;
     if (d.level >= autoLast()) {
       App.flags.autoplay = false;
-      ui.go('home', { unlocked: d.result.new_features });
+      ui.go('home');
       return;
     }
     autoStart(d.level + 1);
