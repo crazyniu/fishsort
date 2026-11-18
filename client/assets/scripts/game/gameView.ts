@@ -128,6 +128,22 @@ export class GamePage extends Page {
   ended = false;
   paused = false;
   used: Record<string, number> = {};
+
+  /** 本关各种技能合计已用几次 */
+  get usedAll(): number {
+    return Object.values(this.used).reduce((a, b) => a + b, 0);
+  }
+
+  /** 这一关的关卡号，每日挑战是 0（「前几关第一次用技能免费」不算每日挑战，见 Skills.levelFree） */
+  get freeLevelId(): number {
+    return this.arg.daily ? 0 : this.arg.level;
+  }
+
+  /** 这个技能现在点了是不是免费：本关第一次（前几关）或今天的免费次 */
+  skillFree(id: string): boolean {
+    const eco = App.config.eco;
+    return Skills.levelFree(eco, this.freeLevelId, this.usedAll) || Skills.freeAvailable(App.save.data, id, eco);
+  }
   netMode = false;
   // 画面
   private bg!: Node;
@@ -487,7 +503,7 @@ export class GamePage extends Page {
       opacity(v.icon).opacity = unlocked ? 255 : 110;
       v.name.active = unlocked;
       const n = Skills.count(save, id);
-      const free = Skills.freeAvailable(save, id, App.config.eco);
+      const free = this.skillFree(id);
       v.badge.active = unlocked && (n > 0 || free);
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
@@ -556,7 +572,7 @@ export class GamePage extends Page {
       }
       const v = this.skillNodes.get(id as SkillId);
       if (!v || v.lock.active) continue;
-      const why = Skills.canUse(s, App.config.eco, id, this.used[id] ?? 0, this.arg.daily ? 0 : this.arg.level);
+      const why = Skills.canUse(s, App.config.eco, id, this.used[id] ?? 0, this.freeLevelId, this.usedAll);
       if ((why === '' || why === 'empty') && Flow.hasEffect(this, id) === null) return id;
     }
     return null;

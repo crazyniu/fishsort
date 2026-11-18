@@ -1,6 +1,6 @@
 {
-  "levelCoins": 20,
-  "challengeCoins": 40,
+  "levelCoins": 40,
+  "challengeCoins": 80,
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
@@ -109,7 +109,8 @@
     ],
     "grantOnUnlock": 2,
     "freePerDay": 1,
-    "freeDaily": 1
+    "freeDaily": 1,
+    "freeLevelUntil": 30
   },
   "seas": [
     {

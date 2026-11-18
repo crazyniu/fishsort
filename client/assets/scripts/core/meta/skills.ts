@@ -61,6 +61,16 @@ export function freeAvailable(save: SaveData, id: string, eco?: EconomyConfig): 
   return Object.keys(save.daily.toolFree).length < total;
 }
 
+/**
+ * 这一关的「第一次用技能免费」还在不在（用户 2026-11-18：前面的关卡金币不够，玩不下去）：
+ * 第 1 关到 skills.freeLevelUntil 关，每关第一次用技能（不分种类）不扣库存、不记每天的免费次。
+ * usedAllThisLevel 是本关各种技能合计已用几次（界面层记）；levelId 为 0（每日挑战）不送
+ */
+export function levelFree(eco: EconomyConfig, levelId: number, usedAllThisLevel: number): boolean {
+  const until = eco.skills.freeLevelUntil ?? 0;
+  return levelId > 0 && levelId <= until && usedAllThisLevel === 0;
+}
+
 export interface UseResult {
   ok: boolean;
   free: boolean;
@@ -78,17 +88,22 @@ export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
 }
 
 /** 这个技能现在用得了吗（不扣库存、不记任务，界面层提醒用道具时先问一下）：'' = 能用，其余同 tryUse 的 reason */
-export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, levelId = 0): UseResult['reason'] {
+export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, levelId = 0, usedAllThisLevel = -1): UseResult['reason'] {
   if (!isUnlocked(eco, id, save.level)) return 'locked';
   if (usedThisLevel >= maxPerLevel(eco, levelId)) return 'limit';
+  if (levelFree(eco, levelId, usedAllThisLevel)) return '';
   if (!freeAvailable(save, id, eco) && count(save, id) <= 0) return 'empty';
   return '';
 }
 
-export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number, levelId = 0): UseResult {
+export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number, levelId = 0, usedAllThisLevel = -1): UseResult {
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };
   if (usedThisLevel >= maxPerLevel(eco, levelId)) return { ok: false, free: false, reason: 'limit' };
+  if (levelFree(eco, levelId, usedAllThisLevel)) {
+    Tasks.add(save, eco, day, 'skill');
+    return { ok: true, free: true, reason: '' };
+  }
   if (!freeAvailable(save, id, eco) && count(save, id) <= 0) return { ok: false, free: false, reason: 'empty' };
   Tasks.add(save, eco, day, 'skill');
   if (freeAvailable(save, id, eco)) {

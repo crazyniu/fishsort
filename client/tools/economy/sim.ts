@@ -131,8 +131,10 @@ function main(): void {
   const useTool = (usedThisLevel: Record<string, number>): boolean => {
     const open = Skills.unlockedIds(eco, save.level).filter((id) => (usedThisLevel[id] ?? 0) < Skills.maxPerLevel(eco, level));
     if (open.length === 0) return false;
-    // 先用手里有的（今天的免费次、库存），没有就买：买哪种看当时卡在哪，这里随机取一种
-    const have = open.filter((id) => Skills.freeAvailable(save, id, eco) || Skills.count(save, id) > 0);
+    // 先用手里有的（前几关每关第一次免费、今天的免费次、库存），没有就买：买哪种看当时卡在哪，这里随机取一种
+    const usedAll = Object.values(usedThisLevel).reduce((a, b) => a + b, 0);
+    const levelFree = Skills.levelFree(eco, level, usedAll);
+    const have = open.filter((id) => levelFree || Skills.freeAvailable(save, id, eco) || Skills.count(save, id) > 0);
     const id = rng.pick(have.length > 0 ? have : open);
     if (have.length === 0) {
       if (spend('买技能', Skills.price(eco, id))) {
@@ -148,9 +150,9 @@ function main(): void {
         book.bump(book.ads, '没广告时免费领技能', 1);
         book.toolsPaid.ad++;
       } else return false;
-      Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level);
+      Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level, usedAll);
     } else {
-      const r = Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level);
+      const r = Skills.tryUse(save, eco, id, usedThisLevel[id] ?? 0, day, level, usedAll);
       if (r.free) book.toolsPaid.free++;
       else book.toolsPaid.stock++;
     }

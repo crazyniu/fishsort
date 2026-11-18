@@ -200,7 +200,7 @@ export function useSkill(g: GamePage, id: string): void {
     return;
   }
   const used = g.used[id] ?? 0;
-  const r = Skills.tryUse(s, eco, id, used, today(), g.arg.daily ? 0 : g.arg.level);
+  const r = Skills.tryUse(s, eco, id, used, today(), g.freeLevelId, g.usedAll);
   if (!r.ok) {
     if (r.reason === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
     else if (r.reason === 'empty') buySkill(g, id);
@@ -431,7 +431,7 @@ function afterRescue(g: GamePage): void {
 const RESCUE_SKILL = 'blow';
 
 function canRescue(g: GamePage): boolean {
-  return Skills.canUse(App.save.data, App.config.eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, g.arg.level) === '';
+  return Skills.canUse(App.save.data, App.config.eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, g.freeLevelId, g.usedAll) === '';
 }
 
 /**
@@ -446,7 +446,7 @@ function rescuePopup(g: GamePage): void {
   const icon = img(p.body, `icon/skill_${RESCUE_SKILL}`, 240, 240, 'skill');
   at(icon, 0, 140);
   fx.breathe(icon, 0.06, 0.8);
-  const free = Skills.freeAvailable(s, RESCUE_SKILL, App.config.eco);
+  const free = g.skillFree(RESCUE_SKILL);
   const tag = slice(icon, 'kit/tag_red', free ? 120 : 96, 56, 'count');
   at(tag, 100, 90);
   at(text(tag, free ? tr('UI_SKILL_FREE') : `×${Skills.count(s, RESCUE_SKILL)}`, 30).node, 0, 2);
@@ -458,7 +458,7 @@ function rescuePopup(g: GamePage): void {
     h: 110,
     label: tr('RESCUE_USE'),
     onTap: () => {
-      const r = Skills.tryUse(s, eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, today(), g.arg.level);
+      const r = Skills.tryUse(s, eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, today(), g.freeLevelId, g.usedAll);
       if (!r.ok) return;
       g.used[RESCUE_SKILL] = (g.used[RESCUE_SKILL] ?? 0) + 1;
       App.save.write();

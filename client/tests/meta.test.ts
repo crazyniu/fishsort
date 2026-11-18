@@ -261,9 +261,9 @@ describe('结算（docs/01 3.3）', () => {
   it('金币、进度、首胜', () => {
     const [save, eco] = setup(3);
     let r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW, combo_coins: 9, best_combo: 7 });
-    assert.equal(r.coins_base, 20);
+    assert.equal(r.coins_base, 40);
     assert.equal(r.coins_best, 7, '最高连击奖 7 × 1');
-    assert.equal(r.coins, 20 + 9 + 7);
+    assert.equal(r.coins, 40 + 9 + 7);
     assert.equal(save.coins, r.coins);
     assert.equal(save.level, 4);
     assert.ok(r.first_win && r.wheel_spin);
@@ -272,7 +272,7 @@ describe('结算（docs/01 3.3）', () => {
     assert.deepEqual(r.new_features, ['skill_shuffle']);
     assert.deepEqual(r.new_skills, ['shuffle']);
     r = Settle.win(save, eco, { level: 4, challenge: true, day: 7, now: NOW, best_combo: 40 });
-    assert.equal(r.coins_base, 40);
+    assert.equal(r.coins_base, 80);
     assert.equal(r.coins_best, 8, '最高连击奖封顶 8');
     assert.ok(!r.first_win);
     assert.equal(save.week.cleared, 2);
@@ -283,7 +283,7 @@ describe('结算（docs/01 3.3）', () => {
     for (let i = 0; i < 5; i++) {
       const r = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
       assert.ok(r.replay && r.rewarded && r.chest_ok);
-      assert.equal(r.coins_base, 20);
+      assert.equal(r.coins_base, 40);
     }
     const r6 = Settle.win(save, eco, { level: 10, challenge: false, day: 4, now: NOW });
     assert.ok(!r6.rewarded && !r6.chest_ok && r6.coins === 0);
@@ -295,8 +295,8 @@ describe('结算（docs/01 3.3）', () => {
   it('看广告翻倍', () => {
     const [save, eco] = setup(3);
     const r = Settle.win(save, eco, { level: 3, challenge: false, day: 7, now: NOW });
-    assert.equal(Settle.doubleCoins(save, eco, r), 20);
-    assert.equal(save.coins, 40);
+    assert.equal(Settle.doubleCoins(save, eco, r), 40);
+    assert.equal(save.coins, 80);
   });
 });
 
@@ -702,6 +702,25 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.ok(Skills.tryUse(save, eco, 'shuffle', 2, 5, 125).ok, '第 125 关第 3 次能用');
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 3, 5, 125).reason, 'limit');
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 100).reason, 'limit', '第 100 关还是 2 次');
+  });
+
+  it('第 1–30 关每关第一次用技能免费：不扣库存、不占每天的免费次、每日挑战不算', () => {
+    const [save, eco] = setup(13);
+    assert.equal(eco.skills.freeLevelUntil, 30);
+    save.tools.shuffle = 0;
+    save.tools.blow = 0;
+    assert.ok(Skills.tryUse(save, eco, 'net', 0, 5).free, '先用掉今天的免费次（不传本关合计次数，不算前几关免费）');
+    assert.equal(Skills.canUse(save, eco, 'shuffle', 0, 13, 0), '', '库存 0 也能用');
+    const r = Skills.tryUse(save, eco, 'shuffle', 0, 5, 13, 0);
+    assert.ok(r.ok && r.free);
+    assert.equal(save.tools.shuffle, 0, '不扣库存');
+    assert.equal(Object.keys(save.daily.toolFree).length, 1, '不占每天的免费次');
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 13, 1).reason, 'empty', '同一关第二次就不免费了');
+    assert.ok(Skills.tryUse(save, eco, 'blow', 0, 5, 30, 0).free, '第 30 关还送');
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 31, 0).reason, 'empty', '第 31 关起不送');
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 0, 0).reason, 'empty', '每日挑战（关卡号 0）不送');
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 13).reason, 'empty', '不传本关合计次数 = 不算这一条（旧的调用方式）');
+    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 13, 0).reason, 'limit', '每关次数上限照旧');
   });
 
   it('canUse 只问不扣：能用返回空串，原因和 tryUse 一样', () => {
