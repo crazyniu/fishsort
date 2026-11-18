@@ -1,6 +1,6 @@
 {
-  "levelCoins": 40,
-  "challengeCoins": 80,
+  "levelCoins": 30,
+  "challengeCoins": 60,
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
