@@ -15,6 +15,10 @@
 //   另外醒着最多 maxAwake 秒，到点强制停住，免得别的情况也一直动。
 // - 原本就叠在一起、又没有遮挡关系的两个圆不会被一下子弹开：记下当时叠了多少当作「宽限」，
 //   宽限按 separate 的速度收回，两个圆慢慢分开；推开重叠得到的速度有上限，不会把气泡崩飞。
+// - 但连在同一个气泡上的两个（都压着它，或都被它压着）原本叠着的，宽限一直留着、不收回（2026-11-18）：
+//   它俩各被一条弹性带拴在同一个圆上，带子不许拉开，碰撞又要把它俩完全推开，常常没有能同时满足的位置，
+//   每一步来回推、推出来的位移被算成速度，一串气泡转圈停不下来，到 maxAwake 被强行定住时还悬在半空（第 12 关）。
+//   按场地实际尺寸把 23 个有遮挡的关卡和易化变体各试一遍：改前第 12、20 关和 5 个变体永远停不下来，改后都在 5 秒内停稳。
 // 这个文件不依赖引擎，方便单独验证。
 
 export interface PileCfg {
@@ -80,6 +84,8 @@ export class Pile {
   private awakeFor = 0;
   /** 成对的宽限：键是「小 id_大 id」，值是还允许叠多少 */
   private slack = new Map<string, number>();
+  /** 宽限不收回的对：连在同一个气泡上、原本就叠着的两个（见文件头） */
+  private keep = new Set<string>();
   awake = false;
   /** 落地回调：气泡 id、落地前的下落速度 */
   onLand: ((id: number, speed: number) => void) | null = null;
@@ -151,7 +157,31 @@ export class Pile {
       this.links.push({ a, b, min: d * this.cfg.linkMin, max: d });
     }
     this.forgive();
+    this.keepSiblings();
     this.wake();
+  }
+
+  /** 连在同一个气泡上的每两个，正叠着（有宽限）的就一直留着宽限 */
+  private keepSiblings(): void {
+    this.keep.clear();
+    const near = new Map<number, number[]>();
+    const push = (x: number, y: number) => {
+      const arr = near.get(x);
+      if (arr) arr.push(y);
+      else near.set(x, [y]);
+    };
+    for (const l of this.links) {
+      push(l.a.id, l.b.id);
+      push(l.b.id, l.a.id);
+    }
+    for (const arr of near.values()) {
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          const key = pairKey(arr[i], arr[j]);
+          if (this.slack.has(key)) this.keep.add(key);
+        }
+      }
+    }
   }
 
   wake(): void {
@@ -197,6 +227,7 @@ export class Pile {
     if (this.slack.size > 0) {
       const back = c.separate * Math.min(dt, 1 / 30);
       for (const key of Array.from(this.slack.keys())) {
+        if (this.keep.has(key)) continue;
         const left = (this.slack.get(key) as number) - back;
         if (left <= 0) this.slack.delete(key);
         else this.slack.set(key, left);
