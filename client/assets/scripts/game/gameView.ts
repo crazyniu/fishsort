@@ -1425,8 +1425,7 @@ export class GamePage extends Page {
     this.combo.miss();
     this.setFever(-1, COLOR.white);
     if (!had) return;
-    // 断连：一声往下走的闷音，数字变灰，整块抖一下往下掉、淡出
-    sfx('comboBreak', 0, 0.8);
+    // 断连：数字变灰，整块抖一下往下掉、淡出。不出声（用户 2026-11-18：断连那一声「叮咚」不好听，不要了）
     this.comboBreaking = true;
     for (const g of this.comboNum.children) {
       const sp = g.getComponent(Sprite);

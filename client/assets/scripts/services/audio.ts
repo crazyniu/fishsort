@@ -21,7 +21,6 @@ const MAP: Record<string, string> = {
   net: 'net',
   current: 'current',
   tier: 'tier_1',
-  comboBreak: 'combo_break',
   charge: 'wheel_charge',
   win: 'win',
   lose: 'lose',
