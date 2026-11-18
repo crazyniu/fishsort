@@ -308,10 +308,13 @@ export class GamePage extends Page {
     // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标是通用的小鱼（白色平面图标），不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）。
     // 顶上两块信息条都是半透明深蓝 + 白字，和技能格子一样，不用白色卡片（用户 2026-11-17：白卡片显得廉价）
     const levelName = this.arg.daily ? tr('UI_TAB_DAILY') : tr('UI_LEVEL', this.arg.level);
+    let progressRight = -Screen.W / 2;
+    const midX = (w: number): number => Math.min(Screen.headRight - w / 2, Math.max(0, progressRight + 12 + w / 2));
     const timed = this.s.clock !== NO_TIMER;
     if (Screen.cap) {
       const h = Screen.headH;
-      const gearW = h;
+      // 设置键和子页面的返回键一样大（用户 2026-11-18：太小）
+      const gearW = 76;
       const pw = Math.round((196 * h) / 66);
       const x0 = -Screen.W / 2 + 24;
       at(iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', gearW, () => Flow.pause(this)), x0 + gearW / 2, hudY);
@@ -319,8 +322,11 @@ export class GamePage extends Page {
       this.progress = capsule(this.stage, pw, h, 'kit/ic_fish', '', Math.round((34 * h) / 66), 'skin/f_hud', `${this.total}/${this.total}`);
       const realW = (this.progress.node.getComponent(UITransform) as UITransform).width;
       at(this.progress.node, x0 + gearW + 10 + realW / 2, hudY);
-      const lv = text(this.stage, levelName, 36);
-      at(lv.node, 0, hudY);
+      // 中间那块（关卡号 / 倒计时）尽量居中；鱼多的关鱼数条长，碰到它就往右让，但不过胶囊左边的圆按钮
+      progressRight = x0 + gearW + 10 + realW;
+      // 固定 30 号（和旁边鱼数的字差不多大）：按全部 360 关量过，鱼最多的关（114 条）关卡号也放得下，不用缩字
+      const lv = text(this.stage, levelName, 30);
+      at(lv.node, midX(textWidth(lv)), hudY);
       lv.node.active = !timed;
     } else {
       this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
@@ -336,7 +342,8 @@ export class GamePage extends Page {
     if (timed) {
       const ch = Screen.cap ? Screen.headH : 66;
       this.clockCap = capsule(this.stage, Math.round((120 * ch) / 66), ch, null, mmss(this.s.clock), Math.round((34 * ch) / 66), 'skin/f_hud');
-      at(this.clockCap.node, Screen.cap ? 0 : -22, hudY);
+      const cw = (this.clockCap.node.getComponent(UITransform) as UITransform).width;
+      at(this.clockCap.node, Screen.cap ? midX(cw) : -22, hudY);
     }
     if (!Screen.cap) {
       const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));

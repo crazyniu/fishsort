@@ -38,6 +38,7 @@
   "landSpeed": 380,
   "separate": 420,
   "linkMin": 0.6,
+  "maxAwake": 5,
   "stagger": 0.06,
   "maxHeight": 0.97
  },

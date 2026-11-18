@@ -9,6 +9,10 @@
 //   但这一对可以转、可以挪，能滚进空当里压实。原先整组焊死成一块平移，一组大了就卡在一个支点上转不动，堆里留空。
 // - 每一小步：受重力下落 → 反复把重叠的圆推开、把弹性带拉回范围、把出界的推回场地 → 用实际位移反推速度。
 // - 全部慢下来一会儿就「睡着」，不再算；有气泡破了、新气泡落下时再叫醒。
+// - 按固定步长推进（每秒 60 步，和屏幕帧率无关）。2026-11-18 用户在高刷屏的开发者工具里（每秒 120 帧）第 12 关用洋流后，
+//   一串连着的气泡一直转圈停不下来：步长随帧率变短后，弹性带、互推和重力在很短的步里互相拉扯，抖动被算成速度，
+//   一直达不到「睡着」的速度。按每秒 30、60、120 帧各试几十次：改成固定步长前 120 帧会转圈，改后都能停。
+//   另外醒着最多 maxAwake 秒，到点强制停住，免得别的情况也一直动。
 // - 原本就叠在一起、又没有遮挡关系的两个圆不会被一下子弹开：记下当时叠了多少当作「宽限」，
 //   宽限按 separate 的速度收回，两个圆慢慢分开；推开重叠得到的速度有上限，不会把气泡崩飞。
 // 这个文件不依赖引擎，方便单独验证。
@@ -30,6 +34,8 @@ export interface PileCfg {
   landSpeed: number;
   /** 原本叠在一起的两个圆分开的速度（设计单位 / 秒） */
   separate: number;
+  /** 叫醒以后最多算几秒，到点强制停住（兜底） */
+  maxAwake?: number;
   /** 遮挡的一对最近能靠到设计距离的多少（0–1）：越小压得越实，太小上面的会把下面的整个盖住 */
   linkMin: number;
 }
@@ -56,6 +62,9 @@ interface Link {
   max: number;
 }
 
+/** 固定步长：每秒 60 步 */
+const FIXED = 1 / 60;
+
 const pairKey = (a: number, b: number) => (a < b ? `${a}_${b}` : `${b}_${a}`);
 
 export class Pile {
@@ -66,6 +75,9 @@ export class Pile {
   /** 每一对遮挡第一次见到时的距离（设计距离），之后重新连带都按它 */
   private rest = new Map<string, number>();
   private calm = 0;
+  /** 固定步长攒下来还没算的时间、这次醒着算了多久 */
+  private acc = 0;
+  private awakeFor = 0;
   /** 成对的宽限：键是「小 id_大 id」，值是还允许叠多少 */
   private slack = new Map<string, number>();
   awake = false;
@@ -145,6 +157,7 @@ export class Pile {
   wake(): void {
     this.awake = true;
     this.calm = 0;
+    this.awakeFor = 0;
   }
 
   pos(id: number): [number, number] | null {
@@ -152,9 +165,29 @@ export class Pile {
     return b ? [b.x, b.y] : null;
   }
 
-  /** 推进 dt 秒。睡着时什么都不做 */
+  /** 推进 dt 秒（按固定步长 1/60 秒一步算，和帧率无关；一帧最多补 4 步）。睡着时什么都不做 */
   step(dt: number): void {
     if (!this.awake) return;
+    this.acc = Math.min(this.acc + dt, FIXED * 4);
+    while (this.acc >= FIXED - 1e-9 && this.awake) {
+      this.acc -= FIXED;
+      this.fixedStep(FIXED);
+      this.awakeFor += FIXED;
+      if (this.awakeFor >= (this.cfg.maxAwake ?? Infinity)) this.sleep();
+    }
+  }
+
+  /** 停住：速度清零，不再算 */
+  private sleep(): void {
+    this.awake = false;
+    this.acc = 0;
+    for (const b of this.bodies.values()) {
+      b.vx = 0;
+      b.vy = 0;
+    }
+  }
+
+  private fixedStep(dt: number): void {
     const c = this.cfg;
     const n = Math.max(1, c.substeps);
     const h = Math.min(dt, 1 / 30) / n;
@@ -233,13 +266,7 @@ export class Pile {
     }
     if (fastest < c.sleepSpeed) {
       this.calm += dt;
-      if (this.calm >= c.sleepTime) {
-        this.awake = false;
-        for (const b of list) {
-          b.vx = 0;
-          b.vy = 0;
-        }
-      }
+      if (this.calm >= c.sleepTime) this.sleep();
     } else this.calm = 0;
   }
 
