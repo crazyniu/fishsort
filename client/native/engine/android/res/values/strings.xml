@@ -1,4 +1,4 @@
 <resources>
     <!-- 应用名（tools/native/apply.mjs 按 game.json 改写）。不用 app_name：那个由 Cocos 构建按构建配置的 name 生成，会撞名 -->
-    <string name="fs_app_name">Pop Pop Rescue</string>
+    <string name="fs_app_name">Bubble Fish</string>
 </resources>

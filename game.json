@@ -3,12 +3,12 @@
   "codeName": "fishsort",
   "name": {
     "zh_CN": "啵啵救援队",
-    "en": "Pop Pop Rescue"
+    "en": "Bubble Fish"
   },
   "version": "1.0.0",
   "build": 1,
   "ios": {
-    "bundleId": "dabudian.top.fish",
+    "bundleId": "dabudian.top.bubblefish",
     "team": "",
     "minVersion": "15.0",
     "admobAppId": "ca-app-pub-3940256099942544~1458002511",
@@ -18,7 +18,7 @@
     }
   },
   "android": {
-    "packageName": "dabudian.top.fish",
+    "packageName": "dabudian.top.bubblefish",
     "minSdk": 24,
     "targetSdk": 35,
     "admobAppId": "ca-app-pub-3940256099942544~3347511713"

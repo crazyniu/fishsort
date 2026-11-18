@@ -1,5 +1,5 @@
 {
-  "name": "PopPopRescue",
+  "name": "BubbleFish",
   "debug": false,
   "md5Cache": false,
   "buildPath": "project://build",
@@ -14,7 +14,7 @@
   "outputName": "android",
   "packages": {
     "android": {
-      "packageName": "dabudian.top.fish",
+      "packageName": "dabudian.top.bubblefish",
       "orientation": {
         "portrait": true,
         "upsideDown": false,
