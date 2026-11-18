@@ -11,9 +11,9 @@
 
 | 字段 | 内容 | 上限 |
 |---|---|---|
-| Name | Pop Pop Rescue | 30 |
-| Subtitle | Bubble Fish Sorting Puzzle | 30 |
-| Keywords | fish,sort,bubble,puzzle,match,ocean,aquarium,rescue,cute,casual,brain,color,triple,sea,tank | 100 |
+| Name | Bubble Fish | 30 |
+| Subtitle | Sort & Rescue Sea Creatures | 30 |
+| Keywords | sort,pop,puzzle,match,ocean,aquarium,rescue,cute,casual,brain,color,triple,sea,tank | 100 |
 | Promotional Text | Little fish are trapped in bubbles! Tap them out, sort them into the right tanks and explore 18 seas full of cute sea creatures. | 170 |
 
 **Description**（上限 4000）
@@ -43,7 +43,7 @@ Relax with an easy level, or take on a tricky one that makes you think. How many
 **What's New**（第一版）
 
 ```
-Welcome to Pop Pop Rescue! 360 levels, 18 seas and 705 sea creatures are waiting for you.
+Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting for you.
 ```
 
 ### 简体中文
@@ -93,7 +93,7 @@ Welcome to Pop Pop Rescue! 360 levels, 18 seas and 705 sea creatures are waiting
 
 | 字段 | 内容 | 上限 |
 |---|---|---|
-| App name | Pop Pop Rescue: Fish Sort | 30 |
+| App name | Bubble Fish: Sort Puzzle | 30 |
 | Short description | Free the fish from bubbles and sort them into tanks. 360 levels, 18 seas! | 80 |
 | Full description | 同 App Store 的 Description | 4000 |
 

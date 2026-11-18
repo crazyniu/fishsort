@@ -72,7 +72,7 @@
 |---|---|---|
 | UI_START | 开始 | Play |
 | UI_LEVEL_SUB | 第 %d 关 | Level %d |
-| UI_TITLE | 啵啵救援队 | Pop Pop Rescue（Logo 图内的字。现在的主页按定版图没有放 Logo，这个键没人用、已从 `i18n/strings.csv` 删掉，加 Logo 时再加回） |
+| UI_TITLE | 啵啵救援队 | Bubble Fish（Logo 图内的字。现在的主页按定版图没有放 Logo，这个键没人用、已从 `i18n/strings.csv` 删掉，加 Logo 时再加回） |
 
 ## 美术需求（Codex）
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(CMAKE_SYSTEM_NAME iOS)
-set(APP_NAME "PopPopRescue"  CACHE STRING "Project Name")
+set(APP_NAME "BubbleFish"  CACHE STRING "Project Name")
 
 project(${APP_NAME} CXX)
 
