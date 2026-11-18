@@ -317,13 +317,17 @@ export class GamePage extends Page {
     // 顶栏：左进度、中倒计时（限时关）、右关卡号 + 设置。
     // 微信小游戏（有胶囊按钮）：顶栏挪到胶囊那一行（用户 2026-11-18：上面太空），设置键放最左、进度紧跟着（样式不变），
     // 关卡号去掉底板、居中；限时关中间放倒计时，关卡号不显示（暂停弹窗里有）。下面的鱼缸、气泡跟着整体上移
-    const hudY = Screen.cap ? Screen.headY : Screen.top - 52;
+    // App（没有胶囊）：整行往刘海那一截里提一点（状态栏是隐藏的，刘海 / 灵动岛两边空着），中间的关卡号仍在刘海下面
+    // （用户 2026-11-18：苹果上设置和关卡号离顶太远）。最多提 40：提多了中间的字会碰到灵动岛的下沿
+    const hudY = Screen.cap ? Screen.headY : Screen.top - 52 + Math.min(40, Math.round(Screen.notchTop * 0.35));
     const top = hudY + 52;
     // 左上的进度：已经送进鱼缸的鱼 / 这一关一共几条。图标是通用的小鱼（白色平面图标），不用某一种鱼（用户 2026-11-17：放螃蟹像是要救 33 只螃蟹）。
     // 顶上两块信息条都是半透明深蓝 + 白字，和技能格子一样，不用白色卡片（用户 2026-11-17：白卡片显得廉价）
     const levelName = this.arg.daily ? tr('UI_TAB_DAILY') : tr('UI_LEVEL', this.arg.level);
     let progressRight = -Screen.W / 2;
-    const midX = (w: number): number => Math.min(Screen.headRight - w / 2, Math.max(0, progressRight + 12 + w / 2));
+    // 右边界：微信停在胶囊左边的圆按钮前，App 停在右上的设置键前
+    const rightEdge = Screen.cap ? Screen.headRight : Screen.W / 2 - 24 - 74 - 12;
+    const midX = (w: number): number => Math.min(rightEdge - w / 2, Math.max(0, progressRight + 12 + w / 2));
     const timed = this.s.clock !== NO_TIMER;
     if (Screen.cap) {
       const h = Screen.headH;
@@ -343,12 +347,14 @@ export class GamePage extends Page {
       at(lv.node, midX(textWidth(lv)), hudY);
       lv.node.active = !timed;
     } else {
-      this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud');
-      at(this.progress.node, -Screen.W / 2 + 24 + 98, hudY);
-      // 宽度按最长的写法定（第 360 关、Level 360），字号不缩
-      const lc = capsule(this.stage, 160, 66, null, levelName, 30, 'skin/f_hud', this.arg.daily ? levelName : tr('UI_LEVEL', App.config.levelCount));
-      const lcW = (lc.node.getComponent(UITransform) as UITransform).width;
-      at(lc.node, Screen.W / 2 - 24 - 74 - 10 - lcW / 2, hudY);
+      // 和微信一样：关卡号去掉底板、居中（在刘海下面），限时关中间放倒计时、关卡号不显示；进度在左、设置在右（用户 2026-11-18）
+      this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud', `${this.total}/${this.total}`);
+      const realW = (this.progress.node.getComponent(UITransform) as UITransform).width;
+      at(this.progress.node, -Screen.W / 2 + 24 + realW / 2, hudY);
+      progressRight = -Screen.W / 2 + 24 + realW;
+      const lv = text(this.stage, levelName, 30);
+      at(lv.node, midX(textWidth(lv)), hudY);
+      lv.node.active = !timed;
     }
     // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
     this.clockCap = null;
@@ -357,7 +363,7 @@ export class GamePage extends Page {
       const ch = Screen.cap ? Screen.headH : 66;
       this.clockCap = capsule(this.stage, Math.round((120 * ch) / 66), ch, null, mmss(this.s.clock), Math.round((34 * ch) / 66), 'skin/f_hud');
       const cw = (this.clockCap.node.getComponent(UITransform) as UITransform).width;
-      at(this.clockCap.node, Screen.cap ? midX(cw) : -22, hudY);
+      at(this.clockCap.node, midX(cw), hudY);
     }
     if (!Screen.cap) {
       const gear = iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', 74, () => Flow.pause(this));
@@ -428,7 +434,8 @@ export class GamePage extends Page {
     }
 
     // 技能栏
-    const skillY = Screen.bottom + 26 + SKILL_S / 2;
+    // 离底：有手势条时压进手势条那一截一半多（手势条本身只占最下面十几个单位），不然整排悬得太高（用户 2026-11-18：苹果上离底太远）
+    const skillY = -Screen.H / 2 + Math.max(26, Math.round(Screen.safeBottom * 0.4) + 20) + SKILL_S / 2;
     SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + 36), skillY));
 
     // 场地：暂存槽和技能栏之间全部高度（用户 2026-11-16：场地尽量大）
