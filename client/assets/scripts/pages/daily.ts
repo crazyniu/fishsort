@@ -64,7 +64,9 @@ export class DailyPage extends Page {
     // 自下而上：按钮 → 一行小字 → 一块白色面板（上半连续过关的进度，下半今日宝箱的奖品）→ 剩下的地方放大宝箱
     // （用户 2026-11-17：原来进度条和宝箱各自浮在背景上，和任务中心不是一个样子）
     const btnY = Screen.bottom + PAGE_BOTTOM + 40 + 64;
-    const hint = text(v, won ? tr('DAILY_TOMORROW') : free ? tr('DAILY_FREE') : tr('DAILY_RETRY_HINT'), 30);
+    // 这一版没有广告时，再试一次只能用金币
+    const hasAds = App.platform.hasCapability('ads');
+    const hint = text(v, won ? tr('DAILY_TOMORROW') : free ? tr('DAILY_FREE') : tr(hasAds ? 'DAILY_RETRY_HINT' : 'DAILY_RETRY_HINT_COINS'), 30);
     at(hint.node, 0, btnY + 64 + 40);
     const PANEL_H = 400;
     const panelY = btnY + 64 + 40 + 44 + PANEL_H / 2;
@@ -130,25 +132,27 @@ export class DailyPage extends Page {
       at(b.node, 0, btnY);
       fx.breathe(b.node, 0.03, 1.3);
     } else {
-      const ad = button(v, {
-        color: 'yellow',
-        w: 320,
-        h: 120,
-        icon: 'kit/ic_video',
-        label: tr('DAILY_RETRY'),
-        fontSize: 40,
-        onTap: async () => {
-          if (!(await watchAd('rv_daily_retry'))) return;
-          if (!DailyChallenge.enter(App.save.data, eco, today(), 'ad')) return;
-          App.save.write();
-          Flow.startDaily();
-        },
-      });
-      at(ad.node, -170, btnY);
-      ad.setEnabled(App.platform.adsAvailable());
+      if (hasAds) {
+        const ad = button(v, {
+          color: 'yellow',
+          w: 320,
+          h: 120,
+          icon: 'kit/ic_video',
+          label: tr('DAILY_RETRY'),
+          fontSize: 40,
+          onTap: async () => {
+            if (!(await watchAd('rv_daily_retry'))) return;
+            if (!DailyChallenge.enter(App.save.data, eco, today(), 'ad')) return;
+            App.save.write();
+            Flow.startDaily();
+          },
+        });
+        at(ad.node, -170, btnY);
+        ad.setEnabled(App.platform.adsAvailable());
+      }
       const coins = button(v, {
         color: 'green',
-        w: 300,
+        w: hasAds ? 300 : 420,
         h: 120,
         icon: 'icon/coin',
         label: fmt(cfg.retryCoins),
@@ -164,7 +168,7 @@ export class DailyPage extends Page {
           Flow.startDaily();
         },
       });
-      at(coins.node, 170, btnY);
+      at(coins.node, hasAds ? 170 : 0, btnY);
     }
     if (enter) {
       fx.popIn(this.chest, 0, 0.3);

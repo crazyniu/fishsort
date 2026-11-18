@@ -15,9 +15,14 @@ cocos_build() {
 
 # ---------------------------------------------------------------- 原生包（docs/10-开发底座.md）
 
-# iOS 的 Google Mobile Ads + UMP：下载到 client/native/engine/ios/sdk/（不进仓库），iOS 工程的 CMakeLists 链它
+# iOS 的 Google Mobile Ads + UMP：下载到 client/native/engine/ios/sdk/（不进仓库），iOS 工程的 CMakeLists 链它。
+# game.json 关了广告（ads.enabled 为 false）时不下载，CMakeLists 也不链
 ios_sdk() {
   local dir="$CLIENT/native/engine/ios/sdk" tmp
+  if [ "$(node -p "require('./game.json').ads.enabled === true")" != true ]; then
+    echo "· game.json 关了广告，这次不带广告 SDK"
+    return 0
+  fi
   [ -d "$dir/GoogleMobileAds.xcframework" ] && return 0
   echo "· 下载 Google Mobile Ads iOS SDK …"
   tmp="$(mktemp -d)"

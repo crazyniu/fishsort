@@ -220,13 +220,15 @@ export function finishNet(g: GamePage, slot: number): void {
   g.act(() => Rules.useNet(g.s, slot));
 }
 
-/** 数量为 0：金币买，金币不够则看广告得 1 个（docs/01 5.2） */
+/** 数量为 0：金币买，金币不够则看广告得 1 个（docs/01 5.2）；这一版没有广告时只有金币买，弹窗矮一截 */
 function buySkill(g: GamePage, id: string): void {
   const eco = App.config.eco;
+  const hasAds = App.platform.hasCapability('ads');
+  const dy = hasAds ? 0 : -55;
   const name = tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`);
-  const p = openPopup({ w: 600, h: 560, title: tr('SKILL_BUY_TITLE', name), mascot: null });
+  const p = openPopup({ w: 600, h: hasAds ? 560 : 450, title: tr('SKILL_BUY_TITLE', name), mascot: null });
   const icon = img(p.body, `icon/skill_${id}`, 180, 180, 'icon');
-  at(icon, 0, 100);
+  at(icon, 0, 100 + dy);
   const price = Skills.price(eco, id);
   const buy = button(p.body, {
     color: 'green',
@@ -243,7 +245,8 @@ function buySkill(g: GamePage, id: string): void {
       g.refreshSkills();
     },
   });
-  at(buy.node, 0, -60);
+  at(buy.node, 0, -60 + dy);
+  if (!hasAds) return;
   const ad = button(p.body, {
     color: 'yellow',
     w: 420,
@@ -266,13 +269,16 @@ function buySkill(g: GamePage, id: string): void {
 export function unlockSlot(g: GamePage): void {
   if (g.ended || g.s.status !== Status.PLAYING) return;
   const eco = App.config.eco;
-  const p = openPopup({ w: 600, h: 620, title: tr('H_SLOT_TITLE'), mascot: null });
+  // 这一版没有广告时只有金币开，弹窗矮一截
+  const hasAds = App.platform.hasCapability('ads');
+  const dy = hasAds ? 0 : -55;
+  const p = openPopup({ w: 600, h: hasAds ? 620 : 510, title: tr('H_SLOT_TITLE'), mascot: null });
   const bowl = img(p.body, 'skin/j_bowl', 220, 203, 'bowl');
-  at(bowl, 0, 130);
+  at(bowl, 0, 130 + dy);
   const plus = img(bowl, 'kit/round_green', 80, 80, 'plus');
   img(plus, 'kit/ic_plus', 50, 50, 'glyph');
   const l = text(p.body, tr('SLOT_LINE'), 34);
-  at(l.node, 0, -10);
+  at(l.node, 0, -10 + dy);
   const done = () => {
     p.close();
     g.act(() => Rules.unlockBowl(g.s));
@@ -291,7 +297,8 @@ export function unlockSlot(g: GamePage): void {
       done();
     },
   });
-  at(coins.node, 0, -120);
+  at(coins.node, 0, -120 + dy);
+  if (!hasAds) return;
   const ad = button(p.body, {
     color: 'yellow',
     w: 420,

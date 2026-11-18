@@ -141,28 +141,32 @@ export class WheelPage extends Page {
     at(main.node, 0, btnY);
     fx.breathe(main.node, 0.03, 1.3);
 
-    // 下一排（次按钮，两行字都在按钮里）：十连（金币价）· 看广告 +1（今日剩余）· 分享 +1（今日剩余）
+    // 下一排（次按钮，两行字都在按钮里）：十连（金币价）· 看广告 +1（今日剩余）· 分享 +1（今日剩余）；
+    // 平台没有广告、没有确认分享的就少一个，剩下的居中排
     const BW = 218;
+    const row: Node[] = [];
     const ten = button(v, { color: 'blue', w: BW, h: 108, onTap: () => this.ten() });
     twoLines(ten, tr('H_TEN_PULL'), `${fmt(eco.wheel.tenCost)}`, 'icon/coin');
-    at(ten.node, -(BW + 16), y2);
-    const adLeft = Wheel.adLeft(s, eco, day);
-    const ad = button(v, {
-      color: 'yellow',
-      w: BW,
-      h: 108,
-      onTap: async () => {
-        if (Wheel.adLeft(App.save.data, eco, today()) <= 0) return;
-        if (!(await watchAd('rv_wheel'))) return;
-        Wheel.claimAd(App.save.data, eco, today());
-        App.save.write();
-        sfx('coin');
-        ui.refresh();
-      },
-    });
-    twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
-    at(ad.node, 0, y2);
-    ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
+    row.push(ten.node);
+    if (App.platform.hasCapability('ads')) {
+      const adLeft = Wheel.adLeft(s, eco, day);
+      const ad = button(v, {
+        color: 'yellow',
+        w: BW,
+        h: 108,
+        onTap: async () => {
+          if (Wheel.adLeft(App.save.data, eco, today()) <= 0) return;
+          if (!(await watchAd('rv_wheel'))) return;
+          Wheel.claimAd(App.save.data, eco, today());
+          App.save.write();
+          sfx('coin');
+          ui.refresh();
+        },
+      });
+      twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
+      row.push(ad.node);
+      ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
+    }
     if (App.platform.hasCapability('confirmed_share')) {
       const shareLeft = Share.remaining(s, eco, 'wheel', day);
       const sh = button(v, {
@@ -179,9 +183,10 @@ export class WheelPage extends Page {
         },
       });
       twoLines(sh, '+1', tr('ADS_LEFT', shareLeft), null, 'kit/ic_share');
-      at(sh.node, BW + 16, y2);
+      row.push(sh.node);
       sh.setEnabled(shareLeft > 0);
     }
+    row.forEach((n, i) => at(n, (i - (row.length - 1) / 2) * (BW + 16), y2));
     if (enter) fx.popIn(this.chest, 0, 0.3);
   }
 

@@ -49,7 +49,8 @@ export class ShopPage extends Page {
   private smallRoom = 0;
   private lifeCount!: ReturnType<typeof text>;
   private heart!: Node;
-  private adBtn!: Btn;
+  /** 免费金币卡：这一版没有广告时不建 */
+  private adBtn: Btn | null = null;
   private adLeft!: ReturnType<typeof text>;
   private rows: Node[] = [];
   private coins!: Capsule;
@@ -60,7 +61,8 @@ export class ShopPage extends Page {
     lazyImg(root, 'bg/home', (bgH * 1024) / 1536, bgH);
     this.coins = pageHead(root, tr('UI_TAB_SHOP'), { coins: true }) as Capsule;
 
-    // 2 × 2 技能卡 + 一行两张小卡（生命、免费金币）；页边距 20，卡片间距 16
+    // 2 × 2 技能卡 + 一行两张小卡（生命、免费金币）；页边距 20，卡片间距 16。
+    // 这一版没有广告时没有「免费金币」，生命一张卡占满一行
     const M = 20;
     const G = 16;
     const cardW = (Screen.W - M * 2 - G) / 2;
@@ -78,8 +80,12 @@ export class ShopPage extends Page {
       this.cards.push(this.skillCard(root, id, x, y, cardW, cardH));
     });
     const rowY = y0 - 2 * (cardH + G) - rowH / 2;
-    this.rows.push(this.lifeRow(root, -cx, rowY, cardW, rowH));
-    this.rows.push(this.adRow(root, cx, rowY, cardW, rowH));
+    if (App.platform.hasCapability('ads')) {
+      this.rows.push(this.lifeRow(root, -cx, rowY, cardW, rowH));
+      this.rows.push(this.adRow(root, cx, rowY, cardW, rowH));
+    } else {
+      this.rows.push(this.lifeRow(root, 0, rowY, Screen.W - M * 2, rowH));
+    }
   }
 
   /** 技能卡：名字 · 大插画 · 已有数量 · 金币价格按钮（主按钮色）；没开放的换灰色锁定条 */
@@ -206,6 +212,7 @@ export class ShopPage extends Page {
     this.lifeBtn.setEnabled(!full);
     if (this.lifeBtn.icon) this.lifeBtn.icon.active = !full;
     this.lifeBtn.setLabel(full ? tr('UI_FULL') : fmt(eco.lives.buyOneCoins));
+    if (!this.adBtn) return;
     const left = Meta.freeCoinLeft(s, eco, today());
     this.adLeft.string = tr('SHOP_AD_LEFT', left, eco.freeCoin.daily);
     fitPair(this.adTitle, this.adLeft, this.smallRoom, 36, 26);
@@ -250,7 +257,7 @@ export class ShopPage extends Page {
       ui.toast(tr('SHOP_AD_DONE'));
       return;
     }
-    if (!(await watchAd('rv_free_coin'))) return;
+    if (!this.adBtn || !(await watchAd('rv_free_coin'))) return;
     if (!Meta.takeFreeCoin(s, eco, today())) return;
     App.save.write();
     const tf = ui.fx.getComponent(UITransform) as UITransform;

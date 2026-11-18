@@ -3,7 +3,7 @@
 // 两边实现同一组事件（下面 EV），参数和回复都是 JSON 字符串。
 //
 //   脚本 → 原生                         原生 → 脚本
-//   fs.init    {ads: 广告位}             fs.ads      {ready: 广告 SDK 能用了没有}
+//   fs.init    {ads: 广告位}             fs.ads      {ready: 广告能播了没有, off: 这一版没有广告（没配广告位、包里没有 SDK）}
 //   fs.rewarded {placement}              fs.rewarded {result: done | skipped | unavailable}
 //   fs.interstitial {placement}          fs.interstitial {}（关掉了）
 //   fs.banner  {show: true | false}
@@ -34,6 +34,8 @@ export class PlatformNative extends PlatformBase {
   readonly id: string;
   private cfg: PlatformConfig | null = null;
   private ready = false;
+  /** 原生说这一版没有广告（game.json 关了广告、包里没有广告 SDK） */
+  private off = false;
   private waiting = new Map<string, (arg: string) => void>();
 
   constructor() {
@@ -45,7 +47,9 @@ export class PlatformNative extends PlatformBase {
     this.cfg = await loadPlatformConfig();
     const bridge = native.jsbBridgeWrapper;
     bridge.addNativeEventListener(EV.ads, (arg: string) => {
-      this.ready = parse(arg).ready === true;
+      const r = parse(arg);
+      this.ready = r.ready === true;
+      if (r.off === true) this.off = true;
     });
     for (const ev of [EV.rewarded, EV.interstitial, EV.share]) {
       bridge.addNativeEventListener(ev, (arg: string) => {
@@ -123,7 +127,13 @@ export class PlatformNative extends PlatformBase {
   }
 
   override hasCapability(cap: Capability): boolean {
-    return (cap === 'confirmed_share' && this.id === 'ios') || cap === 'share' || cap === 'vibrate' || cap === 'privacy_options';
+    // 隐私选项是广告的同意设置，没有广告就不要
+    if (cap === 'ads' || cap === 'privacy_options') return this.hasAds();
+    return (cap === 'confirmed_share' && this.id === 'ios') || cap === 'share' || cap === 'vibrate';
+  }
+
+  private hasAds(): boolean {
+    return !this.off && this.cfg !== null && adUnits(this.cfg, this.id).rewarded !== '';
   }
 
   override openPrivacyOptions(): void {

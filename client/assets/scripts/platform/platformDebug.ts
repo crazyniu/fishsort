@@ -2,6 +2,7 @@
 // 浏览器试玩、截图都用它；真实平台接入前三端都先跑它（docs/04 第 5 节）。
 import { sys } from 'cc';
 import { AdResult, Capability, PlatformBase, Profile, RankEntry, VibrateKind, WindowRect } from './platformBase';
+import { loadPlatformConfig } from './platformConfig';
 
 const PREFIX = 'fishsort.';
 
@@ -13,11 +14,19 @@ export interface MockAdView {
 
 export class PlatformDebug extends PlatformBase {
   readonly id = 'debug';
-  /** 广告测试页可以把它关掉，检查「广告不可用」时的降级表现 */
-  adsOn = true;
+  /** 这一版有没有广告：跟 game.json 的 ads.enabled 走，地址栏 ?ads=1 / ?ads=0 能临时改（看两种版本的界面） */
+  hasAds = false;
+  /** 广告测试页可以把它关掉，检查「广告暂时加载不出来」时的降级表现 */
+  adsOn = false;
   view: MockAdView | null = null;
   /** 今天每个广告位展示了几次（广告测试页看） */
   shown: Record<string, number> = {};
+
+  override async init(): Promise<void> {
+    const q = this.launchQuery().ads;
+    this.hasAds = q === '1' ? true : q === '0' ? false : (await loadPlatformConfig()).adsEnabled === true;
+    this.adsOn = this.hasAds;
+  }
 
   override adsAvailable(): boolean {
     return this.adsOn;
@@ -82,7 +91,9 @@ export class PlatformDebug extends PlatformBase {
   }
 
   override hasCapability(cap: Capability): boolean {
-    return cap === 'friend_rank' || cap === 'share' || cap === 'confirmed_share' || cap === 'ad_test' || cap === 'vibrate';
+    if (cap === 'ads') return this.hasAds;
+    if (cap === 'ad_test') return this.hasAds;
+    return cap === 'friend_rank' || cap === 'share' || cap === 'confirmed_share' || cap === 'vibrate';
   }
 
   /**
