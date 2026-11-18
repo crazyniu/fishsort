@@ -234,7 +234,7 @@ export class HomePage extends Page {
     else def.open();
   }
 
-  override show(arg?: unknown): void {
+  override show(): void {
     this.refresh();
     const nodes = Array.from(this.entries.values()).map((e) => e.node);
     enterStagger([...nodes.filter((n) => n !== this.entries.get('levelSelect')?.node), this.start.node, (this.entries.get('levelSelect') as Entry).node], 0.06);
@@ -252,8 +252,8 @@ export class HomePage extends Page {
       e.icon.angle = 0;
       if (e.dot.active) fx.wiggle(e.icon, 7, 2.6);
     }
-    const unlocked = argUnlocked(arg);
-    const visible = unlocked.filter((f) => this.entries.has(f));
+    // 过关新开放的功能（点「下一关」时攒着的也在里面）；技能这类主页上没有入口的不播
+    const visible = Flow.takeUnlocks().filter((f) => this.entries.has(f));
     if (visible.length) fx.delay(this.node, App.config.ui.unlockGuide.delay, () => this.unlockGuide(visible));
   }
 
@@ -557,9 +557,3 @@ export class HomePage extends Page {
   }
 }
 
-type UnlockArg = { unlocked?: string[] } | null;
-
-function argUnlocked(arg: unknown): string[] {
-  const a = arg as UnlockArg;
-  return a?.unlocked ?? [];
-}
