@@ -502,7 +502,7 @@ export class HomePage extends Page {
       (e.icon.getComponent(Sprite) as Sprite).grayscale = !open;
       opacity(e.icon).opacity = open ? 255 : 120;
       // 没开放时标签写「等级 N」/「Level N」。字号各入口一样、不缩（用户 2026-11-18：文字多了别缩字，放不下就精简文字），
-      // 现有的中英文都按 round.ttf 量过放得下；fit 只防以后的新文案越界
+      // 现有的中英文都按 round.ttf（2026-11-18 前的资源圆体）量过放得下；fit 只防以后的新文案越界
       e.label.string = f === null || open ? tr(e.def.name) : tr('H_ENTRY_LOCKED', Features.unlockLevel(eco, f));
       fit(e.label, e.labelW - 16, e.font, 16);
       e.dot.active = open && this.hasNews(e.def.id);
