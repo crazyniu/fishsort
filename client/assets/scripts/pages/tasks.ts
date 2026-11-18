@@ -241,7 +241,7 @@ export function tierPreview(t: TaskTier): PrizeItem[] {
   const r = t.reward ?? {};
   if (r.coins) out.push({ icon: 'icon/coin', amount: fmt(r.coins) });
   if (r.tools) for (const id of eco.skills.order) out.push({ icon: `icon/skill_${id}`, amount: `×${r.tools}` });
-  if (r.skills) out.push({ icon: 'icon/gift', amount: tr('PRIZE_RANDOM_SKILL', r.skills) });
+  if (r.skills) out.push({ icon: 'icon/gift', amount: `×${r.skills}` });
   if (r.unlimited) out.push({ icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) });
   if (t.card) {
     const min = t.card.minRarity;
