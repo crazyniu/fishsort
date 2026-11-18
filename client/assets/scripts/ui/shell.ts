@@ -50,7 +50,8 @@ export function pageHead(parent: Node, title: string, o: { onBack?: () => void; 
   back.name = 'back';
   if (Screen.cap) {
     // 标题牌和平常一样大（用户 2026-11-18：缩到胶囊高太小了），居中；最宽只能到胶囊左边那个圆按钮前面（两边对称），字太长就缩小
-    at(pageTitle(parent, title, HEAD_TITLE, Math.floor(2 * (Screen.headRight - 6))), 0, y);
+    // 宽度按字来、两边留得窄一点，不撑到最小 220（用户 2026-11-18：标题牌再小一点，别贴着胶囊左边的圆按钮）
+    at(pageTitle(parent, title, HEAD_TITLE, Math.floor(2 * (Screen.headRight - 16)), 150, 1.0), 0, y);
   } else {
     at(pageTitle(parent, title, HEAD_TITLE), 0, y);
   }

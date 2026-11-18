@@ -484,12 +484,12 @@ export function fitPair(left: Label, right: Label, room: number, leftBase: numbe
  * 对准正面中心看着偏上（用户 2026-11-18：字没上下居中），取正面中心和外框中心的中间 */
 export const PLATE_TEXT_LIFT = 0.03;
 
-/** 页面标题牌：宽度随字，最窄 minW、最宽 maxW（字太长就缩小） */
-export function pageTitle(parent: Node, s: string, h = 80, maxW = 630, minW = 220): Node {
+/** 页面标题牌：宽度随字（两边各留 padK/2 个牌高），最窄 minW、最宽 maxW（字太长就缩小） */
+export function pageTitle(parent: Node, s: string, h = 80, maxW = 630, minW = 220, padK = 1.4): Node {
   const n = plate(parent, 'skin/f_plate_blue', 240, h, 'title');
   const l = text(n, s, Math.round(h * 0.56));
   l.node.setPosition(0, h * PLATE_TEXT_LIFT, 0);
-  const pad = Math.round(h * 1.4);
+  const pad = Math.round(h * padK);
   fit(l, Math.min(520, maxW - pad));
   resizePlate(n, Math.max(minW, Math.min(maxW, Math.round(textWidth(l) + pad))), h);
   return n;
