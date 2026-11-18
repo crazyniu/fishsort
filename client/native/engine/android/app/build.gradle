@@ -2,6 +2,10 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 apply plugin: 'com.android.application'
 
+// 带不带广告 SDK：tools/native/apply.mjs 按 game.json 的 ads.enabled 改写。
+// 关掉时不依赖 AdMob / UMP，FsAds 用 ads/off 里的空实现
+def FS_ADS = false
+
 RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")
 
@@ -34,7 +38,7 @@ android {
     }
 
     sourceSets.main {
-        java.srcDirs "../src", "src"
+        java.srcDirs "../src", "src", FS_ADS ? "ads/on" : "ads/off"
         res.srcDirs "../res", 'res', "${RES_PATH}/proj/res"
         jniLibs.srcDirs "../libs", 'libs'
         manifest.srcFile "AndroidManifest.xml"
@@ -112,9 +116,11 @@ dependencies {
     implementation fileTree(dir: "${COCOS_ENGINE_PATH}/cocos/platform/android/java/libs", include: ['*.jar'])
     implementation project(':libservice')
     implementation project(':libcocos')
-    // 广告：AdMob + 用户同意（UMP），FsBridge.java 用
-    implementation 'com.google.android.gms:play-services-ads:23.6.0'
-    implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
+    // 广告：AdMob + 用户同意（UMP），ads/on/.../FsAds.java 用
+    if (FS_ADS) {
+        implementation 'com.google.android.gms:play-services-ads:23.6.0'
+        implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
+    }
     if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
         implementation 'com.google.android.libraries.play.games:inputmapping:1.1.0-beta'
         implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.10"

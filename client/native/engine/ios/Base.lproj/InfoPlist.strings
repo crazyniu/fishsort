@@ -1,3 +1,2 @@
 /* 由 tools/native/apply.mjs 按 game.json 生成 */
 "CFBundleDisplayName" = "Pop Pop Rescue";
-"NSUserTrackingUsageDescription" = "This lets us show you ads that are more relevant to you.";

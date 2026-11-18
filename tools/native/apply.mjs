@@ -26,11 +26,13 @@ const json = (v) => JSON.stringify(v, null, 2) + '\n';
 const xml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 /** 工程名：只留字母数字（Xcode / Gradle 工程名里有空格容易出问题） */
 const projectName = game.name.en.replace(/[^A-Za-z0-9]/g, '') || game.codeName;
+/** 广告总开关（game.json 的 ads.enabled）：关掉时三端都没有广告，原生包里不带广告 SDK */
+const adsOn = game.ads.enabled === true;
 
 // 1. 游戏运行时读的平台配置（platform/platformConfig.ts）
 write(
   join(CLIENT, 'assets/resources/config/platform.json'),
-  json({ name: game.name, version: game.version, ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat } }),
+  json({ name: game.name, version: game.version, adsEnabled: adsOn, ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat } }),
 );
 
 // 2. 各平台的 Cocos 构建配置
@@ -54,33 +56,60 @@ for (const platform of ['ios', 'android', 'wechatgame']) {
   });
 }
 
-// 3. iOS：Info.plist 的版本号、AdMob 应用 ID、跟踪授权说明；各语言的应用名
+// 3. iOS：Info.plist 的版本号、广告那几项（AdMob 应用 ID、跟踪授权说明、SKAdNetwork）；各语言的应用名；链不链广告 SDK
 const ios = join(CLIENT, 'native/engine/ios');
 if (existsSync(ios)) {
   const plistValue = (s, key, value) => s.replace(new RegExp(`(<key>${key}</key>\\s*<string>)[^<]*(</string>)`), `$1${xml(value)}$2`);
+  // 广告那几项：开着广告时放在 ITSAppUsesNonExemptEncryption 前面；关掉时整段去掉
+  // （没有跟踪授权弹窗却写了 NSUserTrackingUsageDescription，审核会问）
+  const AD_KEYS = /\t<key>GADApplicationIdentifier<\/key>[\s\S]*?<key>SKAdNetworkItems<\/key>\s*<array>[\s\S]*?<\/array>\n/;
+  const adKeys = [
+    '\t<key>GADApplicationIdentifier</key>',
+    `\t<string>${xml(game.ios.admobAppId)}</string>`,
+    '\t<key>NSUserTrackingUsageDescription</key>',
+    `\t<string>${xml(game.ios.trackingText.en)}</string>`,
+    '\t<key>SKAdNetworkItems</key>',
+    '\t<array>',
+    '\t\t<dict>',
+    '\t\t\t<key>SKAdNetworkIdentifier</key>',
+    '\t\t\t<string>cstr6suwn9.skadnetwork</string>',
+    '\t\t</dict>',
+    '\t</array>',
+    '',
+  ].join('\n');
   edit(join(ios, 'Info.plist'), (s) => {
     s = plistValue(s, 'CFBundleShortVersionString', game.version);
     s = plistValue(s, 'CFBundleVersion', String(game.build));
-    s = plistValue(s, 'GADApplicationIdentifier', game.ios.admobAppId);
-    s = plistValue(s, 'NSUserTrackingUsageDescription', game.ios.trackingText.en);
+    s = s.replace(AD_KEYS, '');
+    if (adsOn) s = s.replace('\t<key>ITSAppUsesNonExemptEncryption</key>', `${adKeys}\t<key>ITSAppUsesNonExemptEncryption</key>`);
     return s;
   });
   const strings = (lang) =>
-    `/* 由 tools/native/apply.mjs 按 game.json 生成 */\n"CFBundleDisplayName" = "${game.name[lang]}";\n"NSUserTrackingUsageDescription" = "${game.ios.trackingText[lang]}";\n`;
-  // 工程名：Cocos 构建时也会这样改写，先写好免得每次构建都有改动
-  edit(join(ios, 'CMakeLists.txt'), (s) => s.replace(/set\(APP_NAME "[^"]*"/, `set(APP_NAME "${projectName}"`));
+    `/* 由 tools/native/apply.mjs 按 game.json 生成 */\n"CFBundleDisplayName" = "${game.name[lang]}";\n` +
+    (adsOn ? `"NSUserTrackingUsageDescription" = "${game.ios.trackingText[lang]}";\n` : '');
+  // 工程名：Cocos 构建时也会这样改写，先写好免得每次构建都有改动；FS_ADS：链不链广告 SDK
+  edit(join(ios, 'CMakeLists.txt'), (s) =>
+    s.replace(/set\(APP_NAME "[^"]*"/, `set(APP_NAME "${projectName}"`).replace(/set\(FS_ADS (ON|OFF)\)/, `set(FS_ADS ${adsOn ? 'ON' : 'OFF'})`),
+  );
   write(join(ios, 'Base.lproj/InfoPlist.strings'), strings('en'));
   write(join(ios, 'zh-Hans.lproj/InfoPlist.strings'), strings('zh_CN'));
 }
 
-// 4. Android：版本号、AdMob 应用 ID、各语言的应用名
+// 4. Android：版本号、AdMob 应用 ID、各语言的应用名；带不带广告 SDK（FS_ADS）和广告 ID 权限
 const android = join(CLIENT, 'native/engine/android');
 if (existsSync(android)) {
   edit(join(android, 'app/build.gradle'), (s) =>
-    s.replace(/versionCode \d+/, `versionCode ${game.build}`).replace(/versionName "[^"]*"/, `versionName "${game.version}"`),
+    s
+      .replace(/versionCode \d+/, `versionCode ${game.build}`)
+      .replace(/versionName "[^"]*"/, `versionName "${game.version}"`)
+      .replace(/def FS_ADS = (true|false)/, `def FS_ADS = ${adsOn}`),
   );
+  // 广告 ID 权限：关掉广告时显式去掉（tools:node="remove"），Play 后台的「广告 ID」声明就能选不用
+  const AD_ID = /<uses-permission android:name="com\.google\.android\.gms\.permission\.AD_ID"[^>]*\/>/;
   edit(join(android, 'app/AndroidManifest.xml'), (s) =>
-    s.replace(/(android:name="com\.google\.android\.gms\.ads\.APPLICATION_ID"\s*android:value=")[^"]*(")/, `$1${game.android.admobAppId}$2`),
+    s
+      .replace(/(android:name="com\.google\.android\.gms\.ads\.APPLICATION_ID"\s*android:value=")[^"]*(")/, `$1${game.android.admobAppId}$2`)
+      .replace(AD_ID, `<uses-permission android:name="com.google.android.gms.permission.AD_ID"${adsOn ? '' : ' tools:node="remove"'}/>`),
   );
   const label = (s, name) => s.replace(/(<string name="fs_app_name">)[^<]*(<\/string>)/, `$1${xml(name)}$2`);
   edit(join(android, 'res/values/strings.xml'), (s) => label(s, game.name.en));

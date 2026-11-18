@@ -64,6 +64,8 @@ export function signInPopup(changed: () => void): void {
     }
     cells.push(cell);
   });
+  // 这一版没有广告时没有「看广告领双倍」
+  const hasAds = App.platform.hasCapability('ads');
   const claim = (doubled: boolean) => {
     const r = SignIn.claim(s, eco, App.config.species, rng, today(), now(), doubled);
     if (!r) return;
@@ -73,7 +75,7 @@ export function signInPopup(changed: () => void): void {
     const its = items(r);
     rewardPopup(its, {
       onClose: changed,
-      double: doubled
+      double: doubled || !hasAds
         ? undefined
         : {
             label: tr('UI_CLAIM_DOUBLE'),
@@ -87,7 +89,11 @@ export function signInPopup(changed: () => void): void {
           },
     });
   };
-  if (can) {
+  if (can && !hasAds) {
+    const b = button(p.body, { color: 'green', w: 400, h: 100, label: tr('UI_CLAIM'), onTap: () => claim(false) });
+    at(b.node, 0, -215);
+    fx.breathe(b.node, 0.04, 1.2);
+  } else if (can) {
     const b = button(p.body, { color: 'green', w: 300, h: 100, label: tr('UI_CLAIM'), onTap: () => claim(false) });
     at(b.node, -160, -215);
     fx.breathe(b.node, 0.04, 1.2);

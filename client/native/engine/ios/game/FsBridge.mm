@@ -1,15 +1,16 @@
 // 脚本和 iOS 原生之间的桥，事件表见 assets/scripts/platform/platformNative.ts 的文件头。
 //
 // 广告：Google Mobile Ads（AdMob）+ 用户同意（UMP，欧洲等地要先问）+ 跟踪授权（ATT）。
-// SDK 由 ./package.sh 选择 iOS 时 下载到 native/engine/ios/sdk/（不进仓库）；没下载时照样能编译，只是没有广告
-// （__has_include 判断），游戏里看广告的入口自动隐藏。
+// SDK 由 ./package.sh 选择 iOS 时 下载到 native/engine/ios/sdk/（不进仓库）；game.json 关了广告（CMakeLists 的 FS_ADS）
+// 或没下载时不链 SDK，照样能编译，只是没有广告（__has_include 判断）：告诉脚本这一版没有广告（off），
+// 看广告的入口隐藏，也不弹广告同意和跟踪授权。
 #import "FsBridge.h"
 
 #import <UIKit/UIKit.h>
-#import <AppTrackingTransparency/AppTrackingTransparency.h>
 #include "platform/apple/JsbBridgeWrapper.h"
 
 #if __has_include(<GoogleMobileAds/GoogleMobileAds.h>)
+#import <AppTrackingTransparency/AppTrackingTransparency.h>
 #import <GoogleMobileAds/GoogleMobileAds.h>
 #import <UserMessagingPlatform/UserMessagingPlatform.h>
 #define FS_ADMOB 1
@@ -69,6 +70,11 @@ static UIViewController *FsRootViewController(void) {
     self.rewardedUnit = units[@"rewarded"] ?: @"";
     self.interstitialUnit = units[@"interstitial"] ?: @"";
     self.bannerUnit = units[@"banner"] ?: @"";
+    // 没配激励视频广告位就当这一版没有广告：不问同意、不问跟踪授权，看广告的入口隐藏
+    if (self.rewardedUnit.length == 0) {
+        FsSend(@"fs.ads", @{@"ready" : @NO, @"off" : @YES});
+        return;
+    }
     UMPRequestParameters *params = [[UMPRequestParameters alloc] init];
     [UMPConsentInformation.sharedInstance
         requestConsentInfoUpdateWithParameters:params
@@ -208,7 +214,7 @@ static UIViewController *FsRootViewController(void) {
                               NSDictionary *units = FsParse(arg)[@"ads"];
                               [[FsAds shared] startWithUnits:[units isKindOfClass:[NSDictionary class]] ? units : @{}];
 #else
-                              FsSend(@"fs.ads", @{@"ready" : @NO});
+                              FsSend(@"fs.ads", @{@"ready" : @NO, @"off" : @YES});
 #endif
                           }];
 

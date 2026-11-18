@@ -4,6 +4,7 @@
     "en": "Pop Pop Rescue"
   },
   "version": "1.0.0",
+  "adsEnabled": false,
   "ads": {
     "ios": {
       "rewarded": "ca-app-pub-3940256099942544/1712485313",

@@ -189,6 +189,7 @@ PROFILE_LEVEL,关卡,Level
 PROFILE_BEST_COMBO,最佳连击,Best combo
 PROFILE_CARDS,收藏,Album
 DAILY_RETRY_HINT,看广告或用金币重试,Retry with an ad or coins
+DAILY_RETRY_HINT_COINS,用金币再试一次,Retry with coins
 PRIZE_COINS,金币,Coins
 SPECIES_C01,小丑丑,Clowny
 SPECIES_C02,泡泡豚,Puffy

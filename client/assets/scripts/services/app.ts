@@ -31,9 +31,9 @@ export class App {
     App.flags = parseLaunch(App.platform.launchQuery());
     App.config = new Config();
     await App.config.load();
-    // 每日任务：平台没有对应能力的（如分享）不进池子；cap 为 ads 的（看广告）只在广告能用时进（微信开通流量主之前没有广告）
+    // 每日任务：平台没有对应能力的不进池子（如分享；cap 为 ads 的「看广告」在这一版没有广告时不进，docs/01 7.1）
     const tasks = App.config.eco.tasks;
-    if (tasks) tasks.pool = tasks.pool.filter((t) => t.cap === undefined || (t.cap === 'ads' ? App.platform.adsAvailable() : App.platform.hasCapability(t.cap as Capability)));
+    if (tasks) tasks.pool = tasks.pool.filter((t) => t.cap === undefined || App.platform.hasCapability(t.cap as Capability));
     App.save = new Save(App.platform);
     App.save.load(App.config.eco, App.flags);
   }

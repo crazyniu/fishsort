@@ -169,6 +169,7 @@ export class PlatformWechat extends PlatformBase {
   }
 
   override hasCapability(cap: Capability): boolean {
+    if (cap === 'ads') return this.rewarded !== null;
     return cap === 'share' || cap === 'vibrate';
   }
 
