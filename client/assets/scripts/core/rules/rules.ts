@@ -167,16 +167,22 @@ export function tick(s: GameState, dt: number): GameEvent[] {
   return ev;
 }
 
+/** 下一个可接单的缸位。新订单都上架后，购买和提示都关闭。 */
+export function nextBowlSlot(s: GameState): number {
+  if (s.status !== Status.PLAYING || s.nextOrder >= s.orders.length) return -1;
+  if (s.bowlOnce) {
+    for (let i = s.baseSlots; i < s.openSlots; i++) {
+      if (s.slots[i] === null && s.extraFills[i] === 0) return i;
+    }
+  }
+  return s.openSlots < MAX_SLOTS ? s.openSlots : -1;
+}
+
 export function unlockBowl(s: GameState): GameEvent[] {
   const ev: GameEvent[] = [];
-  if (s.status !== Status.PLAYING) return ev;
+  const slot = nextBowlSlot(s);
+  if (slot < 0) return ev;
   if (s.bowlOnce) {
-    // 加开的缸只装一缸：找第一个能用的加开位——还没开过的，或者开过、那一缸已经送走的
-    let slot = -1;
-    for (let i = s.baseSlots; i < MAX_SLOTS && slot < 0; i++) {
-      if (i >= s.openSlots || (s.slots[i] === null && s.extraFills[i] <= 0)) slot = i;
-    }
-    if (slot < 0) return ev;
     if (slot >= s.openSlots) s.openSlots = slot + 1;
     s.extraFills[slot] = 1;
     ev.push({ t: 'slot_open', slot });
@@ -184,7 +190,6 @@ export function unlockBowl(s: GameState): GameEvent[] {
     finish(s, ev);
     return ev;
   }
-  if (s.openSlots >= MAX_SLOTS) return ev;
   s.openSlots += 1;
   ev.push({ t: 'slot_open', slot: s.openSlots - 1 });
   settle(s, ev);

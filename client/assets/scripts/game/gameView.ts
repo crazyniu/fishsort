@@ -182,9 +182,8 @@ export class GamePage extends Page {
   /** 这关宝箱开局定好的结果（docs/01 3.4）；开出卡时那只生物困在 guest.bubble 号气泡里当稀客，过关时按它入账 */
   chestPlan: LevelChest.ChestPlan | null = null;
   private guest: { bubble: number; id: string; node: Node; saved: boolean } | null = null;
-  /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点）；dirty = 局面变了要重算 */
+  /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点） */
   private autoTaps: AutoFinish.AutoTap[] | null = null;
-  private autoDirty = false;
   private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
@@ -259,7 +258,6 @@ export class GamePage extends Page {
     this.clock = 0;
     this.moved = false;
     this.autoTaps = null;
-    this.autoDirty = false;
     this.tallied = false;
     this.ended = false;
     this.paused = false;
@@ -503,6 +501,9 @@ export class GamePage extends Page {
   refreshHud(): void {
     const rescued = this.total - this.s.fishLeft();
     this.progress.set(`${rescued}/${this.total}`);
+    if (this.s.nextOrder >= this.s.orders.length) {
+      for (const plus of this.plusNodes) plus.active = false;
+    }
     const free = this.s.bufferCap - this.bufferNodes.length;
     const warn = free <= App.config.ui.buffer.warnFree && this.s.status === Status.PLAYING;
     this.bufferSlots.forEach((sl, i) => {
@@ -619,7 +620,6 @@ export class GamePage extends Page {
     }
     this.clearHint();
     this.play(ev, false);
-    this.autoDirty = true;
     return ev;
   }
 
@@ -719,9 +719,11 @@ export class GamePage extends Page {
           break;
         }
         case 'slot_close': {
-          // 加开的缸装满送走以后，这个位置变回「＋」（等送走的演出播完）
-          const plus = this.plusNodes[e.slot as number];
-          if (plus) fx.delay(this.fly, t + cfg.bowlDone.dropAt, () => (plus.active = true));
+          const slot = e.slot as number;
+          const plus = this.plusNodes[slot];
+          fx.delay(this.fly, t + cfg.bowlDone.dropAt, () => {
+            plus.active = this.s.nextOrder < this.s.orders.length && this.s.slots[slot] === null;
+          });
           break;
         }
         case 'bubble_pop': {
@@ -771,6 +773,13 @@ export class GamePage extends Page {
     for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.tapPop + cfg.fly.seconds, () => this.hitCombo(x));
     this.field.sync(this.s);
     this.layoutReturn(t + 0.2);
+    if (!App.flags.autoplay && this.moved && !this.finishing && this.s.status === Status.PLAYING) {
+      this.autoTaps = AutoFinish.plan(this.s, cfg.autoFinish.maxLeft);
+      if (this.autoTaps) {
+        this.autoT = -cfg.autoFinish.delay;
+        this.clearHint();
+      }
+    }
     this.refreshHud();
   }
 
@@ -888,7 +897,7 @@ export class GamePage extends Page {
     if (!view) return;
     view.incoming--;
     view.shown++;
-    this.bumpTag(view);
+    if (!view.done) this.bumpTag(view);
     this.settleInside(view);
     // 满缸正在飘走的不再压（它的缩放归飘走动画管）
     if (!view.leaving) fx.squash(view.node, 0.88);
@@ -912,9 +921,9 @@ export class GamePage extends Page {
     // 要什么、进了几条，看木架下面钉着的目标卡（用户 2026-11-16 定的样子）：一叠白边相片，上面是要的那种鱼（画得大，看得清），
     // 右下角「0/3」；进一条数字加一、卡弹一下。卡的底图是 Codex 画的（art/briefs/redesign/goal_card.txt）
     const inside = box('inside', node, s, h);
-    const tag = img(node, 'skin/j_goal', GOAL_W, GOAL_H, 'tag');
+    const tag = img(this.stage, 'skin/j_goal', GOAL_W, GOAL_H, 'tag');
     // 卡顶上的图钉压在木架正面
-    at(tag, 0, -h / 2 + BOWL_SINK - SHELF_H + GOAL_PIN - GOAL_H / 2);
+    at(tag, this.bowlX[slot], this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H / 2);
     const tagFish = img(tag, this.field.spriteFor(sp), GOAL_H * 0.68, GOAL_H * 0.68, 'fish');
     at(tagFish, -GOAL_W * 0.13, -GOAL_H * 0.02);
     Alive.blink(tagFish, this.field.idFor(sp), GOAL_H * 0.68);
@@ -933,7 +942,10 @@ export class GamePage extends Page {
     this.bowlBubbles(node, s, h);
     const view: BowlView = { node, inside, tag, tagLabel, got: 0, sp, timer: timerNode, timerLabel, shown: 0, cap, incoming: 0, done: false, restY, h, leaving: false };
     this.bowls[slot] = view;
-    onTap(node, () => this.tapBowl(slot), { press: 0 });
+    onTap(tag, () => this.tapBowl(slot), { press: 0 });
+    onTap(node, () => {
+      if (this.bowls[slot] === view) this.tapBowl(slot);
+    }, { press: 0 });
     // 新缸从上方落下
     node.setPosition(this.bowlX[slot], restY + 260, 0);
     opacity(node).opacity = 0;
@@ -984,6 +996,8 @@ export class GamePage extends Page {
   /** 满缸：晃一下、发光、爆光、往上飘走（docs/01 3.1） */
   private bowlDone(view: BowlView, _slot: number): void {
     view.done = true;
+    view.tag.active = false;
+    view.tag.destroy();
     if (view.incoming <= 0) this.bowlLeave(view);
   }
 
@@ -1483,7 +1497,7 @@ export class GamePage extends Page {
       }
     }
     // 限时缸、限时关
-    if (this.s.status === Status.PLAYING && this.moved) {
+    if (this.s.status === Status.PLAYING && this.moved && !this.finishing) {
       const ev = Rules.tick(this.s, dt);
       if (ev.length) this.play(ev, false);
       this.syncClock();
@@ -1497,7 +1511,7 @@ export class GamePage extends Page {
     this.idle += dt;
     const hint = App.config.ui.hint;
     const wait = this.arg.level <= hint.tutorialLevels ? hint.tutorialSeconds : hint.seconds;
-    if (!this.hintNode && !this.tutorNode && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
+    if (!this.hintNode && !this.tutorNode && !this.finishing && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
     if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
     this.autoFinish(dt);
     if (this.guest && !this.guest.saved && this.guest.node.isValid) this.field.guestFollow(this.guest.node, this.guest.bubble);
@@ -1518,12 +1532,6 @@ export class GamePage extends Page {
    */
   private autoFinish(dt: number): void {
     if (App.flags.autoplay || this.s.status !== Status.PLAYING || !this.moved) return;
-    if (this.autoDirty && this.autoTaps === null) {
-      this.autoDirty = false;
-      this.autoTaps = AutoFinish.plan(this.s, App.config.ui.autoFinish.maxLeft);
-      this.autoT = -App.config.ui.autoFinish.delay;
-      if (this.autoTaps) this.clearHint();
-    }
     if (this.autoTaps === null) return;
     this.autoT += dt;
     if (this.autoT < App.config.ui.autoFinish.interval) return;
@@ -1541,7 +1549,6 @@ export class GamePage extends Page {
       this.autoTaps = null;
       return;
     }
-    this.autoDirty = false;
     if (this.autoTaps.length === 0) this.autoTaps = null;
     sfx('bo');
     if (!isReturn && pos) {
@@ -1649,10 +1656,9 @@ export class GamePage extends Page {
   }
 
   private showHint(): void {
-    const t = Bots.nextTap(this.s, this.rng);
+    this.idle = 0;
+    const t = Bots.hintTap(this.s, this.rng);
     if (!t) return;
-    // 提示不指向没显形的迷雾鱼（机器人只有没别的可点时才会盲点它）
-    if (t[0] !== RETURN_BUBBLE && this.s.bubbles[t[0]].fog > 0) return;
     if (t[0] === RETURN_BUBBLE) {
       const b = this.returnNodes[t[1]];
       if (b) {

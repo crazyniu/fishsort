@@ -149,7 +149,7 @@ function tipPopup(key: string, done: () => void): void {
 /** 新技能的强制教学：这一关第一次能用上它（有效果）时才开始；网兜要先有缸 */
 export function checkTutorial(g: GamePage): void {
   const id = g.tutor;
-  if (!id || g.ended || g.paused || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay) return;
+  if (!id || g.ended || g.paused || g.finishing || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay) return;
   if ((g.used[id] ?? 0) > 0) {
     g.tutor = '';
     return;
@@ -267,7 +267,7 @@ function buySkill(g: GamePage, id: string): void {
 // ---------------------------------------------------------------- 开缸位（定版图 18 左）
 
 export function unlockSlot(g: GamePage): void {
-  if (g.ended || g.s.status !== Status.PLAYING) return;
+  if (g.finishing || Rules.nextBowlSlot(g.s) < 0) return;
   const eco = App.config.eco;
   // 这一版没有广告时只有金币开，弹窗矮一截
   const hasAds = App.platform.hasCapability('ads');
@@ -291,7 +291,7 @@ export function unlockSlot(g: GamePage): void {
     icon: 'icon/coin',
     label: fmt(eco.bowlSlotCoinPrice),
     onTap: () => {
-      if (!spend(eco.bowlSlotCoinPrice)) return;
+      if (Rules.nextBowlSlot(g.s) < 0 || !spend(eco.bowlSlotCoinPrice)) return;
       App.save.data.coins -= eco.bowlSlotCoinPrice;
       App.save.write();
       done();
@@ -306,7 +306,7 @@ export function unlockSlot(g: GamePage): void {
     icon: 'kit/ic_video',
     label: tr('H_WATCH_AD'),
     onTap: async () => {
-      if (await watchAd('rv_bowl_slot')) done();
+      if (Rules.nextBowlSlot(g.s) >= 0 && await watchAd('rv_bowl_slot')) done();
     },
   });
   at(ad.node, 0, -230);
@@ -315,7 +315,7 @@ export function unlockSlot(g: GamePage): void {
 // ---------------------------------------------------------------- 暂停、离开
 
 export function pause(g: GamePage): void {
-  if (g.ended) return;
+  if (g.ended || g.finishing) return;
   g.paused = true;
   // 暂停弹窗底部放 Banner（docs/01 7.1 bn_result：结算、暂停弹窗底部）
   App.platform.showBanner('bn_result');

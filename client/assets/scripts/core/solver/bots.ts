@@ -81,6 +81,19 @@ export function nextTap(s: GameState, rng: Rng): Tap | null {
   return [choice[0], choice[1]];
 }
 
+/** 给玩家的光圈只指可见的直接入缸操作，连在一起的两条也要安全。 */
+export function hintTap(s: GameState, rng: Rng): Tap | null {
+  const candidates = options(s).filter((o) => !o[4] && findSlot(s, o[2]) >= 0);
+  while (candidates.length) {
+    const pick = greedy(s, candidates, rng);
+    const [b, k] = pick;
+    const events = tap(s.clone(), b, k);
+    if (!events.some((e) => e.t === 'fish_to_buffer' || e.t === 'lose')) return [b, k];
+    candidates.splice(candidates.indexOf(pick), 1);
+  }
+  return null;
+}
+
 /**
  * 有目标鱼就点（先顾限时缸，再优先快要破的泡），否则点最快用得上的鱼。同分时随机挑，
  * 这样同一关多跑几局能得到胜率而不是非 0 即 100。
