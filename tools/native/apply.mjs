@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 按仓库根目录的 game.json 改写各平台的构建配置和原生工程（docs/10-开发底座.md）。
-// ./run.sh ios-build / android-build / wechat-build 打包前自动跑；改了 game.json 也可以单独跑：node tools/native/apply.mjs
+// ./package.sh 选择微信或原生平台 打包前自动跑；改了 game.json 也可以单独跑：node tools/native/apply.mjs
 // 只改下面列出的那几处，别的不动；重复跑结果一样。
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

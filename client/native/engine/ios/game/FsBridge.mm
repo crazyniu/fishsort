@@ -1,7 +1,7 @@
 // 脚本和 iOS 原生之间的桥，事件表见 assets/scripts/platform/platformNative.ts 的文件头。
 //
 // 广告：Google Mobile Ads（AdMob）+ 用户同意（UMP，欧洲等地要先问）+ 跟踪授权（ATT）。
-// SDK 由 ./run.sh ios-build 下载到 native/engine/ios/sdk/（不进仓库）；没下载时照样能编译，只是没有广告
+// SDK 由 ./package.sh 选择 iOS 时 下载到 native/engine/ios/sdk/（不进仓库）；没下载时照样能编译，只是没有广告
 // （__has_include 判断），游戏里看广告的入口自动隐藏。
 #import "FsBridge.h"
 
