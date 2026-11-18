@@ -23,6 +23,8 @@ export const Screen = {
   H: 1334,
   /** 顶上被刘海、状态栏、胶囊按钮占掉的高度（设计单位） */
   safeTop: 0,
+  /** 系统安全区的顶（刘海、灵动岛、状态栏），不算胶囊（设计单位） */
+  notchTop: 0,
   /** 底下被手势条占掉的高度（设计单位） */
   safeBottom: 0,
   /**
@@ -36,9 +38,15 @@ export const Screen = {
   get bottom(): number {
     return -this.H / 2 + this.safeBottom;
   },
-  /** 页头那一行的中线：有胶囊时和胶囊对齐，没有时在 top 往下 76 */
+  /**
+   * 页头那一行的中线：有胶囊时和胶囊对齐，没有时在 top 往下 76。
+   * 和胶囊对齐时整行不高过系统安全区：微信开发者工具模拟灵动岛机型时胶囊和灵动岛在同一行，
+   * 页头左边的头像、金币就压到灵动岛上（用户 2026-11-18；真机上胶囊在状态栏下面，不受影响）
+   */
   get headY(): number {
-    return this.cap ? (this.cap.top + this.cap.bottom) / 2 : this.top - HEAD_ROW;
+    if (!this.cap) return this.top - HEAD_ROW;
+    const mid = (this.cap.top + this.cap.bottom) / 2;
+    return Math.min(mid, this.H / 2 - this.notchTop - this.headH / 2);
   },
   /**
    * 页头基准线：有页头的页面（主页、各子页面）按它往下排（替代 top）。有胶囊时比 top 高，页头在胶囊那一行，
@@ -73,9 +81,11 @@ export const Screen = {
     try {
       const r = sys.getSafeAreaRect();
       this.safeTop = clampInset(v.height - (r.y + r.height), 240);
+      this.notchTop = this.safeTop;
       this.safeBottom = clampInset(r.y, 160);
     } catch {
       this.safeTop = 0;
+      this.notchTop = 0;
       this.safeBottom = 0;
     }
   },
@@ -85,14 +95,17 @@ export const Screen = {
     if (safe) {
       const k = this.W / safe.windowWidth;
       this.safeTop = clampInset(safe.top * k, 240);
+      this.notchTop = this.safeTop;
       this.safeBottom = clampInset((safe.windowHeight - safe.bottom) * k, 160);
     }
     const cap: WindowRect | null = p.menuButton();
     this.cap = null;
     if (cap) {
       const k = this.W / cap.windowWidth;
-      this.safeTop = Math.max(this.safeTop, clampInset(cap.bottom * k + CAPSULE_GAP, 260));
       this.cap = { left: cap.left * k - this.W / 2, right: cap.right * k - this.W / 2, top: this.H / 2 - cap.top * k, bottom: this.H / 2 - cap.bottom * k };
+      // 页头被安全区往下推时（见 headY），下面的内容也要让开
+      const pushed = Math.max(0, (this.cap.top + this.cap.bottom) / 2 - this.headY);
+      this.safeTop = Math.max(this.safeTop, clampInset(cap.bottom * k + CAPSULE_GAP + pushed, 260));
     }
   },
 };

@@ -1,6 +1,7 @@
 // 界面资源缓存（docs/04 第 8 节）：启动时读界面部件、图标、字体和眼前要用的鱼，之后同步取用；
 // 其余的图（收藏册封面、别的海域的鱼、背景）用到时再读——kit 的 img() 遇到还没读的图会先建空节点、读到再显示。
 // 微信版的 resources 是放在网上的远程包（tools/wechat/remote.mjs），所以这里每一步都可能因为网络失败，失败就抛出，由加载页重试。
+// 字体在本地 boot 包里（不在 resources）：微信下载来的 TTF 注册失败时引擎会静默退回 Arial，整个界面变成系统字。
 import { AssetManager, Font, JsonAsset, SpriteFrame, TTFFont, assetManager, resources } from 'cc';
 
 const frames = new Map<string, SpriteFrame>();
@@ -18,11 +19,17 @@ export function ensureResources(): Promise<void> {
   });
 }
 
-/** 读本地的 boot 包（加载页的背景、logo、文案，打在安装包里） */
+let bootBundle: Promise<AssetManager.Bundle> | null = null;
+
+/** 读本地的 boot 包（加载页的背景、logo、文案、字体，打在安装包里）；只读一次，失败了下次再试 */
 export function loadBootBundle(): Promise<AssetManager.Bundle> {
-  return new Promise((resolve, reject) => {
-    assetManager.loadBundle('boot', (err: Error | null, b: AssetManager.Bundle) => (err ? reject(err) : resolve(b)));
-  });
+  if (!bootBundle) {
+    bootBundle = new Promise<AssetManager.Bundle>((resolve, reject) => {
+      assetManager.loadBundle('boot', (err: Error | null, b: AssetManager.Bundle) => (err ? reject(err) : resolve(b)));
+    });
+    bootBundle.catch(() => (bootBundle = null));
+  }
+  return bootBundle;
 }
 
 /** 图的键（'skin/j_bowl'、'fish/c01'）→ resources 里的路径 */
@@ -69,15 +76,29 @@ export function startupFrames(): string[] {
   return [...keysIn('ui/kit'), ...keysIn('ui/skin'), ...keysIn('ui/icon')].filter((k) => !k.startsWith('skin/j_book_'));
 }
 
-export function loadFont(): Promise<void> {
-  if (font) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    resources.load('fonts/round', TTFFont, (err: Error | null, f: TTFFont) => {
-      if (err) return reject(err);
-      font = f;
-      resolve();
-    });
-  });
+let fontLoading: Promise<Font> | null = null;
+
+/** 读游戏字体（boot 包的 round.ttf）；加载页和启动步骤都会调，只读一次 */
+export function loadFont(): Promise<Font> {
+  if (font) return Promise.resolve(font);
+  if (!fontLoading) {
+    fontLoading = loadBootBundle().then(
+      (b) =>
+        new Promise<Font>((resolve, reject) => {
+          b.load('round', TTFFont, (err: Error | null, f: TTFFont) => {
+            if (err) return reject(err);
+            // 小游戏上 wx.loadFont 失败时引擎不报错，family 静默变成 'Arial'，界面全成系统字——这里报出来
+            const family: unknown = Reflect.get(f, '_fontFamily');
+            if (typeof family !== 'string' || !family || family === 'Arial') console.warn(`游戏字体没装上（family=${String(family)}），界面会用系统字体`);
+            else console.log(`游戏字体：${family}`);
+            font = f;
+            resolve(f);
+          });
+        }),
+    );
+    fontLoading.catch(() => (fontLoading = null));
+  }
+  return fontLoading;
 }
 
 export function uiFont(): Font | null {

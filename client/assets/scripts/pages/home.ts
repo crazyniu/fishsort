@@ -37,6 +37,8 @@ const LABEL_FONT = 24;
 /** 一个入口占的高（格子 + 压出去的半块标签牌），两个入口之间再空 ENTRY_GAP */
 const ENTRY_H = ENTRY_TILE + LABEL_H / 2;
 const ENTRY_GAP = 36;
+/** 第一排入口的格子顶离顶栏多远（用户 2026-11-18：原来 18，紧贴顶栏「太靠上」，往下挪） */
+const ENTRY_TOP = 82;
 /** 入口的标签牌离屏幕边多远 */
 const ENTRY_MARGIN = 22;
 /** 气泡的直径是里面那条鱼的几倍 */
@@ -156,7 +158,7 @@ export class HomePage extends Page {
       { id: 'tasks', feature: 'tasks', icon: 'icon/tab_tasks', name: 'UI_TAB_TASKS', open: () => ui.go('tasks') },
     ];
     const x0 = Screen.W / 2 - ENTRY_MARGIN - LABEL_W / 2;
-    const row1 = zoneTop - 18 - ENTRY_TILE / 2;
+    const row1 = zoneTop - ENTRY_TOP - ENTRY_TILE / 2;
     const step = (ENTRY_H + ENTRY_GAP) * Math.min(1.2, k);
     left.forEach((d, i) => this.entry(root, d, -x0, row1 - i * step));
     right.forEach((d, i) => this.entry(root, d, x0, row1 - i * step));
