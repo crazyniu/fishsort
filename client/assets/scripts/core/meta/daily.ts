@@ -14,7 +14,6 @@ export function fresh(day: number): DailySave {
     lifeAd: 0,
     replay: 0,
     toolFree: {},
-    share: { wheel: 0, life: 0, card: 0, help: 0 },
   };
 }
 

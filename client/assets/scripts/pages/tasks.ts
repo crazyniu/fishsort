@@ -33,7 +33,6 @@ const TASK_ICON: Record<string, string> = {
   skill: 'icon/skill_shuffle',
   daily: 'icon/entry_daily',
   wheel: 'icon/entry_wheel',
-  share: 'icon/task_share',
   bowls: 'skin/j_bowl',
   play: 'icon/entry_levels',
 };
@@ -199,20 +198,13 @@ export class TasksPage extends Page {
     at(bar.node, 0, -h / 2 + 104);
     bar.set(prog / t.goal);
     at(text(bar.node, `${prog}/${t.goal}`, 22).node, 0, 1);
-    const go = button(card, { color: 'green', w: barW, h: 64, label: tr('TASK_GO'), fontSize: 30, onTap: () => void this.go(t.id) });
+    const go = button(card, { color: 'green', w: barW, h: 64, label: tr('TASK_GO'), fontSize: 30, onTap: () => this.go(t.id) });
     at(go.node, 0, -h / 2 + 48);
     return card;
   }
 
-  /** 「前往」：去能做这项任务的地方；分享直接在这里做 */
-  private async go(id: string): Promise<void> {
-    if (id === 'share') {
-      if (!(await App.platform.share({ kind: 'task' }))) return;
-      Tasks.add(App.save.data, App.config.eco, today(), 'share');
-      App.save.write();
-      ui.refresh();
-      return;
-    }
+  /** 「前往」：去能做这项任务的地方 */
+  private go(id: string): void {
     const page = TASK_PAGE[id];
     if (page) ui.go(page);
     else Flow.startLevel(App.save.data.level);

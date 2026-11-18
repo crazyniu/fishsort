@@ -1181,12 +1181,6 @@
         "goal": 1,
         "points": 20,
         "feature": "wheel"
-      },
-      {
-        "id": "share",
-        "goal": 1,
-        "points": 20,
-        "cap": "confirmed_share"
       }
     ],
     "dayTiers": [
@@ -1279,7 +1273,6 @@
   "wheel": {
     "freePerDay": 1,
     "firstWinSpins": 1,
-    "shareSpins": 1,
     "adPerDay": 3,
     "coinCost": 200,
     "tenCost": 1800,
@@ -1381,32 +1374,6 @@
       }
     }
   ],
-  "share": {
-    "wheel": {
-      "daily": 1,
-      "reward": {
-        "wheel": 1
-      }
-    },
-    "life": {
-      "daily": 3,
-      "reward": {
-        "life": 1
-      }
-    },
-    "card": {
-      "daily": 3,
-      "reward": {
-        "coins": 40
-      }
-    },
-    "help": {
-      "daily": 1,
-      "reward": {
-        "skill": 1
-      }
-    }
-  },
   "replay": {
     "rewardedPerDay": 5
   }

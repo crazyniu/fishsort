@@ -5,9 +5,7 @@ import type { CardResult, Prize } from '../core/meta/save';
 import * as Cards from '../core/meta/cards';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
-import * as Share from '../core/meta/share';
 import * as Tasks from '../core/meta/tasks';
-import { Rng } from '../core/rng/rng';
 import { App } from '../services/app';
 import { buzz, applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
@@ -304,7 +302,6 @@ export function livesPopup(onChange?: () => void): void {
   const isFull = () => Lives.count(s, eco, now()) >= eco.lives.max;
   const day = today();
   const adLeft = Lives.adLeft(s, eco, day);
-  const shareLeft = Share.remaining(s, eco, 'life', day);
   // [颜色, 主文字, 主文字前的图标, 小字, 小字前的图标, 能不能点, 点了做什么]
   type Opt = { color: 'yellow' | 'blue' | 'green'; main: string; mainIcon: string | null; sub: string; subIcon: string | null; on: boolean; tap: () => void };
   const opts: Opt[] = [];
@@ -324,20 +321,6 @@ export function livesPopup(onChange?: () => void): void {
       },
     });
   }
-  if (App.platform.hasCapability('confirmed_share')) opts.push({
-    color: 'blue',
-    main: '+1',
-    mainIcon: 'kit/ic_share',
-    sub: tr('ADS_LEFT', shareLeft),
-    subIcon: null,
-    on: shareLeft > 0,
-    tap: async () => {
-      if (Share.remaining(s, eco, 'life', today()) <= 0 || isFull()) return;
-      if (!(await App.platform.share({ kind: 'life' }))) return;
-      Share.claim(s, eco, 'life', today(), now(), new Rng(Date.now() >>> 0));
-      changed();
-    },
-  });
   opts.push({
     color: 'blue',
     main: '+1',

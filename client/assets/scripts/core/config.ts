@@ -167,7 +167,6 @@ export interface EconomyConfig {
   wheel: {
     freePerDay: number;
     firstWinSpins: number;
-    shareSpins: number;
     adPerDay: number;
     coinCost: number;
     tenCost: number;
@@ -179,7 +178,6 @@ export interface EconomyConfig {
     prizes: WheelPrize[];
   };
   signInDays: SignInDay[];
-  share: Record<string, { daily: number; reward: { coins?: number; life?: number; wheel?: number; skill?: number } }>;
   replay: { rewardedPerDay: number };
 }
 

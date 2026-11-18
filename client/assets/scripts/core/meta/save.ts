@@ -17,7 +17,6 @@ export interface DailySave {
   lifeAd: number;
   replay: number;
   toolFree: Record<string, boolean>;
-  share: Record<string, number>;
 }
 
 export interface WeekSave {

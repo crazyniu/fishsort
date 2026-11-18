@@ -102,13 +102,13 @@ describe('任务中心（docs/01 5.9）', () => {
     assert.deepEqual(Tasks.pick(ECO, MON, 30), ids);
     const seen = new Set<string>();
     for (let d = 0; d < 60; d++) for (const id of Tasks.pick(ECO, MON + d, 30)) seen.add(id);
-    assert.equal(seen.size, 10, '10 种任务都会轮到');
+    assert.equal(seen.size, 9, '9 种任务都会轮到');
     for (let d = 0; d < 60; d++) assert.ok(!Tasks.pick(ECO, MON + d, 11).includes('daily'), '每日挑战第 20 关才开');
     const sum = Tasks.list(save, ECO, MON).reduce((a, t) => a + t.points, 0);
     assert.equal(sum, 130, '能拿到的一共 130 分');
   });
 
-  it('没有广告、没有分享（平台层把它们筛出池子）：任务中心开放（第 11 关）起照样每天 6 项', () => {
+  it('没有广告（平台层把它筛出池子）：任务中心开放（第 11 关）起照样每天 6 项', () => {
     const eco = structuredClone(ECO);
     const tc = eco.tasks as NonNullable<typeof eco.tasks>;
     tc.pool = tc.pool.filter((t) => t.cap === undefined);
@@ -116,7 +116,7 @@ describe('任务中心（docs/01 5.9）', () => {
       for (let d = 0; d < 20; d++) {
         const ids = Tasks.pick(eco, MON + d, level);
         assert.equal(ids.length, 6, `第 ${level} 关`);
-        assert.ok(!ids.includes('ad') && !ids.includes('share'));
+        assert.ok(!ids.includes('ad'));
       }
     }
   });
@@ -125,7 +125,7 @@ describe('任务中心（docs/01 5.9）', () => {
     const eco = structuredClone(ECO);
     // 假设池子小到第 1 关只有 5 项能抽：先出 4 项（偶数）
     const tc = eco.tasks as NonNullable<typeof eco.tasks>;
-    tc.pool = tc.pool.filter((t) => !['bowls', 'play', 'share'].includes(t.id));
+    tc.pool = tc.pool.filter((t) => !['bowls', 'play'].includes(t.id));
     const save = fresh(1);
     const first = Tasks.list(save, eco, MON).map((t) => t.id);
     assert.equal(first.length % 2, 0);
