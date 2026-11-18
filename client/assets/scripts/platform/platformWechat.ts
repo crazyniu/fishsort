@@ -74,7 +74,11 @@ export class PlatformWechat extends PlatformBase {
         this.playingRewarded = false;
         resolve(result);
       };
-      const onError = () => finish('unavailable');
+      // 播放失败（没填充、网络断了）：这次按不可用，同时重新加载一条，不然要等切回前台才会再加载
+      const onError = () => {
+        finish('unavailable');
+        ad.load().catch(() => (this.rewardedReady = false));
+      };
       const onClose = (res?: { isEnded?: boolean }) => {
         finish(res?.isEnded === true ? 'done' : 'skipped');
         ad.load().catch(() => (this.rewardedReady = false));
