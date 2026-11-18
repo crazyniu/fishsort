@@ -15,7 +15,7 @@ cocos_build() {
 
 # ---------------------------------------------------------------- 微信小游戏（docs/10 第 4 节）
 
-# 构建 → resources 挪到网上（tools/wechat/remote.mjs）→ 有 tcb（云开发命令行）就传到云存储
+# 构建 → resources 挪到网上（tools/wechat/remote.mjs）→ 有 tcb（云开发命令行）就传到云开发的静态网站托管
 wechat_build() {
   local env remote="client/build/wechatgame-remote/remote"
   node tools/native/apply.mjs
@@ -24,11 +24,11 @@ wechat_build() {
   [ -d "$remote" ] || return 0
   env="$(node -p "require('./game.json').wechat.cloudEnv || ''")"
   if [ -n "$env" ] && command -v tcb >/dev/null 2>&1; then
-    echo "· 上传资源到云开发环境 ${env} …"
-    tcb storage upload "$remote" remote -e "$env" || die "上传失败：先 tcb login，或在云开发控制台「存储」里手动上传 ${remote} 整个文件夹"
+    echo "· 上传资源到云开发环境 ${env} 的静态网站托管 …"
+    tcb hosting deploy "$remote" remote -e "$env" || die "上传失败：先 tcb login，或在云开发控制台「静态网站托管」里手动上传 ${remote} 整个文件夹"
     echo "✓ 资源已上传"
   else
-    echo "! 还要把 ${remote} 整个文件夹传到云存储根目录（云开发控制台 → 存储 → 上传文件夹；装了 tcb 并填了 game.json 的 wechat.cloudEnv 会自动传）"
+    echo "! 还要把 ${remote} 整个文件夹传到静态网站托管的根目录（云开发控制台 → 静态网站托管 → 上传文件夹；装了 tcb 并 tcb login 过会自动传）"
   fi
   echo "微信开发者工具导入 client/build/wechatgame 即可预览、上传"
 }
