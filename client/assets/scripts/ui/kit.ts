@@ -126,6 +126,12 @@ export function fmt(n: number): string {
   return String(Math.round(n));
 }
 
+/** 顶栏、页头上的金币数：最多显示 9999（用户 2026-11-18：最多显示 4 个 9），条的宽度按它定 */
+export const COINS_SHOWN_MAX = 9999;
+export function fmtCoins(n: number): string {
+  return fmt(Math.min(COINS_SHOWN_MAX, n));
+}
+
 export function hex(s: string, a = 255): Color {
   const n = parseInt(s.replace('#', ''), 16);
   return new Color((n >> 16) & 255, (n >> 8) & 255, n & 255, a);
@@ -762,17 +768,25 @@ export interface Capsule {
   set(s: string): void;
 }
 
-export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56), skin = 'skin/f_dock'): Capsule {
+/**
+ * widest：给了就按这串字（最长会写成什么样）定宽，w 不用；条的宽度贴着内容，右边不空一大截（用户 2026-11-18：宽度自适应）
+ */
+export function capsule(parent: Node, w: number, h: number, iconPath: string | null, s: string, fontSize = Math.round(h * 0.56), skin = 'skin/f_dock', widest?: string): Capsule {
   const n = plate(parent, skin, w, h, 'capsule');
+  // 有图标：数字左对齐紧跟图标；没图标：居中
+  const lead = iconPath ? h * 0.96 + 8 : 0;
+  const label = text(n, widest ?? s, fontSize, iconPath ? { align: 'left' } : {});
+  if (widest !== undefined) {
+    w = Math.round(lead + textWidth(label) + (iconPath ? h * 0.45 : h * 0.9));
+    resizePlate(n, w, h);
+  }
   let icon: Node | null = null;
   if (iconPath) {
     icon = img(n, iconPath, h * 0.92, h * 0.92, 'icon');
     icon.setPosition(-w / 2 + h * 0.5, 0, 0);
   }
-  // 有图标：数字左对齐紧跟图标；没图标：居中
-  const label = text(n, s, fontSize, iconPath ? { align: 'left' } : {});
-  label.node.setPosition(iconPath ? -w / 2 + h * 0.96 + 8 : 0, 0, 0);
-  const room = w - (iconPath ? h * 0.96 + 8 : 0) - 24;
+  label.node.setPosition(iconPath ? -w / 2 + lead : 0, 0, 0);
+  const room = w - lead - (widest !== undefined ? h * 0.3 : 24);
   const set = (v: string) => {
     label.string = v;
     fit(label, room, fontSize);

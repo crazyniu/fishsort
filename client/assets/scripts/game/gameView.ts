@@ -315,8 +315,10 @@ export class GamePage extends Page {
       const pw = Math.round((196 * h) / 66);
       const x0 = -Screen.W / 2 + 24;
       at(iconButton(this.stage, 'kit/round_blue', 'kit/ic_gear', gearW, () => Flow.pause(this)), x0 + gearW / 2, hudY);
-      this.progress = capsule(this.stage, pw, h, 'kit/ic_fish', '', Math.round((34 * h) / 66), 'skin/f_hud');
-      at(this.progress.node, x0 + gearW + 10 + pw / 2, hudY);
+      // 宽度贴着内容：按这一关最长的写法（「39/39」）定，整关不变（用户 2026-11-18：右边空太大）
+      this.progress = capsule(this.stage, pw, h, 'kit/ic_fish', '', Math.round((34 * h) / 66), 'skin/f_hud', `${this.total}/${this.total}`);
+      const realW = (this.progress.node.getComponent(UITransform) as UITransform).width;
+      at(this.progress.node, x0 + gearW + 10 + realW / 2, hudY);
       const lv = text(this.stage, levelName, 36);
       at(lv.node, 0, hudY);
       lv.node.active = !timed;
