@@ -25,40 +25,48 @@ const HEAD_TITLE = 76;
 /** 页头下面的内容从这里开始（离屏幕顶） */
 export const HEAD_BOTTOM = 136;
 
+/** 金币条：宽、高、字号 */
+const COINS_W = 196;
+const COINS_H = 64;
+
+/** 微信小游戏里子页面的金币条放在胶囊那一行下面：它的中线 */
+function coinsRowY(): number {
+  return Screen.headY - Screen.headH / 2 - 10 - COINS_H / 2;
+}
+
 /**
  * 子页面的页头（各页同一个位置、同一个大小）：左上角返回键，标题牌居中；要花金币的页面右边再放一条金币数。
- * 微信小游戏（有胶囊按钮）：整行挪到胶囊那一行，和胶囊一样高，从左往右排「返回键 · 标题牌 · 金币条」，停在胶囊左边
- * （用户 2026-11-18：上面太空）。金币条是局内那种半透明深蓝底、白字（用户 2026-11-18：不要白底）。
- * 页面内容按 Screen.headTop - HEAD_BOTTOM 往下排。返回金币条（没要就是 null），页面刷新时自己改数字
+ * 微信小游戏（有胶囊按钮）：返回键和标题挪到胶囊那一行、和胶囊一样高（标题居中，太长就缩小，不压胶囊），
+ * 金币条放到下一行的右上角（用户 2026-11-18：上面太空；金币别和标题挤一行）。
+ * 金币条是局内那种半透明深蓝底、白字（用户 2026-11-18：不要白底）。
+ * 页面内容从 headBottom(有没有金币条) 往下排。返回金币条（没要就是 null），页面刷新时自己改数字
  */
 export function pageHead(parent: Node, title: string, o: { onBack?: () => void; coins?: boolean } = {}): Capsule | null {
   const y = Screen.headY;
   const onBack = o.onBack ?? (() => ui.back());
-  if (Screen.cap) {
-    const h = Screen.headH;
-    let x = -Screen.W / 2 + 24;
-    const back = keyButton(parent, 'blue', 'kit/ic_back', h, onBack);
-    at(back, x + h / 2, y);
-    back.name = 'back';
-    x += h + 12;
-    const cw = o.coins ? Math.round(h * 2.6) : 0;
-    const maxTitle = Screen.headRight - x - (o.coins ? cw + 12 : 0);
-    const t = pageTitle(parent, title, Math.round(h * 0.9), maxTitle, Math.round(h * 2.2));
-    const tw = (t.getComponent(UITransform) as UITransform).width;
-    at(t, x + tw / 2, y);
-    if (!o.coins) return null;
-    const c = capsule(parent, cw, Math.round(h * 0.86), 'icon/coin', fmt(App.save.data.coins), Math.round(h * 0.44), 'skin/f_hud');
-    at(c.node, x + tw + 12 + cw / 2, y);
-    return c;
-  }
-  const back = keyButton(parent, 'blue', 'kit/ic_back', HEAD_KEY, onBack);
-  at(back, -Screen.W / 2 + 24 + HEAD_KEY / 2, y);
+  const key = Screen.cap ? Screen.headH : HEAD_KEY;
+  const back = keyButton(parent, 'blue', 'kit/ic_back', key, onBack);
+  at(back, -Screen.W / 2 + 24 + key / 2, y);
   back.name = 'back';
-  at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  if (Screen.cap) {
+    const h = Math.round(Screen.headH * 0.9);
+    // 居中的标题最宽只能到胶囊左边那个圆按钮前面（两边对称）
+    at(pageTitle(parent, title, h, Math.floor(2 * (Screen.headRight - 6)), Math.round(h * 2.4)), 0, y);
+  } else {
+    at(pageTitle(parent, title, HEAD_TITLE), 0, y);
+  }
   if (!o.coins) return null;
-  const c = capsule(parent, 196, 64, 'icon/coin', fmt(App.save.data.coins), 30, 'skin/f_hud');
-  at(c.node, Screen.W / 2 - 24 - 98, y);
+  const c = capsule(parent, COINS_W, COINS_H, 'icon/coin', fmt(App.save.data.coins), 30, 'skin/f_hud');
+  at(c.node, Screen.W / 2 - 24 - COINS_W / 2, Screen.cap ? coinsRowY() : y);
   return c;
+}
+
+/**
+ * 子页面的内容从哪往下排（y）：页头下面。微信小游戏里有金币条的页面（金币条在胶囊那一行下面）再往下让出金币那一行
+ */
+export function headBottom(coins = false): number {
+  const base = Screen.headTop - HEAD_BOTTOM;
+  return Screen.cap && coins ? Math.min(base, coinsRowY() - COINS_H / 2 - 8) : base;
 }
 
 export abstract class Page {
@@ -101,7 +109,9 @@ class TopBar {
   constructor(parent: Node, actions: { coins: () => void; lives: () => void; settings: () => void; profile: () => void }) {
     // 平面顶栏（新设计，用户 2026-11-16）：不再有一整条底板，四块东西各自浮在场景上——
     // 头像方块 | 金币小条（带绿色加号）| 生命小条（回满前带倒计时）| 设置键。两条小条是不凸起的白色圆角块，字深蓝不描边（容器一律是白的）。
-    // 微信小游戏（有胶囊按钮）：整条挪到胶囊那一行、和胶囊一样高，右边停在胶囊左边（用户 2026-11-18：上面太空）
+    // 微信小游戏（有胶囊按钮）：整条挪到胶囊那一行、和胶囊一样高，右边停在胶囊左边（用户 2026-11-18：上面太空）；
+    // 那一行放上设置键太挤（用户 2026-11-18），设置键挪到主页底部「开始」的左边（HomePage），这里只放头像、金币、生命
+    const withKey = !Screen.cap;
     const k = Screen.cap ? Screen.headH / 84 : 1;
     this.k = k;
     const left = -Screen.W / 2 + 20;
@@ -112,7 +122,7 @@ class TopBar {
     const L = left;
     const G = Math.round(14 * k);
     const AV = 92 * k;
-    const KEY = 84 * k;
+    const KEY = withKey ? 84 * k : 0;
     const PH = 72 * k;
     // 头像
     this.frame = img(this.node, 'skin/f_avatar', AV, AV, 'avatarFrame');
@@ -121,9 +131,9 @@ class TopBar {
     at(this.avatar, 0, 5 * k);
     onTap(this.frame, actions.profile);
     // 设置
-    at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), right - KEY / 2, 0);
+    if (withKey) at(keyButton(this.node, 'blue', 'kit/ic_gear', KEY, actions.settings), right - KEY / 2, 0);
     // 两条小条平分头像和设置键之间的宽：金币略宽（最多 7 位数 + 加号）
-    const room = BW - AV - KEY - G * 3;
+    const room = BW - AV - KEY - G * (withKey ? 3 : 2);
     const CW = Math.round(room * 0.54);
     const lw = room - CW;
     const coinTap = plate(this.node, 'skin/f_dock', CW, PH, 'coins');
