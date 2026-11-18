@@ -50,7 +50,7 @@ export class RankPage extends Page {
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
     this.scroller = null;
-    const top = Screen.top;
+    const top = Screen.headTop;
 
     pageHead(v, tr('RANK_TITLE'));
     const left = 7 - ((day + 3) % 7);

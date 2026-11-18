@@ -71,7 +71,7 @@ export class TasksPage extends Page {
     pageHead(v, tr('TASK_TITLE'));
 
     // 积分面板
-    const panelTop = Screen.top - HEAD_BOTTOM - 12;
+    const panelTop = Screen.headTop - HEAD_BOTTOM - 12;
     const panel = this.track(v);
     at(panel, 0, panelTop - PANEL_H / 2);
 

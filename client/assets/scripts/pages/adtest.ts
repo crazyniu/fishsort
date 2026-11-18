@@ -36,7 +36,7 @@ export class AdTestPage extends Page {
     this.view?.destroy();
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
-    const top = Screen.top;
+    const top = Screen.headTop;
     pageHead(v, tr('UI_AD_TEST'));
 
     // 开关 + 频控

@@ -48,7 +48,7 @@ export class MapPage extends Page {
     const reach = App.reach();
     const total = App.config.levelCount;
     const cur = Seas.forLevel(App.config.eco, Math.min(level, total));
-    const y0 = Screen.top - HEAD_BOTTOM - 10;
+    const y0 = Screen.headTop - HEAD_BOTTOM - 10;
     const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
     at(sc.node, 0, (y0 + y1) / 2);

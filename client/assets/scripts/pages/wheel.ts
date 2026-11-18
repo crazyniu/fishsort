@@ -76,7 +76,7 @@ export class WheelPage extends Page {
     this.view?.destroy();
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
-    const top = Screen.top;
+    const top = Screen.headTop;
     // 标题行：左返回 · 中标题 · 右金币（同一行）
     pageHead(v, tr('H_FEAT_WHEEL'), { coins: true });
 

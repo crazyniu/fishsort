@@ -18,7 +18,7 @@ import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
-import { Btn, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
+import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { Screen } from '../ui/screen';
 import { Page, enterStagger, ui } from '../ui/shell';
@@ -111,7 +111,8 @@ export class HomePage extends Page {
     this.bubbles = box('bubbles', root, Screen.W, Screen.H);
     // 「开始」在最下面；顶栏和它之间是入口和气泡
     const btnY = -Screen.H / 2 + Math.max(START_BOTTOM, Screen.safeBottom + 24) + START_H / 2;
-    const zoneTop = Screen.top - TOP_H;
+    // 有胶囊时顶栏在胶囊那一行，内容跟着上移（Screen.headTop）
+    const zoneTop = Screen.headTop - TOP_H;
     const zoneBottom = btnY + START_H / 2;
     const k = Math.max(1, Math.min(1.3, (zoneTop - zoneBottom) / ZONE_H));
     // 气泡：一个大的做主角，下面两个小的，摆在两列入口之间；大气泡对着两列的中段，小气泡落在两列下面，左右不顶在一起
@@ -182,7 +183,7 @@ export class HomePage extends Page {
     const pl = plate(n, 'skin/f_plate_blue', LABEL_W, LABEL_H, 'plate');
     at(pl, 0, -ENTRY_TILE / 2 - 2);
     const label = text(pl, tr(def.name), LABEL_FONT);
-    at(label.node, 0, 3);
+    at(label.node, 0, LABEL_H * PLATE_TEXT_LIFT);
     const lock = img(n, 'kit/ic_lock', 40, 40, 'lock');
     at(lock, ENTRY_TILE / 2 - 20, -ENTRY_TILE / 2 + 40);
     const dot = redDot(n, ENTRY_TILE / 2 - 6, ENTRY_TILE / 2 - 6, 28);

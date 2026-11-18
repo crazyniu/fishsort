@@ -68,7 +68,7 @@ export class ShopPage extends Page {
     const cardW = (Screen.W - M * 2 - G) / 2;
     const y1 = Screen.bottom + PAGE_BOTTOM;
     const rowH = 168;
-    const top = Screen.top - HEAD_BOTTOM - 14;
+    const top = Screen.headTop - HEAD_BOTTOM - 14;
     const room = top - y1;
     const cardH = Math.min(430, (room - rowH - G * 2) / 2);
     // 屏幕高、放不满时整块略往下放，不贴着页头

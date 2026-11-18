@@ -474,13 +474,18 @@ export function fitPair(left: Label, right: Label, room: number, leftBase: numbe
  * 页标题牌（各页统一：同一块牌、同一个高度和字号，牌的宽度跟着字走）。
  * h 默认 80；夹在顶栏和内容之间的（商店）给小一点
  */
-export function pageTitle(parent: Node, s: string, h = 80): Node {
+/** 立体牌（标题牌、入口标签）上的字往上提多少（占牌高）：牌的正面比外框高半道下边（0.06），
+ * 对准正面中心看着偏上（用户 2026-11-18：字没上下居中），取正面中心和外框中心的中间 */
+export const PLATE_TEXT_LIFT = 0.03;
+
+/** 页面标题牌：宽度随字，最窄 minW、最宽 maxW（字太长就缩小） */
+export function pageTitle(parent: Node, s: string, h = 80, maxW = 630, minW = 220): Node {
   const n = plate(parent, 'skin/f_plate_blue', 240, h, 'title');
   const l = text(n, s, Math.round(h * 0.56));
-  // 面的中心比外框高半道下边
-  l.node.setPosition(0, h * 0.06, 0);
-  fit(l, 520);
-  resizePlate(n, Math.max(220, Math.round(textWidth(l) + 110)), h);
+  l.node.setPosition(0, h * PLATE_TEXT_LIFT, 0);
+  const pad = Math.round(h * 1.4);
+  fit(l, Math.min(520, maxW - pad));
+  resizePlate(n, Math.max(minW, Math.min(maxW, Math.round(textWidth(l) + pad))), h);
   return n;
 }
 
