@@ -1,4 +1,4 @@
 资源圆体 Resource Han Rounded CN Heavy
 https://github.com/CyanoHao/Resource-Han-Rounded
 SIL Open Font License 1.1（基于思源黑体 Source Han Sans，Adobe）。
-本仓库里的文件已按 GB2312 一级常用字 + 游戏文案用字裁剪（fonttools subset）。新增文案用到生僻字时需要重新裁剪。
+本仓库里的文件（client/assets/boot/round.ttf）只保留游戏文案用到的字（fonttools subset，./run.sh font-subset）。新增文案后需要重新裁剪。

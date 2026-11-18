@@ -78,7 +78,7 @@ export class Boot extends Component {
         },
       ],
       [0.02, () => loadStrings(App.save.data.settings.lang ?? 'zh_CN')],
-      [0.15, () => loadFont()],
+      [0.04, () => loadFont().then(() => undefined)],
       [
         0.75,
         (p) => {

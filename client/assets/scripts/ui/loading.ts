@@ -1,7 +1,9 @@
 // 加载页（docs/ux/loading.md）：主页那张海底背景、游戏图标轻轻浮动、游戏名、进度条、一行小提示；
 // 微信版（hasCapability('health_notice')）中文下最底下两行健康游戏忠告。下载失败时进度条换成提示和「重试」。
-// 加载页出来时 resources 还没读（微信版要从网上下），所以只用本地 boot 包里的图和文案，字用系统字体，按钮自己画。
-import { AssetManager, Color, Graphics, JsonAsset, Label, Node, Sprite, SpriteFrame, UIOpacity, UITransform, tween, Tween, Vec3 } from 'cc';
+// 加载页出来时 resources 还没读（微信版要从网上下），所以只用本地 boot 包里的图、文案和字体，按钮自己画。
+// 字体读到之前的一瞬间用系统字体，读到后换成游戏字体。
+import { AssetManager, Color, Font, Graphics, JsonAsset, Label, Node, Sprite, SpriteFrame, UIOpacity, UITransform, tween, Tween, Vec3 } from 'cc';
+import { loadFont, uiFont } from './res';
 import { Screen } from './screen';
 
 type Table = Record<string, Record<string, string>>;
@@ -30,7 +32,13 @@ function label(parent: Node, s: string, size: number, color: Color, outline: Col
   l.string = s;
   l.fontSize = size;
   l.lineHeight = Math.round(size * 1.3);
-  l.isBold = true;
+  const f = uiFont();
+  if (f) {
+    l.useSystemFont = false;
+    l.font = f;
+  } else {
+    l.isBold = true;
+  }
   l.color = color;
   l.horizontalAlign = Label.HorizontalAlign.CENTER;
   if (outline) {
@@ -106,8 +114,11 @@ export class LoadingView {
       .start();
   }
 
-  /** 本地 boot 包读到后：铺背景、放图标、读文案 */
+  /** 本地 boot 包读到后：铺背景、放图标、读文案、换游戏字体 */
   useBundle(b: AssetManager.Bundle): void {
+    loadFont()
+      .then((f) => this.useFont(f))
+      .catch((e: unknown) => console.warn('字体读不出来', e));
     b.load('bg/spriteFrame', SpriteFrame, (err: Error | null, sf: SpriteFrame) => {
       if (err || !this.root.isValid) return;
       const n = node('bg', this.root);
@@ -140,6 +151,16 @@ export class LoadingView {
       this.table = a.json as Table;
       this.refreshText();
     });
+  }
+
+  private useFont(f: Font): void {
+    if (!this.root.isValid) return;
+    for (const l of this.root.getComponentsInChildren(Label)) {
+      l.useSystemFont = false;
+      l.font = f;
+      // 字体本身就是粗体，不再加粗
+      l.isBold = false;
+    }
   }
 
   /** 语言定了（读到存档以后）；health：要不要显示健康游戏忠告（微信版，只在中文下） */
