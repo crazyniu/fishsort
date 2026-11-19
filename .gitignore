@@ -22,3 +22,6 @@ google-services.json
 
 # 本机工具留下的翻译中间文件，不进仓库
 i18n/*.translation
+
+# 规定路线批量生成的每关日志（汇总在 client/tools/level/route_report.csv）
+client/tools/level/route_logs/

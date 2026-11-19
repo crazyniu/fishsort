@@ -13,6 +13,8 @@ import type { SaveData } from './save';
 export interface WinArgs {
   level: number;
   challenge: boolean;
+  /** 超难关（每 20 关，docs/01 9.2） */
+  boss?: boolean;
   day: number;
   now: number;
   combo_coins?: number;
@@ -33,6 +35,8 @@ export interface WinResult {
   wheel_spin: boolean;
   unlimited: number;
   chest_ok: boolean;
+  /** 第一次过了礼包关送的技能（docs/01 9.6）；没送就没有这一项 */
+  gift?: string[];
 }
 
 export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResult {
@@ -61,7 +65,7 @@ export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResul
     chest_ok: rewarded,
   };
   if (rewarded) {
-    res.coins_base = args.challenge ? eco.challengeCoins : eco.levelCoins;
+    res.coins_base = args.boss ? (eco.bossCoins ?? eco.challengeCoins) : args.challenge ? eco.challengeCoins : eco.levelCoins;
     res.coins_combo = Math.trunc(args.combo_coins ?? 0);
     res.coins_best = bestBonusFor(Math.trunc(args.best_combo ?? 0), eco.combo);
     res.coins = res.coins_base + res.coins_combo + res.coins_best;
@@ -86,6 +90,8 @@ export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResul
     res.level_up = true;
     res.new_features = Features.newlyUnlocked(eco, old, levelId + 1);
     res.new_skills = Skills.syncUnlocks(save, eco);
+    const gift = Skills.grantGift(save, eco, levelId);
+    if (gift.length > 0) res.gift = gift;
   }
   return res;
 }

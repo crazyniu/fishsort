@@ -1,0 +1,6 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat MAGENTA background (#FF00FF) everywhere.
+Draw exactly TWO small game icons side by side, left and right, each centered in its half, about 520 px tall, with plenty of magenta between them, not touching each other or the image border. Bright, rounded, glossy cartoon style like a cheerful mobile game icon: bold shapes, soft jelly highlights, a thick dark navy outline (#0E3A5A), readable when shrunk to 32 px.
+1) left: a FLAME icon for "hard level": one plump rounded flame with a pointed top that curls slightly, orange-red outside (#FF5A1F to #FF8A3D), a yellow inner flame (#FFD23F), a glossy white highlight on the upper left.
+2) right: a SHARK FIN icon for "super hard level": a single dark slate-blue shark fin (#3B4A8C to #5B6FC4) sticking up out of the water, curved leading edge and concave back edge, sitting on a small band of bright cyan-blue water with two little rounded wave crests (#2EC4F0), a glossy highlight on the fin. Cute, not scary: no teeth, no eyes, no blood.
+Do not use magenta or pink anywhere in the objects. No text, no letters, no numbers, no cast shadows on the background, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

@@ -28,6 +28,8 @@ export interface GenParams {
   /** 迷雾计数范围 [最少, 最多] */
   fogCount?: readonly number[];
   ice?: number;
+  /** 冰封泡做成厚冰：最多连几个气泡、全部破了才解冻（0 或不给 = 旧的「任何一个破了就解冻」） */
+  iceAll?: number;
   big?: number;
   pairs?: number;
   challenge?: boolean;
@@ -57,7 +59,9 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   } else {
     p = base(curve, id);
     mechanics(curve, id, p);
+    if (curve.normalFishMax !== undefined) p.fish = Math.min(p.fish, curve.normalFishMax);
     if (isChallenge(curve, id)) challenge(curve, id, p);
+    if (isBoss(curve, id)) p.species += curve.challenge.bossSpeciesPlus ?? 0;
   }
   jam(curve, id, ease, p);
   const e = curve.ease;
@@ -70,6 +74,25 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   p.fish = Math.max(9, idiv(p.fish, 3) * 3);
   p.buffer = bufferFor(curve, id);
   return p;
+}
+
+/** 超难关（每 jam.bigEvery 关一个，海域最后一关，原来叫「守关」；docs/01 9.2） */
+export function isBoss(curve: CurveConfig, id: number): boolean {
+  return jamKind(curve, id) === 'big';
+}
+
+/**
+ * 这一关随手点的玩家不用道具的过关率目标（0–1，docs/01 9.2）：第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；
+ * 难关、超难关在这条线上再低几个点，都不低于 min。没配 route.targets、或是新手期前几关返回 null
+ */
+export function routeTarget(curve: CurveConfig, id: number): number | null {
+  const t = curve.route?.targets;
+  if (!t) return null;
+  if (id < t.line[0][0]) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
+  let v = knot(t.line, id);
+  if (isBoss(curve, id)) v += t.boss;
+  else if (isChallenge(curve, id)) v += t.hard;
+  return Math.max(t.min, Math.round(v * 1000) / 1000);
 }
 
 /** 排队泡关卡：这一关是哪一档；不是排队泡关卡（jam 没配或还没到 jam.from）返回 null */
@@ -181,7 +204,8 @@ function freshOn(curve: CurveConfig, k: number): boolean {
  */
 export function mechanicsFor(curve: CurveConfig, id: number): Mechanic[] {
   const unlock = curve.unlock;
-  const open: Mechanic[] = MECHANICS.filter((m) => id >= unlock[m]);
+  // 按解锁关从早到晚排（解锁关不一定和 MECHANICS 的先后一致；同一关解锁的保持原来的先后）
+  const open: Mechanic[] = MECHANICS.filter((m) => id >= unlock[m]).sort((x, y) => unlock[x] - unlock[y]);
   if (open.length === 0 || id === firstDrop(curve)) return [];
   const newest = open[open.length - 1];
   if (id === unlock[newest]) return [newest];
@@ -200,6 +224,7 @@ export function mechanicsFor(curve: CurveConfig, id: number): Mechanic[] {
 function mechanics(curve: CurveConfig, id: number, p: GenParams): void {
   for (const m of mechanicsFor(curve, id)) p[m] = m === 'fog' ? Number(curve.counts[m]) : Math.trunc(curve.counts[m]);
   p.fogCount = curve.fogCount;
+  if (p.ice) p.iceAll = iceAllFor(curve, id);
   p.timerRule = curve.timer;
   p.clock = curve.bot;
 }
@@ -230,6 +255,13 @@ export function comboSeconds(curve: CurveConfig, tier: number): number {
 export function bufferFor(curve: CurveConfig, id: number): number {
   let n = 5;
   for (const [from, slots] of curve.buffer ?? []) if (id >= from) n = slots;
+  return n;
+}
+
+/** 第 id 关的冰封泡最多连几个（厚冰，全部破了才解冻）：level_curve.json 的 iceAll 是 [从第几关起, 几个] 的表；没配返回 0（旧规则） */
+export function iceAllFor(curve: CurveConfig, id: number): number {
+  let n = 0;
+  for (const [from, deps] of curve.iceAll ?? []) if (id >= from) n = deps;
   return n;
 }
 

@@ -1,6 +1,8 @@
 {
   "levelCoins": 30,
   "challengeCoins": 60,
+  "bossCoins": 90,
+  "comboGoal": {"from": 6, "share": 0.75, "min": 6, "max": 30, "reward": {"normal": {"card": "common", "coins": 20}, "hard": {"card": "uncommon", "coins": 40}, "boss": {"card": "rare", "coins": 60}}},
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
@@ -107,10 +109,15 @@
       "net",
       "current"
     ],
-    "grantOnUnlock": 2,
+    "grantOnUnlock": 1,
     "freePerDay": 1,
     "freeDaily": 1,
-    "freeLevelUntil": 30
+    "freeLevelUntil": 14,
+    "freeAllUntil": 10,
+    "gift": {
+      "after": 14,
+      "count": 1
+    }
   },
   "seas": [
     {

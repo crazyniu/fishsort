@@ -20,6 +20,7 @@ import { openPopup, Popup } from './popup';
 import { loadFont } from './res';
 import { Screen } from './screen';
 import { ui } from './shell';
+import { lab } from '../devtools/levelLab';
 
 // ---------------------------------------------------------------- 看广告
 
@@ -377,6 +378,23 @@ export function livesPopup(onChange?: () => void): void {
   }
 }
 
+// ---------------------------------------------------------------- 道具礼包（docs/01 9.6）
+
+/** 第一次过了礼包关：每种道具各送几个，并告诉玩家从下一关起道具要用库存或金币了。关掉后接着 onDone */
+export function giftPopup(ids: string[], count: number, onDone: () => void): void {
+  const p = openPopup({ w: 620, h: 470, title: tr('GIFT_TITLE'), onClose: onDone });
+  ids.forEach((id, i) => {
+    const icon = img(p.body, `icon/skill_${id}`, 110, 110, 'icon');
+    at(icon, (i - (ids.length - 1) / 2) * 130, 100);
+    at(text(icon, `×${count}`, 32).node, 34, -44);
+  });
+  const line = text(p.body, tr('GIFT_LINE'), 30, { width: 540 });
+  at(line.node, 0, -30);
+  const ok = button(p.body, { color: 'green', w: 300, h: 100, label: tr('GOT_IT'), onTap: () => p.close() });
+  at(ok.node, 0, -150);
+  sfx('coin');
+}
+
 // ---------------------------------------------------------------- 设置 / 暂停
 
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */
@@ -426,7 +444,7 @@ function languagePopup(): void {
 
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0);
+  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0) + (lab.enabled ? 112 : 0);
   const h = mode === 'pause' ? 528 : 512 + extra;
   const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
@@ -503,6 +521,12 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     }
     if (App.platform.hasCapability('ad_test')) {
       const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_AD_TEST'), fontSize: 32, onTap: () => (p.close(), ui.go('adtest')) });
+      at(b.node, 0, y - 8);
+      y -= 112;
+    }
+    // 难度调试页（开发版才有，devtools/；调试用，字直接写）
+    if (lab.enabled) {
+      const b = button(p.body, { color: 'blue', w: 556, h: 88, label: '难度调试', fontSize: 32, onTap: () => (p.close(), ui.go('lab')) });
       at(b.node, 0, y - 8);
     }
   } else {

@@ -310,6 +310,9 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
   it('收入与支出', () => {
     assert.equal(ECO.levelCoins, 30);
     assert.equal(ECO.challengeCoins, 60);
+    assert.equal(ECO.bossCoins, 90, '超难关 90（docs/01 9.2）');
+    const save = PlayerData.create(ECO);
+    assert.equal(Settle.win(save, ECO, { level: 20, challenge: true, boss: true, day: 1, now: NOW }).coins_base, 90);
     assert.deepEqual(ECO.combo.tiers.map((t) => t.coins), [1, 1, 1, 2]);
     assert.equal(ECO.combo.maxCoinsPerLevel, 12);
     assert.deepEqual(ECO.freeCoin, { amount: 60, daily: 5 });
@@ -391,23 +394,11 @@ describe('局内生物分得清（docs/03 4.1）', () => {
 });
 
 describe('限时关（docs/01 第 4 节）', () => {
-  it('第 61 关起只有挑战关限时，普通关不限时；时间按真人手速定', () => {
+  it('限时取消：每一关都不限时（docs/01 9.3，用户 2026-11-19：考手速不考想清楚，由连击目标顶替）', () => {
     const curve = loadCurve();
     for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
-      const t = LevelCurve.clockFor(curve, id, lv);
-      const chal = LevelCurve.isChallenge(curve, id);
-      if (id >= 61 && chal) {
-        let fish = 0;
-        for (const b of lv.bubbles) fish += b.fish.length;
-        const bot = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
-        // 时间按真人手速定（约 1 秒一条鱼），比机器人的 1.5 秒一条短；至少够 0.8 秒一条。
-        // 排队泡要想清楚先取哪条：按排队泡占的比例加长，全是排队泡的关给到约 2 秒一条
-        const queued = lv.bubbles.filter((x) => x.queue === true).length / lv.bubbles.length;
-        const more = 1 + (curve.clock?.queueExtra ?? 0) * queued;
-        assert.ok(t >= fish * 0.8 * more && t < bot * more, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
-        if (queued === 1) assert.ok(t >= fish * 1.8, `全是排队泡的第 ${id} 关只给了 ${t} 秒（${fish} 条鱼）`);
-      } else assert.equal(t, NO_TIMER, `第 ${id} 关不该限时`);
+      assert.equal(LevelCurve.clockFor(curve, id, lv), NO_TIMER, `第 ${id} 关不该限时`);
     }
   });
 
@@ -423,12 +414,13 @@ describe('限时关（docs/01 第 4 节）', () => {
     assert.equal(LevelCurve.comboSeconds(curve, 9), prev, '超出的档位按最高档');
   });
 
-  it('暂存槽：前 120 关 5 格，第 121 关起 4 格；第 26 关起同时在场至少 17 个气泡', () => {
+  it('暂存槽：前 60 关 5 格，第 61 关起 4 格；前 60 关不掉落（全部在场、靠多层遮挡），第 61 关起掉落、同时在场至少 17 个气泡（docs/01 9.3）', () => {
     const curve = loadCurve();
     for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
-      assert.equal(lv.buffer, id >= 121 ? 4 : 5, `第 ${id} 关暂存槽`);
-      if (id >= 26) assert.ok(lv.fieldCap >= 17, `第 ${id} 关同时在场 ${lv.fieldCap} 个`);
+      assert.equal(lv.buffer, id >= 61 ? 4 : 5, `第 ${id} 关暂存槽`);
+      if (id <= 60) assert.equal(lv.fieldCap, 0, `第 ${id} 关不该掉落`);
+      else assert.ok(lv.fieldCap >= 17, `第 ${id} 关同时在场 ${lv.fieldCap} 个`);
     }
   });
 });

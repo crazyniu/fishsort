@@ -2,6 +2,7 @@
 import { JsonAsset, resources } from 'cc';
 import type { AdsConfig, CurveConfig, EconomyConfig, GameUiConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
+import { lab } from '../devtools/levelLab';
 import type { Eye } from '../ui/alive';
 
 function describe(v: unknown): string {
@@ -58,6 +59,9 @@ export class Config {
 
   /** 读关卡文件；ease > 0 时取易化变体，没有就退回普通版 */
   async loadLevel(fileId: number, ease: number): Promise<LevelData> {
+    // 开发版难度调试页挑了档的关（devtools/levelLab.ts）：本体和变体都换成挑的那一档
+    const custom = lab.override(fileId);
+    if (custom) return LevelData.fromDict(custom);
     const base = `config/levels/level_${pad(fileId)}`;
     let raw: Record<string, unknown>;
     try {

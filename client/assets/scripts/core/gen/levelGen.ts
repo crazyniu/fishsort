@@ -69,7 +69,7 @@ function attemptOnce(p: GenParams, rng: Rng, solver?: (lv: LevelData) => Tap[]):
   // 叠加障碍：都照着参考解加，参考解照样能通关
   const tl = timeline(lv);
   addChain(rng, lv, tl, p.chain ?? 0);
-  addIce(rng, lv, tl, p.ice ?? 0);
+  addIce(rng, lv, tl, p.ice ?? 0, p.iceAll ?? 0);
   addFog(rng, lv, tl, p.fog ?? 0.0, p.fogCount ?? [1, 1]);
   addPairs(rng, lv, p.pairs ?? 0);
   addTimers(rng, lv, p);
@@ -113,7 +113,7 @@ function timeline(lv: LevelData): Timeline {
 /**
  * 随机交换 count 对不同种的鱼。按解构造出来的关卡对「只顾眼前」的打法太顺，
  * 打乱一部分才有需要规划的局面；打乱后的可解性由找到的通关步骤证明。
- * from：只打乱编号在前 from（0–1）之后的气泡（掉落关按编号落下，前面一段顺、后面难，docs/02 第 0.5 节）
+ * from：只打乱编号在前 from（0–1）之后的气泡（掉落关按编号落下，前面一段顺、后面难，docs/02 附录 A.5）
  */
 function scrambleFish(rng: Rng, lv: LevelData, count: number, from: number): void {
   const spots: [number, number][] = [];
@@ -250,8 +250,9 @@ function addChain(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
  * 冰封泡落到场上时依赖泡都已在场、还没破（不然落下来就没冻），并且参考解第一次点它之前至少有一个依赖泡已经破了。
  * 开局就在场的冰封泡挑离得近的做依赖，界面好画连线
  */
-function addIce(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
+function addIce(rng: Rng, lv: LevelData, tl: Timeline, count: number, all = 0): void {
   if (count <= 0) return;
+  if (all > 0) return addThickIce(rng, lv, tl, count, all);
   const order = lv.bubbles.map((b) => b.id);
   rng.shuffle(order);
   const depended = new Set<number>();
@@ -273,6 +274,39 @@ function addIce(rng: Rng, lv: LevelData, tl: Timeline, count: number): void {
     }
     b.ice = deps.sort((x, y) => x - y);
     for (const d of deps) depended.add(d);
+    added += 1;
+  }
+}
+
+/**
+ * 厚冰泡（2026-11-19）：连着 2–maxDeps 个气泡，**全部**破了才解冻。照着参考解挑：
+ * 它落到场上时这几个气泡都在场、还没破，参考解第一次点它之前它们全破了——所以按参考解走照样通关，
+ * 不按这个先后走的人就要等。优先挑「参考解里它被点之前刚破不久」的气泡做依赖：依赖破得越晚，冰冻得越久，
+ * 玩家越要绕着它排顺序；开局在场的再挑离得近的，界面好画连线
+ */
+function addThickIce(rng: Rng, lv: LevelData, tl: Timeline, count: number, maxDeps: number): void {
+  const order = lv.bubbles.map((b) => b.id);
+  rng.shuffle(order);
+  const used = new Set<number>();
+  let added = 0;
+  for (const id of order) {
+    if (added >= count) break;
+    const b = lv.bubbles[id];
+    if (b.chain > 0 || used.has(id) || tl.land[id] === NEVER || tl.first[id] === NEVER) continue;
+    const early = lv.bubbles.filter(
+      (o) => o.id !== id && o.ice.length === 0 && !used.has(o.id) && tl.land[o.id] <= tl.land[id] && tl.pop[o.id] >= tl.land[id] && tl.pop[o.id] < tl.first[id] && (lv.fieldCap === 0 || o.id < id),
+    );
+    if (early.length < 2) continue;
+    const n = Math.min(early.length, rng.rangeI(2, Math.max(2, maxDeps)));
+    // 破得晚的排前面；开局在场的在前一半里挑近的
+    early.sort((x, y) => tl.pop[y.id] - tl.pop[x.id] || x.id - y.id);
+    let pool = early.slice(0, Math.max(n, Math.ceil(early.length / 2)));
+    if (tl.land[id] === 0) pool = pool.slice().sort((x, y) => dist32(b.x, b.y, x.x, x.y) - dist32(b.x, b.y, y.x, y.y) || x.id - y.id);
+    const deps = pool.slice(0, n).map((o) => o.id);
+    b.ice = deps.sort((x, y) => x - y);
+    b.iceAll = true;
+    used.add(id);
+    for (const d of deps) used.add(d);
     added += 1;
   }
 }

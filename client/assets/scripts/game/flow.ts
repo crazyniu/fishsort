@@ -27,9 +27,12 @@ import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, fit, fmt, img, lazyImg, slice, text } from '../ui/kit';
 import * as Alive from '../ui/alive';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
-import { confirmLeave, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
+import { confirmLeave, giftPopup, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
 import type { GamePage } from './gameView';
+import * as ComboGoal from '../core/meta/comboGoal';
+import { levelKind } from './levelKind';
+import * as Features from '../core/meta/features';
 
 const rng = new Rng(Date.now() >>> 0);
 
@@ -49,6 +52,28 @@ export function startLevel(level: number): void {
   ui.go('game', { level });
 }
 
+/**
+ * 难度调试页：电脑替玩家打一遍（docs/01 9.7）。route = 按关卡里的参考解，能打完就证明这一档一定过得去；
+ * casual = 按「正常打法」现场打一局。不记成绩、不扣命、不算连输，打完回调试页。调试用，字直接写
+ */
+export function startDemo(level: number, kind: 'route' | 'casual'): void {
+  pendingCards.length = 0;
+  ui.go('game', { level, demo: kind });
+}
+
+/** 演示打完（或对不上停下）：报一句结果，回调试页 */
+function demoDone(g: GamePage, msg: string): void {
+  g.ended = true;
+  pendingCards.length = 0;
+  closeAllPopups();
+  ui.toast(msg);
+  ui.go('lab');
+}
+
+export function demoStuck(g: GamePage): void {
+  demoDone(g, `演示第 ${g.demoStep} 步点不下去（路线和局面对不上），截图告诉开发`);
+}
+
 export function startDaily(): void {
   pendingCards.length = 0;
   const s = App.save.data;
@@ -60,7 +85,15 @@ export function startDaily(): void {
 export function onLevelStart(g: GamePage): void {
   playMusic();
   const s = App.save.data;
-  if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
+  if (g.arg.demo) {
+    ui.toast(g.arg.demo === 'route' ? '电脑按关卡里存的路线打，不用道具；金圈是下一步要点的鱼' : '电脑按「正常打法」打一局，每次走法都不一样');
+    return;
+  }
+  if (App.flags.autoplay && !g.arg.daily) {
+    g.showIntro();
+    return;
+  }
+  if (g.arg.daily) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
   // 到了一片新海域的第一关：先介绍这片海域（背景、名字、这里新出的鱼），第一片海域不弹（docs/01 5.0）
@@ -70,8 +103,9 @@ export function onLevelStart(g: GamePage): void {
   // 机制说明跟着难度曲线的解锁关走（level_curve.json），不另写死关号
   const mech = App.config.eco.mechanicIntro[LevelCurve.unlockedAt(App.config.curve, lvl)];
   if (mech) tips.push(mech);
+  // 一关可以挂几条，逗号隔开（第 6 关：排队泡首发 + 生命开始要算）
   const extra = App.config.ui.tips[String(lvl)];
-  if (extra) tips.push(extra);
+  if (extra) for (const key of extra.split(',')) tips.push(key);
   // 解锁关的新技能：不弹窗，等第一次能用上时压暗全屏强制教（checkTutorial）
   g.tutor = '';
   for (const id of Skills.ids(App.config.eco)) {
@@ -79,7 +113,8 @@ export function onLevelStart(g: GamePage): void {
   }
   const show = (i: number) => {
     const key = tips[i];
-    if (key === undefined) return;
+    // 说明都看完了：难关、超难关出开局横幅
+    if (key === undefined) return g.showIntro();
     if (PlayerData.tipSeen(s, key)) return show(i + 1);
     PlayerData.markTip(s, key);
     App.save.write();
@@ -149,7 +184,7 @@ function tipPopup(key: string, done: () => void): void {
 /** 新技能的强制教学：这一关第一次能用上它（有效果）时才开始；网兜要先有缸 */
 export function checkTutorial(g: GamePage): void {
   const id = g.tutor;
-  if (!id || g.ended || g.paused || g.finishing || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay) return;
+  if (!id || g.ended || g.paused || g.finishing || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay || g.arg.demo) return;
   if ((g.used[id] ?? 0) > 0) {
     g.tutor = '';
     return;
@@ -324,13 +359,17 @@ export function pause(g: GamePage): void {
       g.paused = false;
       App.platform.hideBanner();
     },
-    onHome: () => leave(g, () => ui.go(g.arg.daily ? 'daily' : 'home')),
+    onHome: () => leave(g, () => ui.go(g.arg.daily ? 'daily' : g.arg.demo ? 'lab' : 'home')),
     onRetry: () => leave(g, () => restart(g)),
   });
 }
 
 /** 走过步时离开 / 重试要扣命，先确认（docs/01 5.1） */
 function leave(g: GamePage, then: () => void): void {
+  if (g.arg.demo) {
+    then();
+    return;
+  }
   const s = App.save.data;
   const eco = App.config.eco;
   const costs = !g.arg.daily && g.moved && g.arg.level > eco.lives.freeUntilLevel && !Lives.isUnlimited(s, now());
@@ -348,6 +387,10 @@ function leave(g: GamePage, then: () => void): void {
 }
 
 function restart(g: GamePage): void {
+  if (g.arg.demo) {
+    startDemo(g.arg.level, g.arg.demo);
+    return;
+  }
   if (g.arg.daily) {
     ui.go('daily');
     return;
@@ -377,6 +420,7 @@ function endRun(g: GamePage): void {
 // ---------------------------------------------------------------- 连击送卡
 
 export function comboCard(g: GamePage): void {
+  if (g.arg.demo) return;
   const s = App.save.data;
   const eco = App.config.eco;
   const rarity = Cards.rollRarity(eco, eco.chest.cardRates, rng);
@@ -412,6 +456,12 @@ const REVIVE_KEY: Record<number, string> = {
 
 export function lose(g: GamePage): void {
   if (g.s.status !== Status.LOST) return;
+  if (g.arg.demo) {
+    const why = g.s.loseReason === LoseReason.BUFFER_FULL ? '暂存槽满了' : '没有能点的鱼了';
+    const wrong = g.demoFatal >= 0 ? `（第 ${g.demoFatal + 1} 步就走错了）` : '';
+    demoDone(g, g.arg.demo === 'route' ? `电脑按路线没过（第 ${g.demoStep} 步${why}，不该发生），截图告诉开发` : `正常打法这局输了：第 ${g.demoStep} 步${why}${wrong}`);
+    return;
+  }
   sfx('lose');
   if (App.flags.autoplay && !g.arg.daily) {
     autoRetry(g);
@@ -590,6 +640,10 @@ export interface WinData {
 }
 
 export function win(g: GamePage): void {
+  if (g.arg.demo) {
+    demoDone(g, g.arg.demo === 'route' ? `电脑按路线过了：${g.demoStep} 步，没用道具` : `正常打法这局过了（${g.demoStep} 步）`);
+    return;
+  }
   endRun(g);
   const s = App.save.data;
   const eco = App.config.eco;
@@ -611,11 +665,19 @@ export function win(g: GamePage): void {
   const result = Settle.win(s, eco, {
     level: g.arg.level,
     challenge: g.lv.challenge,
+    boss: LevelCurve.isBoss(App.config.curve, g.lv.id),
     day: today(),
     now: now(),
     combo_coins: g.combo.coins,
     best_combo: g.combo.best,
   });
+  // 连击目标（docs/01 9.4）：第一次通关、这一关里连到过 N，给这一种关的奖励（卡进结算页的开卡，金币算进过关金币）
+  if (g.comboGoal > 0 && g.combo.best >= g.comboGoal && !result.replay) {
+    const albumOpen = Features.isUnlocked(eco, 'album', s.level);
+    const rw = ComboGoal.grant(s, eco, levelKind(g.arg.level), Album.pool(eco, App.config.species, s.level), rng, albumOpen);
+    if (rw.card) pendingCards.push(rw.card);
+    else result.coins += rw.coins;
+  }
   // 宝箱按开局定好的结果入账（开出卡的话就是关卡里救下的那只稀客，docs/01 3.4）
   const chest = result.chest_ok
     ? g.chestPlan
@@ -655,6 +717,13 @@ export function takeUnlocks(): string[] {
 
 export async function afterResult(d: WinData, next: boolean): Promise<void> {
   const s = App.save.data;
+  // 道具礼包（第一次过了礼包关）：先弹出来说清楚，关掉再往下走（docs/01 9.6）
+  const gift = d.result.gift;
+  if (gift && gift.length > 0) {
+    d.result.gift = undefined;
+    giftPopup(gift, App.config.eco.skills.gift?.count ?? 1, () => void afterResult(d, next));
+    return;
+  }
   if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, mono())) {
     Meta.markInterstitial(s, d.level, mono());
     App.save.write();

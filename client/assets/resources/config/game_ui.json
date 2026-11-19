@@ -50,6 +50,18 @@
    "interval": 0.2,
    "maxLeft": 3
  },
+ "kindBanner": {"slideIn": 0.35, "hold": 1.2, "fly": 0.4},
+ "goalCard": {"hold": 1.5, "fly": 0.45},
+ "labTiers": [
+  {"buffer": -1, "window": 1.5},
+  {"buffer": 0, "window": 0},
+  {"buffer": 1, "window": 2.5}
+ ],
+ "demo": {
+  "ring": 0.45,
+  "gap": 0.3,
+  "fatal": 2.5
+ },
  "hint": {
   "tutorialLevels": 3,
   "tutorialSeconds": 2.0,
@@ -73,10 +85,8 @@
   "stagger": 0.13
  },
  "tips": {
-  "6": "TIP_LIVES",
-    "28": "TIP_QUEUE",
-    "65": "TIP_CLOCK",
-    "121": "TIP_BUFFER4",
+  "6": "TIP_QUEUE,TIP_LIVES",
+    "61": "TIP_BUFFER4",
     "123": "TIP_TOOLS3"
  },
  "unlockGuide": {

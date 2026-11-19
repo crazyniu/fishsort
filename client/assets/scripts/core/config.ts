@@ -118,6 +118,13 @@ export interface TasksConfig {
 export interface EconomyConfig {
   levelCoins: number;
   challengeCoins: number;
+  /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
+  bossCoins?: number;
+  /**
+   * 连击目标（docs/01 9.4）：第 from 关起；N = 参考解最长连击 × share，夹在 [min, max]，不到 min 不出目标。
+   * reward：三种关各给哪一档的卡（收藏开放后）或多少金币（还没开放时）
+   */
+  comboGoal?: { from: number; share: number; min: number; max: number; reward: Record<'normal' | 'hard' | 'boss', { card: string; coins: number }> };
   adCoinMultiplier: number;
   toolStart: Record<string, number>;
   toolPrice: Record<string, number>;
@@ -152,6 +159,10 @@ export interface EconomyConfig {
     freeDaily?: number;
     /** 第 1 关到第几关（含）：每关第一次用技能免费（2026-11-18；没配 = 没有这一条） */
     freeLevelUntil?: number;
+    /** 第 1 关到第几关（含）：技能随便用、都免费（每种每关仍按次数上限；2026-11-19，docs/01 9.6） */
+    freeAllUntil?: number;
+    /** 第一次过了第 after 关送礼包：已解锁的每种技能各 count 个，告诉玩家「从下一关起要用库存或金币了」 */
+    gift?: { after: number; count: number };
   };
   seas?: Sea[];
   album: { books: Book[]; final: Reward };
@@ -240,7 +251,11 @@ export interface CurveConfig {
     capMin: number;
     layersMax: number;
     slackPlus: number;
+    /** 超难关（每 jam.bigEvery 关）在难关的基础上再多几种鱼（docs/01 9.2） */
+    bossSpeciesPlus?: number;
   };
+  /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多） */
+  normalFishMax?: number;
   ease: { species: number; fish: number; cap: number; slack: number };
   targets: {
     start: number;
@@ -290,6 +305,27 @@ export interface CurveConfig {
   };
   /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
   buffer?: [number, number][];
+  /** 冰封泡做成厚冰（全部破了才解冻）：[从第几关起, 最多连几个]；没配 = 旧规则 */
+  iceAll?: [number, number][];
+  /**
+   * 规定路线的收紧（docs/02 第 0.4 节，tools/level/route.ts）：随手点的玩家过关率压到 jam.targets 的「不花」那一档，
+   * 想清楚的玩家过关率守在 thinkFloor 之上。preview = 局内预告几缸（两个玩家都只知道架上的缸和这几缸）；
+   * casualGames / thinkGames = 收紧时每次量几局，checkCasual / checkThink = 收紧完换一组种子复量几局（写进调试页的数）
+   */
+  route?: {
+    preview: number;
+    thinkFloor: number;
+    iterations: number;
+    casualGames: number;
+    thinkGames: number;
+    checkCasual: number;
+    checkThink: number;
+    /**
+     * 随手点的玩家不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
+     * 难关在 line 上加 hard、超难关加 boss（负数），都不低于 min
+     */
+    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; min: number };
+  };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;
@@ -311,6 +347,14 @@ export interface GameUiConfig {
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 难关、超难关的开局横幅（docs/ux/level-types.md）：滑进来几秒、停几秒、缩成小牌子飞过去几秒 */
+  kindBanner: { slideIn: number; hold: number; fly: number };
+  /** 连击目标的开局小卡（docs/01 9.4）：停几秒、飞到常驻小标上几秒 */
+  goalCard: { hold: number; fly: number };
+  /** 难度调试页的演示：每一步圈出要点的鱼后停 ring 秒再点（正常打法走错的那一步停 fatal 秒），点完隔 gap 秒圈下一条 */
+  demo: { ring: number; gap: number; fatal: number };
+  /** 难度调试页的整体三档（开发版，docs/01 9.7）：下标 = 档 + 1（困难、标准、简单）；buffer 暂存槽加减几格，window 连击窗口秒数（0 = 照 economy.json） */
+  labTiers: { buffer: number; window: number }[];
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number; maxLeft: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */

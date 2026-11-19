@@ -21,6 +21,11 @@ export interface BubbleData {
   /** 迷雾计数：落到场上后再破几个别的气泡才显形，0 = 没有迷雾（旧文件里的 true 读成 1） */
   fog: number;
   ice: number[];
+  /**
+   * 厚冰（2026-11-19）：ice 里的气泡**全部**破了才解冻；没有这一项 = 任何一个破了就解冻（旧关卡）。
+   * 厚冰最多连 3 个
+   */
+  iceAll?: boolean;
   pairs: number[][];
   /** 排队泡：只有排头（还在的鱼里下标最大的那条）能点。没有这一项 = 不是 */
   queue?: boolean;
@@ -93,6 +98,7 @@ export class LevelData {
         chain: int(b.chain),
         fog: int(b.fog),
         ice: ints(b.ice),
+        iceAll: int(b.iceAll) > 0 || b.iceAll === true,
         pairs: list<unknown>(b.pairs).map(ints),
         queue: int(b.queue) > 0 || b.queue === true,
       });
@@ -143,6 +149,7 @@ export class LevelData {
         };
         // 只有排队泡才写这一项：旧关卡文件的内容不变
         if (b.queue === true) o.queue = 1;
+        if (b.iceAll === true) o.iceAll = 1;
         return o;
       }),
       ref: this.ref,

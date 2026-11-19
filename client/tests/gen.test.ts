@@ -7,7 +7,10 @@ import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
 import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
+import * as RouteGen from '../assets/scripts/core/gen/routeGen';
+import * as Players from '../assets/scripts/core/solver/players';
 import * as Careful from '../assets/scripts/core/solver/careful';
+import * as Route from '../assets/scripts/core/solver/route';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
 import { CONFIG, curve as loadCurve, level, levelFile, play } from './helpers';
 
@@ -71,19 +74,22 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
   const c = loadCurve();
   const ids = Array.from({ length: c.total }, (_, i) => i + 1);
 
-  it('新机制都在挑战关的下一关首发，解锁关只带它一个；掉落的解锁关不带障碍', () => {
-    assert.deepEqual(c.unlock, { chain: 16, timer: 31, fog: 41, ice: 61, big: 81, pairs: 111 });
-    assert.equal(LevelCurve.firstDrop(c), 26);
+  it('新机制都在挑战关的下一关首发，解锁关只带它一个；掉落的解锁关不带障碍（docs/01 9.3）', () => {
+    assert.deepEqual(c.unlock, { chain: 16, timer: 9999, fog: 31, ice: 11, big: 21, pairs: 26 });
+    assert.deepEqual(c.iceAll, [[11, 2], [41, 3]], '冰封泡做成厚冰：第 11 关连 2 个，第 41 关起连 3 个');
+    assert.equal(LevelCurve.firstDrop(c), 61);
     for (const m of LevelCurve.MECHANICS) {
+      if (c.unlock[m] > c.total) continue; // 取消了的（限时缸）
       assert.ok(LevelCurve.isChallenge(c, c.unlock[m] - 1), `${m} 的解锁关在挑战关后面`);
       assert.deepEqual(LevelCurve.mechanicsFor(c, c.unlock[m]), [m]);
       assert.equal(LevelCurve.unlockedAt(c, c.unlock[m]), m);
     }
-    assert.deepEqual(LevelCurve.mechanicsFor(c, 26), []);
-    assert.equal(LevelCurve.unlockedAt(c, 26), 'drop');
+    assert.deepEqual(LevelCurve.mechanicsFor(c, 61), []);
+    assert.equal(LevelCurve.unlockedAt(c, 61), 'drop');
     assert.equal(LevelCurve.unlockedAt(c, 3), 'layer');
-    assert.equal(LevelCurve.params(c, 25, 0).cap, 0, '第 25 关还是分层关');
-    assert.ok((LevelCurve.params(c, 26, 0).cap as number) > 0, '第 26 关起掉落');
+    assert.equal(LevelCurve.params(c, 60, 0).cap, 0, '前 60 关不掉落，所有气泡开局在场');
+    assert.ok((LevelCurve.params(c, 61, 0).cap as number) > 0, '第 61 关起掉落');
+    assert.equal(LevelCurve.params(c, 15, 0).iceAll ?? 2, 2);
   });
 
   it('障碍种数按每 5 关「1、2、1、2、3」的节奏，不超过已解锁的种数，没解锁的不出现', () => {
@@ -95,11 +101,12 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
     assert.deepEqual([96, 97, 98, 99, 100].map((id) => LevelCurve.mechanicsFor(c, id).length), [1, 2, 1, 2, 3]);
   });
 
-  it('新机制解锁后 9 关里有 5 关带它（含下一个挑战关），先密后疏', () => {
+  it('新机制解锁后、下一样新东西之前的 4 关里有 3 关带它（含下一个难关），先密后疏', () => {
     for (const m of LevelCurve.MECHANICS) {
       const u = c.unlock[m];
-      const with_ = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => u + k <= c.total && LevelCurve.mechanicsFor(c, u + k).includes(m));
-      assert.deepEqual(with_, [1, 2, 4, 6, 8], `${m}`);
+      if (u > c.total) continue; // 取消了的（限时缸，docs/01 9.3）
+      const with_ = [1, 2, 3, 4].filter((k) => u + k <= c.total && LevelCurve.mechanicsFor(c, u + k).includes(m));
+      assert.deepEqual(with_, [1, 2, 4], `${m}`);
     }
   });
 
@@ -139,20 +146,22 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
   });
 });
 
-describe('排队泡关卡（docs/02 第 0.4、0.6 节）', () => {
+describe('排队泡关卡（docs/02 附录 A.4、A.6）', () => {
   const c = loadCurve();
 
-  it('第 26 关起分三档：每 5 关一个难关、每 20 关一个大难关，其余普通关', () => {
-    assert.equal(LevelCurve.jamKind(c, 25), null);
-    assert.equal(LevelCurve.jamKind(c, 26), 'normal');
+  it('第 6 关起分三档：每 5 关一个难关、每 20 关一个守关，其余普通关', () => {
+    assert.equal(LevelCurve.jamKind(c, 5), null);
+    assert.equal(LevelCurve.jamKind(c, 6), 'normal');
+    assert.equal(LevelCurve.jamKind(c, 15), 'hard');
+    assert.equal(LevelCurve.jamKind(c, 20), 'big');
     assert.equal(LevelCurve.jamKind(c, 30), 'hard');
     assert.equal(LevelCurve.jamKind(c, 40), 'big');
     assert.equal(LevelCurve.jamKind(c, 360), 'big');
   });
 
-  it('排队泡第 28 关才有，越往后越多；只打乱后面一段', () => {
-    assert.equal(LevelCurve.params(c, 27, 0).queue, 0);
-    assert.ok((LevelCurve.params(c, 28, 0).queue as number) > 0.3);
+  it('排队泡第 6 关起有（docs/01 9.3），越往后越多；只打乱后面一段', () => {
+    assert.ok(!LevelCurve.params(c, 5, 0).queue);
+    assert.ok((LevelCurve.params(c, 6, 0).queue as number) >= 0.3);
     const q = [60, 120, 240, 360].map((id) => LevelCurve.params(c, id, 0).queue as number);
     for (let i = 1; i < q.length; i++) assert.ok(q[i] > q[i - 1], `${q}`);
     for (const id of [26, 140, 360]) {
@@ -190,7 +199,7 @@ describe('排队泡关卡（docs/02 第 0.4、0.6 节）', () => {
   });
 });
 
-describe('机器人：卡死了才花道具（docs/02 第 0.3 节）', () => {
+describe('机器人：卡死了才花道具（docs/02 附录 A.3）', () => {
   const lv = level([0, 1], [{ fish: [1, 1, 0, 0, 2] }, { fish: [1, 0, 3] }], 4);
 
   it('「卡死」= 点得到的鱼都进不了缸、暂存槽只剩最后一格', () => {
@@ -246,6 +255,88 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
     for (const n of names) {
       const text = readFileSync(join(CONFIG, 'levels', `${n}.json`), 'utf8').trim();
       assert.equal((LevelData.fromJson(text) as LevelData).toJson(), text, n);
+    }
+  });
+});
+
+describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () => {
+  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，最低 1%', () => {
+    const c = loadCurve();
+    const t = (id: number) => LevelCurve.routeTarget(c, id) as number;
+    assert.equal(LevelCurve.routeTarget(c, 4), null, '新手期前几关不收紧');
+    assert.equal(t(5), 0.95);
+    assert.equal(t(6), 0.85);
+    assert.ok(Math.abs(t(59) - (0.85 - (53 * 0.84) / 354)) < 0.001);
+    assert.equal(t(359), 0.012);
+    assert.ok(Math.abs(t(55) - (0.85 - (49 * 0.84) / 354) + 0.15) < 0.001, '难关');
+    assert.ok(LevelCurve.isBoss(c, 60) && !LevelCurve.isBoss(c, 55));
+    assert.ok(Math.abs(t(60) - (0.85 - (54 * 0.84) / 354) + 0.25) < 0.001, '超难关');
+    assert.equal(t(360), 0.01, '最低 1%');
+    assert.equal(t(300), 0.01);
+  });
+
+  it('普通关最多 66 条鱼，难关多三成（最多 84），超难关再多一种鱼', () => {
+    const c = loadCurve();
+    for (let id = 6; id <= 360; id++) {
+      const p = LevelCurve.params(c, id, 0);
+      if (!LevelCurve.isChallenge(c, id)) assert.ok(p.fish <= 66, `第 ${id} 关 ${p.fish} 条`);
+      else assert.ok(p.fish <= 84, `第 ${id} 关 ${p.fish} 条`);
+    }
+    assert.equal(LevelCurve.params(c, 120, 0).species, LevelCurve.params(c, 115, 0).species + 1);
+  });
+});
+
+describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
+  it('判断得出「不用道具还能不能过」，量得出容错和关键步', () => {
+    // 两个缸位：先要 0、再要 1。泡 0 压着泡 1（只有点空泡 0 才露出泡 1）
+    const ok = level([0, 1, 2], [{ fish: [0, 0, 0], layer: 1, under: [1] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    const r = Route.solve(ok);
+    assert.equal(r.ok, true);
+    assert.equal(LevelCheck.replay(ok, r.taps).won, true, '求出来的走法回放能赢');
+    // 暂存槽 1 格：中途放不下任何一条鱼，也能过（每一步都直接进缸）
+    assert.equal(Route.solve(ok, 10000, 1).ok, true);
+    const m = Route.measure(ok);
+    assert.ok(m !== null && m.minBuffer === 1 && m.slack === ok.buffer - 1, JSON.stringify(m));
+    // 架上的两个缸要 2 和 1，最上面却是 0：三条 0 只能先进暂存槽。暂存槽 3 格放到第 3 条就满（输），4 格才过得去
+    const hard = level([2, 1, 0], [{ fish: [0, 0, 0], layer: 2, under: [1] }, { fish: [1, 1, 1], layer: 1, under: [2] }, { fish: [2, 2, 2] }], 3);
+    assert.equal(Route.firstDead(ok, r.taps), -1, '按解法走一直过得去');
+    assert.equal(Route.solve(hard).ok, false);
+    assert.equal(Route.firstDead(hard, [[0, 2]]), 0, '开局就过不去的关，第一步就算走错');
+    assert.equal(Route.solve(hard, 10000, 4).ok, true, '暂存槽多一格就过得去');
+    hard.buffer = 6;
+    assert.equal(Route.measure(hard)?.minBuffer, 4);
+    assert.equal(Route.measure(hard)?.slack, 2);
+  });
+
+  it('只看屏幕的两个玩家：想清楚的走法回放能赢，过不去的关两个都输，同一个种子结果一样', () => {
+    const ok = level([0, 1, 2], [{ fish: [0, 0, 0], layer: 1, under: [1] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    const t = Players.play(ok, 'think', 1, { preview: 0 });
+    assert.equal(t.won, true);
+    assert.equal(LevelCheck.replay(ok, t.taps).won, true);
+    const hard = level([2, 1, 0], [{ fish: [0, 0, 0], layer: 2, under: [1] }, { fish: [1, 1, 1], layer: 1, under: [2] }, { fish: [2, 2, 2] }], 3);
+    assert.equal(Players.play(hard, 'think', 1, { preview: 0 }).won, false);
+    assert.equal(Players.play(hard, 'casual', 1, { preview: 0 }).won, false);
+    const c = loadCurve();
+    const lv = generate({ ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 }, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    assert.deepEqual(Players.play(lv, 'casual', 7, { preview: 0 }).taps, Players.play(lv, 'casual', 7, { preview: 0 }).taps);
+    assert.deepEqual(Players.play(lv, 'think', 7, { preview: 0 }).taps, Players.play(lv, 'think', 7, { preview: 0 }).taps);
+  });
+
+  it('收紧：随手点的过关率每一档存一份，想清楚的玩家都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
+    const c = loadCurve();
+    const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };
+    const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    const before = new Map<number, number>();
+    for (const b of lv.bubbles) for (const f of b.fish) before.set(f, (before.get(f) ?? 0) + 1);
+    const r = RouteGen.tighten(lv, { casual: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
+    assert.ok(r.last !== null && r.byPct.size > 0);
+    for (const [pct, snap] of r.byPct) {
+      assert.equal(RouteGen.bucket(snap.m.casual), pct);
+      assert.ok(snap.m.think >= 0.9);
+      const after = new Map<number, number>();
+      for (const b of snap.lv.bubbles) for (const f of b.fish) after.set(f, (after.get(f) ?? 0) + 1);
+      assert.deepEqual(after, before);
+      assert.equal(LevelCheck.replay(snap.lv, snap.m.route).won, true, '想清楚的玩家赢下来的走法回放能赢');
     }
   });
 });

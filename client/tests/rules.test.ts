@@ -271,6 +271,23 @@ describe('迷雾、冰封、结伴鱼（docs/01 第 4 节，2026-11-16 复查后
     assert.ok(Rules.isOpen(s, 2));
   });
 
+  it('厚冰：连着的气泡全部破了才解冻，每破一个裂一层（docs/01 9.3）', () => {
+    const lv = level([0, 1, 2, 3], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [3, 3, 3] }, { fish: [2, 2, 2], ice: [0, 1, 2] }]);
+    lv.bubbles[3].iceAll = true;
+    const s = play(lv);
+    let ev = popAll(s, 0);
+    assert.deepEqual(ev.filter((e) => e.t === 'ice_crack').map((e) => e.left), [2], '破了一个，还差 2 个');
+    assert.ok(!Rules.isOpen(s, 3));
+    ev = popAll(s, 1);
+    assert.ok(types(ev).includes('ice_crack') && !types(ev).includes('ice_melt'));
+    assert.ok(!Rules.isOpen(s, 3));
+    ev = popAll(s, 2);
+    assert.ok(types(ev).includes('ice_melt'));
+    assert.ok(Rules.isOpen(s, 3));
+    assert.equal(LevelData.fromJson(lv.toJson())?.bubbles[3].iceAll, true, '存进关卡文件再读出来还是厚冰');
+    assert.equal(LevelData.fromJson(level([0], [{ fish: [0, 0, 0] }]).toJson())?.bubbles[0].iceAll, false, '没写 iceAll 的旧关卡还是普通冰');
+  });
+
   it('冰封：落下之前依赖泡已经破了，落下来就不冻；校验器不放行这样的关卡', () => {
     const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2], ice: [0] }]);
     lv.fieldCap = 2;

@@ -35,14 +35,18 @@ export function price(eco: EconomyConfig, id: string): number {
   return Math.trunc(eco.toolPrice[id]);
 }
 
-/** 到了解锁关的技能发 2 个（只发一次）。返回这次新发的技能 id 列表。每次进度变化后调用 */
+/**
+ * 到了解锁关的技能发 grantOnUnlock 个（只发一次）。返回这次新解锁的技能 id 列表。每次进度变化后调用。
+ * 在「道具全部免费」的那几关（skills.freeAllUntil）里解锁的不发：反正免费、用不到库存，发了会一直攒到第 15 关，
+ * 玩家要到二十几关才开始买（docs/01 9.6，2026-11-19）
+ */
 export function syncUnlocks(save: SaveData, eco: EconomyConfig): string[] {
   const out: string[] = [];
   const granted = save.skillsGranted;
   for (const id of ids(eco)) {
     if (isUnlocked(eco, id, save.level) && !(id in granted)) {
       granted[id] = true;
-      add(save, id, eco.skills.grantOnUnlock);
+      if (unlockLevel(eco, id) > (eco.skills.freeAllUntil ?? 0)) add(save, id, eco.skills.grantOnUnlock);
       out.push(id);
     }
   }
@@ -62,13 +66,25 @@ export function freeAvailable(save: SaveData, id: string, eco?: EconomyConfig): 
 }
 
 /**
- * 这一关的「第一次用技能免费」还在不在（用户 2026-11-18：前面的关卡金币不够，玩不下去）：
- * 第 1 关到 skills.freeLevelUntil 关，每关第一次用技能（不分种类）不扣库存、不记每天的免费次。
- * usedAllThisLevel 是本关各种技能合计已用几次（界面层记）；levelId 为 0（每日挑战）不送
+ * 这一关用技能免不免费（docs/01 9.6；用户 2026-11-18：前面的关卡金币不够，玩不下去；2026-11-19：花钱往前移，15 关开始）：
+ * - 第 1 关到 skills.freeAllUntil 关：随便用、都免费（每种每关的次数上限照旧）
+ * - 到 skills.freeLevelUntil 关：每关第一次用（不分种类）免费
+ * 免费的不扣库存、不记每天的免费次。usedAllThisLevel 是本关各种技能合计已用几次（界面层记，不传 = -1 = 不算这一条）；
+ * levelId 为 0（每日挑战）不送
  */
 export function levelFree(eco: EconomyConfig, levelId: number, usedAllThisLevel: number): boolean {
-  const until = eco.skills.freeLevelUntil ?? 0;
-  return levelId > 0 && levelId <= until && usedAllThisLevel === 0;
+  if (levelId <= 0 || usedAllThisLevel < 0) return false;
+  if (levelId <= (eco.skills.freeAllUntil ?? 0)) return true;
+  return levelId <= (eco.skills.freeLevelUntil ?? 0) && usedAllThisLevel === 0;
+}
+
+/** 第一次过了礼包关：已解锁的每种技能各送几个，返回送了哪几种（docs/01 9.6） */
+export function grantGift(save: SaveData, eco: EconomyConfig, levelId: number): string[] {
+  const g = eco.skills.gift;
+  if (!g || levelId !== g.after) return [];
+  const ids = unlockedIds(eco, save.level);
+  for (const id of ids) add(save, id, g.count);
+  return ids;
 }
 
 export interface UseResult {

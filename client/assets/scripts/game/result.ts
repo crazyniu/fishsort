@@ -13,6 +13,7 @@ import { cardItem, prizeCell, watchAd } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page } from '../ui/shell';
 import * as Flow from './flow';
+import { kindTag, levelKind } from './levelKind';
 
 /** 底部 Banner 广告的高度（设计单位） */
 const BANNER_H = 120;
@@ -108,6 +109,13 @@ export class ResultPage extends Page {
     const coinIcon = img(coinCell, 'icon/coin', 96, 96, 'icon');
     at(coinIcon, -coinW / 2 + 48, 0);
     at(coinLabel.node, -coinW / 2 + 96 + 14, 0);
+    // 难关、超难关：金币那一格左上角压同色小牌子（过关金币 60 / 90，docs/ux/level-types.md）
+    const kind = levelKind(d.level);
+    if (kind !== 'normal' && r.rewarded) {
+      const t = kindTag(coinCell, kind, 34);
+      const tw = (t.getComponent(UITransform) as UITransform).width;
+      at(t, -coinW / 2 + tw / 2 - 6, 70);
+    }
     items.push(coinCell);
     const extras: Node[] = [];
     const chestPrize = d.chest;

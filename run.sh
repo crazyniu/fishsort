@@ -32,8 +32,10 @@ usage() {
 开发（Linux 或 CI，只需要 Node 22 以上）：
   check                 类型检查 + 单元测试 + .meta 与图片压缩检查（与 CI 相同）
   test                  只跑单元测试
-  level-gen [起] [止]   按难度曲线生成关卡
-  level-verify [文件…]  校验关卡（不给文件就校验全部；--runs=N 改机器人局数）
+  level-gen [起] [止]   按难度曲线生成关卡（旧方法：普通玩家花几样才过）
+  level-route [起] [止] [--jobs=N] [--lab]  规定路线关卡：按难度曲线收紧，换掉包里的关（docs/02 第 0.4 节）
+  level-fixref [文件或目录…]  参考解过不了结构校验的关卡换一条想清楚的玩家的路线（不给 = 包里和调试页的全部）
+  level-verify [--measure] [文件…]  校验关卡（不给文件就校验全部）；--measure 再用两个机器人复测难度（慢，Mac 上跑）
   level-probe 关卡号,…  难度探针：随手玩家和细心玩家两个机器人各自的胜率（--files 量包里的关卡；--rule / --scramble / --slots 见 tools/level/probe.ts）
   eco-sim [--from=130]  金币的账：按活跃玩家每天过几关跑若干天，看一天挣多少、要花多少、要看几次广告（参数见 tools/economy/sim.ts）
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（结果要提交）
@@ -215,6 +217,16 @@ case "$cmd" in
   level-gen)
     need_node_modules
     (cd client && npx tsx tools/level/gen.ts "$@")
+    ;;
+  level-route)
+    need_node_modules
+    (cd client && npx tsx tools/level/routeAll.ts "$@")
+    ;;
+  level-fixref)
+    need_node_modules
+    # 不给参数 = 包里的关卡和调试页的各档全查一遍
+    if [ "$#" -eq 0 ]; then set -- assets/resources/config/levels assets/resources/config/levels_lab; fi
+    (cd client && npx tsx tools/level/fixref.ts "$@")
     ;;
   level-verify)
     need_node_modules

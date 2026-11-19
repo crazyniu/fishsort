@@ -1,5 +1,6 @@
 // 平台能力接口，见 docs/04-技术架构.md 第 5 节。wx / tt / FBInstant / 原生调用只许出现在 platform/ 里，
 // 业务代码只认这个接口，功能差异一律用 hasCapability 判断，不按平台 id 分支（CLAUDE.md 硬性约束 4）。
+import { DEBUG } from 'cc/env';
 
 export type AdResult = 'done' | 'skipped' | 'unavailable';
 
@@ -34,6 +35,14 @@ export interface WindowRect {
 
 export abstract class PlatformBase {
   abstract readonly id: string;
+
+  /**
+   * 开发版：编辑器预览和调试构建（cc/env 的 DEBUG）；微信再加上开发版、体验版（平台自己补）。
+   * 开发版才有的东西（难度调试页等，devtools/）按它显示，正式版自动不出（用户 2026-11-19：只在开发版里显示，代码保留）
+   */
+  isDevBuild(): boolean {
+    return DEBUG;
+  }
 
   async init(): Promise<void> {}
 

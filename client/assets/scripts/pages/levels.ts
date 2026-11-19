@@ -3,7 +3,6 @@
 // 已过关蓝色 + 绿勾；当前关绿色、会呼吸 +「当前」；挑战关紫色 + 小旗；没到的灰色带锁。打开时停在当前关那一页。
 import { EventTouch, Label, Node, Tween, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
-import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
 import * as Seas from '../core/meta/seas';
 import { App } from '../services/app';
@@ -15,6 +14,7 @@ import { tr } from '../ui/i18n';
 import { at, box, capsule, fit, img, keyButton, lazyImg, onTap, opacity, slice, text } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { HEAD_BOTTOM, PAGE_BOTTOM, Page, pageHead, ui } from '../ui/shell';
+import { KIND_STYLE, levelKind } from '../game/levelKind';
 
 const COLS = 4;
 const ROWS = 5;
@@ -149,21 +149,24 @@ export class LevelsPage extends Page {
   /** 一关的格子：圆牌 + 关卡号，上面的小标记说明状态 */
   private cell(parent: Node, n: number): Node {
     const s = App.save.data;
-    const hard = LevelCurve.isChallenge(App.config.curve, Meta.levelFile(n, App.config.levelCount));
+    const kind = levelKind(n);
     const done = n < s.level;
     const cur = n === s.level;
     // 试玩模式下后面没打的关也能点开（App.reach）：和打过的一样上色，不打勾、不上锁
     const open = n <= App.reach();
     const holder = box(`lv${n}`, parent, CELL, CELL);
-    const skin = cur ? 'skin/f_node_green' : !open ? 'skin/f_node_gray' : hard ? 'skin/f_node_purple' : 'skin/f_node_blue';
+    const skin = cur ? 'skin/f_node_green' : !open ? 'skin/f_node_gray' : kind !== 'normal' ? KIND_STYLE[kind].node : 'skin/f_node_blue';
     const ball = img(holder, skin, NODE, NODE, 'ball');
     const num = text(ball, String(n), open ? 44 : 34);
     at(num.node, 0, open ? 8 : 24);
     fit(num, NODE - 30, open ? 44 : 34, 22);
-    if (hard) {
-      // 挑战关：左上角插一面小旗（没到的也插，提前看得到哪一关难）
-      const flag = img(holder, 'skin/j_flag', 40, 43, 'flag');
-      at(flag, -NODE * 0.36, NODE * 0.36);
+    if (kind !== 'normal') {
+      // 难关红橙色 + 小火苗、超难关紫色 + 鲨鱼鳍（docs/ux/level-types.md）；没到的也标，提前看得到哪一关难。
+      // 当前关是绿的，角标照样在
+      const st = KIND_STYLE[kind];
+      const badge = img(holder, st.tag, 48, 48, 'kindBadge');
+      at(badge, -NODE * 0.36, NODE * 0.36);
+      at(img(badge, st.icon, 40, 40, 'icon'), 0, 1);
     }
     if (done) {
       at(img(holder, 'kit/ic_check', 40, 40, 'check'), NODE * 0.36, NODE * 0.36);

@@ -1,0 +1,7 @@
+Game art for an original casual mobile ocean puzzle game. Use your image generation tool to create ONE landscape image (1536x1024). Pure flat MAGENTA background (#FF00FF) everywhere.
+Draw exactly THREE versions of the SAME ice cube in one row, left / center / right, each centered in its third, about 420 px wide, with plenty of magenta between them, not touching each other or the image border. Match the attached reference image exactly in shape, angle, size, colors, glossy material and the thick dark navy outline — the reference is our own existing ice cube; the three versions must look like that cube made a bit thicker and frostier (slightly more opaque white frost at the edges), so they can be swapped in place without the cube jumping around.
+1) left: the thick ice cube, intact, no cracks.
+2) center: the same cube with ONE clear crack: a bold jagged white-and-navy crack line running from the top edge down across the front face, a few small chips missing at the top edge.
+3) right: the same cube with TWO cracks: the same crack as the center version plus a second bold jagged crack across the side face, more chips missing, looking like it is about to break.
+Do not use magenta or pink anywhere in the objects. No text, no letters, no numbers, no cast shadows, no outer glow, nothing else. Do not imitate any existing game.
+Reply with only the saved file path.

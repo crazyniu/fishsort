@@ -81,7 +81,8 @@ export function errors(lv: LevelData): string[] {
       if (!layer.has(u) || (layer.get(u) as number) >= b.layer) out.push(`气泡 ${idx} 压住了不比它低的气泡 ${u}`);
     }
     if (b.fog < 0) out.push(`气泡 ${idx} 的迷雾计数 ${b.fog} 不能是负数`);
-    if (b.ice.length > 2) out.push(`气泡 ${idx} 的冰封依赖有 ${b.ice.length} 个，最多 2 个`);
+    const iceMax = b.iceAll === true ? 3 : 2;
+    if (b.ice.length > iceMax) out.push(`气泡 ${idx} 的冰封依赖有 ${b.ice.length} 个，最多 ${iceMax} 个`);
     for (const dep of b.ice) {
       if (dep === idx || !layer.has(dep)) out.push(`气泡 ${idx} 的冰封依赖非法`);
       else if (lv.bubbles[dep].ice.length > 0) out.push(`气泡 ${idx} 的冰封依赖 ${dep} 自身也被冰封`);
