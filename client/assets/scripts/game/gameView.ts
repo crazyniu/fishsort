@@ -277,7 +277,8 @@ export class GamePage extends Page {
     if (App.levelLab && !this.arg.demo) this.s.bufferCap = config.labBuffer(this.s.bufferCap);
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
     this.s.clock = this.arg.daily || this.arg.demo ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
-    if (!this.arg.daily && !this.arg.demo) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
+    // 连输 4 次送第 3 缸位（docs/01 5.7）；调试页换了档的关不送：试的就是这一档原样的难度
+    if (!this.arg.daily && !this.arg.demo && !config.lab.has(file)) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 加开的缸只装一缸就收走（docs/01 2.4）
     this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
