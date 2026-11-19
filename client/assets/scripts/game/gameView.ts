@@ -18,6 +18,7 @@ import * as Rules from '../core/rules/rules';
 import type { GameEvent } from '../core/rules/rules';
 import * as Bots from '../core/solver/bots';
 import * as Players from '../core/solver/players';
+import * as Route from '../core/solver/route';
 import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
@@ -212,6 +213,8 @@ export class GamePage extends Page {
   demoStep = 0;
   private demoT = 0;
   private demoArmed = false;
+  /** 正常打法演示：第几步（下标）点完就不用道具过不去了，-1 = 没有 */
+  demoFatal = -1;
   private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
@@ -294,6 +297,8 @@ export class GamePage extends Page {
     this.demoStep = 0;
     this.demoT = 0;
     this.demoArmed = false;
+    // 正常打法演示：先算出它在哪一步走错（点完那一步就过不去了），演到那一步时用红圈标出来（第 6 关约 5 毫秒）
+    this.demoFatal = this.arg.demo === 'casual' ? Route.firstDead(this.lv, this.demoTaps) : -1;
     this.tallied = false;
     this.ended = false;
     this.paused = false;
@@ -1590,11 +1595,16 @@ export class GamePage extends Page {
       if (this.demoT < cfg.gap) return;
       this.clearHint();
       this.hintNode = this.field.hint(t[0], t[1]);
+      if (this.demoStep === this.demoFatal) {
+        const sp = this.hintNode?.getComponent(Sprite);
+        if (sp) sp.color = new Color(255, 80, 80, 255);
+        ui.toast('红圈这一步走错了：点完以后不用道具就过不去了');
+      }
       this.demoArmed = true;
       this.demoT = 0;
       return;
     }
-    if (this.demoT < cfg.ring) return;
+    if (this.demoT < (this.demoStep === this.demoFatal ? cfg.fatal : cfg.ring)) return;
     this.clearHint();
     this.demoArmed = false;
     this.demoT = 0;

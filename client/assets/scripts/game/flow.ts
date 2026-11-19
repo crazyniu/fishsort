@@ -450,7 +450,8 @@ export function lose(g: GamePage): void {
   if (g.s.status !== Status.LOST) return;
   if (g.arg.demo) {
     const why = g.s.loseReason === LoseReason.BUFFER_FULL ? '暂存槽满了' : '没有能点的鱼了';
-    demoDone(g, g.arg.demo === 'route' ? `电脑按路线没过（第 ${g.demoStep} 步${why}，不该发生），截图告诉开发` : `正常打法这局输了：第 ${g.demoStep} 步${why}`);
+    const wrong = g.demoFatal >= 0 ? `（第 ${g.demoFatal + 1} 步就走错了）` : '';
+    demoDone(g, g.arg.demo === 'route' ? `电脑按路线没过（第 ${g.demoStep} 步${why}，不该发生），截图告诉开发` : `正常打法这局输了：第 ${g.demoStep} 步${why}${wrong}`);
     return;
   }
   sfx('lose');

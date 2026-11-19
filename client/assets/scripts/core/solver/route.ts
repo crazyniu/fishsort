@@ -122,6 +122,22 @@ export function initial(lv: LevelData, bufferCap = lv.buffer): GameState {
   return s;
 }
 
+/**
+ * 按 taps 一步步走，第几步（下标）点完以后就不用道具过不去了——「走错的那一步」（难度调试页的演示用，docs/01 9.7）。
+ * 一直过得去返回 -1；算不完的局面当作过得去（只会晚报、不会错报）
+ */
+export function firstDead(lv: LevelData, taps: readonly Tap[], budget = 20000): number {
+  const s = initial(lv);
+  const memo = new Memo();
+  for (let i = 0; i < taps.length; i++) {
+    tap(s, taps[i][0], taps[i][1]);
+    if (s.status === Status.LOST) return i;
+    if (s.status !== Status.PLAYING) return -1;
+    if (winnable(s.clone(), memo, budget) === false) return i;
+  }
+  return -1;
+}
+
 /** 不用道具能不能通关；能的话给出一条走法 */
 export function solve(lv: LevelData, budget = 500000, bufferCap = lv.buffer): { ok: boolean | null; taps: Tap[]; nodes: number } {
   const memo = new Memo();

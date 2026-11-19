@@ -52,7 +52,8 @@
  },
  "demo": {
   "ring": 0.45,
-  "gap": 0.3
+  "gap": 0.3,
+  "fatal": 2.5
  },
  "hint": {
   "tutorialLevels": 3,

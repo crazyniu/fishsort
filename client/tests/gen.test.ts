@@ -272,7 +272,9 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     assert.ok(m !== null && m.minBuffer === 1 && m.slack === ok.buffer - 1, JSON.stringify(m));
     // 架上的两个缸要 2 和 1，最上面却是 0：三条 0 只能先进暂存槽。暂存槽 3 格放到第 3 条就满（输），4 格才过得去
     const hard = level([2, 1, 0], [{ fish: [0, 0, 0], layer: 2, under: [1] }, { fish: [1, 1, 1], layer: 1, under: [2] }, { fish: [2, 2, 2] }], 3);
+    assert.equal(Route.firstDead(ok, r.taps), -1, '按解法走一直过得去');
     assert.equal(Route.solve(hard).ok, false);
+    assert.equal(Route.firstDead(hard, [[0, 2]]), 0, '开局就过不去的关，第一步就算走错');
     assert.equal(Route.solve(hard, 10000, 4).ok, true, '暂存槽多一格就过得去');
     hard.buffer = 6;
     assert.equal(Route.measure(hard)?.minBuffer, 4);
