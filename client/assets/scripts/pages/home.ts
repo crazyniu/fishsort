@@ -18,7 +18,7 @@ import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
-import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, slice, text } from '../ui/kit';
+import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, resizeSlice, slice, text, textWidth } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { settingsPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
@@ -177,9 +177,13 @@ export class HomePage extends Page {
     this.levelLabel = text(row, '', 30, { color: hex('#E9FFE0') });
     at(this.levelLabel.node, 0, -38);
     // 挑战关：按钮右上角压一块红色「挑战」小标
+    // 宽度跟着字走（至少 96，右边缘不动）：「困难」「Hard」放得下，日文「むずかしい」、法文「Difficile」这种长的把小标撑宽，不缩字
     this.tag = slice(this.start.node, 'kit/tag_red', 96, 44, 'tag');
-    at(this.tag, startW / 2 - 70, START_H / 2 - 6);
-    at(text(this.tag, tr('UI_CHALLENGE_TAG'), 26).node, 0, 3);
+    const tagText = text(this.tag, tr('UI_CHALLENGE_TAG'), 26);
+    at(tagText.node, 0, 3);
+    const tagW = Math.max(96, Math.ceil(textWidth(tagText)) + 28);
+    resizeSlice(this.tag, tagW, 44);
+    at(this.tag, startW / 2 - 22 - tagW / 2, START_H / 2 - 6);
   }
 
   private entry(root: Node, def: EntryDef, x: number, y: number): void {
