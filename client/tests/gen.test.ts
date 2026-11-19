@@ -8,6 +8,7 @@ import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
 import * as RouteGen from '../assets/scripts/core/gen/routeGen';
+import * as Players from '../assets/scripts/core/solver/players';
 import * as Careful from '../assets/scripts/core/solver/careful';
 import * as Route from '../assets/scripts/core/solver/route';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
@@ -278,19 +279,35 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     assert.equal(Route.measure(hard)?.slack, 2);
   });
 
-  it('收紧：每一档容错存一份，都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
+  it('只看屏幕的两个玩家：想清楚的走法回放能赢，过不去的关两个都输，同一个种子结果一样', () => {
+    const ok = level([0, 1, 2], [{ fish: [0, 0, 0], layer: 1, under: [1] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    const t = Players.play(ok, 'think', 1, { preview: 0 });
+    assert.equal(t.won, true);
+    assert.equal(LevelCheck.replay(ok, t.taps).won, true);
+    const hard = level([2, 1, 0], [{ fish: [0, 0, 0], layer: 2, under: [1] }, { fish: [1, 1, 1], layer: 1, under: [2] }, { fish: [2, 2, 2] }], 3);
+    assert.equal(Players.play(hard, 'think', 1, { preview: 0 }).won, false);
+    assert.equal(Players.play(hard, 'casual', 1, { preview: 0 }).won, false);
+    const c = loadCurve();
+    const lv = generate({ ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 }, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    assert.deepEqual(Players.play(lv, 'casual', 7, { preview: 0 }).taps, Players.play(lv, 'casual', 7, { preview: 0 }).taps);
+    assert.deepEqual(Players.play(lv, 'think', 7, { preview: 0 }).taps, Players.play(lv, 'think', 7, { preview: 0 }).taps);
+  });
+
+  it('收紧：随手点的过关率每一档存一份，想清楚的玩家都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
     const c = loadCurve();
     const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };
     const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
     const before = new Map<number, number>();
     for (const b of lv.bubbles) for (const f of b.fish) before.set(f, (before.get(f) ?? 0) + 1);
-    const r = RouteGen.tighten(lv, { slack: 0, iterations: 12, seed: 3, budget: 5000, stepBudget: 2000 });
-    assert.ok(r.best !== null && r.bySlack.size > 0);
-    for (const snap of r.bySlack.values()) {
+    const r = RouteGen.tighten(lv, { casual: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
+    assert.ok(r.last !== null && r.byPct.size > 0);
+    for (const [pct, snap] of r.byPct) {
+      assert.equal(RouteGen.bucket(snap.m.casual), pct);
+      assert.ok(snap.m.think >= 0.9);
       const after = new Map<number, number>();
       for (const b of snap.lv.bubbles) for (const f of b.fish) after.set(f, (after.get(f) ?? 0) + 1);
       assert.deepEqual(after, before);
-      assert.equal(Route.solve(snap.lv).ok, true, '每一份都过得去');
+      assert.equal(LevelCheck.replay(snap.lv, snap.m.route).won, true, '想清楚的玩家赢下来的走法回放能赢');
     }
   });
 });

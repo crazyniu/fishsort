@@ -6,7 +6,8 @@ import type { PlatformBase } from '../platform/platformBase';
 import type { Eye } from '../ui/alive';
 
 /** 难度调试页生成的关卡、整体难度档存在本机的哪个键下 */
-const LAB_KEY = 'lab_levels';
+// 第二版（按「正常打法过关率」分档）换了键：第一版按容错挑的档都是要读心才过得去的，不再沿用
+const LAB_KEY = 'lab_levels2';
 const LAB_TIER_KEY = 'lab_tier';
 /** 整体难度档（docs/01 9.7）：暂存槽多几格、连击窗口几秒；下标 = 档 + 1（-1 困难、0 标准、1 简单） */
 const LAB_TIERS = [
@@ -69,23 +70,23 @@ export class Config {
 
   /**
    * 难度调试页选的版本（pages/lab.ts）：顶替包里同一关的文件（本体和变体都换成它），存在本机，重开游戏还在。
-   * 只有 game.json 开了 levelLab 才会读。slack = 选的是容错几格的那一档
+   * 只有 game.json 开了 levelLab 才会读。ver = 选的是哪一档（随手点的玩家过关率的档，10 一档）
    */
-  readonly lab = new Map<number, { lv: LevelData; slack: number }>();
+  readonly lab = new Map<number, { lv: LevelData; ver: number }>();
 
   /**
-   * 每关收紧时存下的各档容错（tools/level/route.ts --lab，config/levels_lab/index.json）：
-   * 关卡号 → { base: 包里用的是哪一档, 档: { keys 关键步, forced 只有一种点法的, minBuffer 最少要几格, run 路线最长连击 } }
+   * 每关收紧时存下的各档（tools/level/route.ts --lab，config/levels_lab/index.json）：
+   * 关卡号 → { base 包里用的是哪一档, target 这一关的目标（%）, 档: { natural 正常打法（随手点）能过 %, think 想清楚能过 %, run 路线最长连击 } }
    */
-  labIndex: Record<string, { base: number; versions: Record<string, { keys: number; forced: number; minBuffer: number; run: number; natural?: number }> }> = {};
+  labIndex: Record<string, { base: number; target: number; versions: Record<string, { natural: number; think: number; run: number }> }> = {};
 
   async loadLabIndex(): Promise<void> {
     this.labIndex = await loadJson<typeof this.labIndex>('config/levels_lab/index').catch(() => ({}));
   }
 
-  /** 读第 id 关容错 slack 那一档 */
-  async loadLabVersion(id: number, slack: number): Promise<LevelData> {
-    return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_lab/level_${pad(id)}_s${slack}`));
+  /** 读第 id 关的 ver 那一档 */
+  async loadLabVersion(id: number, ver: number): Promise<LevelData> {
+    return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_lab/level_${pad(id)}_p${ver}`));
   }
 
   /** 整体难度档：-1 困难、0 标准、1 简单（调试页设，存在本机） */
@@ -109,8 +110,8 @@ export class Config {
     const t = Number(platform.loadData(LAB_TIER_KEY) || '0');
     this.setLabTier(Number.isFinite(t) ? t : 0, platform);
     try {
-      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, { lv: Record<string, unknown>; slack: number }>;
-      for (const id of Object.keys(raw)) this.lab.set(Number(id), { lv: LevelData.fromDict(raw[id].lv), slack: Number(raw[id].slack) });
+      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, { lv: Record<string, unknown>; ver: number }>;
+      for (const id of Object.keys(raw)) this.lab.set(Number(id), { lv: LevelData.fromDict(raw[id].lv), ver: Number(raw[id].ver) });
     } catch {
       this.lab.clear();
     }
@@ -119,7 +120,7 @@ export class Config {
 
   saveLab(platform: PlatformBase): void {
     const out: Record<string, unknown> = {};
-    for (const [id, v] of this.lab) out[String(id)] = { lv: v.lv.toDict(), slack: v.slack };
+    for (const [id, v] of this.lab) out[String(id)] = { lv: v.lv.toDict(), ver: v.ver };
     platform.saveData(LAB_KEY, JSON.stringify(out));
   }
 

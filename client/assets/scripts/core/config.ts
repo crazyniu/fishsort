@@ -296,6 +296,12 @@ export interface CurveConfig {
   buffer?: [number, number][];
   /** 冰封泡做成厚冰（全部破了才解冻）：[从第几关起, 最多连几个]；没配 = 旧规则 */
   iceAll?: [number, number][];
+  /**
+   * 规定路线的收紧（docs/02 第 0.4 节，tools/level/route.ts）：随手点的玩家过关率压到 jam.targets 的「不花」那一档，
+   * 想清楚的玩家过关率守在 thinkFloor 之上。preview = 局内预告几缸（两个玩家都只知道架上的缸和这几缸）；
+   * casualGames / thinkGames = 收紧时每次量几局，checkCasual / checkThink = 收紧完换一组种子复量几局（写进调试页的数）
+   */
+  route?: { preview: number; thinkFloor: number; iterations: number; casualGames: number; thinkGames: number; checkCasual: number; checkThink: number };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;

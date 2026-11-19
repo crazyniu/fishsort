@@ -1,8 +1,8 @@
 // 难度调试页（设置里的入口，game.json 开了 levelLab 的测试包才有；docs/01 第 9.7 节。调试用，版面朴素、字直接写）。
 // 用户 2026-11-19：难度要能自己调、自己试。
 // - 整体三档：暂存槽 ±1 格、连击窗口，所有关立刻生效
-// - 单关：每关收紧时存下了容错 0–4 各一档（tools/level/route.ts --lab），挑一档顶替包里那一关，马上试玩。
-//   手机上现场生成太慢（一关要几分钟），所以挑现成的。试出合适的档告诉开发，写进难度曲线重新生成
+// - 单关：每关收紧时按「正常打法能过几成」每 10% 存了一档（tools/level/route.ts --lab），挑一档顶替包里那一关，马上试玩。
+//   手机上现场生成太慢，所以挑现成的。试出合适的档告诉开发，写进难度曲线（jam.targets）重新生成
 import { Node } from 'cc';
 import * as Lives from '../core/meta/lives';
 import * as Flow from '../game/flow';
@@ -84,24 +84,23 @@ export class LabPage extends Page {
       at(text(v, '这一关没有各档版本（只给样品关生成了）', 28, { width: 680 }).node, 0, y);
       y -= 90;
     } else {
-      // 每档一行：容错、关键步、最少要几格、最长连击；点「用这档」
-      const slacks = Object.keys(info.versions).map(Number).sort((a, b) => a - b);
-      const using = custom ? custom.slack : info.base;
-      for (const sl of slacks) {
-        const m = info.versions[String(sl)];
-        const row = slice(v, 'kit/row_blue', 690, 84, `s${sl}`);
+      // 每档一行（从容易到难）：正常打法能过几成、想清楚能过几成、路线最长连击；点「用这档」
+      const vers = Object.keys(info.versions).map(Number).sort((a, b) => b - a);
+      const using = custom ? custom.ver : info.base;
+      for (const ver of vers) {
+        const m = info.versions[String(ver)];
+        const row = slice(v, 'kit/row_blue', 690, 84, `p${ver}`);
         at(row, 0, y);
-        const tag = `${sl === info.base ? '（包里）' : ''}`;
-        at(text(row, `容错 ${sl}${tag}`, 30, { align: 'left', color: sl === using ? COLOR.yellow : undefined }).node, -320, 14);
-        const nat = m.natural !== undefined ? `正常打法能过 ${m.natural}% · ` : '';
-        at(text(row, `${nat}关键步 ${m.keys} · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
-        const b = button(row, { color: sl === using ? 'green' : 'blue', w: 150, h: 64, label: sl === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(sl) });
+        const tag = `${ver === info.base ? '（包里）' : ''}`;
+        at(text(row, `正常打法能过 ${m.natural}%${tag}`, 30, { align: 'left', color: ver === using ? COLOR.yellow : undefined }).node, -320, 14);
+        at(text(row, `想清楚能过 ${m.think}% · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
+        const b = button(row, { color: ver === using ? 'green' : 'blue', w: 150, h: 64, label: ver === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(ver) });
         at(b.node, 255, 0);
         y -= 92;
       }
     }
 
-    const note = text(v, this.note || '容错 = 能犯几次错（点错、放进暂存槽）；0 = 一步错就过不去。挑一档马上试', 26, { width: 680 });
+    const note = text(v, this.note || (info ? `这关目标：正常打法 ${info.target}% 能过。挑一档马上试` : ''), 26, { width: 680 });
     at(note.node, 0, y - 10);
     y -= 90;
 
@@ -138,19 +137,22 @@ export class LabPage extends Page {
     y -= 96;
 
     // 改过的关一览：截图发给开发就行
-    const changed = Array.from(App.config.lab.entries()).sort((a, b) => a[0] - b[0]).map(([id, x]) => `第${id}关 容错${x.slack}`);
+    const changed = Array.from(App.config.lab.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([id, x]) => `第${id}关 ${App.config.labIndex[String(id)]?.versions[String(x.ver)]?.natural ?? x.ver}%`);
     if (changed.length > 0) at(text(v, `已改：${changed.join('、')}`, 24, { width: 680, color: COLOR.yellow }).node, 0, y);
   }
 
-  private async use(slack: number): Promise<void> {
+  private async use(ver: number): Promise<void> {
     ui.busy(true);
     try {
-      const lv = await App.config.loadLabVersion(this.level, slack);
+      const lv = await App.config.loadLabVersion(this.level, ver);
       lv.id = this.level;
       lv.variants = [];
-      App.config.lab.set(this.level, { lv, slack });
+      App.config.lab.set(this.level, { lv, ver });
       App.config.saveLab(App.platform);
-      this.note = `第 ${this.level} 关换成容错 ${slack} 的版本`;
+      const m = App.config.labIndex[String(this.level)]?.versions[String(ver)];
+      this.note = `第 ${this.level} 关换成「正常打法能过 ${m ? m.natural : ver}%」的版本`;
     } catch (e) {
       console.warn('读不出这一档', e);
       this.note = '这一档读不出来';
