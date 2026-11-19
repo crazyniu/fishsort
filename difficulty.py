@@ -409,6 +409,7 @@ def menu():
         print('  4. 生成每日挑战关卡（后台跑）')
         print('  5. 看进度')
         print('  6. 停止后台生成')
+        print('  7. 量包里的关有多难（三个玩家能过几成，正常暂存槽和少 1 格）')
         print('  0. 退出')
         v = _ask('选一项：')
         if v in ('0', 'q', ''):
@@ -443,6 +444,17 @@ def menu():
                 cmd_stop()
             elif not busy:
                 print('后台没有在跑的生成')
+        elif v == '7':
+            raw = _ask('量哪几关？空格隔开（如 6 10 200）：')
+            ids = re.findall(r'\d+', raw)
+            if not ids:
+                continue
+            d = _ask('另外再量暂存槽加减几格？直接回车 = -1（调试页「困难」）；不量写 0：', '-1')
+            games = _ask('每个玩家打几局？直接回车 = 100（局越多越准、越慢）：', '100')
+            cmd = ['./run.sh', 'level-measure', ','.join(ids), f'--games={games}']
+            cmd.append(f'--buffer={d.strip() or "-1"}')
+            print('量的时候不用等后台生成停；一关大约半分钟到几分钟')
+            subprocess.run(cmd, cwd=ROOT)
         else:
             print('没有这一项')
 

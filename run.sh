@@ -37,6 +37,7 @@ usage() {
   level-fixref [文件或目录…]  参考解过不了结构校验的关卡换一条想清楚的玩家的路线（不给 = 包里和调试页的全部）
   level-verify [--measure] [文件…]  校验关卡（不给文件就校验全部）；--measure 再用两个机器人复测难度（慢，Mac 上跑）
   level-probe 关卡号,…  难度探针：随手玩家和细心玩家两个机器人各自的胜率（--files 量包里的关卡；--rule / --scramble / --slots 见 tools/level/probe.ts）
+  level-measure 6,10,…  量包里的关有多难：三个玩家不用道具能过几成，正常暂存槽和少 1 格（调试页「困难」）各一次（--buffer / --games 见 tools/level/measure.ts）
   eco-sim [--from=130]  金币的账：按活跃玩家每天过几关跑若干天，看一天挣多少、要花多少、要看几次广告（参数见 tools/economy/sim.ts）
   meta                  给 client/assets 里缺 .meta 的资源补 .meta（结果要提交）
   art-compress          包体压缩：PNG 调色板量化、家园物件缩到 2 倍、背景音乐转 mp3（改了图后跑）
@@ -231,6 +232,10 @@ case "$cmd" in
   level-verify)
     need_node_modules
     (cd client && npx tsx tools/level/verify.ts "$@")
+    ;;
+  level-measure)
+    need_node_modules
+    (cd client && npx tsx tools/level/measure.ts "$@")
     ;;
   level-probe)
     need_node_modules
