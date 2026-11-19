@@ -1,5 +1,6 @@
 // 校验关卡并输出难度报告（docs/02 第 5 节；第 6 关起按规定路线的目标复测，docs/02 第 0.3 节）。
-// 用法：./run.sh level-verify [--runs=N] [文件...]   不给文件 = 全部，报告写到 tools/level/report.csv
+// 用法：./run.sh level-verify [--measure] [--runs=N] [文件...]   不给文件 = 全部，报告写到 tools/level/report.csv
+//   --measure：第 6 关起用两个只看屏幕的玩家复测难度（离目标远、想清楚过不去的标出来）；不给只查结构和参考解（CI 用）
 // 默认用验收那一组机器人种子跑 400 局（level_curve.json 的 gen.verifyRuns / verifySeedBase），和生成器复测用的是同一组，
 // 所以报告里的胜率就是生成时判的胜率。
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -19,9 +20,11 @@ const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/leve
 const gen = curve.gen;
 let runs = gen.verifyRuns;
 const files: string[] = [];
+// --measure：第 6 关起再用两个只看屏幕的玩家复测难度（慢，Mac 上跑；CI 只查结构和参考解，要在三分钟内跑完）
+const measureOn = process.argv.includes('--measure');
 for (const a of process.argv.slice(2)) {
   if (a.startsWith('--runs=')) runs = Number(a.slice(7));
-  else files.push(resolve(process.env.INIT_CWD ?? process.cwd(), a));
+  else if (a !== '--measure') files.push(resolve(process.env.INIT_CWD ?? process.cwd(), a));
 }
 const all = files.length === 0;
 if (all) for (const n of readdirSync(DIR).sort()) if (n.endsWith('.json')) files.push(join(DIR, n));
@@ -84,6 +87,12 @@ for (const path of files) {
   }
   const kind = LevelCurve.jamKind(curve, lv.id);
   const target = route ? LevelCurve.routeTarget(curve, lv.id) : null;
+  if (route && target !== null && kind !== null && !measureOn) {
+    // 不复测难度：结构和参考解上面已经查过了
+    const fish = lv.bubbles.reduce((n, b) => n + b.fish.length, 0);
+    rows.push([name, lv.palette, fish, lv.bubbles.length, lv.challenge ? 'y' : '', LevelCheck.replay(lv).peak, -1, -1, -1, obs.join('+'), '', kind, lv.bubbles.filter((b) => b.queue).length, '', '', '', '', '', '', '', '', Math.round(target * 100), '', ''].join(','));
+    continue;
+  }
   if (route && target !== null && kind !== null) {
     // 规定路线关卡（第 6 关起）：随手点的玩家过关率离目标多远、想清楚的玩家过不过得去；变体要比本体容易
     const o = { preview: route.preview };
