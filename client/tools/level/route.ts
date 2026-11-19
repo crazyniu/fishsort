@@ -82,7 +82,7 @@ const opts = {
   thinkGames: rc.thinkGames,
 };
 // 收紧时一直用同一组种子量，挑出来的交换会偏向「刚好坑到这几局」：换一组种子多打几局复量，调试页和挑本体都用复量的数。
-// 复量下来离目标还差 5 个点以上（相邻两档之间跳过了目标），换一个收紧的随机种子从头再收一次，最多 3 次，所有档放在一起挑
+// 复量下来离目标还差 5 个点以上、而且是相邻两档之间跳过了目标，换一个收紧的随机种子从头再收一次，最多 3 次，所有档放在一起挑
 interface Ver {
   pct: number;
   lv: LevelData;
@@ -106,7 +106,10 @@ for (let attempt = 0; attempt < 3; attempt++) {
     console.log(`  [${attempt + 1}] 随手点 ${Math.round(casual * 100)}%  想清楚 ${Math.round(think * 100)}%  路线最长连击 ${run}${tag}`);
     if (!tag) all.push({ pct: bucket(casual), lv: snap.lv, casual, think, run });
   }
+  // 有一档离目标 5 个点以内就行；所有档都在目标的同一边（压不下去 / 放不上来）再收一次也一样，不重来。
+  // 只有目标两边都有档、中间跳过了目标，才换种子重来
   if (all.some((v) => Math.abs(v.casual - target) <= 0.05)) break;
+  if (!(all.some((v) => v.casual < target) && all.some((v) => v.casual > target))) break;
 }
 console.log(`  目标：随手点 ${Math.round(target * 100)}%，想清楚的不低于 ${Math.round(opts.thinkFloor * 100)}%，预告 ${opts.preview} 缸；试了 ${tries} 次交换，${((Date.now() - t0) / 1000).toFixed(0)}s`);
 if (all.length === 0) {

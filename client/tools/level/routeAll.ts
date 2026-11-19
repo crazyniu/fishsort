@@ -1,6 +1,7 @@
 // 全量生成规定路线关卡（docs/02 第 0.4 节）：第 from–to 关，每关跑一次 tools/level/route.ts（--pkg 换掉包里的本体和两个变体），几关并行。
-// 用法：./run.sh level-route [起] [止] [--jobs=4] [--lab]
-//   --lab   各档也写进 config/levels_lab（难度调试页挑档用）；每关先写一小份索引，全部跑完再合进 index.json
+// 用法：./run.sh level-route [起] [止] [--jobs=4] [--lab] [--resume]
+//   --lab     各档也写进 config/levels_lab（难度调试页挑档用）；每关先写一小份索引，全部跑完再合进 index.json
+//   --resume  接着上次没跑完的：日志里已经有结果的关跳过，汇总和索引把上次跑完的一起算进去
 // 每关的输出在 tools/level/route_logs/<关>.log（不进仓库），汇总写 tools/level/route_report.csv：关、类型、目标、包里那档的随手点 / 想清楚、
 // 有没有用放松的生成参数、各档、用时。离目标超过 10 个点的关在最后列出来
 import { spawn } from 'node:child_process';
@@ -15,12 +16,19 @@ const to = nums[1] ?? from;
 const jobsArg = process.argv.find((a) => a.startsWith('--jobs='));
 const jobs = jobsArg ? Number(jobsArg.slice(7)) : Math.max(1, cpus().length - 1);
 const lab = process.argv.includes('--lab');
+const resume = process.argv.includes('--resume');
 const LOGS = join(CLIENT, 'tools/level/route_logs');
 const ENTRIES = join(LOGS, 'lab_entries');
 mkdirSync(LOGS, { recursive: true });
-if (lab) {
-  rmSync(ENTRIES, { recursive: true, force: true });
-  mkdirSync(ENTRIES, { recursive: true });
+if (lab && !resume) rmSync(ENTRIES, { recursive: true, force: true });
+if (lab) mkdirSync(ENTRIES, { recursive: true });
+
+/** 日志里的结果行（这一关跑完了才有） */
+function logged(id: number): Result | null {
+  const f = join(LOGS, `${id}.log`);
+  if (!existsSync(f)) return null;
+  const line = readFileSync(f, 'utf8').split('\n').find((l) => l.startsWith('@@RESULT '));
+  return line ? (JSON.parse(line.slice(9)) as Result) : null;
 }
 
 interface Result {
@@ -36,9 +44,14 @@ interface Result {
 
 // 后面的关鱼多、目标低，跑得久：先排它们，最后几个空闲的核不会只剩一关长的在跑
 const queue: number[] = [];
-for (let id = to; id >= from; id--) queue.push(id);
-const total = queue.length;
 const results: Result[] = [];
+for (let id = to; id >= from; id--) {
+  const done = resume ? logged(id) : null;
+  if (done && (!lab || existsSync(join(ENTRIES, `${id}.json`)))) results.push(done);
+  else queue.push(id);
+}
+const total = queue.length + results.length;
+if (resume) console.log(`接着上次：已经跑完 ${results.length} 关，还剩 ${queue.length} 关`);
 const failed: number[] = [];
 const t0 = Date.now();
 
