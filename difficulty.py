@@ -10,6 +10,7 @@
     python3 difficulty.py show [关号 …]          看目标
     python3 difficulty.py gen [起 止] [--commit] [--no-measure]  生成（--commit = 校验通过后自动提交推送；--no-measure = 生成完只查结构、不再全量复测难度，省时间）
     python3 difficulty.py gen --daily [--commit]  生成每日挑战关
+    python3 difficulty.py gen [--daily] --ids=180,190  只重跑这几关（离目标远的、没生成出来的）
     python3 difficulty.py status                 看进度
     python3 difficulty.py stop                   停止
 
@@ -72,14 +73,16 @@ import time
 
 # 保底：想清楚的玩家（每一步试 300 种走法）至少能过多少——不超过「保底_最高」，也不低于「这一关的目标 + 保底_比目标高」。
 # 保证认真想一定有路能过；越往后目标越低，保底跟着往下放
+# 2026-11-20 从 40 降到 30：第 4 个海域起（掉落关）收紧时被这条卡住，实测比目标松 10 个点左右，后面的海域不一定比前面难
 保底_最高 = 90
-保底_比目标高 = 40
+保底_比目标高 = 30
 
+# 用户 2026-11-20：「每日挑战都难一点，通过率 20% 以内」（原来要 10% 以内，实测平均 15%、有几关 20–43%，被「想清楚的至少一半」卡住）
 # 每日挑战（第 20 关开放）的专用难关：第 10 关起每 5 关做一份，和挑战关同一套鱼数。
 # 不用道具能过的目标、最多不超过多少，想清楚的玩家至少能过多少（菜单「生成每日挑战关卡」）
-每日挑战_能过 = 6
-每日挑战_最多 = 10
-每日挑战_保底 = 50
+每日挑战_能过 = 10
+每日挑战_最多 = 20
+每日挑战_保底 = 40
 
 # 局内看得到后面几缸要什么（机器人也按这个看；改了要连局内一起改，平时别动）
 预告缸数 = 3
@@ -254,10 +257,17 @@ def cmd_run(args):
     daily = '--daily' in args
     nums = [int(a) for a in args if a.isdigit()]
     lo, hi = (nums[0], nums[1]) if len(nums) >= 2 else (nums[0], nums[0]) if nums else (6, TOTAL)
+    # --ids=180,190,… 只重跑这几关（离目标远的、没生成出来的），起止只用来写日志
+    ids = next((a for a in args if a.startswith('--ids=')), '')
+    if ids:
+        picked = [int(x) for x in ids[6:].split(',') if x.strip().isdigit()]
+        if not picked:
+            raise SystemExit('--ids= 后面写关卡号，用逗号隔开，如 --ids=180,190')
+        lo, hi = min(picked), max(picked)
     jobs = 并行数 or max(1, (os.cpu_count() or 4) - 2)
     write_config()
     steps = [
-        f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else ''),
+        f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else '') + (f' {ids}' if ids else ''),
         './run.sh meta',
     ] + ([] if daily else ['./run.sh level-fixref', './run.sh level-verify' + ('' if '--no-measure' in args else ' --measure')])
     if commit:
