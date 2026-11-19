@@ -2239,7 +2239,7 @@ export class GamePage extends Page {
   }
 
   /**
-   * 掉落关「下一个落下」预告（docs/01 9.3「看得到才公平」）：场地右上角一个小气泡，里面是候场队头那个气泡装的鱼
+   * 掉落关「下一个落下」预告（docs/01 9.3「看得到才公平」）：暂存槽右边（4 格时）一个小气泡，里面是候场队头那个气泡装的鱼
    * （迷雾泡画问号），上面一行小字「接下来」。队头换了就换一个；候场的落完了收起来
    */
   private syncDrop(animate: boolean): void {
@@ -2255,15 +2255,19 @@ export class GamePage extends Page {
     }
     this.dropNext = null;
     if (idx < 0) return;
-    const S = 104;
+    // 掉落关暂存槽是 4 格，槽右边空着一块：放在那里，不压气泡场（短屏上气泡堆到场地顶，放场地角上会盖住气泡）。
+    // 暂存槽 5 格时（调试页的简单档）那里放不下，退到场地右上角
+    const beside = this.s.bufferCap <= 4;
+    const S = beside ? 88 : 104;
     const node = img(this.stage, 'kit/bubble_small', S, S, 'dropNext');
-    at(node, Screen.W / 2 - 24 - S / 2, this.fieldTop - S / 2 - 26);
+    if (beside) at(node, Screen.W / 2 - 14 - S / 2, this.bufferY - 8);
+    else at(node, Screen.W / 2 - 24 - S / 2, this.fieldTop - S / 2 - 26);
     const cap = text(node, tr('UI_NEXT_TANKS'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
     at(cap.node, 0, S / 2 + 10);
     fit(cap, S + 30, 20, 14);
     const b = s.bubbles[idx];
     const fish = b.fish.filter((f) => f >= 0);
-    const fs = fish.length <= 1 ? 62 : fish.length <= 3 ? 42 : 36;
+    const fs = (fish.length <= 1 ? 0.6 : fish.length <= 3 ? 0.4 : 0.35) * S;
     const d = fish.length <= 1 ? 0 : S * 0.21;
     fish.forEach((sp, k) => {
       const a = (Math.PI * 2 * k) / fish.length + Math.PI / 2;
