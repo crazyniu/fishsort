@@ -231,6 +231,11 @@ export function hasEffect(g: GamePage, id: string): string | null {
 
 export function useSkill(g: GamePage, id: string): void {
   if (g.ended || g.paused || g.s.status !== Status.PLAYING || g.finishing) return;
+  // 渔网正等着选缸：这时再按别的技能（尤其撤销，会把版面整个重画、渔网白扣一个）不响应，提示先选缸
+  if (g.netMode) {
+    ui.toast(tr('UI_NET_HINT'));
+    return;
+  }
   const s = App.save.data;
   const eco = App.config.eco;
   const lvl = g.arg.daily ? s.level : Math.max(s.level, g.arg.level);
