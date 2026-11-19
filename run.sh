@@ -70,7 +70,8 @@ cocos_build() {
   # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
   if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
     echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
-    git status --short -- client | head -20
+    # 改动的文件很多时（比如刚生成完关卡还没提交）head 先收工，git 会收到 SIGPIPE；开着 pipefail 整个脚本就退了，服务起不来
+    git status --short -- client | head -20 || true
   fi
 }
 
