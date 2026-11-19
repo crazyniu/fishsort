@@ -59,11 +59,14 @@ const copy = (lv: LevelData) => LevelData.fromDict(lv.toDict());
 /** 难度刻度：随手点的玩家输得越多、暂存槽塞得越满越难（过关率一样时靠暂存槽给收紧一个方向） */
 const hardness = (m: { casual: number; peak: number }) => (1 - m.casual) * 100 + m.peak;
 
-/** 量一关；想清楚的玩家明显过不了下限就提前停（返回 null） */
-export function measure(lv: LevelData, o: TightenOptions, casual?: Players.Rate): Measure | null {
+/**
+ * 量一关；想清楚的玩家明显过不了下限就提前停（返回 null）。thinkSeed：想清楚的玩家这一次用哪组种子——
+ * 收紧时每次都换一组：一直用同一组的话，挑出来的交换会偏向「只有这几局想得通」，换种子复量就掉到六七成（2026-11-19 第 273 关）
+ */
+export function measure(lv: LevelData, o: TightenOptions, casual?: Players.Rate, thinkSeed = o.seedBase ?? 0): Measure | null {
   const opts = { preview: o.preview };
   const c = casual ?? Players.rate(lv, 'casual', o.casualGames ?? 80, opts, o.seedBase ?? 0);
-  const t = Players.rate(lv, 'think', o.thinkGames ?? 10, opts, o.seedBase ?? 0, o.thinkFloor);
+  const t = Players.rate(lv, 'think', o.thinkGames ?? 10, opts, thinkSeed, o.thinkFloor);
   if (t.win < o.thinkFloor || t.route === null) return null;
   return { casual: c.win, think: t.win, peak: c.peak, route: t.route };
 }
@@ -116,7 +119,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     const ok: boolean = up
       ? h <= hardness(cur) && c.win - cur.casual <= step && c.win <= o.casual + 0.1
       : h >= hardness(cur) && cur.casual - c.win <= step && c.win >= o.casual - 0.1;
-    const m: Measure | null = ok ? measure(lv, o, c) : null;
+    const m: Measure | null = ok ? measure(lv, o, c, 200000 + (o.seedBase ?? 0) + tries * 131) : null;
     if (m !== null) {
       cur = m;
       keep(m);
