@@ -88,7 +88,8 @@ for (const path of files) {
     // 规定路线关卡（第 6 关起）：随手点的玩家过关率离目标多远、想清楚的玩家过不过得去；变体要比本体容易
     const o = { preview: route.preview };
     const casual = Players.rate(lv, 'casual', route.checkCasual, o, VERIFY_SEED).win;
-    const think = isVariant ? -1 : Players.rate(lv, 'think', 20, o, VERIFY_SEED).win;
+    // 想清楚的玩家打 route.checkThink 局（60）：20 局一局就差 5 个点，太粗
+    const think = isVariant ? -1 : Players.rate(lv, 'think', route.checkThink, o, VERIFY_SEED).win;
     const flags: string[] = [];
     if (isVariant) {
       const base = baseRate.get(lv.id);
