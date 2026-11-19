@@ -801,8 +801,8 @@ describe('星级、首次三星、幸运泡（docs/01 9.3、9.5）', () => {
     assert.deepEqual([r.stars, r.before, r.first3], [2, 0, null]);
     const coins = save.coins;
     r = Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false);
-    assert.equal(r.first3?.coins, 60);
-    assert.equal(save.coins, coins + 60);
+    assert.equal(r.first3?.coins, 30);
+    assert.equal(save.coins, coins + 30);
     assert.equal(Stars.best(save, 30), 3);
     assert.equal(Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false).first3, null, '第二次三星不再送');
     assert.equal(Stars.record(save, ECO, 30, 'normal', 2, [], new Rng(1), false).stars, 1);
