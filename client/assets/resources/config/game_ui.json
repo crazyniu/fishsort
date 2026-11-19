@@ -65,8 +65,10 @@
  "hint": {
   "tutorialLevels": 3,
   "tutorialSeconds": 2.0,
-  "seconds": 7.0
+  "seconds": 7.0,
+  "skillSeconds": 5.0
  },
+ "nextBowls": {"from": 6},
  "buffer": {
   "warnFree": 1,
   "skillNudgeFree": 2,

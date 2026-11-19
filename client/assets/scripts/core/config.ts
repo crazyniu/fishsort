@@ -366,7 +366,10 @@ export interface GameUiConfig {
    * 堆的高度最多占场地高度的多少（放不下就把气泡缩小）
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
-  hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 闲着不点时自动亮的提示（seconds 秒后）；skillSeconds = 提示技能的金圈亮几秒 */
+  hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number; skillSeconds?: number };
+  /** 局内「接下来」预告（后面几缸要什么，docs/ux/route-2026-11-19.md 第 1 节）：从第几关起出 */
+  nextBowls?: { from: number };
   /** 难关、超难关的开局横幅（docs/ux/level-types.md）：滑进来几秒、停几秒、缩成小牌子飞过去几秒 */
   kindBanner: { slideIn: number; hold: number; fly: number };
   /** 连击目标的开局小卡（docs/01 9.4）：停几秒、飞到常驻小标上几秒 */

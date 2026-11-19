@@ -1,10 +1,11 @@
 // 选关（docs/01 5.7）。一页就是一个海域（20 关，4 列 × 5 行的格子）：标题是海域名，背景是这片海域的局内背景，
 // 左右翻页就是换海域（用户 2026-11-17；原来是一条从下往上的长路线，关卡多了不好翻）。
 // 已过关蓝色 + 绿勾；当前关绿色、会呼吸 +「当前」；挑战关紫色 + 小旗；没到的灰色带锁。打开时停在当前关那一页。
-import { EventTouch, Label, Node, Tween, Vec3, tween } from 'cc';
+import { EventTouch, Label, Node, Sprite, Tween, Vec3, tween } from 'cc';
 import * as Daily from '../core/meta/daily';
 import * as Meta from '../core/meta/meta';
 import * as Seas from '../core/meta/seas';
+import * as Stars from '../core/meta/stars';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
 import { today } from '../services/clock';
@@ -170,6 +171,16 @@ export class LevelsPage extends Page {
     }
     if (done) {
       at(img(holder, 'kit/ic_check', 40, 40, 'check'), NODE * 0.36, NODE * 0.36);
+      // 过了的关：圆牌下沿三颗小星，拿到几颗亮几颗（docs/01 9.5）。加星级之前过的关没有记录，按一颗算
+      const got = Math.max(1, Stars.best(s, n));
+      for (let i = 0; i < 3; i++) {
+        const st = img(holder, 'icon/star', 30, 30, `star${i}`);
+        at(st, (i - 1) * 30, -NODE * 0.5 + 4 + (i === 1 ? -5 : 0));
+        if (i >= got) {
+          (st.getComponent(Sprite) as Sprite).grayscale = true;
+          opacity(st).opacity = 150;
+        }
+      }
     } else if (cur) {
       const tag = slice(holder, 'kit/btn_yellow', 96, 40, 'current');
       at(tag, 0, -NODE * 0.5 + 2);

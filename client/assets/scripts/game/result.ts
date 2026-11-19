@@ -1,5 +1,6 @@
 // 过关结算页（定版图 13）。横幅砸下 → 三颗星依次点亮 → 金币数字滚动 → 宝箱晃动、弹开亮出奖品 → 按钮出现、
-// 「下一关」呼吸；点任意处跳到最终状态；全程 ≤ 3 秒（docs/09 第 6 节）。三颗星是过关演出，不是评级。
+// 「下一关」呼吸；点任意处跳到最终状态；全程 ≤ 3 秒（docs/09 第 6 节）。
+// 三颗星按成绩亮（docs/01 9.5）：一个道具都没用三颗；没拿到的星位留着、是灰的。第一次三星在奖励条里多一格。
 import { Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
 import * as Cards from '../core/meta/cards';
 import * as Settle from '../core/meta/settle';
@@ -61,8 +62,10 @@ export class ResultPage extends Page {
     const nextY = homeY + 140;
     const rowY = nextY + 175;
     const ribbonY = top - 270;
-    const chestY = (ribbonY - 100 + rowY + 85) / 2;
-    const chestS = Math.min(260, ribbonY - 100 - (rowY + 85) - 10);
+    // 横幅下面一行小字说星级（三星「完美」，没到三星告诉怎么拿），宝箱让出这一行
+    const noteY = ribbonY - 122;
+    const chestY = (noteY - 22 + rowY + 85) / 2;
+    const chestS = Math.min(260, noteY - 22 - (rowY + 85) - 10);
     // 宝箱图是箱底对齐的（开盖后盖子往上长），节点往上挪一点，箱体才在正中
     const chestC = chestY + chestS * 0.09;
 
@@ -72,6 +75,10 @@ export class ResultPage extends Page {
     const title = text(ribbon, tr('WIN_TITLE'), 80);
     at(title.node, 0, 14);
     fit(title, 470, 80, 44);
+    const got = d.stars ? d.stars.stars : 3;
+    const note = text(c, tr(got >= 3 ? 'RESULT_PERFECT' : 'RESULT_TRY_3STAR'), 30, { color: got >= 3 ? COLOR.yellow : COLOR.white, outline: COLOR.navy, outlineWidth: 4 });
+    at(note.node, 0, noteY);
+    fit(note, 640, 30, 20);
     const stars: Node[] = [];
     const starPos: [number, number][] = [0, 1, 2].map((i) => [(i - 1) * 170, top - 130 + (i === 1 ? 30 : 0)]);
     for (let i = 0; i < 3; i++) {
@@ -125,6 +132,16 @@ export class ResultPage extends Page {
     if (chestPrize && chestPrize.kind === 'coins') {
       extras.push(prizeCell(pill, { icon: 'icon/gift', amount: `+${chestPrize.coins}` }, 96));
     }
+    // 首次三星（docs/01 9.5）：奖章 + 金币一格，上面一行金色小字；送的技能各一格（送的卡和别的卡一起排在后面）
+    const f3 = d.stars?.first3;
+    if (f3) {
+      const cell = prizeCell(pill, { icon: 'icon/first3', amount: `+${f3.coins}` }, 96);
+      const cap = text(cell, tr('RESULT_FIRST_3STAR'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
+      at(cap.node, 0, 72);
+      fit(cap, 124, 20, 14);
+      extras.push(cell);
+      for (const id of f3.skills) extras.push(prizeCell(pill, { icon: `icon/skill_${id}`, amount: '×1' }, 96));
+    }
     for (const card of d.cards) extras.push(prizeCell(pill, cardItem(card), 96));
     if (r.first_win) extras.push(prizeCell(pill, { icon: 'icon/heart_inf', amount: tr('UI_MINUTES', Math.round(r.unlimited / 60)) }, 96));
     // 今天重玩的奖励领完了：金币那一格换成一句话；后面还有卡（连击送的）时，话放左边、卡排在右边，不叠在一起（用户 2026-11-17）
@@ -132,19 +149,22 @@ export class ResultPage extends Page {
     let firstW = coinW + 20;
     if (!r.rewarded) {
       coinCell.active = false;
-      const note = box('note', pill, 10, 150);
+      const noReward = box('note', pill, 10, 150);
       const maxW = extras.length > 0 ? 620 - extras.length * 128 : 600;
-      const l = text(note, tr('UI_REPLAY_NO_REWARD'), 34);
+      const l = text(noReward, tr('UI_REPLAY_NO_REWARD'), 34);
       fit(l, maxW, 34, 22);
       firstW = Math.min(maxW, textWidth(l)) + 24;
-      first = note;
+      first = noReward;
     }
     const all = [first, ...extras];
     const widths = all.map((_n, i) => (i === 0 ? firstW : 128));
     const total = widths.reduce((a, b) => a + b, 0);
+    // 格子多了（首次三星 + 技能 + 几张卡）一排放不下：整排等比缩小到奖励条里
+    const rowK = Math.min(1, 630 / total);
     let x = -total / 2;
     all.forEach((n, i) => {
-      at(n, x + widths[i] / 2, 0);
+      at(n, (x + widths[i] / 2) * rowK, 0);
+      n.setScale(rowK, rowK, 1);
       x += widths[i];
     });
     for (const e of extras) e.active = false;
@@ -212,7 +232,7 @@ export class ResultPage extends Page {
         st.setScale(1, 1, 1);
         st.angle = 0;
         at(st, starPos[i][0], starPos[i][1]);
-        opacity(st).opacity = 255;
+        opacity(st).opacity = i < got ? 255 : 0;
       });
       at(chest, 0, chestC);
       chest.setScale(1, 1, 1);
@@ -227,7 +247,7 @@ export class ResultPage extends Page {
       coinLabel.string = r.rewarded ? `+${r.coins}` : tr('UI_REPLAY_NO_REWARD');
       for (const e of extras) {
         e.active = true;
-        e.setScale(1, 1, 1);
+        e.setScale(rowK, rowK, 1);
       }
       buttons.forEach((b, i) => {
         b.active = true;
@@ -291,6 +311,8 @@ export class ResultPage extends Page {
       slot.setSiblingIndex(st.getSiblingIndex());
       st.active = true;
       opacity(st).opacity = 0;
+      // 没拿到的那颗：灰色星位留着，不飞、不响
+      if (i >= got) return;
       fx.delay(c, at0('starAt') + i * at0('starGap'), () => {
         if (!live()) return;
         at(st, 0, chestY);
@@ -339,7 +361,7 @@ export class ResultPage extends Page {
           sfx('chest');
           extras.forEach((e, i) => {
             e.active = true;
-            fx.popIn(e, 0.25 + i * 0.08, 0.25);
+            fx.popIn(e, 0.25 + i * 0.08, 0.25, rowK);
           });
         })
         .to(0.2, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
@@ -349,7 +371,7 @@ export class ResultPage extends Page {
         if (!live()) return;
         extras.forEach((e, i) => {
           e.active = true;
-          fx.popIn(e, i * 0.08, 0.25);
+          fx.popIn(e, i * 0.08, 0.25, rowK);
         });
       });
     }
@@ -426,7 +448,7 @@ export class ResultPage extends Page {
     // 常驻：星星周围隔一会闪一颗星光（演出播完、跳过之后都在）
     const twinkle = () => {
       if (!c.activeInHierarchy) return;
-      const [sx, sy] = starPos[Math.floor(Math.random() * 3)];
+      const [sx, sy] = starPos[Math.floor(Math.random() * Math.max(1, got))];
       fx.sparkle(c, sx + (Math.random() - 0.5) * 110, sy + (Math.random() - 0.5) * 90, 3, 44, COLOR.yellow, 28);
       fx.delay(c, 0.5 + Math.random() * 0.5, twinkle);
     };
