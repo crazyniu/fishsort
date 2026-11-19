@@ -2240,7 +2240,7 @@ export class GamePage extends Page {
 
   /**
    * 掉落关「下一个落下」预告（docs/01 9.3「看得到才公平」）：暂存槽右边（4 格时）一个小气泡，里面是候场队头那个气泡装的鱼
-   * （迷雾泡画问号），上面一行小字「接下来」。队头换了就换一个；候场的落完了收起来
+   * （迷雾泡画问号），上面一行小字「下一泡」。队头换了就换一个；候场的落完了收起来
    */
   private syncDrop(animate: boolean): void {
     const s = this.s;
@@ -2262,7 +2262,8 @@ export class GamePage extends Page {
     const node = img(this.stage, 'kit/bubble_small', S, S, 'dropNext');
     if (beside) at(node, Screen.W / 2 - 14 - S / 2, this.bufferY - 8);
     else at(node, Screen.W / 2 - 24 - S / 2, this.fieldTop - S / 2 - 26);
-    const cap = text(node, tr('UI_NEXT_TANKS'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
+    // 不和缸的预告共用「接下来」：两块挨得近，分不清哪个说的是缸、哪个说的是气泡
+    const cap = text(node, tr('UI_NEXT_DROP'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
     at(cap.node, 0, S / 2 + 10);
     fit(cap, S + 30, 20, 14);
     const b = s.bubbles[idx];
