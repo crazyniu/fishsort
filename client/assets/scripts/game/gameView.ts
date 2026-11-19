@@ -954,7 +954,7 @@ export class GamePage extends Page {
     // 数字：游戏字体、白字深蓝描边，压在相片的右下角（不出相片的白边）
     const tagLabel = text(tag, `0/${cap}`, 38, { outline: COLOR.navy, outlineWidth: 5 });
     at(tagLabel.node, GOAL_W * 0.17, -GOAL_H * 0.2);
-    fit(tagLabel, GOAL_W * 0.5, 38, 26);
+    fit(tagLabel, GOAL_W * 0.56, 38, 26);
     let timerNode: Node | null = null;
     let timerLabel: Label | null = null;
     if (timer !== NO_TIMER) {
@@ -986,7 +986,7 @@ export class GamePage extends Page {
   private bumpTag(view: BowlView): void {
     view.got = Math.min(view.cap, view.got + 1);
     view.tagLabel.string = `${view.got}/${view.cap}`;
-    fit(view.tagLabel, GOAL_W * 0.5, 38, 26);
+    fit(view.tagLabel, GOAL_W * 0.56, 38, 26);
     fx.punch(view.tag, 1.18, 0.22);
   }
 
