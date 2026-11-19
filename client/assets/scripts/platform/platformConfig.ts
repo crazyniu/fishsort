@@ -15,7 +15,7 @@ export interface PlatformConfig {
   languages?: { app?: string[]; wechat?: string[] };
   /** 广告总开关（game.json 的 ads.enabled）：false = 三端都没有广告 */
   adsEnabled: boolean;
-  /** 难度调试页开不开（game.json 的 levelLab，上架前关掉） */
+  /** 难度调试页：开发版才有（PlatformBase.isDevBuild）；写 false 连开发版也不出 */
   levelLab?: boolean;
   ads: Record<string, AdUnits>;
 }

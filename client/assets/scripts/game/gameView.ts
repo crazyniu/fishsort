@@ -33,6 +33,8 @@ import { CARD_ASPECT, RARITY_GLOW, miniCard, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
+import { lab } from '../devtools/levelLab';
+import { labBuffer } from './labHooks';
 
 export interface GameArg {
   level: number;
@@ -277,11 +279,11 @@ export class GamePage extends Page {
     this.s = GameState.fromLevel(this.lv);
     // 测试包的整体难度档（设置 → 难度调试，docs/01 9.7）：暂存槽多一格 / 少一格
     // 演示按关卡原样打（暂存槽、缸位都照关卡文件），参考解才对得上
-    if (App.levelLab && !this.arg.demo) this.s.bufferCap = config.labBuffer(this.s.bufferCap);
+    if (lab.enabled && !this.arg.demo) this.s.bufferCap = labBuffer(this.s.bufferCap);
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
     this.s.clock = this.arg.daily || this.arg.demo ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
     // 连输 4 次送第 3 缸位（docs/01 5.7）；调试页换了档的关不送：试的就是这一档原样的难度
-    if (!this.arg.daily && !this.arg.demo && !config.lab.has(file)) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
+    if (!this.arg.daily && !this.arg.demo && !lab.picks.has(file)) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 加开的缸只装一缸就收走（docs/01 2.4）
     this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）

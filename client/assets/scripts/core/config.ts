@@ -325,6 +325,8 @@ export interface GameUiConfig {
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
   /** 难度调试页的演示：每一步圈出要点的鱼后停 ring 秒再点（正常打法走错的那一步停 fatal 秒），点完隔 gap 秒圈下一条 */
   demo: { ring: number; gap: number; fatal: number };
+  /** 难度调试页的整体三档（开发版，docs/01 9.7）：下标 = 档 + 1（困难、标准、简单）；buffer 暂存槽加减几格，window 连击窗口秒数（0 = 照 economy.json） */
+  labTiers: { buffer: number; window: number }[];
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number; maxLeft: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */

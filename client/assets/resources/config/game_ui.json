@@ -50,6 +50,11 @@
    "interval": 0.2,
    "maxLeft": 3
  },
+ "labTiers": [
+  {"buffer": -1, "window": 1.5},
+  {"buffer": 0, "window": 0},
+  {"buffer": 1, "window": 2.5}
+ ],
  "demo": {
   "ring": 0.45,
   "gap": 0.3,

@@ -2,19 +2,8 @@
 import { JsonAsset, resources } from 'cc';
 import type { AdsConfig, CurveConfig, EconomyConfig, GameUiConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
-import type { PlatformBase } from '../platform/platformBase';
+import { lab } from '../devtools/levelLab';
 import type { Eye } from '../ui/alive';
-
-/** 难度调试页生成的关卡、整体难度档存在本机的哪个键下 */
-// 第二版（按「正常打法过关率」分档）换了键：第一版按容错挑的档都是要读心才过得去的，不再沿用
-const LAB_KEY = 'lab_levels2';
-const LAB_TIER_KEY = 'lab_tier';
-/** 整体难度档（docs/01 9.7）：暂存槽多几格、连击窗口几秒；下标 = 档 + 1（-1 困难、0 标准、1 简单） */
-const LAB_TIERS = [
-  { buffer: -1, window: 1.5 },
-  { buffer: 0, window: 0 },
-  { buffer: 1, window: 2.5 },
-];
 
 function describe(v: unknown): string {
   if (typeof v !== 'object' || v === null) return String(v);
@@ -68,66 +57,11 @@ export class Config {
     return this.curve.total;
   }
 
-  /**
-   * 难度调试页选的版本（pages/lab.ts）：顶替包里同一关的文件（本体和变体都换成它），存在本机，重开游戏还在。
-   * 只有 game.json 开了 levelLab 才会读。ver = 选的是哪一档（随手点的玩家过关率的档，10 一档）
-   */
-  readonly lab = new Map<number, { lv: LevelData; ver: number }>();
-
-  /**
-   * 每关收紧时存下的各档（tools/level/route.ts --lab，config/levels_lab/index.json）：
-   * 关卡号 → { base 包里用的是哪一档, target 这一关的目标（%）, 档: { natural 正常打法（随手点）能过 %, think 想清楚能过 %, run 路线最长连击 } }
-   */
-  labIndex: Record<string, { base: number; target: number; versions: Record<string, { natural: number; think: number; run: number }> }> = {};
-
-  async loadLabIndex(): Promise<void> {
-    this.labIndex = await loadJson<typeof this.labIndex>('config/levels_lab/index').catch(() => ({}));
-  }
-
-  /** 读第 id 关的 ver 那一档 */
-  async loadLabVersion(id: number, ver: number): Promise<LevelData> {
-    return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_lab/level_${pad(id)}_p${ver}`));
-  }
-
-  /** 整体难度档：-1 困难、0 标准、1 简单（调试页设，存在本机） */
-  labTier = 0;
-  private comboWindow = 0;
-
-  /** 暂存槽按整体难度档多几格（局内建 GameState 后、摆版面前调） */
-  labBuffer(cap: number): number {
-    return Math.max(1, Math.min(7, cap + LAB_TIERS[this.labTier + 1].buffer));
-  }
-
-  setLabTier(tier: number, platform: PlatformBase): void {
-    this.labTier = Math.max(-1, Math.min(1, Math.round(tier)));
-    if (this.comboWindow === 0) this.comboWindow = this.eco.combo.windowSeconds;
-    const w = LAB_TIERS[this.labTier + 1].window;
-    this.eco.combo.windowSeconds = w > 0 ? w : this.comboWindow;
-    platform.saveData(LAB_TIER_KEY, String(this.labTier));
-  }
-
-  loadLab(platform: PlatformBase): void {
-    const t = Number(platform.loadData(LAB_TIER_KEY) || '0');
-    this.setLabTier(Number.isFinite(t) ? t : 0, platform);
-    try {
-      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, { lv: Record<string, unknown>; ver: number }>;
-      for (const id of Object.keys(raw)) this.lab.set(Number(id), { lv: LevelData.fromDict(raw[id].lv), ver: Number(raw[id].ver) });
-    } catch {
-      this.lab.clear();
-    }
-    void this.loadLabIndex();
-  }
-
-  saveLab(platform: PlatformBase): void {
-    const out: Record<string, unknown> = {};
-    for (const [id, v] of this.lab) out[String(id)] = { lv: v.lv.toDict(), ver: v.ver };
-    platform.saveData(LAB_KEY, JSON.stringify(out));
-  }
-
   /** 读关卡文件；ease > 0 时取易化变体，没有就退回普通版 */
   async loadLevel(fileId: number, ease: number): Promise<LevelData> {
-    const custom = this.lab.get(fileId);
-    if (custom) return LevelData.fromDict(custom.lv.toDict());
+    // 开发版难度调试页挑了档的关（devtools/levelLab.ts）：本体和变体都换成挑的那一档
+    const custom = lab.override(fileId);
+    if (custom) return LevelData.fromDict(custom);
     const base = `config/levels/level_${pad(fileId)}`;
     let raw: Record<string, unknown>;
     try {

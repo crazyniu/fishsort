@@ -24,6 +24,17 @@ export class PlatformWechat extends PlatformBase {
   private banner: any = null;
   private title = '';
 
+  /** 微信的开发版（开发者工具、扫码预览）和体验版也算开发版；正式版不算 */
+  override isDevBuild(): boolean {
+    if (super.isDevBuild()) return true;
+    try {
+      const env = wx.getAccountInfoSync().miniProgram.envVersion;
+      return env === 'develop' || env === 'trial';
+    } catch {
+      return false;
+    }
+  }
+
   override async init(): Promise<void> {
     const cfg = await loadPlatformConfig();
     this.units = adUnits(cfg, 'wechat');

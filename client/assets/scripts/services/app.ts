@@ -11,8 +11,6 @@ export class App {
   static config: Config;
   static save: Save;
   static flags: LaunchFlags;
-  /** 设置里有没有「难度调试」（game.json 的 levelLab；Boot 读到平台配置后填） */
-  static levelLab = false;
 
   /**
    * 能点开的最高一关：平时是存档进度；试玩模式（./run.sh 不带 real）所有关都能点开，进度本身不改

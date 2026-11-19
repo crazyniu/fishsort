@@ -7,7 +7,9 @@ import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { AdTestPage } from './pages/adtest';
-import { LabPage } from './pages/lab';
+import { LabPage } from './devtools/labPage';
+import { lab } from './devtools/levelLab';
+import { applyTier, labHooks } from './game/labHooks';
 import { PlatformDebug } from './platform/platformDebug';
 import { mockAdView } from './ui/mockAd';
 import { CollectPage } from './pages/collect';
@@ -87,8 +89,8 @@ export class Boot extends Component {
           view.setLanguage(lang, App.platform.hasCapability('health_notice'));
           void loadPlatformConfig().then((c) => {
             view.setVersion(c.version);
-            App.levelLab = c.levelLab === true;
-            if (App.levelLab) App.config.loadLab(App.platform);
+            // 难度调试页：开发版才有（正式版自动不出，代码留着），game.json 的 levelLab 写 false 可以连开发版也关掉
+            if (c.levelLab !== false && App.platform.isDevBuild()) lab.init(App.platform, applyTier);
           });
         },
       ],
@@ -162,7 +164,7 @@ export class Boot extends Component {
     ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new WheelPage());
     ui.register('adtest', () => new AdTestPage());
-    ui.register('lab', () => new LabPage());
+    ui.register('lab', () => new LabPage(labHooks));
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
     if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups, fitLog, setLanguage: switchLanguage };

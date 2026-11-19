@@ -58,7 +58,7 @@ write(
     languages: { app: game.languages.app, wechat: game.languages.wechat },
     adsEnabled: adsOn,
     // 难度调试页（设置里的入口）开不开：测试包开着，上架前关掉
-    levelLab: game.levelLab === true,
+    levelLab: game.levelLab !== false,
     ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat },
   }),
 );
