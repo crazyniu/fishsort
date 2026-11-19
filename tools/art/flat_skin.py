@@ -26,6 +26,7 @@
   f_hud        局内顶上的信息条：半透明深蓝的圆头小条（三宫格）
   f_dot        红点
   f_check      完成的对勾（绿色圆片 + 白勾）
+  f_tag_hard / f_tag_boss  难关、超难关的小牌子（三宫格，docs/ux/level-types.md）
   f_g_*        平面的白色图标（放在白色容器里时由界面染成蓝色）：加号、齿轮、返回箭头、叉、摄像机（看广告）、分享、音符、喇叭、震动、地球、秒表、小鱼
 三宫格的边距写进 client/tools/art/slices_skin.json。用法：python3 tools/art/flat_skin.py [输出目录]
 """
@@ -65,7 +66,9 @@ TRACK = (15, 55, 140, 190)
 TRACK_LIGHT = '#D3E1F4'
 FILLS = {'green': '#43CF2F', 'yellow': '#FFC531', 'blue': '#4DA3FF', 'purple': '#A066F5'}
 SHELF = ('#EBAA5C', '#B9762F')
-NODES = {'green': ('#43CF2F', '#268F1B'), 'blue': ('#3F8DFF', '#1E55C4'), 'purple': ('#A066F5', '#6B3CC4'), 'gray': ('#B4C0CF', '#8894A8')}
+NODES = {'green': ('#43CF2F', '#268F1B'), 'blue': ('#3F8DFF', '#1E55C4'), 'purple': ('#A066F5', '#6B3CC4'), 'gray': ('#B4C0CF', '#8894A8'), 'orange': ('#FF7A3D', '#C2410C')}
+# 难关 / 超难关的小牌子（docs/ux/level-types.md）：平面纯色圆头小条
+TAGS = {'hard': '#FF7A3D', 'boss': '#8E5CF7'}
 RIBBON = ('#F2553E', '#BC3320')
 # 收藏卡：卡框的面、下边，窗口里的底色
 RARITY = {
@@ -348,6 +351,8 @@ def main() -> None:
     save('f_dot', dot(96, *DOT))
     save('f_g_plus', glyph_plus(192))
     save('f_g_gear', glyph_gear(192))
+    for name, color in TAGS.items():
+        save(f'f_tag_{name}', flat(w3, H, color, 0.5), True)
     for name, fn in (('back', g_back), ('x', g_x), ('video', g_video), ('share', g_share), ('music', g_music), ('sound', g_sound), ('vibrate', g_vibrate), ('globe', g_globe), ('timer', g_timer), ('fish', g_fish)):
         save(f'f_g_{name}', glyph(192, fn))
     save('f_check', check_badge(192))

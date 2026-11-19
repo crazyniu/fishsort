@@ -6,6 +6,7 @@ import type { EconomyConfig, Species } from '../assets/scripts/core/config';
 import * as Album from '../assets/scripts/core/meta/album';
 import * as Cards from '../assets/scripts/core/meta/cards';
 import { Combo } from '../assets/scripts/core/meta/combo';
+import * as ComboGoal from '../assets/scripts/core/meta/comboGoal';
 import * as Daily from '../assets/scripts/core/meta/daily';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Dex from '../assets/scripts/core/meta/dex';
@@ -21,7 +22,7 @@ import * as Skills from '../assets/scripts/core/meta/skills';
 import * as Wheel from '../assets/scripts/core/meta/wheel';
 import * as WeeklyRank from '../assets/scripts/core/meta/weeklyRank';
 import { Rng } from '../assets/scripts/core/rng/rng';
-import { ads, curve, eco as loadEco, species as loadSpecies } from './helpers';
+import { ads, curve, eco as loadEco, level, species as loadSpecies } from './helpers';
 
 const T0 = 1_000_000;
 const NOW = 3_000_000;
@@ -752,5 +753,30 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.equal(Skills.canUse(save, eco, 'blow', 3, 125), 'limit');
     save.tools.blow = 0;
     assert.equal(Skills.canUse(save, eco, 'blow', 0, 125), 'empty');
+  });
+});
+
+describe('连击目标（docs/01 9.4）', () => {
+  it('N = 参考解最长连击的七成半，第 6 关前没有；达到后第一次通关给卡（收藏开放）或金币', () => {
+    // 一条路线连着 9 下（三缸各三条，中间不进暂存槽）：N = floor(9 × 0.75) = 6
+    const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    lv.ref = [
+      [0, 0], [0, 1], [0, 2],
+      [1, 0], [1, 1], [1, 2],
+      [2, 0], [2, 1], [2, 2],
+    ];
+    assert.equal(ComboGoal.goalFor(lv, ECO, 5), 0, '新手期没有');
+    assert.equal(ComboGoal.goalFor(lv, ECO, 10), 6);
+    lv.ref = [];
+    assert.equal(ComboGoal.goalFor(lv, ECO, 10), 0, '没有参考解就不出目标');
+    const save = PlayerData.create(ECO);
+    const before = save.coins;
+    const r = ComboGoal.grant(save, ECO, 'hard', [], new Rng(1), false);
+    assert.deepEqual(r, { card: null, coins: 40 });
+    assert.equal(save.coins, before + 40);
+    const pool = loadSpecies();
+    const c = ComboGoal.grant(save, ECO, 'boss', pool, new Rng(2), true);
+    assert.ok(c.card !== null && c.coins === 0);
+    assert.equal(c.card?.rarity, 'rare', '超难关给稀有卡');
   });
 });

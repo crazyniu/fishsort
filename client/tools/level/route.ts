@@ -16,6 +16,7 @@ import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import { generate } from '../../assets/scripts/core/gen/levelGen';
 import { bucket, longestRun, tighten } from '../../assets/scripts/core/gen/routeGen';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
+import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
 import * as Players from '../../assets/scripts/core/solver/players';
 import * as Route from '../../assets/scripts/core/solver/route';
 
@@ -90,6 +91,23 @@ interface Ver {
   think: number;
   run: number;
 }
+/**
+ * 参考解要过结构校验（LevelCheck.errors：回放能赢、冰封泡落下时依赖泡还没破……）。想清楚的玩家赢下来的第一条不行，
+ * 就换种子再打几局、找一条行的；都不行返回 null（这一档不要）
+ */
+const validRoute = (lv: LevelData, first: readonly [number, number][]): [number, number][] | null => {
+  const ok = (r: readonly [number, number][]) => {
+    const c = LevelData.fromDict(lv.toDict());
+    c.ref = r.map((t) => [t[0], t[1]] as [number, number]);
+    return LevelCheck.errors(c).length === 0;
+  };
+  if (ok(first)) return first.slice() as [number, number][];
+  for (let g = 0; g < 30; g++) {
+    const p = Players.play(lv, 'think', 5000 + g, { preview });
+    if (p.won && ok(p.taps)) return p.taps;
+  }
+  return null;
+};
 const all: Ver[] = [];
 const start = lv;
 let tries = 0;
@@ -100,9 +118,10 @@ for (let attempt = 0; attempt < 3; attempt++) {
     const casual = Players.rate(snap.lv, 'casual', rc.checkCasual, { preview }, 1000).win;
     const think = Players.rate(snap.lv, 'think', rc.checkThink, { preview }, 1000).win;
     // 参考解换成想清楚的玩家赢下来的那条（看得见的信息走得出来；交换过鱼以后生成时的参考解也不对了）
-    snap.lv.ref = snap.m.route.slice();
-    const run = longestRun(snap.lv, snap.m.route);
-    const tag = think < floor - 0.05 ? '（想清楚的复量不够，不要）' : '';
+    const route = validRoute(snap.lv, snap.m.route);
+    if (route) snap.lv.ref = route;
+    const run = route ? longestRun(snap.lv, route) : 0;
+    const tag = think < floor - 0.05 ? '（想清楚的复量不够，不要）' : route === null ? '（找不到过结构校验的参考解，不要）' : '';
     console.log(`  [${attempt + 1}] 随手点 ${Math.round(casual * 100)}%  想清楚 ${Math.round(think * 100)}%  路线最长连击 ${run}${tag}`);
     if (!tag) all.push({ pct: bucket(casual), lv: snap.lv, casual, think, run });
   }

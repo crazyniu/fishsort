@@ -30,6 +30,9 @@ import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
 import { confirmLeave, giftPopup, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
 import type { GamePage } from './gameView';
+import * as ComboGoal from '../core/meta/comboGoal';
+import { levelKind } from './levelKind';
+import * as Features from '../core/meta/features';
 
 const rng = new Rng(Date.now() >>> 0);
 
@@ -86,7 +89,11 @@ export function onLevelStart(g: GamePage): void {
     ui.toast(g.arg.demo === 'route' ? '电脑按关卡里存的路线打，不用道具；金圈是下一步要点的鱼' : '电脑按「正常打法」打一局，每次走法都不一样');
     return;
   }
-  if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
+  if (App.flags.autoplay && !g.arg.daily) {
+    g.showIntro();
+    return;
+  }
+  if (g.arg.daily) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
   // 到了一片新海域的第一关：先介绍这片海域（背景、名字、这里新出的鱼），第一片海域不弹（docs/01 5.0）
@@ -106,7 +113,8 @@ export function onLevelStart(g: GamePage): void {
   }
   const show = (i: number) => {
     const key = tips[i];
-    if (key === undefined) return;
+    // 说明都看完了：难关、超难关出开局横幅
+    if (key === undefined) return g.showIntro();
     if (PlayerData.tipSeen(s, key)) return show(i + 1);
     PlayerData.markTip(s, key);
     App.save.write();
@@ -663,6 +671,13 @@ export function win(g: GamePage): void {
     combo_coins: g.combo.coins,
     best_combo: g.combo.best,
   });
+  // 连击目标（docs/01 9.4）：第一次通关、这一关里连到过 N，给这一种关的奖励（卡进结算页的开卡，金币算进过关金币）
+  if (g.comboGoal > 0 && g.combo.best >= g.comboGoal && !result.replay) {
+    const albumOpen = Features.isUnlocked(eco, 'album', s.level);
+    const rw = ComboGoal.grant(s, eco, levelKind(g.arg.level), Album.pool(eco, App.config.species, s.level), rng, albumOpen);
+    if (rw.card) pendingCards.push(rw.card);
+    else result.coins += rw.coins;
+  }
   // 宝箱按开局定好的结果入账（开出卡的话就是关卡里救下的那只稀客，docs/01 3.4）
   const chest = result.chest_ok
     ? g.chestPlan

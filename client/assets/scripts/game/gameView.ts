@@ -25,7 +25,7 @@ import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
-import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint } from '../ui/kit';
+import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint, plate } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
@@ -35,6 +35,8 @@ import { Field } from './field';
 import * as Flow from './flow';
 import { lab } from '../devtools/levelLab';
 import { labBuffer } from './labHooks';
+import { KIND_STYLE, kindBanner, kindTag, levelKind } from './levelKind';
+import * as ComboGoal from '../core/meta/comboGoal';
 
 export interface GameArg {
   level: number;
@@ -217,6 +219,14 @@ export class GamePage extends Page {
   private demoArmed = false;
   /** 正常打法演示：第几步（下标）点完就不用道具过不去了，-1 = 没有 */
   demoFatal = -1;
+  /** 连击目标（docs/01 9.4）：N（0 = 这一关没有）、达到了没有、木架下面最右边的常驻小标、连击计后面的「/N」 */
+  comboGoal = 0;
+  goalReached = false;
+  private goalPill: Capsule | null = null;
+  private goalTail: Label | null = null;
+  /** 顶栏的难关小牌子、开局横幅（docs/ux/level-types.md） */
+  private kindTagNode: Node | null = null;
+  private kindBannerNode: Node | null = null;
   private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
@@ -289,6 +299,10 @@ export class GamePage extends Page {
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
     // 先挑这片海域的，凑不够再从前面的海域借（docs/01 5.0）
     this.species = species;
+    // 连击目标：每日挑战、演示、重打（第一次通关才给）都没有
+    const replay = this.arg.level < save.data.level;
+    this.comboGoal = this.arg.daily || this.arg.demo || replay ? 0 : ComboGoal.goalFor(this.lv, eco, this.arg.level);
+    this.goalReached = false;
     this.combo = new Combo();
     this.comboTier = -1;
     this.comboBreaking = false;
@@ -370,18 +384,14 @@ export class GamePage extends Page {
       // 中间那块（关卡号 / 倒计时）尽量居中；鱼多的关鱼数条长，碰到它就往右让，但不过胶囊左边的圆按钮
       progressRight = x0 + gearW + 10 + realW;
       // 固定 30 号（和旁边鱼数的字差不多大）：按全部 360 关量过，鱼最多的关（114 条）关卡号也放得下，不用缩字
-      const lv = text(this.stage, levelName, 30);
-      at(lv.node, midX(textWidth(lv)), hudY);
-      lv.node.active = !timed;
+      this.levelTitle(levelName, hudY, midX, timed);
     } else {
       // 和微信一样：关卡号去掉底板、居中（在刘海下面），限时关中间放倒计时、关卡号不显示；进度在左、设置在右（用户 2026-11-18）
       this.progress = capsule(this.stage, 196, 66, 'kit/ic_fish', '', 34, 'skin/f_hud', `${this.total}/${this.total}`);
       const realW = (this.progress.node.getComponent(UITransform) as UITransform).width;
       at(this.progress.node, -Screen.W / 2 + 24 + realW / 2, hudY);
       progressRight = -Screen.W / 2 + 24 + realW;
-      const lv = text(this.stage, levelName, 30);
-      at(lv.node, midX(textWidth(lv)), hudY);
-      lv.node.active = !timed;
+      this.levelTitle(levelName, hudY, midX, timed);
     }
     // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
     this.clockCap = null;
@@ -447,6 +457,17 @@ export class GamePage extends Page {
       onTap(plus, () => Flow.unlockSlot(this));
       this.plusNodes.push(plus);
       this.bowls.push(null);
+    }
+    // 连击目标的常驻小标：最右边那个缸位下面的目标卡位置（平时只开 2 个缸，这里空着；开到第 4 个缸就收起来）
+    this.goalPill = null;
+    if (this.comboGoal > 0) {
+      const pill = capsule(this.stage, 150, 56, this.goalIcon(), '', 26, 'skin/f_hud', `${this.comboGoal}/${this.comboGoal}`);
+      at(pill.node, this.bowlX[MAX_SLOTS - 1], this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H / 2);
+      const cap = text(pill.node, tr('UI_COMBO_WORD'), 20, { color: COLOR.yellow });
+      at(cap.node, 0, 44);
+      pill.set(`0/${this.comboGoal}`);
+      pill.node.active = this.s.openSlots < MAX_SLOTS;
+      this.goalPill = pill;
     }
 
     // 暂存槽
@@ -630,6 +651,7 @@ export class GamePage extends Page {
 
   private tapFish(b: number, k: number): void {
     if (this.arg.demo) return;
+    if (this.kindBannerNode) this.dismissKindBanner();
     if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing || this.field.spinning) return;
     if (this.netMode) {
       ui.toast(tr('UI_NET_HINT'));
@@ -767,6 +789,7 @@ export class GamePage extends Page {
           opened.add(e.slot as number);
           const plus = this.plusNodes[e.slot as number];
           if (plus) plus.active = false;
+          if (this.goalPill && (e.slot as number) === MAX_SLOTS - 1) this.goalPill.node.active = false;
           break;
         }
         case 'slot_close': {
@@ -1155,8 +1178,10 @@ export class GamePage extends Page {
   private hitCombo(bowlX = 0): void {
     if (this.ended) return;
     const eco = App.config.eco;
-    const cardsOpen = Features.isUnlocked(eco, 'album', App.save.data.level);
+    // 连击送卡的掷骰子只留给每日挑战；主线关卡换成开局就告诉你的连击目标（docs/01 9.4）
+    const cardsOpen = this.arg.daily === true && Features.isUnlocked(eco, 'album', App.save.data.level);
     const r = this.combo.hit(this.clock, eco.combo, this.rng, cardsOpen);
+    this.goalProgress();
     // 声音：每一击升一个音；震动：每一击轻震一下（docs/01 3.2：画面、声音、震动一起升级）
     // 进缸本身的声音在 arrive 里（每条鱼都有）；连击起算后每一击再叠一声逐级升调的「叮」，震动每一击轻震一下
     if (r.tier >= 0) sfx('hit', r.count - eco.combo.startAt);
@@ -1173,9 +1198,14 @@ export class GamePage extends Page {
     this.comboBreaking = false;
     this.showCombo(true);
     const dw = artNumber(this.comboNum, `×${r.count}`, 88, 'left');
-    const groupW = this.comboWordW + 16 + dw;
+    // 连击目标还没到：数字后面跟一个小一号的「/N」
+    const tail = this.comboTailLabel();
+    tail.string = this.comboGoal > 0 && !this.goalReached ? `/${this.comboGoal}` : '';
+    const tw = tail.string ? textWidth(tail) + 6 : 0;
+    const groupW = this.comboWordW + 16 + dw + tw;
     at(this.comboWord, -groupW / 2, 0);
     at(this.comboNum, -groupW / 2 + this.comboWordW + 16, 0);
+    at(tail.node, -groupW / 2 + this.comboWordW + 16 + dw + 6, -14);
     // 连击金币：每次涨了从连击计右边飘一个「金币 +N」
     if (r.coins > 0) {
       const cl = text(null, `+${r.coins}`, 28, { color: COLOR.yellow });
@@ -1586,6 +1616,133 @@ export class GamePage extends Page {
    * 收尾自动入缸（docs/01 第 2 节）：只剩「无脑点」的最后几个气泡时，自己一条条送进缸，玩家不用再点。
    * 局面一变就重算一次（AutoFinish.plan，纯规则）；算出来以后等一小会儿（让上一步的动画走完）再按顺序点，每条之间隔一点
    */
+  /**
+   * 顶栏的关卡号：难关、超难关描边换色，右边挂同色小牌子（火苗「困难」/ 鲨鱼鳍「超难」，docs/ux/level-types.md）。
+   * 关卡号和小牌子当一组居中，碰到左边的鱼数条一起往右让
+   */
+  private levelTitle(levelName: string, hudY: number, midX: (w: number) => number, timed: boolean): void {
+    const kind = this.arg.daily ? 'normal' : levelKind(this.arg.level);
+    const lv = text(this.stage, levelName, 30, kind === 'normal' ? {} : { outline: KIND_STYLE[kind].outline });
+    const tw = textWidth(lv);
+    this.kindTagNode = null;
+    if (kind === 'normal') {
+      at(lv.node, midX(tw), hudY);
+      lv.node.active = !timed;
+      return;
+    }
+    const tag = kindTag(this.stage, kind, 40);
+    const tagW = (tag.getComponent(UITransform) as UITransform).width;
+    const total = tw + 8 + tagW;
+    const x0 = midX(total) - total / 2;
+    at(lv.node, x0 + tw / 2, hudY);
+    at(tag, x0 + tw + 8 + tagW / 2, hudY);
+    lv.node.active = !timed;
+    tag.active = !timed;
+    this.kindTagNode = tag;
+  }
+
+  /** 连击目标的奖励图标：收藏开放后给卡（卡背），之前给金币 */
+  private goalIcon(): string {
+    return Features.isUnlocked(App.config.eco, 'album', App.save.data.level) ? 'icon/card_back' : 'icon/coin';
+  }
+
+  private comboTailLabel(): Label {
+    if (!this.goalTail || !this.goalTail.node.isValid) {
+      this.goalTail = text(this.comboBadge, '', 40, { align: 'left', color: COLOR.yellow });
+    }
+    return this.goalTail;
+  }
+
+  /** 每次命中：常驻小标写到目前为止最高连到几；第一次够到目标时小标变金、闪一下，夸一句 */
+  private goalProgress(): void {
+    const n = this.comboGoal;
+    if (n <= 0 || this.goalReached || !this.goalPill) return;
+    const best = Math.min(this.combo.best, n);
+    this.goalPill.set(`${best}/${n}`);
+    if (best < n) return;
+    this.goalReached = true;
+    const pill = this.goalPill;
+    pill.label.color = COLOR.yellow;
+    fx.squash(pill.node, 1.25);
+    fx.sparkle(this.fly, pill.node.position.x, pill.node.position.y, 14, 120, COLOR.yellow, 30);
+    sfx('star');
+    this.praise(tr('UI_COMBO_GOAL_DONE'), App.config.eco.combo.tiers.length - 1, COLOR.yellow);
+  }
+
+  /** 进关说明之后：难关、超难关先出横幅，接着出连击目标的开局小卡 */
+  showIntro(): void {
+    const kind = this.arg.daily || this.arg.demo ? 'normal' : levelKind(this.arg.level);
+    if (kind === 'normal') {
+      this.showGoalCard();
+      return;
+    }
+    this.showKindBanner();
+    const b = App.config.ui.kindBanner;
+    fx.delay(this.fly, b.slideIn + b.hold + b.fly, () => this.showGoalCard());
+  }
+
+  /**
+   * 开局小卡（docs/ux/route-2026-11-19.md 第 2 节）：屏幕中间一张半透明深蓝小卡「连击 ×N → 奖励图标」，
+   * 下面一行「第一次过关时达到就送」；停一会儿缩小飞到木架下面的常驻小标上。不挡点击，点鱼照常算
+   */
+  private showGoalCard(): void {
+    const pill = this.goalPill;
+    if (this.comboGoal <= 0 || this.ended || !pill) return;
+    const card = plate(this.fly, 'skin/f_hud', 520, 150, 'goalCard');
+    const title = text(card, tr('UI_COMBO_GOAL', this.comboGoal), 44, { align: 'left' });
+    const tw = textWidth(title);
+    const row = tw + 24 + 30 + 24 + 72;
+    at(title.node, -row / 2, 22);
+    const arrow = text(card, '→', 40);
+    at(arrow.node, -row / 2 + tw + 24 + 15, 22);
+    at(img(card, this.goalIcon(), 72, 72, 'reward'), row / 2 - 36, 22);
+    at(text(card, tr('UI_COMBO_GOAL_HINT'), 24, { color: COLOR.yellow }).node, 0, -40);
+    at(card, 0, Screen.H * 0.1);
+    fx.popIn(card, 0, 0.25);
+    const g = App.config.ui.goalCard;
+    tween(card)
+      .delay(g.hold)
+      .to(g.fly, { position: pill.node.position.clone(), scale: new Vec3(0.25, 0.25, 1) }, { easing: 'quadIn' })
+      .call(() => {
+        card.destroy();
+        if (pill.node.isValid) fx.squash(pill.node, 1.2);
+      })
+      .start();
+  }
+
+  /** 难关、超难关的开局横幅：从左滑进来、停一下、缩成顶上的小牌子飞过去；点鱼会让它马上收起（不挡点击） */
+  showKindBanner(): void {
+    const kind = this.arg.daily || this.arg.demo ? 'normal' : levelKind(this.arg.level);
+    if (kind === 'normal' || this.ended) return;
+    const b = kindBanner(this.stage, kind);
+    this.kindBannerNode = b;
+    const y = Screen.H * 0.12;
+    at(b, -Screen.W, y);
+    sfx('warn');
+    const cfg = App.config.ui.kindBanner;
+    tween(b)
+      .to(cfg.slideIn, { position: new Vec3(0, y, 0) }, { easing: 'backOut' })
+      .delay(cfg.hold)
+      .call(() => this.dismissKindBanner())
+      .start();
+  }
+
+  private dismissKindBanner(): void {
+    const b = this.kindBannerNode;
+    if (!b || !b.isValid) return;
+    this.kindBannerNode = null;
+    Tween.stopAllByTarget(b);
+    const tag = this.kindTagNode;
+    const to = tag && tag.isValid && tag.active ? tag.position.clone() : new Vec3(Screen.W, b.position.y, 0);
+    tween(b)
+      .to(App.config.ui.kindBanner.fly, { position: to, scale: new Vec3(0.2, 0.2, 1) }, { easing: 'quadIn' })
+      .call(() => {
+        b.destroy();
+        if (tag && tag.isValid) fx.squash(tag, 1.2);
+      })
+      .start();
+  }
+
   /** 演示：先圈出下一步要点的鱼，停一下再点（game_ui.json 的 demo.ring / demo.gap） */
   private demoTick(dt: number): void {
     if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.field.spinning || popupCount() > 0) return;

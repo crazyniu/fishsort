@@ -931,7 +931,14 @@
   "BOOT_HEALTH": "抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。\n适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。",
   "BOOT_NAME": "啵啵救援队",
   "GIFT_TITLE": "道具礼包",
-  "GIFT_LINE": "从下一关起，道具要用库存或金币了"
+  "GIFT_LINE": "从下一关起，道具要用库存或金币了",
+  "UI_TAG_SUPER": "超难",
+  "UI_BANNER_HARD": "困难关卡！",
+  "UI_BANNER_SUPER": "超难关卡！",
+  "UI_BANNER_COINS": "过关得 %d 金币",
+  "UI_COMBO_GOAL": "连击 ×%d",
+  "UI_COMBO_GOAL_HINT": "第一次过关时达到就送",
+  "UI_COMBO_GOAL_DONE": "连击目标达成！"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -1865,7 +1872,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Booster Pack",
-  "GIFT_LINE": "From the next level, boosters use your stock or coins"
+  "GIFT_LINE": "From the next level, boosters use your stock or coins",
+  "UI_TAG_SUPER": "Super Hard",
+  "UI_BANNER_HARD": "Hard Level!",
+  "UI_BANNER_SUPER": "Super Hard Level!",
+  "UI_BANNER_COINS": "Clear it for %d coins",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "Reach it on your first clear",
+  "UI_COMBO_GOAL_DONE": "Combo goal reached!"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -2799,7 +2813,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "啵啵救援隊",
   "GIFT_TITLE": "道具禮包",
-  "GIFT_LINE": "從下一關起，道具要用庫存或金幣了"
+  "GIFT_LINE": "從下一關起，道具要用庫存或金幣了",
+  "UI_TAG_SUPER": "超難",
+  "UI_BANNER_HARD": "困難關卡！",
+  "UI_BANNER_SUPER": "超難關卡！",
+  "UI_BANNER_COINS": "過關得 %d 金幣",
+  "UI_COMBO_GOAL": "連擊 ×%d",
+  "UI_COMBO_GOAL_HINT": "第一次過關時達到就送",
+  "UI_COMBO_GOAL_DONE": "連擊目標達成！"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -3733,7 +3754,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "ぷくぷくレスキュー",
   "GIFT_TITLE": "アイテムパック",
-  "GIFT_LINE": "次のレベルからアイテムは手持ちかコインで使います"
+  "GIFT_LINE": "次のレベルからアイテムは手持ちかコインで使います",
+  "UI_TAG_SUPER": "超ハード",
+  "UI_BANNER_HARD": "ハードステージ！",
+  "UI_BANNER_SUPER": "超ハードステージ！",
+  "UI_BANNER_COINS": "クリアで %d コイン",
+  "UI_COMBO_GOAL": "コンボ ×%d",
+  "UI_COMBO_GOAL_HINT": "初クリアで達成するともらえる",
+  "UI_COMBO_GOAL_DONE": "コンボ目標達成！"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -4667,7 +4695,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "뽀글뽀글 구조대",
   "GIFT_TITLE": "아이템 선물",
-  "GIFT_LINE": "다음 레벨부터 아이템은 보유분이나 코인으로 써요"
+  "GIFT_LINE": "다음 레벨부터 아이템은 보유분이나 코인으로 써요",
+  "UI_TAG_SUPER": "매우 어려움",
+  "UI_BANNER_HARD": "어려운 레벨!",
+  "UI_BANNER_SUPER": "매우 어려운 레벨!",
+  "UI_BANNER_COINS": "클리어 보상 %d 코인",
+  "UI_COMBO_GOAL": "콤보 ×%d",
+  "UI_COMBO_GOAL_HINT": "첫 클리어 때 달성하면 받아요",
+  "UI_COMBO_GOAL_DONE": "콤보 목표 달성!"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -5601,7 +5636,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Booster-Paket",
-  "GIFT_LINE": "Ab dem nächsten Level kosten Booster Vorrat oder Münzen"
+  "GIFT_LINE": "Ab dem nächsten Level kosten Booster Vorrat oder Münzen",
+  "UI_TAG_SUPER": "Superschwer",
+  "UI_BANNER_HARD": "Schweres Level!",
+  "UI_BANNER_SUPER": "Superschweres Level!",
+  "UI_BANNER_COINS": "Belohnung: %d Münzen",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "Beim ersten Sieg schaffen und kassieren",
+  "UI_COMBO_GOAL_DONE": "Combo-Ziel geschafft!"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -6535,7 +6577,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Pack de bonus",
-  "GIFT_LINE": "Dès le prochain niveau, les bonus utilisent ton stock ou des pièces"
+  "GIFT_LINE": "Dès le prochain niveau, les bonus utilisent ton stock ou des pièces",
+  "UI_TAG_SUPER": "Très difficile",
+  "UI_BANNER_HARD": "Niveau difficile !",
+  "UI_BANNER_SUPER": "Niveau très difficile !",
+  "UI_BANNER_COINS": "Récompense : %d pièces",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "À atteindre dès ta première victoire",
+  "UI_COMBO_GOAL_DONE": "Objectif combo atteint !"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -7469,7 +7518,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Paquete de potenciadores",
-  "GIFT_LINE": "Desde el próximo nivel, los potenciadores usan tu reserva o monedas"
+  "GIFT_LINE": "Desde el próximo nivel, los potenciadores usan tu reserva o monedas",
+  "UI_TAG_SUPER": "Muy difícil",
+  "UI_BANNER_HARD": "¡Nivel difícil!",
+  "UI_BANNER_SUPER": "¡Nivel muy difícil!",
+  "UI_BANNER_COINS": "Premio: %d monedas",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "Lógralo en tu primera victoria",
+  "UI_COMBO_GOAL_DONE": "¡Meta de combo lograda!"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -8403,7 +8459,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Pacote de bônus",
-  "GIFT_LINE": "A partir da próxima fase, os bônus usam seu estoque ou moedas"
+  "GIFT_LINE": "A partir da próxima fase, os bônus usam seu estoque ou moedas",
+  "UI_TAG_SUPER": "Muito difícil",
+  "UI_BANNER_HARD": "Fase difícil!",
+  "UI_BANNER_SUPER": "Fase muito difícil!",
+  "UI_BANNER_COINS": "Prêmio: %d moedas",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "Alcance na primeira vitória",
+  "UI_COMBO_GOAL_DONE": "Meta de combo batida!"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -9337,7 +9400,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Pacchetto bonus",
-  "GIFT_LINE": "Dal prossimo livello i bonus usano la scorta o le monete"
+  "GIFT_LINE": "Dal prossimo livello i bonus usano la scorta o le monete",
+  "UI_TAG_SUPER": "Molto difficile",
+  "UI_BANNER_HARD": "Livello difficile!",
+  "UI_BANNER_SUPER": "Livello molto difficile!",
+  "UI_BANNER_COINS": "Premio: %d monete",
+  "UI_COMBO_GOAL": "Combo ×%d",
+  "UI_COMBO_GOAL_HINT": "Raggiungila alla prima vittoria",
+  "UI_COMBO_GOAL_DONE": "Obiettivo combo raggiunto!"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -10271,7 +10341,14 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Набор бустеров",
-  "GIFT_LINE": "Со следующего уровня бустеры тратят запас или монеты"
+  "GIFT_LINE": "Со следующего уровня бустеры тратят запас или монеты",
+  "UI_TAG_SUPER": "Очень сложно",
+  "UI_BANNER_HARD": "Сложный уровень!",
+  "UI_BANNER_SUPER": "Очень сложный уровень!",
+  "UI_BANNER_COINS": "Награда: %d монет",
+  "UI_COMBO_GOAL": "Комбо ×%d",
+  "UI_COMBO_GOAL_HINT": "Достигни при первом прохождении",
+  "UI_COMBO_GOAL_DONE": "Цель по комбо выполнена!"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -11205,6 +11282,13 @@
   "BOOT_HEALTH": "",
   "BOOT_NAME": "Bubble Fish",
   "GIFT_TITLE": "Güçlendirici Paketi",
-  "GIFT_LINE": "Sonraki bölümden itibaren güçlendiriciler stoktan veya altından gider"
+  "GIFT_LINE": "Sonraki bölümden itibaren güçlendiriciler stoktan veya altından gider",
+  "UI_TAG_SUPER": "Çok zor",
+  "UI_BANNER_HARD": "Zor seviye!",
+  "UI_BANNER_SUPER": "Çok zor seviye!",
+  "UI_BANNER_COINS": "Ödül: %d altın",
+  "UI_COMBO_GOAL": "Kombo ×%d",
+  "UI_COMBO_GOAL_HINT": "İlk geçişte ulaş ve kazan",
+  "UI_COMBO_GOAL_DONE": "Kombo hedefi tamam!"
  }
 }

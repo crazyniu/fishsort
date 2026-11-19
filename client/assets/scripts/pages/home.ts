@@ -6,8 +6,6 @@ import * as Album from '../core/meta/album';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Dex from '../core/meta/dex';
 import * as Features from '../core/meta/features';
-import * as LevelCurve from '../core/gen/levelCurve';
-import * as Meta from '../core/meta/meta';
 import * as SignIn from '../core/meta/signIn';
 import * as Tasks from '../core/meta/tasks';
 import * as Wheel from '../core/meta/wheel';
@@ -18,12 +16,13 @@ import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
-import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, resizeSlice, slice, text, textWidth } from '../ui/kit';
+import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { settingsPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
 import { Page, enterStagger, ui } from '../ui/shell';
 import { signInPopup } from './signin';
+import { kindTag, levelKind } from '../game/levelKind';
 
 /**
  * 入口：左右各一列贴着屏幕边，每个入口是同样大的半透明白格子，图标放在格子里，格子下沿压一块蓝色标签牌。
@@ -102,7 +101,8 @@ export class HomePage extends Page {
   private entries = new Map<string, Entry>();
   private start!: Btn;
   private levelLabel!: ReturnType<typeof text>;
-  private tag!: Node;
+  private tag: Node | null = null;
+  private startW = 0;
   /** 鱼群：一个气泡一条鱼 */
   private school: Bubble[] = [];
   /** 每次进主页重新起一轮动画；上一轮还没到点的定时回调看到号变了就不再接着跑 */
@@ -176,14 +176,8 @@ export class HomePage extends Page {
     fit(play, startW - 80, 66, 40);
     this.levelLabel = text(row, '', 30, { color: hex('#E9FFE0') });
     at(this.levelLabel.node, 0, -38);
-    // 挑战关：按钮右上角压一块红色「挑战」小标
-    // 宽度跟着字走（至少 96，右边缘不动）：「困难」「Hard」放得下，日文「むずかしい」、法文「Difficile」这种长的把小标撑宽，不缩字
-    this.tag = slice(this.start.node, 'kit/tag_red', 96, 44, 'tag');
-    const tagText = text(this.tag, tr('UI_CHALLENGE_TAG'), 26);
-    at(tagText.node, 0, 3);
-    const tagW = Math.max(96, Math.ceil(textWidth(tagText)) + 28);
-    resizeSlice(this.tag, tagW, 44);
-    at(this.tag, startW / 2 - 22 - tagW / 2, START_H / 2 - 6);
+    // 难关、超难关的小牌子在 refresh 里按当前关挂上（宽度跟着字走，右边缘不动，不缩字）
+    this.startW = startW;
   }
 
   private entry(root: Node, def: EntryDef, x: number, y: number): void {
@@ -494,11 +488,17 @@ export class HomePage extends Page {
     const eco = App.config.eco;
     const lvl = App.save.data.level;
     this.levelLabel.string = tr('UI_LEVEL', lvl);
-    // 挑战关主按钮换橙色并加「挑战」小标
-    const file = Meta.levelFile(lvl, App.config.levelCount);
-    const hard = LevelCurve.isChallenge(App.config.curve, file);
+    // 难关、超难关：开始键右上角压一块同色小牌子（火苗「困难」/ 鲨鱼鳍「超难」，docs/ux/level-types.md）
+    const kind = levelKind(lvl);
     this.start.setColor('green');
-    this.tag.active = hard;
+    this.tag?.destroy();
+    this.tag = null;
+    if (kind !== 'normal') {
+      const t = kindTag(this.start.node, kind, 44, 'tag');
+      const tw = (t.getComponent(UITransform) as UITransform).width;
+      at(t, this.startW / 2 - 22 - tw / 2, START_H / 2 - 6);
+      this.tag = t;
+    }
     for (const e of this.entries.values()) {
       const f = e.def.feature;
       const open = f === null || App.featureOpen(f);

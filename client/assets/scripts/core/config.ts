@@ -120,6 +120,11 @@ export interface EconomyConfig {
   challengeCoins: number;
   /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
   bossCoins?: number;
+  /**
+   * 连击目标（docs/01 9.4）：第 from 关起；N = 参考解最长连击 × share，夹在 [min, max]，不到 min 不出目标。
+   * reward：三种关各给哪一档的卡（收藏开放后）或多少金币（还没开放时）
+   */
+  comboGoal?: { from: number; share: number; min: number; max: number; reward: Record<'normal' | 'hard' | 'boss', { card: string; coins: number }> };
   adCoinMultiplier: number;
   toolStart: Record<string, number>;
   toolPrice: Record<string, number>;
@@ -342,6 +347,10 @@ export interface GameUiConfig {
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 难关、超难关的开局横幅（docs/ux/level-types.md）：滑进来几秒、停几秒、缩成小牌子飞过去几秒 */
+  kindBanner: { slideIn: number; hold: number; fly: number };
+  /** 连击目标的开局小卡（docs/01 9.4）：停几秒、飞到常驻小标上几秒 */
+  goalCard: { hold: number; fly: number };
   /** 难度调试页的演示：每一步圈出要点的鱼后停 ring 秒再点（正常打法走错的那一步停 fatal 秒），点完隔 gap 秒圈下一条 */
   demo: { ring: number; gap: number; fatal: number };
   /** 难度调试页的整体三档（开发版，docs/01 9.7）：下标 = 档 + 1（困难、标准、简单）；buffer 暂存槽加减几格，window 连击窗口秒数（0 = 照 economy.json） */

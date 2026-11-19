@@ -50,6 +50,8 @@
    "interval": 0.2,
    "maxLeft": 3
  },
+ "kindBanner": {"slideIn": 0.35, "hold": 1.2, "fly": 0.4},
+ "goalCard": {"hold": 1.5, "fly": 0.45},
  "labTiers": [
   {"buffer": -1, "window": 1.5},
   {"buffer": 0, "window": 0},

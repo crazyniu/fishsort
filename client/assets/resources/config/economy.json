@@ -2,6 +2,7 @@
   "levelCoins": 30,
   "challengeCoins": 60,
   "bossCoins": 90,
+  "comboGoal": {"from": 6, "share": 0.75, "min": 6, "max": 30, "reward": {"normal": {"card": "common", "coins": 20}, "hard": {"card": "uncommon", "coins": 40}, "boss": {"card": "rare", "coins": 60}}},
   "adCoinMultiplier": 2,
   "toolStart": {
     "shuffle": 0,
