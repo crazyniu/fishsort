@@ -40,6 +40,7 @@
   "build": 1,
   "ios": {
     "bundleId": "dabudian.top.bubblefish",
+    "build": 2,
     "team": "",
     "minVersion": "15.0",
     "admobAppId": "ca-app-pub-3940256099942544~1458002511",

@@ -11,7 +11,7 @@
 
 | 字段 | 内容 | 上限 |
 |---|---|---|
-| Name | Bubble Fish | 30 |
+| Name | Bubble Fish: Rescue & Sort | 30 |
 | Subtitle | Sort & Rescue Sea Creatures | 30 |
 | Keywords | sort,pop,puzzle,match,ocean,aquarium,rescue,cute,casual,brain,color,triple,sea,tank | 100 |
 | Promotional Text | Little fish are trapped in bubbles! Tap them out, sort them into the right tanks and explore 18 seas full of cute sea creatures. | 170 |
@@ -72,7 +72,7 @@ Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting fo
 • 360 关、18 片海域：从晨光沙滩、珊瑚花园一路到齿轮钟湾、歌声海湾
 • 705 种原创海洋生物，收进 18 本收藏册，从普通到闪闪发光的史诗卡
 • 卡住了有四个技能帮忙：洗牌、吹泡、渔网、洋流
-• 连击、每日挑战、幸运转盘、七日签到、任务中心
+• 连击、每日挑战、抽奖宝箱、七日签到、任务中心
 • 安静好看的海底画面，轻松的音效
 • 没网也能玩
 
@@ -523,8 +523,8 @@ Bubble Fish’e hoş geldin! 360 seviye, 18 deniz ve 705 deniz canlısı seni be
 
 ---
 
-## 待补（要用户提供或确认）
+## App Store 链接及版权
 
-- 支持网址、隐私政策网址（App Store、Google Play 必填，要能公开访问）。
-- 开发者名称、联系邮箱（商店页公开显示）。
-- 版权行：`© 2026 <开发者名称>`。
+- 技术支持：https://bubblefish.dabudian.top/support
+- 隐私政策：https://shopkivoo.com/privacy/
+- 版权：2026 Gengyun Niu

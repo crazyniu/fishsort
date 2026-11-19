@@ -19,6 +19,7 @@ UI_CLAIM_DOUBLE,双倍,2x,雙倍,2倍,2배,2x,x2,x2,2x,x2,x2,2x
 UI_CLAIMED,已领取,Claimed,已領取,受け取り済み,받음,Erhalten,Reçu,Recogido,Recebido,Preso,Получено,Alındı
 UI_AD_TEST,广告测试,Ad test,廣告測試,広告テスト,광고 테스트,Werbetest,Test pub,Prueba de anuncios,Teste de anúncios,Test pubblicità,Тест рекламы,Reklam testi
 UI_PRIVACY_OPTIONS,隐私选项,Privacy Options,隱私選項,プライバシー設定,개인정보 설정,Datenschutz,Confidentialité,Privacidad,Privacidade,Privacy,Конфиденциальность,Gizlilik
+UI_PRIVACY_POLICY,隐私政策,Privacy Policy,隱私權政策,プライバシーポリシー,개인정보 처리방침,Datenschutzerklärung,Politique de confidentialité,Política de privacidad,Política de privacidade,Informativa privacy,Политика конфиденциальности,Gizlilik politikası
 UI_TAB_SHOP,商店,Shop,商店,ショップ,상점,Shop,Boutique,Tienda,Loja,Negozio,Магазин,Mağaza
 UI_TAB_COLLECTION,收藏,Album,收藏,図鑑,도감,Album,Album,Álbum,Álbum,Album,Альбом,Albüm
 UI_OWNED,已有 %d,Owned %d,已有 %d,所持 %d,보유 %d,Hast %d,Tu as %d,Tienes %d,Tem %d,Ne hai %d,Есть %d,Sende %d

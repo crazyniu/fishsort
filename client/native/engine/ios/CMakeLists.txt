@@ -34,6 +34,9 @@ foreach(d ${FS_LPROJ})
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/${d}.lproj"
         COMMAND ${CMAKE_COMMAND} -E copy "${CC_PROJECT_DIR}/${d}.lproj/InfoPlist.strings" "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/${d}.lproj/InfoPlist.strings")
 endforeach()
+# 隐私清单（App Store 要求：用到 UserDefaults、文件时间、开机时间这几类 API 要写明理由）：同样构建完拷进 .app 根目录
+add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy "${CC_PROJECT_DIR}/PrivacyInfo.xcprivacy" "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/PrivacyInfo.xcprivacy")
 
 # Xcode 27 的 libc++ 不许特化 std::is_floating_point 等（引擎带的 enoki/half.h 这么做了），这条诊断默认是错误，降成警告
 foreach(t cocos_engine ${EXECUTABLE_NAME})

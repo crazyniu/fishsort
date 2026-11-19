@@ -107,8 +107,10 @@ if (existsSync(ios)) {
     // 支持的语言：系统设成这些语言时，系统界面（应用名、权限弹窗）跟着用这种语言
     const locs = appLangs.map((l) => `\t\t<string>${LOCALES[l].ios}</string>`).join('\n');
     s = s.replace(/(<key>CFBundleLocalizations<\/key>\s*<array>)[\s\S]*?(\s*<\/array>)/, `$1\n${locs}$2`);
+    s = plistValue(s, 'CFBundleDisplayName', game.name.en);
     s = plistValue(s, 'CFBundleShortVersionString', game.version);
-    s = plistValue(s, 'CFBundleVersion', String(game.build));
+    // iOS 的构建号可以单独加（game.json 的 ios.build：同一版本号重传 App Store Connect 要换构建号），没有就用全局的 build
+    s = plistValue(s, 'CFBundleVersion', String(game.ios.build ?? game.build));
     s = s.replace(AD_KEYS, '');
     if (adsOn) s = s.replace('\t<key>ITSAppUsesNonExemptEncryption</key>', `${adKeys}\t<key>ITSAppUsesNonExemptEncryption</key>`);
     return s;

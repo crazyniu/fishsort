@@ -22,7 +22,7 @@
 		<string>tr</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>${PRODUCT_NAME}</string>
+	<string>Bubble Fish</string>
 	<key>CFBundleExecutable</key>
 	<string>${CC_EXECUTABLE_NAME}</string>
 	<key>CFBundleIcons~ipad</key>
@@ -40,7 +40,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
