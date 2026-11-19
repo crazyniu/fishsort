@@ -264,7 +264,7 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
 });
 
 describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () => {
-  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，最低 1%', () => {
+  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，曲线低了改按比例（× 0.6、× 0.4），最低 1%', () => {
     const c = loadCurve();
     const t = (id: number) => LevelCurve.routeTarget(c, id) as number;
     assert.equal(LevelCurve.routeTarget(c, 4), null, '新手期前几关不收紧');
@@ -276,7 +276,10 @@ describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () =>
     assert.ok(LevelCurve.isBoss(c, 60) && !LevelCurve.isBoss(c, 55));
     assert.ok(Math.abs(t(60) - (0.85 - (54 * 0.84) / 354) + 0.25) < 0.001, '超难关');
     assert.equal(t(360), 0.01, '最低 1%');
-    assert.equal(t(300), 0.01);
+    const line = (id: number) => 0.85 - ((id - 6) * 0.84) / 354;
+    assert.ok(Math.abs(t(300) - line(300) * 0.4) < 0.001, '后期超难关按比例，不压到最低');
+    assert.ok(Math.abs(t(345) - line(345) * 0.6) < 0.001, '后期难关按比例');
+    assert.ok(t(300) < t(305) && t(305) < t(301), '后期三种关照样分得开：超难 < 难 < 普通');
   });
 
   it('普通关最多 66 条鱼，难关多三成（最多 84），超难关再多一种鱼', () => {
