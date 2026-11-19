@@ -770,6 +770,10 @@ export class GamePage extends Page {
         case 'fog_clear':
           // 这几样的画面跟着状态走（Field.sync）
           break;
+        case 'ice_crack':
+          // 厚冰裂一层：连着的气泡破了一个、还差几个（连线跟着状态少一根，这里冰面顿一下、掉几粒冰碴）
+          this.field.crackIce(e.b as number, t);
+          break;
         case 'blow': {
           this.blowBuffer(t);
           break;

@@ -1,7 +1,7 @@
 // 规则状态机，见 docs/01-玩法设计.md 第 2–4 节。
 // 所有函数就地修改 state，并返回供表现层播放的事件序列。
 import { rescueShuffle } from '../gen/constructor';
-import { Bowl, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVED, Status } from '../model/gameState';
+import { Bowl, Bubble, GameState, LoseReason, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, REMOVED, Status } from '../model/gameState';
 import { Rng } from '../rng/rng';
 
 export const REVIVE_EXTRA_SECONDS = 30.0;
@@ -17,6 +17,7 @@ export type EventType =
   | 'chain_tick'
   | 'chain_open'
   | 'ice_melt'
+  | 'ice_crack'
   | 'fog_tick'
   | 'fog_clear'
   | 'bubble_pop'
@@ -471,10 +472,15 @@ function pop(s: GameState, b: number, ev: GameEvent[]): void {
   if (onField) ev.push({ t: 'bubble_pop', b });
   for (let i = 0; i < s.bubbles.length; i++) {
     const bub = s.bubbles[i];
-    if (bub.frozen && bub.ice.includes(b)) {
-      bub.frozen = false;
-      ev.push({ t: 'ice_melt', b: i });
+    if (!bub.frozen || !bub.ice.includes(b)) continue;
+    // 厚冰：连着的气泡全部破了才解冻；还差几个，裂一层
+    const left = bub.iceAll ? iceLeft(s, bub) : 0;
+    if (left > 0) {
+      if (bub.onField) ev.push({ t: 'ice_crack', b: i, left });
+      continue;
     }
+    bub.frozen = false;
+    ev.push({ t: 'ice_melt', b: i });
   }
   if (!onField) return;
   // 迷雾：在场的迷雾泡每见一个别的气泡破掉就淡一层，数到 0 显形（先数再补落，刚落下的不算这一次）
@@ -495,14 +501,20 @@ function drop(s: GameState, ev: GameEvent[]): void {
     const bub = s.bubbles[i];
     if (bub.count() === 0) continue;
     bub.onField = true;
-    // 依赖的气泡任何一个破了就解冻：落下之前已经破了一个的，落下来就不冻
+    // 依赖的气泡任何一个破了就解冻：落下之前已经破了一个的，落下来就不冻；厚冰要全部破了才不冻
     bub.frozen = bub.ice.length > 0;
-    for (const dep of bub.ice) {
-      if (s.bubbles[dep].count() === 0) bub.frozen = false;
-    }
+    if (bub.iceAll) bub.frozen = iceLeft(s, bub) > 0;
+    else for (const dep of bub.ice) if (s.bubbles[dep].count() === 0) bub.frozen = false;
     ev.push({ t: 'bubble_drop', b: i });
     return;
   }
+}
+
+/** 冰封泡连着的气泡里还有几个没破 */
+export function iceLeft(s: GameState, bub: Bubble): number {
+  let n = 0;
+  for (const dep of bub.ice) if (s.bubbles[dep].count() > 0) n++;
+  return n;
 }
 
 function lose(s: GameState, reason: LoseReason, ev: GameEvent[]): void {

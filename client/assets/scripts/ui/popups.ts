@@ -426,7 +426,7 @@ function languagePopup(): void {
 
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0);
+  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0) + (App.levelLab ? 112 : 0);
   const h = mode === 'pause' ? 528 : 512 + extra;
   const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
@@ -503,6 +503,12 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     }
     if (App.platform.hasCapability('ad_test')) {
       const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_AD_TEST'), fontSize: 32, onTap: () => (p.close(), ui.go('adtest')) });
+      at(b.node, 0, y - 8);
+      y -= 112;
+    }
+    // 难度调试页（测试包才有，game.json 的 levelLab；调试用，字直接写）
+    if (App.levelLab) {
+      const b = button(p.body, { color: 'blue', w: 556, h: 88, label: '难度调试', fontSize: 32, onTap: () => (p.close(), ui.go('lab')) });
       at(b.node, 0, y - 8);
     }
   } else {

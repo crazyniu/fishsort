@@ -391,23 +391,11 @@ describe('局内生物分得清（docs/03 4.1）', () => {
 });
 
 describe('限时关（docs/01 第 4 节）', () => {
-  it('第 61 关起只有挑战关限时，普通关不限时；时间按真人手速定', () => {
+  it('限时取消：每一关都不限时（docs/01 9.3，用户 2026-11-19：考手速不考想清楚，由连击目标顶替）', () => {
     const curve = loadCurve();
     for (let id = 1; id <= curve.total; id++) {
       const lv = levelFile(`level_${String(id).padStart(4, '0')}`);
-      const t = LevelCurve.clockFor(curve, id, lv);
-      const chal = LevelCurve.isChallenge(curve, id);
-      if (id >= 61 && chal) {
-        let fish = 0;
-        for (const b of lv.bubbles) fish += b.fish.length;
-        const bot = fish * curve.bot.tapSec + lv.orders.length * curve.bot.bowlSec;
-        // 时间按真人手速定（约 1 秒一条鱼），比机器人的 1.5 秒一条短；至少够 0.8 秒一条。
-        // 排队泡要想清楚先取哪条：按排队泡占的比例加长，全是排队泡的关给到约 2 秒一条
-        const queued = lv.bubbles.filter((x) => x.queue === true).length / lv.bubbles.length;
-        const more = 1 + (curve.clock?.queueExtra ?? 0) * queued;
-        assert.ok(t >= fish * 0.8 * more && t < bot * more, `第 ${id} 关 ${t} 秒，机器人要 ${bot} 秒`);
-        if (queued === 1) assert.ok(t >= fish * 1.8, `全是排队泡的第 ${id} 关只给了 ${t} 秒（${fish} 条鱼）`);
-      } else assert.equal(t, NO_TIMER, `第 ${id} 关不该限时`);
+      assert.equal(LevelCurve.clockFor(curve, id, lv), NO_TIMER, `第 ${id} 关不该限时`);
     }
   });
 

@@ -71,6 +71,8 @@
     "cloudEnv": "cloud1-d8g4d0pyi6699a102",
     "remoteUrl": "https://cloud1-d8g4d0pyi6699a102-1535223200.tcloudbaseapp.com/"
   },
+  "levelLab": true,
+  "_levelLabComment": "难度调试页的开关（设置里的「难度调试」，docs/01 第 9.7 节）：测试包开着，**上架前改成 false**",
   "ads": {
     "_comment": "enabled：总开关。false = 三端都没有广告：看广告的入口全部隐藏，iOS / Android 不把广告 SDK 打进包、不弹广告同意和跟踪授权（用户 2026-11-18：第一版上架不接广告和内购）。下面是广告位 ID：iOS / Android 现在是 Google 官方的测试广告位；微信要开通流量主后在后台建广告位填进来，空着就当没有广告",
     "enabled": false,

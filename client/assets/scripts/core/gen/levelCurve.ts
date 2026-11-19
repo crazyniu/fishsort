@@ -28,6 +28,8 @@ export interface GenParams {
   /** 迷雾计数范围 [最少, 最多] */
   fogCount?: readonly number[];
   ice?: number;
+  /** 冰封泡做成厚冰：最多连几个气泡、全部破了才解冻（0 或不给 = 旧的「任何一个破了就解冻」） */
+  iceAll?: number;
   big?: number;
   pairs?: number;
   challenge?: boolean;
@@ -181,7 +183,8 @@ function freshOn(curve: CurveConfig, k: number): boolean {
  */
 export function mechanicsFor(curve: CurveConfig, id: number): Mechanic[] {
   const unlock = curve.unlock;
-  const open: Mechanic[] = MECHANICS.filter((m) => id >= unlock[m]);
+  // 按解锁关从早到晚排（解锁关不一定和 MECHANICS 的先后一致；同一关解锁的保持原来的先后）
+  const open: Mechanic[] = MECHANICS.filter((m) => id >= unlock[m]).sort((x, y) => unlock[x] - unlock[y]);
   if (open.length === 0 || id === firstDrop(curve)) return [];
   const newest = open[open.length - 1];
   if (id === unlock[newest]) return [newest];
@@ -200,6 +203,7 @@ export function mechanicsFor(curve: CurveConfig, id: number): Mechanic[] {
 function mechanics(curve: CurveConfig, id: number, p: GenParams): void {
   for (const m of mechanicsFor(curve, id)) p[m] = m === 'fog' ? Number(curve.counts[m]) : Math.trunc(curve.counts[m]);
   p.fogCount = curve.fogCount;
+  if (p.ice) p.iceAll = iceAllFor(curve, id);
   p.timerRule = curve.timer;
   p.clock = curve.bot;
 }
@@ -230,6 +234,13 @@ export function comboSeconds(curve: CurveConfig, tier: number): number {
 export function bufferFor(curve: CurveConfig, id: number): number {
   let n = 5;
   for (const [from, slots] of curve.buffer ?? []) if (id >= from) n = slots;
+  return n;
+}
+
+/** 第 id 关的冰封泡最多连几个（厚冰，全部破了才解冻）：level_curve.json 的 iceAll 是 [从第几关起, 几个] 的表；没配返回 0（旧规则） */
+export function iceAllFor(curve: CurveConfig, id: number): number {
+  let n = 0;
+  for (const [from, deps] of curve.iceAll ?? []) if (id >= from) n = deps;
   return n;
 }
 

@@ -71,19 +71,22 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
   const c = loadCurve();
   const ids = Array.from({ length: c.total }, (_, i) => i + 1);
 
-  it('新机制都在挑战关的下一关首发，解锁关只带它一个；掉落的解锁关不带障碍', () => {
-    assert.deepEqual(c.unlock, { chain: 16, timer: 31, fog: 41, ice: 61, big: 81, pairs: 111 });
-    assert.equal(LevelCurve.firstDrop(c), 26);
+  it('新机制都在挑战关的下一关首发，解锁关只带它一个；掉落的解锁关不带障碍（docs/01 9.3）', () => {
+    assert.deepEqual(c.unlock, { chain: 16, timer: 9999, fog: 31, ice: 11, big: 21, pairs: 26 });
+    assert.deepEqual(c.iceAll, [[11, 2], [41, 3]], '冰封泡做成厚冰：第 11 关连 2 个，第 41 关起连 3 个');
+    assert.equal(LevelCurve.firstDrop(c), 61);
     for (const m of LevelCurve.MECHANICS) {
+      if (c.unlock[m] > c.total) continue; // 取消了的（限时缸）
       assert.ok(LevelCurve.isChallenge(c, c.unlock[m] - 1), `${m} 的解锁关在挑战关后面`);
       assert.deepEqual(LevelCurve.mechanicsFor(c, c.unlock[m]), [m]);
       assert.equal(LevelCurve.unlockedAt(c, c.unlock[m]), m);
     }
-    assert.deepEqual(LevelCurve.mechanicsFor(c, 26), []);
-    assert.equal(LevelCurve.unlockedAt(c, 26), 'drop');
+    assert.deepEqual(LevelCurve.mechanicsFor(c, 61), []);
+    assert.equal(LevelCurve.unlockedAt(c, 61), 'drop');
     assert.equal(LevelCurve.unlockedAt(c, 3), 'layer');
-    assert.equal(LevelCurve.params(c, 25, 0).cap, 0, '第 25 关还是分层关');
-    assert.ok((LevelCurve.params(c, 26, 0).cap as number) > 0, '第 26 关起掉落');
+    assert.equal(LevelCurve.params(c, 60, 0).cap, 0, '前 60 关不掉落，所有气泡开局在场');
+    assert.ok((LevelCurve.params(c, 61, 0).cap as number) > 0, '第 61 关起掉落');
+    assert.equal(LevelCurve.params(c, 15, 0).iceAll ?? 2, 2);
   });
 
   it('障碍种数按每 5 关「1、2、1、2、3」的节奏，不超过已解锁的种数，没解锁的不出现', () => {
@@ -95,11 +98,12 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
     assert.deepEqual([96, 97, 98, 99, 100].map((id) => LevelCurve.mechanicsFor(c, id).length), [1, 2, 1, 2, 3]);
   });
 
-  it('新机制解锁后 9 关里有 5 关带它（含下一个挑战关），先密后疏', () => {
+  it('新机制解锁后、下一样新东西之前的 4 关里有 3 关带它（含下一个难关），先密后疏', () => {
     for (const m of LevelCurve.MECHANICS) {
       const u = c.unlock[m];
-      const with_ = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => u + k <= c.total && LevelCurve.mechanicsFor(c, u + k).includes(m));
-      assert.deepEqual(with_, [1, 2, 4, 6, 8], `${m}`);
+      if (u > c.total) continue; // 取消了的（限时缸，docs/01 9.3）
+      const with_ = [1, 2, 3, 4].filter((k) => u + k <= c.total && LevelCurve.mechanicsFor(c, u + k).includes(m));
+      assert.deepEqual(with_, [1, 2, 4], `${m}`);
     }
   });
 
@@ -139,20 +143,22 @@ describe('难度曲线（docs/02 第 2 节，2026-11-16 复查）', () => {
   });
 });
 
-describe('排队泡关卡（docs/02 第 0.4、0.6 节）', () => {
+describe('排队泡关卡（docs/02 附录 A.4、A.6）', () => {
   const c = loadCurve();
 
-  it('第 26 关起分三档：每 5 关一个难关、每 20 关一个大难关，其余普通关', () => {
-    assert.equal(LevelCurve.jamKind(c, 25), null);
-    assert.equal(LevelCurve.jamKind(c, 26), 'normal');
+  it('第 6 关起分三档：每 5 关一个难关、每 20 关一个守关，其余普通关', () => {
+    assert.equal(LevelCurve.jamKind(c, 5), null);
+    assert.equal(LevelCurve.jamKind(c, 6), 'normal');
+    assert.equal(LevelCurve.jamKind(c, 15), 'hard');
+    assert.equal(LevelCurve.jamKind(c, 20), 'big');
     assert.equal(LevelCurve.jamKind(c, 30), 'hard');
     assert.equal(LevelCurve.jamKind(c, 40), 'big');
     assert.equal(LevelCurve.jamKind(c, 360), 'big');
   });
 
-  it('排队泡第 28 关才有，越往后越多；只打乱后面一段', () => {
-    assert.equal(LevelCurve.params(c, 27, 0).queue, 0);
-    assert.ok((LevelCurve.params(c, 28, 0).queue as number) > 0.3);
+  it('排队泡第 6 关起有（docs/01 9.3），越往后越多；只打乱后面一段', () => {
+    assert.ok(!LevelCurve.params(c, 5, 0).queue);
+    assert.ok((LevelCurve.params(c, 6, 0).queue as number) >= 0.3);
     const q = [60, 120, 240, 360].map((id) => LevelCurve.params(c, id, 0).queue as number);
     for (let i = 1; i < q.length; i++) assert.ok(q[i] > q[i - 1], `${q}`);
     for (const id of [26, 140, 360]) {
@@ -190,7 +196,7 @@ describe('排队泡关卡（docs/02 第 0.4、0.6 节）', () => {
   });
 });
 
-describe('机器人：卡死了才花道具（docs/02 第 0.3 节）', () => {
+describe('机器人：卡死了才花道具（docs/02 附录 A.3）', () => {
   const lv = level([0, 1], [{ fish: [1, 1, 0, 0, 2] }, { fish: [1, 0, 3] }], 4);
 
   it('「卡死」= 点得到的鱼都进不了缸、暂存槽只剩最后一格', () => {

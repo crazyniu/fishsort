@@ -2,7 +2,11 @@
 import { JsonAsset, resources } from 'cc';
 import type { AdsConfig, CurveConfig, EconomyConfig, GameUiConfig, Species } from '../core/config';
 import { LevelData } from '../core/model/levelData';
+import type { PlatformBase } from '../platform/platformBase';
 import type { Eye } from '../ui/alive';
+
+/** 难度调试页生成的关卡存在本机的哪个键下 */
+const LAB_KEY = 'lab_levels';
 
 function describe(v: unknown): string {
   if (typeof v !== 'object' || v === null) return String(v);
@@ -56,8 +60,31 @@ export class Config {
     return this.curve.total;
   }
 
+  /**
+   * 难度调试页生成的关卡（pages/lab.ts）：顶替包里同一关的文件（本体和变体都换成它），存在本机，重开游戏还在。
+   * 只有 game.json 开了 levelLab 才会读
+   */
+  readonly lab = new Map<number, LevelData>();
+
+  loadLab(platform: PlatformBase): void {
+    try {
+      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, Record<string, unknown>>;
+      for (const id of Object.keys(raw)) this.lab.set(Number(id), LevelData.fromDict(raw[id]));
+    } catch {
+      this.lab.clear();
+    }
+  }
+
+  saveLab(platform: PlatformBase): void {
+    const out: Record<string, unknown> = {};
+    for (const [id, lv] of this.lab) out[String(id)] = lv.toDict();
+    platform.saveData(LAB_KEY, JSON.stringify(out));
+  }
+
   /** 读关卡文件；ease > 0 时取易化变体，没有就退回普通版 */
   async loadLevel(fileId: number, ease: number): Promise<LevelData> {
+    const custom = this.lab.get(fileId);
+    if (custom) return LevelData.fromDict(custom.toDict());
     const base = `config/levels/level_${pad(fileId)}`;
     let raw: Record<string, unknown>;
     try {

@@ -290,6 +290,8 @@ export interface CurveConfig {
   };
   /** 暂存槽几格：[从第几关起, 几格] 的表，没配就是 5 格（docs/02 第 2 节） */
   buffer?: [number, number][];
+  /** 冰封泡做成厚冰（全部破了才解冻）：[从第几关起, 最多连几个]；没配 = 旧规则 */
+  iceAll?: [number, number][];
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;

@@ -711,6 +711,26 @@ export class Field {
     v.iceLinks = [];
   }
 
+  /**
+   * 厚冰裂一层（连着的气泡破了一个，还没全破）：冰面缩一下弹回、变淡一档、掉几粒冰碴。
+   * 占位表现，等 Codex 出「裂一层 / 裂两层」的冰面图再换（art/briefs/thick-ice.md）
+   */
+  crackIce(b: number, delay: number): void {
+    const v = this.views[b];
+    if (!v || v.gone || !v.ice) return;
+    const ice = v.ice;
+    tween(ice)
+      .delay(delay)
+      .call(() => {
+        if (!ice.isValid) return;
+        opacity(ice).opacity = Math.max(90, opacity(ice).opacity - 40);
+        sparkle(this.node, v.node.position.x, v.node.position.y, 5, v.r * 0.8, new Color(200, 245, 255, 255));
+      })
+      .to(0.08, { scale: new Vec3(0.9, 0.9, 1) })
+      .to(0.2, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' })
+      .start();
+  }
+
   private melt(v: View): void {
     const ice = v.ice;
     if (!ice) return;

@@ -70,8 +70,9 @@ export function onLevelStart(g: GamePage): void {
   // 机制说明跟着难度曲线的解锁关走（level_curve.json），不另写死关号
   const mech = App.config.eco.mechanicIntro[LevelCurve.unlockedAt(App.config.curve, lvl)];
   if (mech) tips.push(mech);
+  // 一关可以挂几条，逗号隔开（第 6 关：排队泡首发 + 生命开始要算）
   const extra = App.config.ui.tips[String(lvl)];
-  if (extra) tips.push(extra);
+  if (extra) for (const key of extra.split(',')) tips.push(key);
   // 解锁关的新技能：不弹窗，等第一次能用上时压暗全屏强制教（checkTutorial）
   g.tutor = '';
   for (const id of Skills.ids(App.config.eco)) {

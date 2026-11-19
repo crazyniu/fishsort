@@ -7,6 +7,7 @@ import { GamePage } from './game/gameView';
 import { ResultPage } from './game/result';
 import { HomePage } from './pages/home';
 import { AdTestPage } from './pages/adtest';
+import { LabPage } from './pages/lab';
 import { PlatformDebug } from './platform/platformDebug';
 import { mockAdView } from './ui/mockAd';
 import { CollectPage } from './pages/collect';
@@ -84,7 +85,11 @@ export class Boot extends Component {
           Screen.applyPlatform(App.platform);
           lang = startLanguage();
           view.setLanguage(lang, App.platform.hasCapability('health_notice'));
-          void loadPlatformConfig().then((c) => view.setVersion(c.version));
+          void loadPlatformConfig().then((c) => {
+            view.setVersion(c.version);
+            App.levelLab = c.levelLab === true;
+            if (App.levelLab) App.config.loadLab(App.platform);
+          });
         },
       ],
       [0.02, () => loadStrings(lang)],
@@ -157,6 +162,7 @@ export class Boot extends Component {
     ui.register('daily', () => new DailyPage());
     ui.register('wheel', () => new WheelPage());
     ui.register('adtest', () => new AdTestPage());
+    ui.register('lab', () => new LabPage());
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
     if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups, fitLog, setLanguage: switchLanguage };

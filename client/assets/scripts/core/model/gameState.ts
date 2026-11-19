@@ -22,6 +22,8 @@ export class Bubble {
   chain = 0;
   ice: number[] = [];
   frozen = false;
+  /** 厚冰：连着的气泡全部破了才解冻（docs/01 第 4 节）；false = 任何一个破了就解冻 */
+  iceAll = false;
   /** 迷雾还差几次显形（在场后每破一个别的气泡减 1），0 = 看得见 */
   fog = 0;
   pairs: number[][] = [];
@@ -63,6 +65,7 @@ export class Bubble {
     b.chain = this.chain;
     b.ice = this.ice;
     b.frozen = this.frozen;
+    b.iceAll = this.iceAll;
     b.fog = this.fog;
     b.pairs = this.pairs.slice();
     b.queue = this.queue;
@@ -131,6 +134,7 @@ export class GameState {
       b.ice = d.ice.slice();
       // 候场的冰封泡落下时再按依赖泡的情况定（Rules.drop）
       b.frozen = b.ice.length > 0;
+      b.iceAll = d.iceAll === true;
       b.fog = d.fog;
       b.pairs = d.pairs.map((p) => p.slice());
       b.queue = d.queue === true;

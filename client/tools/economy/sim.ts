@@ -8,7 +8,7 @@
 //   --no-ads  没有广告（微信小游戏开通流量主之前）：金币不够时不能看广告拿技能、开缸、拿命；
 //             --free=技能,开缸 是没广告时每天能免费领几次（默认 0,0）。连输按 easeAfterFails 换更易的变体；
 //             一天最多打 --levels 的 3 倍局数，卡住的那天就少过几关
-// 关卡难不难不在这里量：按 docs/02 第 0.4 节的目标假设——不花金币 / 花 1 样 / 2 样……各自的过关概率（level_curve.json 的 jam.targets）。
+// 关卡难不难不在这里量：按 docs/02 附录 A.4 的目标假设——不花金币 / 花 1 样 / 2 样……各自的过关概率（level_curve.json 的 jam.targets）。
 // 玩家的打法：卡住了就花一样，一局最多花 maxItems 样；四样里约一样是开缸，其余是技能。
 // 技能先用今天的免费次、再用库存；都没有就花金币买，金币不够就看广告拿一个。缸位、命同理。
 import { readFileSync } from 'node:fs';
@@ -32,7 +32,7 @@ import { Rng } from '../../assets/scripts/core/rng/rng';
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const CONFIG = join(CLIENT, 'assets/resources/config');
 /**
- * 过关概率按 level_curve.json 的 jam.targets（docs/02 第 0.4 节，普通玩家机器人量的）：[不花金币, 花 ≤1 样, ≤2 样, …]，
+ * 过关概率按 level_curve.json 的 jam.targets（docs/02 附录 A.4，普通玩家机器人量的）：[不花金币, 花 ≤1 样, ≤2 样, …]，
  * maxItems = 一局最多花几样（表有几档就到几样）。排队泡关卡之前的关（新手期）按 EARLY。
  */
 const curve = JSON.parse(readFileSync(join(CONFIG, 'level_curve.json'), 'utf8')) as CurveConfig;
