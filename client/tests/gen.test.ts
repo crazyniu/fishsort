@@ -263,31 +263,41 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
   });
 });
 
-describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () => {
-  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，曲线低了改按比例（× 0.6、× 0.4），最低 1%', () => {
+describe('难度曲线的目标（docs/01 9.2，用户 2026-11-20 定：海域内持平、每个海域一档）', () => {
+  it('第 5 关 95%；头几关（6–10）55% / 40%，第一个海域后半 45% / 32% / 25%，第二个海域 40% / 30% / 20%；最后一个海域 15% / 10% / 5%，最低 5%', () => {
     const c = loadCurve();
     const t = (id: number) => LevelCurve.routeTarget(c, id) as number;
     assert.equal(LevelCurve.routeTarget(c, 4), null, '新手期前几关不收紧');
     assert.equal(t(5), 0.95);
-    assert.equal(t(6), 0.85);
-    assert.ok(Math.abs(t(59) - (0.85 - (53 * 0.84) / 354)) < 0.001);
-    assert.equal(t(359), 0.012);
-    assert.ok(Math.abs(t(55) - (0.85 - (49 * 0.84) / 354) + 0.15) < 0.001, '难关');
+    assert.deepEqual([t(6), t(9), t(10)], [0.55, 0.55, 0.4], '头几关缓一档');
+    assert.deepEqual([t(11), t(15), t(19), t(20)], [0.45, 0.32, 0.45, 0.25], '第一个海域后半');
+    assert.deepEqual([t(21), t(25), t(40)], [0.4, 0.3, 0.2], '第二个海域：普通、难关、超难关');
+    for (let id = 21; id <= 39; id++) if (id % 5 !== 0) assert.equal(t(id), 0.4, `第 ${id} 关和同海域的普通关一样`);
     assert.ok(LevelCurve.isBoss(c, 60) && !LevelCurve.isBoss(c, 55));
-    assert.ok(Math.abs(t(60) - (0.85 - (54 * 0.84) / 354) + 0.25) < 0.001, '超难关');
-    assert.equal(t(360), 0.01, '最低 1%');
-    const line = (id: number) => 0.85 - ((id - 6) * 0.84) / 354;
-    assert.ok(Math.abs(t(300) - line(300) * 0.4) < 0.001, '后期超难关按比例，不压到最低');
-    assert.ok(Math.abs(t(345) - line(345) * 0.6) < 0.001, '后期难关按比例');
-    assert.ok(t(300) < t(305) && t(305) < t(301), '后期三种关照样分得开：超难 < 难 < 普通');
+    assert.deepEqual([t(341), t(345), t(360)], [0.15, 0.1, 0.05], '最后一个海域');
+    for (let sea = 1; sea < 18; sea++) {
+      assert.ok(t(sea * 20 + 1) <= t(sea * 20 - 1), `第 ${sea + 1} 个海域不比前一个容易`);
+      assert.ok(t(sea * 20 + 20) < t(sea * 20 + 5) && t(sea * 20 + 5) < t(sea * 20 + 1), '同一个海域：超难 < 难 < 普通');
+    }
+    for (let id = 6; id <= 360; id++) assert.ok(t(id) >= 0.05, `第 ${id} 关不低于 5%`);
   });
 
-  it('普通关最多 66 条鱼，难关多三成（最多 84），超难关再多一种鱼', () => {
+  it('鱼的数量跟着海域涨：第 2 个海域普通关 66 条，第 18 个海域 126 条，一个海域里一样多；难关多三成、最多多 24 条，超难关再多一种鱼', () => {
     const c = loadCurve();
-    for (let id = 6; id <= 360; id++) {
-      const p = LevelCurve.params(c, id, 0);
-      if (!LevelCurve.isChallenge(c, id)) assert.ok(p.fish <= 66, `第 ${id} 关 ${p.fish} 条`);
-      else assert.ok(p.fish <= 84, `第 ${id} 关 ${p.fish} 条`);
+    const fish = (id: number) => LevelCurve.params(c, id, 0).fish;
+    assert.equal(fish(21), 66);
+    assert.equal(fish(39), 66, '一个海域里一样多');
+    assert.equal(fish(341), 126);
+    assert.equal(fish(25), 84, '难关多三成');
+    assert.equal(fish(345), 150, '鱼多了以后最多多 24 条');
+    let last = 0;
+    for (let id = 21; id <= 360; id++) {
+      assert.equal(fish(id) % 3, 0, `第 ${id} 关 ${fish(id)} 条不是 3 的倍数`);
+      assert.ok(fish(id) <= 150, `第 ${id} 关 ${fish(id)} 条`);
+      if (id % 5 !== 0) {
+        assert.ok(fish(id) >= last, `第 ${id} 关的鱼不比前面的普通关少`);
+        last = fish(id);
+      }
     }
     assert.equal(LevelCurve.params(c, 120, 0).species, LevelCurve.params(c, 115, 0).species + 1);
   });
