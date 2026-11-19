@@ -7,6 +7,9 @@ import * as Album from '../assets/scripts/core/meta/album';
 import * as Cards from '../assets/scripts/core/meta/cards';
 import { Combo } from '../assets/scripts/core/meta/combo';
 import * as ComboGoal from '../assets/scripts/core/meta/comboGoal';
+import * as Lucky from '../assets/scripts/core/meta/lucky';
+import * as Stars from '../assets/scripts/core/meta/stars';
+import { GameState } from '../assets/scripts/core/model/gameState';
 import * as Daily from '../assets/scripts/core/meta/daily';
 import * as DailyChallenge from '../assets/scripts/core/meta/dailyChallenge';
 import * as Dex from '../assets/scripts/core/meta/dex';
@@ -211,7 +214,8 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.count(save, 'shuffle'), 0, '第 4 关解锁，前 10 关反正免费，不送');
     assert.deepEqual(Skills.syncUnlocks(save, eco), []);
     save.level = 12;
-    assert.equal(Skills.syncUnlocks(save, eco).length, 3);
+    assert.equal(Skills.syncUnlocks(save, eco).length, 4, '撤销（第 6 关）、吹泡、渔网、洋流');
+    assert.equal(Skills.count(save, 'undo'), 0, '第 6 关解锁的撤销也在全免费的前 10 关里，不送');
     assert.equal(Skills.count(save, 'net'), 0);
     assert.equal(Skills.count(save, 'current'), 1, '第 12 关解锁的洋流送 1 个（强制教学那一次有得用）');
     save.tools.shuffle = 2;
@@ -231,7 +235,7 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     save.coins = 480;
     assert.ok(Skills.buy(save, eco, 'current'));
     assert.equal(save.coins, 0);
-    for (const [id, p] of [['shuffle', 240], ['blow', 280], ['net', 360], ['current', 480]] as const) {
+    for (const [id, p] of [['undo', 240], ['hint', 360], ['shuffle', 240], ['blow', 280], ['net', 360], ['current', 480]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
@@ -241,12 +245,14 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
       signin: 3,
       skill_shuffle: 4,
       levelSelect: 5,
-      album: 6,
+      skill_undo: 6,
       skill_blow: 7,
+      album: 8,
       skill_net: 9,
       wheel: 10,
       tasks: 11,
       skill_current: 12,
+      skill_hint: 14,
       daily: 20,
     };
     assert.deepEqual(ECO.features, want);
@@ -256,7 +262,7 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     }
     const levels = Object.values(ECO.features);
     assert.equal(new Set(levels).size, levels.length, '同一关不开两样东西');
-    assert.deepEqual(Features.newlyUnlocked(ECO, 2, 8), ['signin', 'skill_shuffle', 'levelSelect', 'album', 'skill_blow']);
+    assert.deepEqual(Features.newlyUnlocked(ECO, 2, 8), ['signin', 'skill_shuffle', 'levelSelect', 'skill_undo', 'skill_blow', 'album']);
   });
 });
 
@@ -383,9 +389,9 @@ describe('过关宝箱（docs/01 3.4）', () => {
     const rng = new Rng(3);
     for (let i = 0; i < 300; i++) assert.notEqual(LevelChest.open(save, eco, species, 3, i % 5 === 4, rng).kind, 'card');
     assert.equal(Object.keys(save.cards).length, 0);
-    save.level = 6;
+    save.level = 8;
     save.chest.dry = 0;
-    assert.equal(LevelChest.open(save, eco, species, 6, true, rng).kind, 'card');
+    assert.equal(LevelChest.open(save, eco, species, 8, true, rng).kind, 'card');
   });
 });
 
@@ -577,7 +583,7 @@ describe('收藏与救援记录（docs/01 5.0、5.4）', () => {
   });
 
   it('领册子大奖与终极大奖（2000 + 每种技能 3 + 3 小时 + 头像框）', () => {
-    const [save, eco, species] = setup(6);
+    const [save, eco, species] = setup(8);
     assert.deepEqual(Album.claim(save, eco, 0, 0), []);
     for (const id of Album.books(eco)[0].cards) save.cards[id] = 1;
     assert.equal(Album.claimable(save, eco), 1);
@@ -738,7 +744,7 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     Skills.syncUnlocks(p14, e14); // 解锁送的 2 个先发掉
     for (const id of Object.keys(p14.tools)) p14.tools[id] = 0;
     const r = Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW });
-    assert.deepEqual(r.gift, ['shuffle', 'blow', 'net', 'current']);
+    assert.deepEqual(r.gift, ['undo', 'hint', 'shuffle', 'blow', 'net', 'current']);
     for (const id of r.gift ?? []) assert.equal(p14.tools[id], 1);
     assert.equal(Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW }).gift, undefined, '重玩不再送');
     assert.equal(Settle.win(p14, e14, { level: 15, challenge: false, day: 7, now: NOW }).gift, undefined);
@@ -778,5 +784,46 @@ describe('连击目标（docs/01 9.4）', () => {
     const c = ComboGoal.grant(save, ECO, 'boss', pool, new Rng(2), true);
     assert.ok(c.card !== null && c.coins === 0);
     assert.equal(c.card?.rarity, 'rare', '超难关给稀有卡');
+  });
+});
+
+describe('星级、首次三星、幸运泡（docs/01 9.3、9.5）', () => {
+  it('不用道具三星；没超过两星线（普通 1、难关 2、超难 3）两星；第一次三星多送一份，前 20 关少一点，第二次不送', () => {
+    assert.equal(Stars.starsFor(ECO, 'normal', 0), 3);
+    assert.equal(Stars.starsFor(ECO, 'normal', 1), 2);
+    assert.equal(Stars.starsFor(ECO, 'normal', 2), 1);
+    assert.equal(Stars.starsFor(ECO, 'hard', 2), 2);
+    assert.equal(Stars.starsFor(ECO, 'boss', 3), 2);
+    assert.equal(Stars.starsFor(ECO, 'boss', 4), 1);
+    const save = PlayerData.create(ECO);
+    save.level = 40;
+    let r = Stars.record(save, ECO, 30, 'normal', 1, [], new Rng(1), false);
+    assert.deepEqual([r.stars, r.before, r.first3], [2, 0, null]);
+    const coins = save.coins;
+    r = Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false);
+    assert.equal(r.first3?.coins, 60);
+    assert.equal(save.coins, coins + 60);
+    assert.equal(Stars.best(save, 30), 3);
+    assert.equal(Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false).first3, null, '第二次三星不再送');
+    assert.equal(Stars.record(save, ECO, 30, 'normal', 2, [], new Rng(1), false).stars, 1);
+    assert.equal(Stars.best(save, 30), 3, '记最好的');
+    assert.equal(Stars.record(save, ECO, 10, 'hard', 0, [], new Rng(1), false).first3?.coins, 30, '前 20 关少一点');
+    const b = Stars.record(save, ECO, 40, 'boss', 0, loadSpecies(), new Rng(2), true);
+    assert.equal(b.first3?.skills.length, 1, '超难关送一个技能');
+  });
+
+  it('幸运泡：第 18 关前没有；挑在场、不是排队泡的气泡；金币、技能直接入账', () => {
+    const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    const s = GameState.fromLevel(lv);
+    const eco = { ...ECO, lucky: { ...(ECO.lucky as NonNullable<typeof ECO.lucky>), chance: 1 } };
+    assert.equal(Lucky.plan(s, eco, 17, new Rng(1), false), null);
+    const p = Lucky.plan(s, eco, 30, new Rng(1), false);
+    assert.ok(p !== null && p.bubble >= 0 && p.bubble < 3 && p.fish >= 0 && p.fish < 3);
+    assert.notEqual(p?.kind, 'card', '收藏没开放不出卡');
+    const save = PlayerData.create(ECO);
+    const before = save.coins;
+    const g = Lucky.grant(save, ECO, { bubble: 0, fish: 0, kind: 'coins', coins: 10, rarity: 'common' }, [], new Rng(1));
+    assert.equal(g.coins, 10);
+    assert.equal(save.coins, before + 10);
   });
 });

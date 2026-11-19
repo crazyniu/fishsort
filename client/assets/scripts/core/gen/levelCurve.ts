@@ -76,6 +76,15 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   return p;
 }
 
+/** 第 id 关开局暂存槽里先放几条鱼（docs/01 9.3：第 41 关起的难关、超难关）；普通关、没配返回 0 */
+export function prefillFor(curve: CurveConfig, id: number): number {
+  const p = curve.prefill;
+  if (!p || id < p.from || !isChallenge(curve, id)) return 0;
+  let n = 0;
+  for (const [from, k] of p.count) if (id >= from) n = k;
+  return n;
+}
+
 /** 超难关（每 jam.bigEvery 关一个，海域最后一关，原来叫「守关」；docs/01 9.2） */
 export function isBoss(curve: CurveConfig, id: number): boolean {
   return jamKind(curve, id) === 'big';

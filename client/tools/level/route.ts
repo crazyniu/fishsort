@@ -17,6 +17,8 @@ import { generate } from '../../assets/scripts/core/gen/levelGen';
 import { bucket, longestRun, tighten } from '../../assets/scripts/core/gen/routeGen';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
 import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
+import * as Prefill from '../../assets/scripts/core/gen/prefill';
+import { Rng } from '../../assets/scripts/core/rng/rng';
 import * as Players from '../../assets/scripts/core/solver/players';
 import * as Route from '../../assets/scripts/core/solver/route';
 
@@ -52,6 +54,9 @@ for (let ease = 0; ease <= 2 && easiest < want; ease++) {
   const pe = paramsFor(ease);
   for (let sd = seed0; sd < seed0 + 20; sd++) {
     const x = generate(pe, LevelCurve.seedFor(id, 0) + sd * 7919 + ease * 104729, (y) => Route.solve(y, 100000).taps);
+    // 难关开局占格（docs/01 9.3）：先从气泡里拿出几条后面才要的鱼放进暂存槽，再量、再收紧
+    const pf = LevelCurve.prefillFor(curve, id);
+    if (x && pf > 0 && curve.prefill) Prefill.apply(x, pf, curve.prefill.after, new Rng(id * 131 + sd * 17 + ease));
     if (!x || Players.rate(x, 'think', rc.thinkGames, { preview }, 0, floor).win < floor) continue;
     const c = Players.rate(x, 'casual', rc.casualGames, { preview }).win;
     if (c > easiest) {

@@ -1,4 +1,4 @@
-// 四个技能：洗牌 shuffle、吹泡 blow、渔网 net、洋流 current。见 docs/01 第 5.2 节。
+// 技能：撤销 undo、提示 hint（docs/01 9.3，2026-11-19 加）、洗牌 shuffle、吹泡 blow、渔网 net、洋流 current。见 docs/01 第 5.2 节。
 // 存档：save.tools[id] 库存；save.skillsGranted[id] 是否已发过解锁礼；save.daily.toolFree[id] 今天是否已用过免费次。
 import type { EconomyConfig } from '../config';
 import type { Rng } from '../rng/rng';
@@ -97,8 +97,10 @@ export interface UseResult {
  * 使用前调用。usedThisLevel 是本关已用次数（界面层记）。
  * ok 时已经扣了库存（或记了免费次），界面层随后去调 Rules。
  */
-/** 第 levelId 关每种技能最多用几次 */
-export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
+/** 第 levelId 关每种技能最多用几次；toolMaxPerLevelById 单独配的技能（撤销每关 3 次，docs/01 9.6）按它的 */
+export function maxPerLevel(eco: EconomyConfig, levelId: number, id = ''): number {
+  const own = eco.toolMaxPerLevelById?.[id];
+  if (own !== undefined) return own;
   const late = eco.toolMaxLate;
   return late && levelId >= late.from ? late.max : eco.toolMaxPerLevel;
 }
@@ -106,7 +108,7 @@ export function maxPerLevel(eco: EconomyConfig, levelId: number): number {
 /** 这个技能现在用得了吗（不扣库存、不记任务，界面层提醒用道具时先问一下）：'' = 能用，其余同 tryUse 的 reason */
 export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, levelId = 0, usedAllThisLevel = -1): UseResult['reason'] {
   if (!isUnlocked(eco, id, save.level)) return 'locked';
-  if (usedThisLevel >= maxPerLevel(eco, levelId)) return 'limit';
+  if (usedThisLevel >= maxPerLevel(eco, levelId, id)) return 'limit';
   if (levelFree(eco, levelId, usedAllThisLevel)) return '';
   if (!freeAvailable(save, id, eco) && count(save, id) <= 0) return 'empty';
   return '';
@@ -115,7 +117,7 @@ export function canUse(save: SaveData, eco: EconomyConfig, id: string, usedThisL
 export function tryUse(save: SaveData, eco: EconomyConfig, id: string, usedThisLevel: number, day: number, levelId = 0, usedAllThisLevel = -1): UseResult {
   Daily.roll(save, day);
   if (!isUnlocked(eco, id, save.level)) return { ok: false, free: false, reason: 'locked' };
-  if (usedThisLevel >= maxPerLevel(eco, levelId)) return { ok: false, free: false, reason: 'limit' };
+  if (usedThisLevel >= maxPerLevel(eco, levelId, id)) return { ok: false, free: false, reason: 'limit' };
   if (levelFree(eco, levelId, usedAllThisLevel)) {
     Tasks.add(save, eco, day, 'skill');
     return { ok: true, free: true, reason: '' };

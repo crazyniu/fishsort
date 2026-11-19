@@ -73,6 +73,8 @@ export class LevelData {
   /** 参考解：回放它即可证明可解 */
   ref: Tap[] = [];
   variants: string[] = [];
+  /** 开局就放在暂存槽里的鱼（鱼种，docs/01 9.3：第 41 关起的难关先占 1–2 格）；空 = 没有 */
+  prefill: number[] = [];
 
   static fromDict(d: Raw): LevelData {
     const lv = new LevelData();
@@ -108,6 +110,7 @@ export class LevelData {
       lv.ref.push([p[0], p[1]]);
     }
     lv.variants = list<unknown>(d.variants).map(String);
+    lv.prefill = list<unknown>(d.prefill).map((x) => int(x));
     return lv;
   }
 
@@ -124,7 +127,7 @@ export class LevelData {
 
   /** 字段顺序与 Godot 版 to_dict 一致，生成的关卡文件逐字节相同 */
   toDict(): Record<string, unknown> {
-    return {
+    const out: Record<string, unknown> = {
       id: this.id,
       seed: this.levelSeed,
       challenge: this.challenge,
@@ -155,6 +158,9 @@ export class LevelData {
       ref: this.ref,
       variants: this.variants,
     };
+    // 只有开局占格的关才写这一项：旧关卡文件的内容不变
+    if (this.prefill.length > 0) out.prefill = this.prefill;
+    return out;
   }
 
   toJson(): string {
