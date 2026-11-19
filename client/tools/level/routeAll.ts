@@ -4,6 +4,7 @@
 //   --resume  接着上次没跑完的：日志里已经有结果的关跳过，汇总和索引把上次跑完的一起算进去
 //   --ids=234,236,…  只跑这几关（重跑离目标远的关用），不看起止
 //   --iter=N  每次收紧最多试几次交换（传给 route.ts，不给用 level_curve.json 的 route.iterations）
+//   --seed=N  生成种子从几起（传给 route.ts，不给 = 1）：重跑离目标远的关时换一个开局布局
 // 每关的输出在 tools/level/route_logs/<关>.log（不进仓库），汇总写 tools/level/route_report.csv：关、类型、目标、包里那档的随手点 / 想清楚、
 // 有没有用放松的生成参数、各档、用时。离目标超过 10 个点的关在最后列出来
 import { spawn } from 'node:child_process';
@@ -22,6 +23,8 @@ const resume = process.argv.includes('--resume');
 const idsArg = process.argv.find((a) => a.startsWith('--ids='));
 const only = idsArg ? idsArg.slice(6).split(',').map(Number).filter((x) => x > 0) : null;
 const iterArg = process.argv.find((a) => a.startsWith('--iter='));
+/** --seed=N 传给 route.ts：换一个生成种子（重跑离目标远的关时换一个开局布局） */
+const seedArg = process.argv.find((a) => a.startsWith('--seed='));
 const LOGS = join(CLIENT, 'tools/level/route_logs');
 const ENTRIES = join(LOGS, 'lab_entries');
 mkdirSync(LOGS, { recursive: true });
@@ -65,6 +68,7 @@ function runOne(id: number): Promise<void> {
     const args = ['tsx', 'tools/level/route.ts', String(id), '--pkg'];
     if (lab) args.push('--lab', `--labEntry=${join(ENTRIES, `${id}.json`)}`);
     if (iterArg) args.push(iterArg);
+    if (seedArg) args.push(seedArg);
     const child = spawn('npx', args, { cwd: CLIENT });
     let out = '';
     child.stdout.on('data', (d: Buffer) => (out += d.toString()));
