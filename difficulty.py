@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-难度调整脚本（docs/02 第 0 节）：在下面「在这里调难度」那一块改数字，然后运行
+难度调整脚本（docs/02 第 0 节）。直接运行，按菜单选：
 
-    python3 difficulty.py 看              # 只看每关的目标，不生成（先确认曲线对不对）
-    python3 difficulty.py 看 6 20 200     # 看指定几关
-    python3 difficulty.py 生成            # 按下面的数重新生成第 6–360 关（在后台跑，可以关掉终端）
-    python3 difficulty.py 生成 200 260    # 只重新生成第 200–260 关
-    python3 difficulty.py 生成 --提交     # 生成完、校验通过后自动提交并推送
-    python3 difficulty.py 进度            # 看跑到第几关、还要多久
-    python3 difficulty.py 停止            # 停掉后台在跑的生成
+    python3 difficulty.py
 
-放在 Mac 上跑（14 核，全部 355 关约一小时；Linux 4 核要好几个小时）。跑完 Cocos 重新导入后就能玩到新难度。
+菜单里可以：看每关的目标、改参数（改完自动存回这个文件最上面那一块）、生成关卡（在后台跑，可以关掉终端）、看进度、停止。
+也可以直接带英文参数（给脚本、远程用）：
+
+    python3 difficulty.py show [关号 …]          看目标
+    python3 difficulty.py gen [起 止] [--commit]  生成（--commit = 校验通过后自动提交推送）
+    python3 difficulty.py status                 看进度
+    python3 difficulty.py stop                   停止
+
+放在 Mac 上跑（14 核，全部 355 关要几个小时；Linux 4 核更慢）。跑完 Cocos 重新导入后就能玩到新难度。
 「能过多少」是用机器人打几十上百局量的（core/solver/players.ts）：尺子选「想几步」时，量的是会看、会想几步的玩家
-不用道具能过的比例——和认真玩的真人接近。
+不用道具能过的比例——和认真玩的真人接近。最低几个百分点时一关只量 40 局，误差有好几个点，看个大概。
 """
 import json
 import os
@@ -207,14 +209,15 @@ def _running():
 
 def cmd_run(args):
     if _running():
-        raise SystemExit('后台已经有一次生成在跑：python3 difficulty.py 进度 看进度，python3 difficulty.py 停止 停掉')
-    commit = '--提交' in args or '--commit' in args
+        raise SystemExit('后台已经有一次生成在跑：先在菜单里看进度，或者停止它')
+    commit = '--commit' in args
+    resume = '--resume' in args
     nums = [int(a) for a in args if a.isdigit()]
     lo, hi = (nums[0], nums[1]) if len(nums) >= 2 else (nums[0], nums[0]) if nums else (6, TOTAL)
     jobs = 并行数 or max(1, (os.cpu_count() or 4) - 2)
     write_config()
     steps = [
-        f'./run.sh level-route {lo} {hi} --jobs={jobs} --lab',
+        f'./run.sh level-route {lo} {hi} --jobs={jobs} --lab' + (' --resume' if resume else ''),
         './run.sh meta',
         './run.sh level-fixref',
         './run.sh level-verify --measure',
@@ -232,13 +235,13 @@ def cmd_run(args):
     with open(PID, 'w') as f:
         f.write(str(p.pid))
     print(f'已经在后台开始生成第 {lo}–{hi} 关（并行 {jobs}）。可以关掉这个终端。')
-    print('看进度：python3 difficulty.py 进度')
+    print('看进度：再运行 python3 difficulty.py，选「看进度」')
     print(f'全部输出：{LOG}')
 
 
 def cmd_status():
     if not os.path.exists(LOG):
-        print('还没跑过：python3 difficulty.py 生成')
+        print('还没跑过')
         return
     lines = open(LOG, encoding='utf-8', errors='replace').read().splitlines()
     head = next((l for l in lines if l.startswith('@@开始')), '')
@@ -267,7 +270,7 @@ def cmd_status():
     elif _running():
         print('（还在跑）')
     else:
-        print('（没在跑，也没跑完：可能被停掉了；重新生成：python3 difficulty.py 生成）')
+        print('（没在跑，也没跑完：可能被停掉了）')
 
 
 def cmd_stop():
@@ -276,20 +279,162 @@ def cmd_stop():
         print('后台没有在跑的生成')
         return
     os.killpg(pid, signal.SIGTERM)
-    print('已停掉。已经生成好的关保留着；接着跑：在 client 目录 ./run.sh level-route 6 360 --lab --resume')
+    print('已停掉。已经生成好的关保留着；要接着跑，在菜单里选「生成关卡」，会问要不要接着上次的跑')
+
+
+# ------------------------------ 菜单 ------------------------------
+
+# 菜单里能改的参数：（变量名，说明）。改完写回这个文件最上面那一块的同名一行
+PARAMS = [
+    ('难度曲线', '[(关卡号, 能过的百分比), …]，中间连直线；第一个点之前是新手期'),
+    ('难关', '每 5 关的难关比曲线低几个点（写负数）'),
+    ('超难关', '每 20 关的超难关比曲线低几个点（写负数）'),
+    ('最低', '任何一关不低于几 %'),
+    ('单关', '单独指定某几关，如 {200: 30, 201: 50}；清空写 {}'),
+    ('尺子', "'想几步' 或 '随手点'（要带引号）"),
+    ('想几步的深度', '想几步的玩家每步试几种走法，越大越聪明、关卡越难'),
+    ('保底_最高', '想清楚的玩家至少能过几 %（上限）'),
+    ('保底_比目标高', '想清楚的保底 = 这一关的目标 + 几个点（不超过上面的上限）'),
+    ('开局占格_从第几关起', '难关开局暂存槽先放鱼，从第几关起'),
+    ('开局占格_条数', '[(从第几关起, 几条), …]'),
+    ('并行数', '同时生成几关，0 = 按核数自动'),
+]
+
+
+def _ask(prompt: str, default: str = '') -> str:
+    try:
+        v = input(prompt).strip()
+    except EOFError:
+        print()
+        return default
+    return v or default
+
+
+def _ask_range():
+    v = _ask(f'生成哪几关？直接回车 = 第 6–{TOTAL} 关全部；一关写 200；一段写 200 260：')
+    nums = [int(x) for x in re.findall(r'\d+', v)]
+    if not nums:
+        return 6, TOTAL
+    lo, hi = (nums[0], nums[1]) if len(nums) >= 2 else (nums[0], nums[0])
+    lo, hi = max(6, min(lo, hi)), min(TOTAL, max(lo, hi))
+    return lo, hi
+
+
+def _save_param(name: str, value) -> None:
+    """把这个文件里 `名字 = …` 那一行换成新值，并更新内存里的值"""
+    path = os.path.abspath(__file__)
+    text = open(path, encoding='utf-8').read()
+    line = f'{name} = {value!r}'
+    new, n = re.subn(r'(?m)^%s = .*$' % re.escape(name), lambda _: line, text, count=1)
+    if n != 1:
+        raise SystemExit(f'这个文件里找不到「{name} = 」那一行')
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(new)
+    globals()[name] = value
+
+
+def menu_params():
+    import ast
+    while True:
+        print('\n当前参数：')
+        for i, (name, _) in enumerate(PARAMS, 1):
+            print(f'  {i:>2}. {name} = {globals()[name]!r}')
+        v = _ask('改第几项？（直接回车返回）：')
+        if not v:
+            return
+        if not v.isdigit() or not (1 <= int(v) <= len(PARAMS)):
+            print('没有这一项')
+            continue
+        name, note = PARAMS[int(v) - 1]
+        print(f'{name}：{note}')
+        raw = _ask(f'新的值（现在是 {globals()[name]!r}，直接回车不改）：')
+        if not raw:
+            continue
+        try:
+            value = ast.literal_eval(raw)
+        except (ValueError, SyntaxError):
+            print('看不懂这个值，照上面的格式写（文字要带引号）')
+            continue
+        old = globals()[name]
+        globals()[name] = value
+        try:
+            _check()
+            target_of(6)
+        except (SystemExit, Exception) as e:  # noqa: BLE001
+            globals()[name] = old
+            print(f'这个值不行：{e}')
+            continue
+        _save_param(name, value)
+        print(f'已存：{name} = {value!r}')
+
+
+def _last_unfinished():
+    """上次生成停在半路就返回（起, 止），否则 None"""
+    if not os.path.exists(LOG):
+        return None
+    text = open(LOG, encoding='utf-8', errors='replace').read()
+    m = re.search(r'@@开始 .*? 第 (\d+)–(\d+) 关', text)
+    if not m or '@@完成' in text or '@@步骤 ./run.sh meta' in text:
+        return None
+    return int(m.group(1)), int(m.group(2))
+
+
+def menu():
+    while True:
+        busy = _running()
+        print('\n======== 难度调整 ========' + ('（后台正在生成）' if busy else ''))
+        print('  1. 看每关的目标')
+        print('  2. 改参数')
+        print('  3. 生成关卡（后台跑）')
+        print('  4. 看进度')
+        print('  5. 停止后台生成')
+        print('  0. 退出')
+        v = _ask('选一项：')
+        if v in ('0', 'q', ''):
+            return
+        if v == '1':
+            raw = _ask('看哪几关？空格隔开，直接回车 = 一组常看的：')
+            cmd_show([int(x) for x in re.findall(r'\d+', raw)])
+        elif v == '2':
+            menu_params()
+        elif v == '3':
+            if busy:
+                print('后台已经有一次生成在跑，先看进度或者停止它')
+                continue
+            last = _last_unfinished()
+            resume = False
+            if last and _ask(f'上次第 {last[0]}–{last[1]} 关没跑完，接着跑？（跳过已经生成好的）(Y/n)：').lower() != 'n':
+                lo, hi, resume = last[0], last[1], True
+            else:
+                lo, hi = _ask_range()
+            commit = _ask('校验通过后自动提交并推送？(y/N)：').lower() == 'y'
+            print(f'将按当前参数生成第 {lo}–{hi} 关（{hi - lo + 1} 关）' + ('，完成后自动提交推送' if commit else '，生成的文件不提交'))
+            if _ask('确定？(y/N)：').lower() == 'y':
+                cmd_run([str(lo), str(hi)] + (['--commit'] if commit else []) + (['--resume'] if resume else []))
+        elif v == '4':
+            cmd_status()
+        elif v == '5':
+            if busy and _ask('确定停掉？已经生成好的关保留着 (y/N)：').lower() == 'y':
+                cmd_stop()
+            elif not busy:
+                print('后台没有在跑的生成')
+        else:
+            print('没有这一项')
 
 
 def main():
     args = sys.argv[1:]
-    cmd = args[0] if args else '看'
-    rest = args[1:]
-    if cmd in ('看', 'show'):
+    if not args:
+        menu()
+        return
+    cmd, rest = args[0], args[1:]
+    if cmd == 'show':
         cmd_show([int(a) for a in rest if a.isdigit()])
-    elif cmd in ('生成', 'run'):
+    elif cmd == 'gen':
         cmd_run(rest)
-    elif cmd in ('进度', 'status'):
+    elif cmd == 'status':
         cmd_status()
-    elif cmd in ('停止', 'stop'):
+    elif cmd == 'stop':
         cmd_stop()
     else:
         print(__doc__)
