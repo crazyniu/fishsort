@@ -29,3 +29,4 @@ client/tools/level/route_logs/
 # difficulty.py 的后台日志
 difficulty_run.log
 .difficulty_run.pid
+client/tools/level/route_report.csv
