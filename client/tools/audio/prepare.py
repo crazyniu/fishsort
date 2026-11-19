@@ -6,7 +6,7 @@
   （Godot 版是播放时随机变调，Cocos 的 playOneShot 不能变调，所以预先做好）
 - 连击命中 hit_0 … hit_10：原版的 combo（低频鼓点 + 铃音）沿五声音阶逐级升调，和 Godot 版 combo_hud 的音阶、基准音高一致
 - 界面点击 tap、底栏切页 tab、开关 toggle_on / toggle_off：都出自原版的 click（一声很短的上扬音），只是音高不同
-- 进暂存槽 buffer、落地 land：原样
+- 进暂存槽 buffer、落地 land、撤销 undo、提示 hint：原样
 
 背景音乐：加 --bgm 时另外写出 bgm.wav，再跑 ./run.sh art-compress 转成进包的 bgm.mp3（转完 wav 会删掉）。
 
@@ -83,11 +83,11 @@ def main() -> None:
     write('tab', pitch(click, 0.84))
     write('toggle_on', join([pitch(click, 0.9), pitch(click, 1.2)], 0.07))
     write('toggle_off', join([pitch(click, 1.2), pitch(click, 0.9)], 0.07))
-    for name in ('buffer', 'land'):
+    for name in ('buffer', 'land', 'undo', 'hint'):
         write(name, read(name))
     if '--bgm' in sys.argv:
         write('bgm', read('bgm'))
-    print(f'✓ {n + 6} 个音效 → {OUT}')
+    print(f'✓ {n + 8} 个音效 → {OUT}')
 
 
 if __name__ == '__main__':

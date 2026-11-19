@@ -265,8 +265,8 @@ export function useSkill(g: GamePage, id: string): void {
   g.used[id] = used + 1;
   App.save.write();
   g.refreshSkills();
-  // 撤销、提示先借用现成的声音（切页的「嘟」、星星的「叮」），专门的音色等用户试听后再定
-  sfx(id === 'undo' ? 'tab' : id === 'hint' ? 'star' : id);
+  // 撤销、提示有自己的音效（tools/audio/synth.py：两声往下滑的短音、两个往上的轻铃音）
+  sfx(id);
   if (id === 'undo') {
     g.undo();
     g.refreshSkills();
