@@ -11,12 +11,13 @@ import * as Seas from '../core/meta/seas';
 import * as Skills from '../core/meta/skills';
 import { pickSpecies } from '../core/model/speciesPick';
 import { Bowl, GameState, MAX_SLOTS, NO_TIMER, RETURN_BUBBLE, Status } from '../core/model/gameState';
-import { LevelData } from '../core/model/levelData';
+import { LevelData, Tap } from '../core/model/levelData';
 import { Rng } from '../core/rng/rng';
 import * as AutoFinish from '../core/rules/autoFinish';
 import * as Rules from '../core/rules/rules';
 import type { GameEvent } from '../core/rules/rules';
 import * as Bots from '../core/solver/bots';
+import * as Players from '../core/solver/players';
 import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
 import { today } from '../services/clock';
@@ -35,6 +36,12 @@ import * as Flow from './flow';
 export interface GameArg {
   level: number;
   daily?: boolean;
+  /**
+   * 难度调试页的演示（docs/01 9.7）：电脑替玩家点，每一步先圈出要点的那条鱼。不记成绩、不扣命。
+   * route = 按关卡文件里的参考解（想清楚的玩家赢下来的路线，能走完就证明这一档一定过得去）；
+   * casual = 现场按「正常打法」打一局（每次随机，输赢都有，看正常打法是怎么输的）
+   */
+  demo?: 'route' | 'casual';
 }
 
 interface BowlView {
@@ -200,6 +207,11 @@ export class GamePage extends Page {
   private guest: { bubble: number; id: string; node: Node; saved: boolean } | null = null;
   /** 收尾自动入缸：算好的点击顺序（null = 不是收尾，玩家自己点） */
   private autoTaps: AutoFinish.AutoTap[] | null = null;
+  /** 演示要点的走法（GameArg.demo），点到第几步、这一步等了多久 */
+  private demoTaps: Tap[] = [];
+  demoStep = 0;
+  private demoT = 0;
+  private demoArmed = false;
   private autoT = 0;
   private rng = new Rng(Date.now() >>> 0);
   private warned = new Set<Node>();
@@ -243,7 +255,7 @@ export class GamePage extends Page {
     const eco = config.eco;
     const id = this.arg.level;
     const file = Meta.levelFile(id, config.levelCount);
-    const ease = this.arg.daily ? 0 : Meta.easeFor(save.data, eco, id);
+    const ease = this.arg.daily || this.arg.demo ? 0 : Meta.easeFor(save.data, eco, id);
     // 关卡文件和这关的鱼：微信版放在网上，用到时才下（docs/04 第 8 节）。下不下来就提示、回主页（不扣命）
     let species: string[];
     try {
@@ -261,10 +273,11 @@ export class GamePage extends Page {
     }
     this.s = GameState.fromLevel(this.lv);
     // 测试包的整体难度档（设置 → 难度调试，docs/01 9.7）：暂存槽多一格 / 少一格
-    if (App.levelLab) this.s.bufferCap = config.labBuffer(this.s.bufferCap);
+    // 演示按关卡原样打（暂存槽、缸位都照关卡文件），参考解才对得上
+    if (App.levelLab && !this.arg.demo) this.s.bufferCap = config.labBuffer(this.s.bufferCap);
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
-    this.s.clock = this.arg.daily ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
-    if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
+    this.s.clock = this.arg.daily || this.arg.demo ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
+    if (!this.arg.daily && !this.arg.demo) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
     // 加开的缸只装一缸就收走（docs/01 2.4）
     this.s.bowlOnce = eco.bowlSlotOnce === true;
     // 这一关的几种生物：颜色至少差 colorGap（前面的关卡差得很开，越往后越接近，docs/02 第 2.1 节）
@@ -276,6 +289,10 @@ export class GamePage extends Page {
     this.clock = 0;
     this.moved = false;
     this.autoTaps = null;
+    this.demoTaps = this.arg.demo === 'route' ? this.lv.ref.slice() : this.arg.demo === 'casual' ? Players.play(this.lv, 'casual', Math.floor(Math.random() * 1e9), { preview: config.curve.route?.preview ?? 0 }).taps : [];
+    this.demoStep = 0;
+    this.demoT = 0;
+    this.demoArmed = false;
     this.tallied = false;
     this.ended = false;
     this.paused = false;
@@ -604,6 +621,7 @@ export class GamePage extends Page {
   }
 
   private tapFish(b: number, k: number): void {
+    if (this.arg.demo) return;
     if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing || this.field.spinning) return;
     if (this.netMode) {
       ui.toast(tr('UI_NET_HINT'));
@@ -1540,7 +1558,8 @@ export class GamePage extends Page {
     this.idle += dt;
     const hint = App.config.ui.hint;
     const wait = this.arg.level <= hint.tutorialLevels ? hint.tutorialSeconds : hint.seconds;
-    if (!this.hintNode && !this.tutorNode && !this.finishing && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
+    if (!this.arg.demo && !this.hintNode && !this.tutorNode && !this.finishing && this.idle > wait && this.s.status === Status.PLAYING) this.showHint();
+    if (this.arg.demo) this.demoTick(dt);
     if (this.tutor && !this.tutorNode) Flow.checkTutorial(this);
     this.autoFinish(dt);
     if (this.guest && !this.guest.saved && this.guest.node.isValid) this.field.guestFollow(this.guest.node, this.guest.bubble);
@@ -1559,8 +1578,32 @@ export class GamePage extends Page {
    * 收尾自动入缸（docs/01 第 2 节）：只剩「无脑点」的最后几个气泡时，自己一条条送进缸，玩家不用再点。
    * 局面一变就重算一次（AutoFinish.plan，纯规则）；算出来以后等一小会儿（让上一步的动画走完）再按顺序点，每条之间隔一点
    */
+  /** 演示：先圈出下一步要点的鱼，停一下再点（game_ui.json 的 demo.ring / demo.gap） */
+  private demoTick(dt: number): void {
+    if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.field.spinning || popupCount() > 0) return;
+    if (this.demoStep >= this.demoTaps.length) return;
+    const cfg = App.config.ui.demo;
+    const t = this.demoTaps[this.demoStep];
+    this.demoT += dt;
+    if (!this.demoArmed) {
+      if (this.demoT < cfg.gap) return;
+      this.clearHint();
+      this.hintNode = this.field.hint(t[0], t[1]);
+      this.demoArmed = true;
+      this.demoT = 0;
+      return;
+    }
+    if (this.demoT < cfg.ring) return;
+    this.clearHint();
+    this.demoArmed = false;
+    this.demoT = 0;
+    this.demoStep++;
+    // 对不上（不该发生：演示按关卡原样打）就停下，交给 Flow 报出来
+    if (this.act(() => Rules.tap(this.s, t[0], t[1])).length === 0) Flow.demoStuck(this);
+  }
+
   private autoFinish(dt: number): void {
-    if (App.flags.autoplay || this.s.status !== Status.PLAYING || !this.moved) return;
+    if (App.flags.autoplay || this.arg.demo || this.s.status !== Status.PLAYING || !this.moved) return;
     if (this.autoTaps === null) return;
     this.autoT += dt;
     if (this.autoT < App.config.ui.autoFinish.interval) return;

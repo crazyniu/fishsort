@@ -3,6 +3,7 @@
 // - 整体三档：暂存槽 ±1 格、连击窗口，所有关立刻生效
 // - 单关：每关收紧时按「正常打法能过几成」每 10% 存了一档（tools/level/route.ts --lab），挑一档顶替包里那一关，马上试玩。
 //   手机上现场生成太慢，所以挑现成的。试出合适的档告诉开发，写进难度曲线（jam.targets）重新生成
+// - 演示：「看路线」让电脑按关卡里存的参考解打一遍（打得完 = 这一档一定过得去），「看正常打法」现场按正常打法打一局
 import { Node } from 'cc';
 import * as Lives from '../core/meta/lives';
 import * as Flow from '../game/flow';
@@ -84,29 +85,42 @@ export class LabPage extends Page {
       at(text(v, '这一关没有各档版本（只给样品关生成了）', 28, { width: 680 }).node, 0, y);
       y -= 90;
     } else {
-      // 每档一行（从容易到难）：正常打法能过几成、想清楚能过几成、路线最长连击；点「用这档」
+      // 每档一行（从容易到难）：正常打法能过几成、想清楚能过几成、路线最长连击；点「用这档」。
+      // 档多的时候行高跟着压，底下的按钮都要留在屏幕里（2026-11-19 第 6 关 8 档时下面一排被挤出屏幕）
       const vers = Object.keys(info.versions).map(Number).sort((a, b) => b - a);
       const using = custom ? custom.ver : info.base;
+      // 行下面还要放：说明一行、演示一排、试玩一排、金币生命一排、「已改」一行
+      const bottom = -Screen.H / 2 + 430;
+      const step = Math.max(62, Math.min(92, Math.floor((y + 46 - bottom) / Math.max(1, vers.length))));
+      const rowH = step - 8;
+      const k = Math.min(1, rowH / 84);
       for (const ver of vers) {
         const m = info.versions[String(ver)];
-        const row = slice(v, 'kit/row_blue', 690, 84, `p${ver}`);
+        const row = slice(v, 'kit/row_blue', 690, rowH, `p${ver}`);
         at(row, 0, y);
         const tag = `${ver === info.base ? '（包里）' : ''}`;
-        at(text(row, `正常打法能过 ${m.natural}%${tag}`, 30, { align: 'left', color: ver === using ? COLOR.yellow : undefined }).node, -320, 14);
-        at(text(row, `想清楚能过 ${m.think}% · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
-        const b = button(row, { color: ver === using ? 'green' : 'blue', w: 150, h: 64, label: ver === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(ver) });
+        at(text(row, `正常打法能过 ${m.natural}%${tag}`, Math.round(30 * k), { align: 'left', color: ver === using ? COLOR.yellow : undefined }).node, -320, 14 * k);
+        at(text(row, `想清楚能过 ${m.think}% · 连击最多 ${m.run}`, Math.max(18, Math.round(22 * k)), { align: 'left' }).node, -320, -20 * k);
+        const b = button(row, { color: ver === using ? 'green' : 'blue', w: 150, h: Math.min(64, rowH - 10), label: ver === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(ver) });
         at(b.node, 255, 0);
-        y -= 92;
+        y -= step;
       }
     }
 
-    const note = text(v, this.note || (info ? `这关目标：正常打法 ${info.target}% 能过。挑一档马上试` : ''), 26, { width: 680 });
-    at(note.node, 0, y - 10);
-    y -= 90;
+    const note = text(v, this.note || (info ? `这关目标：正常打法 ${info.target}% 能过。挑一档马上试，或先看电脑打一遍` : ''), 26, { width: 680 });
+    at(note.node, 0, y - 6);
+    y -= 76;
 
-    const play = button(v, { color: 'green', w: 330, h: 92, label: '试玩这一关', fontSize: 34, onTap: () => this.play() });
+    // 演示：电脑打在用的这一档（调试页换了档就打换的，没换就打包里的）
+    const route = button(v, { color: 'yellow', w: 330, h: 80, label: '看路线（一定能过）', fontSize: 28, onTap: () => Flow.startDemo(this.level, 'route') });
+    at(route.node, -175, y);
+    const casual = button(v, { color: 'yellow', w: 330, h: 80, label: '看正常打法打一局', fontSize: 28, onTap: () => Flow.startDemo(this.level, 'casual') });
+    at(casual.node, 175, y);
+    y -= 96;
+
+    const play = button(v, { color: 'green', w: 330, h: 84, label: '试玩这一关', fontSize: 34, onTap: () => this.play() });
     at(play.node, -175, y);
-    const back = button(v, { color: 'blue', w: 330, h: 92, label: '恢复包里的', fontSize: 30, onTap: () => {
+    const back = button(v, { color: 'blue', w: 330, h: 84, label: '恢复包里的', fontSize: 30, onTap: () => {
       App.config.lab.delete(this.level);
       App.config.saveLab(App.platform);
       this.note = `第 ${this.level} 关换回包里的版本`;
@@ -114,7 +128,7 @@ export class LabPage extends Page {
     } });
     at(back.node, 175, y);
     back.setEnabled(!!custom);
-    y -= 104;
+    y -= 96;
     const coins = button(v, { color: 'yellow', w: 220, h: 80, label: '金币 +1000', fontSize: 28, onTap: () => {
       s.coins += 1000;
       App.save.write();

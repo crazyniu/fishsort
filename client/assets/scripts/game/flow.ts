@@ -49,6 +49,28 @@ export function startLevel(level: number): void {
   ui.go('game', { level });
 }
 
+/**
+ * 难度调试页：电脑替玩家打一遍（docs/01 9.7）。route = 按关卡里的参考解，能打完就证明这一档一定过得去；
+ * casual = 按「正常打法」现场打一局。不记成绩、不扣命、不算连输，打完回调试页。调试用，字直接写
+ */
+export function startDemo(level: number, kind: 'route' | 'casual'): void {
+  pendingCards.length = 0;
+  ui.go('game', { level, demo: kind });
+}
+
+/** 演示打完（或对不上停下）：报一句结果，回调试页 */
+function demoDone(g: GamePage, msg: string): void {
+  g.ended = true;
+  pendingCards.length = 0;
+  closeAllPopups();
+  ui.toast(msg);
+  ui.go('lab');
+}
+
+export function demoStuck(g: GamePage): void {
+  demoDone(g, `演示第 ${g.demoStep} 步点不下去（路线和局面对不上），截图告诉开发`);
+}
+
 export function startDaily(): void {
   pendingCards.length = 0;
   const s = App.save.data;
@@ -60,6 +82,10 @@ export function startDaily(): void {
 export function onLevelStart(g: GamePage): void {
   playMusic();
   const s = App.save.data;
+  if (g.arg.demo) {
+    ui.toast(g.arg.demo === 'route' ? '电脑按关卡里存的路线打，不用道具；金圈是下一步要点的鱼' : '电脑按「正常打法」打一局，每次走法都不一样');
+    return;
+  }
   if (g.arg.daily || App.flags.autoplay) return; // 每日挑战不出新机制说明、提示和技能教学（docs/01 5.11）
   const lvl = g.arg.level;
   const tips: string[] = [];
@@ -150,7 +176,7 @@ function tipPopup(key: string, done: () => void): void {
 /** 新技能的强制教学：这一关第一次能用上它（有效果）时才开始；网兜要先有缸 */
 export function checkTutorial(g: GamePage): void {
   const id = g.tutor;
-  if (!id || g.ended || g.paused || g.finishing || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay) return;
+  if (!id || g.ended || g.paused || g.finishing || g.s.status !== Status.PLAYING || popupCount() > 0 || App.flags.autoplay || g.arg.demo) return;
   if ((g.used[id] ?? 0) > 0) {
     g.tutor = '';
     return;
@@ -325,13 +351,17 @@ export function pause(g: GamePage): void {
       g.paused = false;
       App.platform.hideBanner();
     },
-    onHome: () => leave(g, () => ui.go(g.arg.daily ? 'daily' : 'home')),
+    onHome: () => leave(g, () => ui.go(g.arg.daily ? 'daily' : g.arg.demo ? 'lab' : 'home')),
     onRetry: () => leave(g, () => restart(g)),
   });
 }
 
 /** 走过步时离开 / 重试要扣命，先确认（docs/01 5.1） */
 function leave(g: GamePage, then: () => void): void {
+  if (g.arg.demo) {
+    then();
+    return;
+  }
   const s = App.save.data;
   const eco = App.config.eco;
   const costs = !g.arg.daily && g.moved && g.arg.level > eco.lives.freeUntilLevel && !Lives.isUnlimited(s, now());
@@ -349,6 +379,10 @@ function leave(g: GamePage, then: () => void): void {
 }
 
 function restart(g: GamePage): void {
+  if (g.arg.demo) {
+    startDemo(g.arg.level, g.arg.demo);
+    return;
+  }
   if (g.arg.daily) {
     ui.go('daily');
     return;
@@ -378,6 +412,7 @@ function endRun(g: GamePage): void {
 // ---------------------------------------------------------------- 连击送卡
 
 export function comboCard(g: GamePage): void {
+  if (g.arg.demo) return;
   const s = App.save.data;
   const eco = App.config.eco;
   const rarity = Cards.rollRarity(eco, eco.chest.cardRates, rng);
@@ -413,6 +448,11 @@ const REVIVE_KEY: Record<number, string> = {
 
 export function lose(g: GamePage): void {
   if (g.s.status !== Status.LOST) return;
+  if (g.arg.demo) {
+    const why = g.s.loseReason === LoseReason.BUFFER_FULL ? '暂存槽满了' : '没有能点的鱼了';
+    demoDone(g, g.arg.demo === 'route' ? `电脑按路线没过（第 ${g.demoStep} 步${why}，不该发生），截图告诉开发` : `正常打法这局输了：第 ${g.demoStep} 步${why}`);
+    return;
+  }
   sfx('lose');
   if (App.flags.autoplay && !g.arg.daily) {
     autoRetry(g);
@@ -591,6 +631,10 @@ export interface WinData {
 }
 
 export function win(g: GamePage): void {
+  if (g.arg.demo) {
+    demoDone(g, g.arg.demo === 'route' ? `电脑按路线过了：${g.demoStep} 步，没用道具` : `正常打法这局过了（${g.demoStep} 步）`);
+    return;
+  }
   endRun(g);
   const s = App.save.data;
   const eco = App.config.eco;

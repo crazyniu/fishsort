@@ -323,6 +323,8 @@ export interface GameUiConfig {
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
   hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 难度调试页的演示：每一步圈出要点的鱼后停 ring 秒再点，点完隔 gap 秒圈下一条 */
+  demo: { ring: number; gap: number };
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number; maxLeft: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */

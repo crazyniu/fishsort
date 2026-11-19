@@ -50,6 +50,10 @@
    "interval": 0.2,
    "maxLeft": 3
  },
+ "demo": {
+  "ring": 0.45,
+  "gap": 0.3
+ },
  "hint": {
   "tutorialLevels": 3,
   "tutorialSeconds": 2.0,
