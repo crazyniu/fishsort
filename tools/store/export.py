@@ -5,7 +5,7 @@
 出图时要求文字和主体都在中间 64% 宽里，所以裁掉两边不会切到字。
 输出 store/images/<商店>/<语言>/<序号>.jpg（JPEG 质量 92）：
   app_store_6.9  1320×2868、app_store_6.5  1284×2778、google_play  1080×1920、wechat  1080×1920（只有中文）；
-  google_play/<语言>/feature.jpg  1024×500。
+  google_play/<语言>/feature.jpg  1024×500（没有这种语言的置顶大图就用英文那张）。
 """
 from pathlib import Path
 
@@ -20,7 +20,8 @@ SIZES = {
     'google_play': (1080, 1920),
     'wechat': (1080, 1920),
 }
-LANGS = ['en', 'zh_CN']
+# App 的语言（docs/10 第 8 节）；置顶大图只有标题不同，标题和英文一样的语言（欧洲语言都叫 Bubble Fish）用英文那张
+LANGS = ['en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'de', 'fr', 'es', 'pt', 'it', 'ru', 'tr']
 
 
 def cover(im: Image.Image, w: int, h: int) -> Image.Image:
@@ -49,6 +50,8 @@ def main() -> None:
             print(store, lang, n)
     for lang in LANGS:
         src = SRC / f'feature_{lang}.png'
+        if not src.exists():
+            src = SRC / 'feature_en.png'
         if src.exists():
             folder = OUT / 'google_play' / lang
             folder.mkdir(parents=True, exist_ok=True)

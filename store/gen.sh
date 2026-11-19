@@ -11,7 +11,7 @@ run() {
   k="$1"
   [ -s "$OUT/$k.png" ] && { echo "skip $k"; return; }
   # 参照：风格表 + 同一画面的旧插画（构图参考，都是我们自己的图）
-  base="${k%_en}"; base="${base%_zh_CN}"
+  base=$(echo "$k" | sed -E 's/_(en|zh_CN|zh_TW|ja|ko|de|fr|es|pt|it|ru|tr)$//')
   refs="--image=$RAW/ref_style.png"
   [ -f "$RAW/$base.png" ] && refs="$refs --image=$RAW/$base.png"
   codex exec --skip-git-repo-check --sandbox workspace-write $refs -- "$(cat store/briefs/posters/$k.txt)" < /dev/null > "$OUT/$k.log" 2>&1
