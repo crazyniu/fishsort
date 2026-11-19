@@ -30,6 +30,10 @@ interface View {
   chain: Node | null;
   chainLabel: Label | null;
   ice: Node | null;
+  /** 厚冰（docs/01 9.3）：连着几个气泡；底下一排小冰晶，一颗代表一个还没破的（破一个少一颗） */
+  iceAll: boolean;
+  iceTotal: number;
+  icePegs: Node[];
   /** 冰晶连线：连到每个依赖的气泡的一串冰晶，咬住依赖泡的那头是一簇冰刺；位置每帧跟着两头走 */
   iceLinks: { beads: Node[]; clamp: Node | null; dep: number }[];
   /** 迷雾：雾团、每条鱼位上的问号球、底下一排小泡泡（还要破几个别的气泡，一个小泡泡代表一个） */
@@ -481,6 +485,9 @@ export class Field {
       chain: null,
       chainLabel: null,
       ice: null,
+      iceAll: d.iceAll === true,
+      iceTotal: d.ice.length,
+      icePegs: [],
       iceLinks: [],
       fog: null,
       fogMarks: [],
@@ -498,9 +505,18 @@ export class Field {
       v.chainLabel = text(badge, String(d.chain), 36);
     }
     if (d.ice.length > 0) {
-      v.ice = img(body, 'icon/ice', r * 1.7, r * 1.7, 'ice');
-      opacity(v.ice).opacity = 170;
+      // 厚冰：全部连着的气泡破了才化，冰更厚（不那么透），按裂了几道换图（art/briefs/ui_skin/thick_ice.txt）
+      v.ice = img(body, v.iceAll ? 'icon/ice_thick0' : 'icon/ice', r * 1.7, r * 1.7, 'ice');
+      opacity(v.ice).opacity = v.iceAll ? 215 : 170;
       for (const dep of d.ice) v.iceLinks.push({ beads: [], clamp: null, dep });
+      if (v.iceAll) {
+        const n = d.ice.length;
+        for (let k = 0; k < n; k++) {
+          const peg = img(body, 'skin/j_ice_bead', 44, 25, 'icePeg');
+          at(peg, (k - (n - 1) / 2) * 48, -r * 0.92);
+          v.icePegs.push(peg);
+        }
+      }
     }
     if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
     // 气泡互相挨着，漂浮幅度小一点；泡膜像果冻一样慢慢鼓一下、扁一下（每个错开，不齐步）
@@ -712,18 +728,23 @@ export class Field {
   }
 
   /**
-   * 厚冰裂一层（连着的气泡破了一个，还没全破）：冰面缩一下弹回、变淡一档、掉几粒冰碴。
-   * 占位表现，等 Codex 出「裂一层 / 裂两层」的冰面图再换（art/briefs/thick-ice.md）
+   * 厚冰裂一层（连着的气泡破了一个，还没全破；left = 还差几个）：换成裂了几道的冰面图、底下的小冰晶少一颗、
+   * 冰面缩一下弹回、掉几粒冰碴
    */
-  crackIce(b: number, delay: number): void {
+  crackIce(b: number, delay: number, left: number): void {
     const v = this.views[b];
     if (!v || v.gone || !v.ice) return;
     const ice = v.ice;
+    const broken = Math.min(2, Math.max(1, v.iceTotal - left));
     tween(ice)
       .delay(delay)
       .call(() => {
         if (!ice.isValid) return;
-        opacity(ice).opacity = Math.max(90, opacity(ice).opacity - 40);
+        setImg(ice, `icon/ice_thick${broken}`, v.r * 1.7, v.r * 1.7);
+        while (v.icePegs.length > left) {
+          const peg = v.icePegs.pop() as Node;
+          tween(peg).to(0.18, { scale: new Vec3(0.2, 0.2, 1) }).call(() => peg.destroy()).start();
+        }
         sparkle(this.node, v.node.position.x, v.node.position.y, 5, v.r * 0.8, new Color(200, 245, 255, 255));
       })
       .to(0.08, { scale: new Vec3(0.9, 0.9, 1) })
@@ -735,6 +756,8 @@ export class Field {
     const ice = v.ice;
     if (!ice) return;
     v.ice = null;
+    for (const peg of v.icePegs) peg.destroy();
+    v.icePegs = [];
     tween(opacity(ice)).to(0.35, { opacity: 0 }).call(() => ice.destroy()).start();
     this.dropIceLinks(v);
     sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(180, 240, 255, 255));

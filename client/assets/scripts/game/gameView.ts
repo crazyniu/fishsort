@@ -774,7 +774,7 @@ export class GamePage extends Page {
           break;
         case 'ice_crack':
           // 厚冰裂一层：连着的气泡破了一个、还差几个（连线跟着状态少一根，这里冰面顿一下、掉几粒冰碴）
-          this.field.crackIce(e.b as number, t);
+          this.field.crackIce(e.b as number, t, e.left ?? 0);
           break;
         case 'blow': {
           this.blowBuffer(t);
