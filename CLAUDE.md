@@ -35,7 +35,7 @@
 6. **文案不进代码**：所有玩家可见文字走 `tr()`，翻译在 `i18n/strings.csv`（每种语言一列），生成 `client/assets/resources/i18n/strings.json`。
 7. **关卡必须可解**：进包的关卡都要过 `./run.sh level-verify`。
 8. **v1.0 无自建服务器**：存档本地 + 平台云存档，排行榜用平台能力。
-9. **这一版不做内购；第一版上架三端都不接广告**（用户 2026-11-18 定）。广告的代码都留着，总开关是 `game.json` 的 `ads.enabled`（现在 `false`：入口隐藏、原生包不带广告 SDK，`docs/01` 7.1、`docs/10` 第 5 节），以后打开重新打包即可。界面按 `hasCapability('ads')` 决定广告入口在不在、按 `adsAvailable()` 决定能不能点。微信本来就不能做内购（要版号，个人主体也开不了虚拟支付）；Google Play、iOS 的内购以后再说，清单留在 `docs/07`。
+9. **这一版不做内购；上架的版本有广告**（用户 2026-11-20：「我们真正上架的版本都是有广告的」，金币按「不看广告不够用，看广告加倍」设计，`docs/01` 6.3；2026-11-18 定过「第一版不接广告」，已改口）。总开关是 `game.json` 的 `ads.enabled`（现在还是 `false`：入口隐藏、原生包不带广告 SDK，`docs/01` 7.1、`docs/10` 第 5 节），上架前打开：换真实广告 ID、重新打包、改商店的隐私声明，动手前和用户对一下。界面按 `hasCapability('ads')` 决定广告入口在不在、按 `adsAvailable()` 决定能不能点。微信本来就不能做内购（要版号，个人主体也开不了虚拟支付）；Google Play、iOS 的内购以后再说，清单留在 `docs/07`。
 10. **语言**（用户 2026-11-19：App 做欧美、日韩和繁体区，不做中国大陆；跟着同类休闲游戏的常见语言来）：App 带 12 种——英文、简体中文、繁体中文、日文、韩文、德文、法文、西班牙文、葡萄牙文（巴西）、意大利文、俄文、土耳其文；微信版只带简体中文和英文。按系统语言选默认（认不出用英文，微信用简体），设置里可换。各端带哪些语言在 `game.json` 的 `languages`。**每种语言都按当地休闲游戏的说法写，不直译**；文字不缩放，放不下就改短（`docs/10` 第 8 节）。
 11. **测试与 CI 从简**：只给 `core/` 的规则、生成器和存档写测试（`client/tests/`）；界面、服务、平台层不写单测。CI 只有一条 PR 流水线，三分钟内跑完，不加构建矩阵、覆盖率、界面自动化。细则见 `docs/05` 第 3、4 节，不要自行加码。
 12. **包体**：界面能用代码画的就不用图片（`docs/09` 第 11 节）；进包的 PNG 一律压成调色板（`./run.sh art-compress`，`check` 会查）。微信打包与真机验证用户定为先不管，平台专属功能等接平台时再做。
@@ -60,6 +60,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh page shop             # 启动后直接打开某一页
 ./run.sh real                  # 按真实存档进度（可与上面几个连用，如 ./run.sh real level 3）
 ./run.sh serve                 # 不重新构建，直接打开上次的构建（后面同样可跟 level / auto / page / real）
+./run.sh lan                   # 给用户测：构建后服务开在内网，打印 http://<Mac 的内网 IP>:8080/ ，不开本机 Chrome（lan serve = 不重新构建；后面同样可跟试玩参数）
 ./package.sh                   # 输入平台和产物编号，见 docs/10 第 4 节
 ./run.sh native-apply          # 按 game.json 改写各平台的构建配置和原生工程（打包时自动跑）
 ./run.sh editor                # 打开 Cocos Creator
@@ -89,3 +90,4 @@ python3 difficulty.py          # 调难度（Mac 上跑）：菜单里看目标�
 13. **Linux 开发机只写代码，不跑 Cocos / Blender**：构建、试玩、截图、界面验收、Blender 出图或导出，一律去用户的 Mac 上做（Node 的检查、单测、关卡校验可以在 Linux 上跑）。Claude 用 `orca` CLI 驱动 Orca 环境 `Mac-Image-Worker`（仓库 `/Users/apple/Documents/projects/fishsort`，Cocos Creator 3.8.8 在 `/Applications/Cocos/Creator/3.8.8/`），不需要用户手动操作。
 14. **代码同步只走 git**：Linux 上提交并推送，Mac 上 `git checkout -- client && git pull --ff-only`（`./run.sh` 试玩、构建、开编辑器前会自动做这一步；`NO_PULL=1` 跳过）。Mac 看不到未推送的改动。在 Mac 上除 git 同步、`./run.sh` 和 `./package.sh` 外不改文件、不装软件，不碰 `game` 等其它项目。
 15. 开终端、读输出、取运行画面、操作界面、收尾清理的具体命令见 `docs/05` 第 9 节。测完关掉自己开的终端并结束试玩进程。
+16. **交给用户测试时**（用户 2026-11-20）：在 Mac 上跑 `./run.sh lan`，把打印出来的内网地址发给他；这个服务留着给他测，他说测完了再关。

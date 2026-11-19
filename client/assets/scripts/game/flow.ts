@@ -231,6 +231,11 @@ export function hasEffect(g: GamePage, id: string): string | null {
 
 export function useSkill(g: GamePage, id: string): void {
   if (g.ended || g.paused || g.s.status !== Status.PLAYING || g.finishing) return;
+  // 渔网正等着选缸：这时再按别的技能（尤其撤销，会把版面整个重画、渔网白扣一个）不响应，提示先选缸
+  if (g.netMode) {
+    ui.toast(tr('UI_NET_HINT'));
+    return;
+  }
   const s = App.save.data;
   const eco = App.config.eco;
   const lvl = g.arg.daily ? s.level : Math.max(s.level, g.arg.level);
@@ -260,8 +265,8 @@ export function useSkill(g: GamePage, id: string): void {
   g.used[id] = used + 1;
   App.save.write();
   g.refreshSkills();
-  // 撤销、提示先借用现成的声音（切页的「嘟」、星星的「叮」），专门的音色等用户试听后再定
-  sfx(id === 'undo' ? 'tab' : id === 'hint' ? 'star' : id);
+  // 撤销、提示有自己的音效（tools/audio/synth.py：两声往下滑的短音、两个往上的轻铃音）
+  sfx(id);
   if (id === 'undo') {
     g.undo();
     g.refreshSkills();

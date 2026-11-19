@@ -28,8 +28,9 @@
   "maxMechanics": 3,
   "rhythm": [1, 2, 1, 2, 3],
   "fresh": {"levels": 5, "share": 3},
-  "challenge": {"speciesPlus": [0, 2], "speciesPlusFrom": 60, "fishMul": 1.3, "fishMax": 84, "capMinus": 1, "capMin": 17, "layersMax": 4, "slackPlus": 1, "bossSpeciesPlus": 1},
+  "challenge": {"speciesPlus": [0, 2], "speciesPlusFrom": 60, "fishMul": 1.3, "fishMax": 150, "capMinus": 1, "capMin": 17, "layersMax": 4, "slackPlus": 1, "bossSpeciesPlus": 1, "fishPlusMax": 24},
   "normalFishMax": 66,
+  "seaFish": [0, 66, 69, 72, 78, 81, 84, 90, 93, 96, 99, 102, 108, 111, 114, 120, 123, 126],
   "prefill": {"from": 41, "count": [[41, 1], [61, 2]], "after": 0.5},
   "ease": {"species": 1, "fish": 3, "cap": 1, "slack": 1},
   "targets": {"start": 97, "end": 55, "first": 3, "last": 120, "tol": 6, "easyFrom": 90, "tutorialUntil": 5, "challengeDrop": [10, 25], "challengeFloor": 8, "challengeDropUntil": 50, "tail": {"to": 240, "end": 35}, "knots": [[3, 97], [60, 77], [120, 42], [240, 22]], "bowl3": {"plus": 10, "easyFrom": 90, "capFrom": 26, "capPlus": 30, "cap": 95}, "segmentOffset": {"layered": 0, "drop": 0}},
@@ -53,9 +54,7 @@
     "tol": 0.1,
     "ease": [0.5, 0.2]
   },
-  "route": {"preview": 3, "thinkFloor": 0.9, "iterations": 1500, "casualGames": 200, "thinkGames": 30, "checkCasual": 500, "checkThink": 60, "targets": {"tutorial": [[5, 0.95]], "line": [[6, 0.85], [360, 0.01]], "hard": -0.15, "boss": -0.25,
-   "hardRatio": 0.6,
-   "bossRatio": 0.4, "min": 0.01, "overrides": {}}, "ruler": {"kind": "think", "budget": 60, "games": 40, "checkGames": 100}, "floor": {"max": 0.9, "gap": 0.4}, "daily": {"from": 10, "step": 5, "target": 0.06, "max": 0.1, "floor": 0.5}},
+  "route": {"preview": 3, "thinkFloor": 0.9, "iterations": 1500, "casualGames": 200, "thinkGames": 30, "checkCasual": 500, "checkThink": 60, "targets": {"tutorial": [[5, 0.95]], "from": 6, "seaSize": 20, "normal": [0.45, 0.4, 0.38, 0.37, 0.35, 0.34, 0.32, 0.31, 0.29, 0.28, 0.26, 0.24, 0.23, 0.21, 0.2, 0.18, 0.17, 0.15], "hard": [0.32, 0.3, 0.29, 0.28, 0.26, 0.25, 0.24, 0.22, 0.21, 0.2, 0.19, 0.18, 0.16, 0.15, 0.14, 0.12, 0.11, 0.1], "boss": [0.25, 0.2, 0.19, 0.18, 0.17, 0.16, 0.15, 0.14, 0.13, 0.12, 0.12, 0.11, 0.1, 0.09, 0.08, 0.07, 0.06, 0.05], "early": {"until": 10, "normal": 0.55, "hard": 0.4}, "min": 0.05, "overrides": {}}, "ruler": {"kind": "think", "budget": 60, "games": 40, "checkGames": 100}, "floor": {"max": 0.9, "gap": 0.4}, "daily": {"from": 10, "step": 5, "target": 0.06, "max": 0.1, "floor": 0.5}},
   "timer": {"loose": 2, "min": 45, "max": 90, "step": 5, "maxSteps": 20},
   "gen": {"seeds": 40, "seedsMore": 40, "probes": 6, "probesFine": 4, "band": 0.1, "knobMax": 1.6, "close": 3, "variantSeeds": 45, "capMin": 17, "perAvgMin": 1.6, "fishNudge": 3, "monotoneMargin": 3, "variantMargin": 4, "runs": 40, "verifyRuns": 400, "verifySeedBase": 1000, "tol40": 12, "giveUpSeeds": 10, "bowl3Seeds": 8, "bowl3Worse": 3}
 }

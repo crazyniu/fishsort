@@ -8,7 +8,7 @@
 也可以直接带英文参数（给脚本、远程用）：
 
     python3 difficulty.py show [关号 …]          看目标
-    python3 difficulty.py gen [起 止] [--commit]  生成（--commit = 校验通过后自动提交推送）
+    python3 difficulty.py gen [起 止] [--commit] [--no-measure]  生成（--commit = 校验通过后自动提交推送；--no-measure = 生成完只查结构、不再全量复测难度，省时间）
     python3 difficulty.py gen --daily [--commit]  生成每日挑战关
     python3 difficulty.py status                 看进度
     python3 difficulty.py stop                   停止
@@ -27,20 +27,37 @@ import time
 
 # ============================== 在这里调难度 ==============================
 
-# 难度曲线：（关卡号, 能过的百分比）。中间按直线连起来；第一个点之前是新手期（不收紧）
-难度曲线 = [(5, 95), (6, 85), (360, 1)]
+# 不逐关加难度：一个海域（20 关）里难度持平，每进一个海域换一档（用户 2026-11-20 定）。
+# 下面三行各 18 个数，第几个数就是第几个海域（第 1 个 = 第 1–20 关，其中第 1–5 关是新手期不算）。
+# 数字 = 不用道具、不加开鱼缸能过的百分比（用下面的「尺子」量）。想单独改某个海域，直接改那一个数。
 
-# 每 5 关一个难关、每 20 关一个超难关：比曲线低几个点
-难关 = -15
-超难关 = -25
+# 普通关：第一个海域 45%（头几关再缓一档，见下面「头几关」），第二个海域 40%，最后一个海域 15%
+普通关 = [45, 40, 38, 37, 35, 34, 32, 31, 29, 28, 26, 24, 23, 21, 20, 18, 17, 15]
 
-# 曲线低了以后改成按比例：难关 = 普通关 × 难关_比例、超难关 = 普通关 × 超难关_比例，和上面「低几个点」取容易的那个。
-# 不然后期难关、超难关都压到「最低」，和普通关一样难（0.6 时普通关 37.5% 以下开始按比例，0.4 时 41.7% 以下）
-难关_比例 = 0.6
-超难关_比例 = 0.4
+# 难关（每 5 关一个）：第一个海域 32%，第二个海域 30%，最后一个海域 10%
+难关 = [32, 30, 29, 28, 26, 25, 24, 22, 21, 20, 19, 18, 16, 15, 14, 12, 11, 10]
+
+# 超难关（每 20 关一个，海域最后一关）：第一个海域 25%，第二个海域 20%，最后一个海域 5%——全游戏最难的就是 5%（用户 2026-11-20：1% 太低）
+超难关 = [25, 20, 19, 18, 17, 16, 15, 14, 13, 12, 12, 11, 10, 9, 8, 7, 6, 5]
+
+# 鱼的数量也跟着海域涨（普通关，每个海域一个数，一个海域里一样多）：第 2 个海域 66 条，第 18 个海域 126 条
+# （用户 2026-11-20 先说 160 左右，后来同意封顶 126：通过率已经压到 15% 以下，一局再拉到四五分钟，输一次代价太大）。
+# 第 1 个写 0 = 第一个海域照新手期的曲线（39 条慢慢涨到 57 条）
+鱼的数量 = [0, 66, 69, 72, 78, 81, 84, 90, 93, 96, 99, 102, 108, 111, 114, 120, 123, 126]
+
+# 难关的鱼比同海域的普通关多三成，但最多只多这么多条；任何一关不超过「鱼的数量_最多」
+难关多几条_最多 = 24
+鱼的数量_最多 = 150
+
+# 头几关再缓一档：刚出新手期（排队泡首发、开始扣命）到第几关为止，普通关、难关各能过多少。
+# 写成 (到第几关为止, 普通关, 难关)；不要这一档就写 None
+头几关 = (10, 55, 40)
+
+# 新手期：第 5 关能过多少（第 1–4 关不收紧）
+新手期 = (5, 95)
 
 # 任何一关都不低于这个百分比
-最低 = 1
+最低 = 5
 
 # 单独指定某几关（优先于上面的曲线），比如 {200: 30, 201: 50}
 单关 = {}
@@ -81,6 +98,8 @@ CURVE = os.path.join(ROOT, 'client/assets/resources/config/level_curve.json')
 LOG = os.path.join(ROOT, 'difficulty_run.log')
 PID = os.path.join(ROOT, '.difficulty_run.pid')
 TOTAL = 360
+# 一个海域几关
+SEA = 20
 
 
 def _replace_key(text: str, key: str, value) -> str:
@@ -125,25 +144,27 @@ def _knot(points, level):
 def _check():
     if 尺子 not in ('想几步', '随手点'):
         raise SystemExit("尺子只能是 '想几步' 或 '随手点'")
-    pts = sorted(难度曲线)
-    if len(pts) < 2:
-        raise SystemExit('难度曲线至少要两个点：新手期最后一关、第一个正式关')
-    for lv, pct in pts:
-        if not (0 <= pct <= 100):
-            raise SystemExit(f'难度曲线第 {lv} 关的 {pct}% 不在 0–100 之间')
-    return pts
+    for name, row in (('普通关', 普通关), ('难关', 难关), ('超难关', 超难关)):
+        if not isinstance(row, (list, tuple)) or len(row) == 0:
+            raise SystemExit(f'{name} 要写成一串数：每个海域一个，如 [40, 38, 36]')
+        for i, pct in enumerate(row):
+            if not (0 <= pct <= 100):
+                raise SystemExit(f'{name} 第 {i + 1} 个海域的 {pct}% 不在 0–100 之间')
+    if not (isinstance(新手期, (list, tuple)) and len(新手期) == 2 and 0 <= 新手期[1] <= 100):
+        raise SystemExit('新手期要写成 (关卡号, 百分比)，如 (5, 95)')
 
 
 def _targets():
-    """写进 level_curve.json 的 route 那一项（比例用 0–1）"""
-    pts = _check()
+    """写进 level_curve.json 的 route.targets（比例用 0–1）"""
+    _check()
     return {
-        'tutorial': [[pts[0][0], pts[0][1] / 100]],
-        'line': [[lv, pct / 100] for lv, pct in pts[1:]],
-        'hard': 难关 / 100,
-        'boss': 超难关 / 100,
-        'hardRatio': 难关_比例,
-        'bossRatio': 超难关_比例,
+        'tutorial': [[新手期[0], 新手期[1] / 100]],
+        'from': 新手期[0] + 1,
+        'seaSize': SEA,
+        'normal': [v / 100 for v in 普通关],
+        'hard': [v / 100 for v in 难关],
+        'boss': [v / 100 for v in 超难关],
+        **({'early': {'until': 头几关[0], 'normal': 头几关[1] / 100, 'hard': 头几关[2] / 100}} if 头几关 else {}),
         'min': 最低 / 100,
         'overrides': {str(k): v / 100 for k, v in 单关.items()},
     }
@@ -162,6 +183,11 @@ def write_config():
     prefill = curve.get('prefill', {'after': 0.5})
     prefill['from'] = 开局占格_从第几关起
     prefill['count'] = [[a, b] for a, b in 开局占格_条数]
+    challenge = curve['challenge']
+    challenge['fishMax'] = 鱼的数量_最多
+    challenge['fishPlusMax'] = 难关多几条_最多
+    text = _replace_key(text, 'challenge', challenge)
+    text = _replace_key(text, 'seaFish', list(鱼的数量))
     text = _replace_key(text, 'route', route)
     text = _replace_key(text, 'prefill', prefill)
     json.loads(text)  # 写坏了就别存
@@ -179,18 +205,15 @@ def kind_of(level: int) -> str:
 
 
 def target_of(level: int):
-    pts = _check()
+    _check()
     if level in 单关:
         return 单关[level]
-    if level < pts[1][0]:
-        return pts[0][1] if level >= pts[0][0] else None
-    v = _knot(pts[1:], level)
-    k = kind_of(level)
-    if k == '超难关':
-        v = max(v + 超难关, v * 超难关_比例)
-    elif k == '难关':
-        v = max(v + 难关, v * 难关_比例)
-    return max(最低, round(v, 1))
+    if level <= 新手期[0]:
+        return 新手期[1] if level == 新手期[0] else None
+    if 头几关 and level <= 头几关[0]:
+        return max(最低, 头几关[2] if kind_of(level) != '普通关' else 头几关[1])
+    row = {'超难关': 超难关, '难关': 难关, '普通关': 普通关}[kind_of(level)]
+    return max(最低, row[min(len(row) - 1, (level - 1) // SEA)])
 
 
 def floor_of(level: int):
@@ -200,7 +223,8 @@ def floor_of(level: int):
 
 def cmd_show(levels):
     if not levels:
-        levels = [5, 6, 7, 10, 20, 31, 35, 60, 61, 65, 100, 101, 105, 120, 150, 151, 155, 180, 201, 205, 220, 251, 255, 260, 301, 305, 320, 359, 360]
+        # 每个海域看三关：一个普通关、一个难关、海域最后的超难关
+        levels = [5] + [x for sea in range(TOTAL // SEA) for x in (sea * SEA + 6, sea * SEA + 10, sea * SEA + 20)]
     print(f'尺子：{尺子}（{"每步试 %d 种走法" % 想几步的深度 if 尺子 == "想几步" else "不动脑子"}），预告 {预告缸数} 缸')
     print(f'{"关":>5}  {"类型":<4}  {"能过":>6}  {"想清楚的保底":>8}')
     for lv in levels:
@@ -235,7 +259,7 @@ def cmd_run(args):
     steps = [
         f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else ''),
         './run.sh meta',
-    ] + ([] if daily else ['./run.sh level-fixref', './run.sh level-verify --measure'])
+    ] + ([] if daily else ['./run.sh level-fixref', './run.sh level-verify' + ('' if '--no-measure' in args else ' --measure')])
     if commit:
         steps.append(
             ('git add client/assets/resources/config/levels_daily client/assets/resources/config/level_curve.json' if daily else
@@ -301,11 +325,14 @@ def cmd_stop():
 
 # 菜单里能改的参数：（变量名，说明）。改完写回这个文件最上面那一块的同名一行
 PARAMS = [
-    ('难度曲线', '[(关卡号, 能过的百分比), …]，中间连直线；第一个点之前是新手期'),
-    ('难关', '每 5 关的难关比曲线低几个点（写负数）'),
-    ('超难关', '每 20 关的超难关比曲线低几个点（写负数）'),
-    ('难关_比例', '曲线低了以后难关 = 普通关 × 几（0–1），和「低几个点」取容易的'),
-    ('超难关_比例', '曲线低了以后超难关 = 普通关 × 几（0–1）'),
+    ('普通关', '每个海域（20 关）一个数：普通关能过几 %，如 [40, 38, 36, …]（18 个）'),
+    ('难关', '每个海域一个数：每 5 关的难关能过几 %'),
+    ('超难关', '每个海域一个数：每 20 关的超难关能过几 %'),
+    ('头几关', '(到第几关为止, 普通关, 难关)：刚出新手期的头几关再缓一档，如 (10, 55, 40)；不要就写 None'),
+    ('新手期', '(关卡号, 百分比)：新手期最后一关能过多少，如 (5, 95)'),
+    ('鱼的数量', '每个海域一个数：普通关多少条鱼；第 1 个写 0 = 照新手期的曲线'),
+    ('难关多几条_最多', '难关比同海域的普通关最多多几条鱼'),
+    ('鱼的数量_最多', '任何一关最多多少条鱼'),
     ('最低', '任何一关不低于几 %'),
     ('单关', '单独指定某几关，如 {200: 30, 201: 50}；清空写 {}'),
     ('尺子', "'想几步' 或 '随手点'（要带引号）"),

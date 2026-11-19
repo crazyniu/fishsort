@@ -35,6 +35,8 @@ const MAP: Record<string, string> = {
   land: 'land',
   tick: 'tick',
   swell: 'swell',
+  undo: 'undo',
+  hint: 'hint',
 };
 
 /**

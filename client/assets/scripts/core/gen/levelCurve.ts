@@ -59,7 +59,11 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   } else {
     p = base(curve, id);
     mechanics(curve, id, p);
-    if (curve.normalFishMax !== undefined) p.fish = Math.min(p.fish, curve.normalFishMax);
+    // 鱼数按海域定（一个海域里持平）；没配的海域照曲线、封顶 normalFishMax
+    const seaFish = curve.seaFish;
+    const own = seaFish && seaFish.length > 0 ? seaFish[Math.min(seaFish.length - 1, Math.floor((id - 1) / (curve.route?.targets.seaSize ?? 20)))] : 0;
+    if (own > 0) p.fish = own;
+    else if (curve.normalFishMax !== undefined) p.fish = Math.min(p.fish, curve.normalFishMax);
     if (isChallenge(curve, id)) challenge(curve, id, p);
     if (isBoss(curve, id)) p.species += curve.challenge.bossSpeciesPlus ?? 0;
   }
@@ -91,20 +95,21 @@ export function isBoss(curve: CurveConfig, id: number): boolean {
 }
 
 /**
- * 这一关随手点的玩家不用道具的过关率目标（0–1，docs/01 9.2）：第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；
- * 难关、超难关在这条线上再低几个点（hard、boss）；曲线低了以后改成按比例（hardRatio、bossRatio），都不低于 min。没配 route.targets、或是新手期前几关返回 null
+ * 这一关尺子（route.ruler）量的不用道具的过关率目标（0–1，docs/01 9.2，用户 2026-11-20 定）：不逐关降——
+ * 一个海域（seaSize 关）里普通关同一个数，每进一个海域换一档；难关、超难关各有自己的一张表；头几关（early）再缓一档。都不低于 min。
+ * 没配 route.targets、或是新手期前几关返回 null
  */
 export function routeTarget(curve: CurveConfig, id: number): number | null {
   const t = curve.route?.targets;
   if (!t) return null;
   const own = t.overrides?.[String(id)];
   if (own !== undefined) return own;
-  if (id < t.line[0][0]) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
-  let v = knot(t.line, id);
-  // 难关、超难关：前期低固定几个点；曲线低了以后改按比例（不然后期全压到 min，三种关一样难，docs/02 0.1）。两种取容易的那个，接得上
-  if (isBoss(curve, id)) v = Math.max(v + t.boss, t.bossRatio !== undefined ? v * t.bossRatio : -1);
-  else if (isChallenge(curve, id)) v = Math.max(v + t.hard, t.hardRatio !== undefined ? v * t.hardRatio : -1);
-  return Math.max(t.min, Math.round(v * 1000) / 1000);
+  if (id < t.from) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
+  // 刚出新手期的头几关缓一档（排队泡首发、开始扣命，docs/01 9.2）
+  if (t.early && id <= t.early.until) return Math.max(t.min, isChallenge(curve, id) ? t.early.hard : t.early.normal);
+  const table = isBoss(curve, id) ? t.boss : isChallenge(curve, id) ? t.hard : t.normal;
+  const sea = Math.min(table.length - 1, Math.floor((id - 1) / t.seaSize));
+  return Math.max(t.min, table[sea]);
 }
 
 /** 这一关想清楚的玩家不能低于多少（docs/02 0.3）：min(floor.max, 目标 + floor.gap)；没配 floor 用 route.thinkFloor */
@@ -255,7 +260,9 @@ function challenge(curve: CurveConfig, id: number, p: GenParams): void {
   p.challenge = true;
   const plus = c.speciesPlus;
   p.species = p.species + (id >= c.speciesPlusFrom ? plus[1] : plus[0]);
-  p.fish = Math.min(Math.trunc(p.fish * c.fishMul), c.fishMax);
+  // 多三成，但不超过 fishMax、也不比普通关多出 fishPlusMax 条；取 3 的倍数（一缸 3 条）
+  const more = Math.min(Math.trunc(p.fish * c.fishMul), c.fishMax, c.fishPlusMax !== undefined ? p.fish + c.fishPlusMax : Infinity);
+  p.fish = Math.max(p.fish, more - (more % 3));
   p.slack = p.slack + c.slackPlus;
   // 分层关（cap 为 0）的挑战关多压一层；掉落关的挑战关缩小场上容量
   if ((p.cap ?? 0) <= 0) p.layers = Math.min(p.layers + 1, c.layersMax);

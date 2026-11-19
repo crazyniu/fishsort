@@ -22,6 +22,8 @@ usage() {
   real                  按真实存档进度玩，不加资源
                         以上参数可以连着写：./run.sh real level 65 auto
   serve [同上的参数]    不重新构建，直接打开上次的构建
+  lan [同上的参数]      给别的设备测：构建后服务开在内网（0.0.0.0），打印 http://<本机内网 IP>:端口/ ，不开本机的 Chrome；
+                        手机、别的电脑连同一个网络就能打开。lan serve = 不重新构建
   native-apply          按 game.json 改写各平台的构建配置和原生工程（打包命令会自动跑）
   native-icons          从图标和背景生成各平台的应用图标、iOS 启动屏、商店图标（换了图标后在 Linux 上跑，结果要提交）
   editor                用 Cocos Creator 打开 client/
@@ -68,7 +70,8 @@ cocos_build() {
   # Cocos 可能改写 .meta；Mac 上不提交这些改动，下次拉代码前用 git checkout -- client 还原
   if [ -n "$(git status --porcelain -- client 2>/dev/null)" ]; then
     echo "! Cocos 改动了 client/ 下的文件（多半是 .meta），不要在这台机器上提交："
-    git status --short -- client | head -20
+    # 改动的文件很多时（比如刚生成完关卡还没提交）head 先收工，git 会收到 SIGPIPE；开着 pipefail 整个脚本就退了，服务起不来
+    git status --short -- client | head -20 || true
   fi
 }
 
@@ -99,6 +102,16 @@ web_serve() {
   local dir="$CLIENT/build/web-mobile" url
   url="$(web_url "$@")"
   need_file "$dir/index.html" "请在 ./package.sh 选择 4（网页版）"
+  # 内网模式（./run.sh lan）：绑到所有网卡，把本机的内网地址打出来，不开本机浏览器
+  if [ "${WEB_LAN:-}" = "1" ]; then
+    local ip=""
+    if command -v ipconfig >/dev/null 2>&1; then ip="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)"; fi
+    if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then ip="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"; fi
+    [ -n "$ip" ] || ip="<本机内网 IP>"
+    echo "→ 内网地址：${url/localhost/${ip}}（同一个网络里的手机、电脑都能开；Ctrl+C 停止）"
+    # 不用 python 的 http.server：它排队只有 5 个，别的设备一次要几十个文件会被重置连接、缺图
+    exec node tools/web/serve.mjs "$dir" "$WEB_PORT" 0.0.0.0
+  fi
   echo "→ ${url}（Ctrl+C 停止）"
   # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏。
   # 后三个参数：窗口被别的窗口挡住时也照常跑（不然远程截图、连拍时画面是停的）
@@ -151,6 +164,11 @@ pull_latest() {
   fi
 }
 
+# lan：服务开在内网给别的设备测（见 web_serve）；后面照常跟试玩参数或 serve
+if [ "${1:-}" = "lan" ]; then
+  export WEB_LAN=1
+  shift
+fi
 cmd="${1:-play}"
 case "$cmd" in
   # 试玩参数直接跟在 ./run.sh 后面：整串都交给 play

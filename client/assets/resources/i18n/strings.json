@@ -948,7 +948,8 @@
   "UI_HINT_EMPTY": "现在没有能点的鱼",
   "RESULT_PERFECT": "完美！一个道具都没用",
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
-  "RESULT_FIRST_3STAR": "首次三星"
+  "RESULT_FIRST_3STAR": "首次三星",
+  "UI_NEXT_DROP": "下一泡"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -1899,7 +1900,8 @@
   "UI_HINT_EMPTY": "No move to show",
   "RESULT_PERFECT": "Perfect! No boosters used",
   "RESULT_TRY_3STAR": "Win without boosters for 3 stars",
-  "RESULT_FIRST_3STAR": "First 3 stars"
+  "RESULT_FIRST_3STAR": "First 3 stars",
+  "UI_NEXT_DROP": "Drop"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -2850,7 +2852,8 @@
   "UI_HINT_EMPTY": "現在沒有能點的魚",
   "RESULT_PERFECT": "完美！一個道具都沒用",
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
-  "RESULT_FIRST_3STAR": "首次三星"
+  "RESULT_FIRST_3STAR": "首次三星",
+  "UI_NEXT_DROP": "下一泡"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -3801,7 +3804,8 @@
   "UI_HINT_EMPTY": "今は取れる魚がいない",
   "RESULT_PERFECT": "パーフェクト！アイテムなし",
   "RESULT_TRY_3STAR": "アイテムなしで星3つ",
-  "RESULT_FIRST_3STAR": "初の星3つ"
+  "RESULT_FIRST_3STAR": "初の星3つ",
+  "UI_NEXT_DROP": "つぎの泡"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -4752,7 +4756,8 @@
   "UI_HINT_EMPTY": "지금은 누를 물고기가 없어요",
   "RESULT_PERFECT": "퍼펙트! 아이템 없이 클리어",
   "RESULT_TRY_3STAR": "아이템 없이 깨면 별 3개",
-  "RESULT_FIRST_3STAR": "첫 별 3개"
+  "RESULT_FIRST_3STAR": "첫 별 3개",
+  "UI_NEXT_DROP": "다음 방울"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -5703,7 +5708,8 @@
   "UI_HINT_EMPTY": "Gerade kein Zug möglich",
   "RESULT_PERFECT": "Perfekt! Ganz ohne Extras",
   "RESULT_TRY_3STAR": "Ohne Extras gibt es 3 Sterne",
-  "RESULT_FIRST_3STAR": "Erste 3 Sterne"
+  "RESULT_FIRST_3STAR": "Erste 3 Sterne",
+  "UI_NEXT_DROP": "Blase"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -6654,7 +6660,8 @@
   "UI_HINT_EMPTY": "Aucun coup possible",
   "RESULT_PERFECT": "Parfait ! Sans aucun bonus",
   "RESULT_TRY_3STAR": "Gagne sans bonus pour 3 étoiles",
-  "RESULT_FIRST_3STAR": "1res 3 étoiles"
+  "RESULT_FIRST_3STAR": "1res 3 étoiles",
+  "UI_NEXT_DROP": "Bulle"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -7605,7 +7612,8 @@
   "UI_HINT_EMPTY": "No hay jugada posible",
   "RESULT_PERFECT": "¡Perfecto! Sin potenciadores",
   "RESULT_TRY_3STAR": "Gana sin potenciadores: 3 estrellas",
-  "RESULT_FIRST_3STAR": "Primeras 3★"
+  "RESULT_FIRST_3STAR": "Primeras 3★",
+  "UI_NEXT_DROP": "Burbuja"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -8556,7 +8564,8 @@
   "UI_HINT_EMPTY": "Sem jogada possível",
   "RESULT_PERFECT": "Perfeito! Sem reforços",
   "RESULT_TRY_3STAR": "Vença sem reforços: 3 estrelas",
-  "RESULT_FIRST_3STAR": "Primeiras 3★"
+  "RESULT_FIRST_3STAR": "Primeiras 3★",
+  "UI_NEXT_DROP": "Bolha"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -9507,7 +9516,8 @@
   "UI_HINT_EMPTY": "Nessuna mossa possibile",
   "RESULT_PERFECT": "Perfetto! Senza aiuti",
   "RESULT_TRY_3STAR": "Vinci senza aiuti: 3 stelle",
-  "RESULT_FIRST_3STAR": "Prime 3★"
+  "RESULT_FIRST_3STAR": "Prime 3★",
+  "UI_NEXT_DROP": "Bolla"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -10458,7 +10468,8 @@
   "UI_HINT_EMPTY": "Сейчас нет хода",
   "RESULT_PERFECT": "Идеально! Без бонусов",
   "RESULT_TRY_3STAR": "Без бонусов — 3 звезды",
-  "RESULT_FIRST_3STAR": "Первые 3★"
+  "RESULT_FIRST_3STAR": "Первые 3★",
+  "UI_NEXT_DROP": "Пузырь"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -11409,6 +11420,7 @@
   "UI_HINT_EMPTY": "Şu an hamle yok",
   "RESULT_PERFECT": "Mükemmel! Güçlendiricisiz",
   "RESULT_TRY_3STAR": "Güçlendiricisiz kazan: 3 yıldız",
-  "RESULT_FIRST_3STAR": "İlk 3 yıldız"
+  "RESULT_FIRST_3STAR": "İlk 3 yıldız",
+  "UI_NEXT_DROP": "Balon"
  }
 }

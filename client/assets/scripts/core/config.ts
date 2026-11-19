@@ -261,6 +261,8 @@ export interface CurveConfig {
     speciesPlusFrom: number;
     fishMul: number;
     fishMax: number;
+    /** 难关最多比同海域的普通关多几条（鱼多了以后「多三成」太多）；不给就只看 fishMul 和 fishMax */
+    fishPlusMax?: number;
     capMinus: number;
     capMin: number;
     layersMax: number;
@@ -268,8 +270,13 @@ export interface CurveConfig {
     /** 超难关（每 jam.bigEvery 关）在难关的基础上再多几种鱼（docs/01 9.2） */
     bossSpeciesPlus?: number;
   };
-  /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多） */
+  /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多）。配了 seaFish 的海域不看它 */
   normalFishMax?: number;
+  /**
+   * 普通关的鱼数按海域定（docs/01 9.2，用户 2026-11-20：鱼跟着海域涨，第 18 个海域 160 条左右）：第几个海域 → 几条，
+   * 一个海域里持平；0 = 这个海域照 segments 的曲线（第 1 个海域是新手期，鱼数还在往上爬）。海域比表长就用最后一个
+   */
+  seaFish?: number[];
   /** 开局占格（docs/01 9.3）：第 from 关起的难关、超难关，开局暂存槽先放 count 表里的条数；只挑订单 after 比例之后才要的鱼种 */
   prefill?: { from: number; count: [number, number][]; after: number };
   ease: { species: number; fish: number; cap: number; slack: number };
@@ -337,10 +344,12 @@ export interface CurveConfig {
     checkCasual: number;
     checkThink: number;
     /**
-     * 尺子量的不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
-     * 难关在 line 上加 hard、超难关加 boss（负数）；给了 hardRatio、bossRatio 时取「加几个点」和「乘比例」里容易的那个（后期三种关拉得开），都不低于 min；overrides 单独指定某几关（关卡号 → 比例，优先）
+     * 尺子量的不用道具的过关率目标（docs/01 9.2，用户 2026-11-20 定）：不逐关降，一个海域（seaSize 关）里持平、每个海域一档。
+     * tutorial 是新手期的 [关卡号, 比例] 折点；第 from 关起按海域取：normal / hard / boss 各是一张「第几个海域 → 比例」的表
+     * （普通关、每 5 关的难关、每 20 关的超难关；海域比表长就用最后一个）；都不低于 min；overrides 单独指定某几关（关卡号 → 比例，优先）。
+     * early：刚出新手期的头几关（到第 until 关为止）再缓一档——普通关 normal、难关 hard，不看海域的表
      */
-    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; hardRatio?: number; bossRatio?: number; min: number; overrides?: Record<string, number> };
+    targets: { tutorial: [number, number][]; from: number; seaSize: number; normal: number[]; hard: number[]; boss: number[]; early?: { until: number; normal: number; hard: number }; min: number; overrides?: Record<string, number> };
     /** 量难度用哪个玩家（docs/02 0.2）：casual 随手点，think 想几步（budget 每步推几个局面）；games 收紧时每次打几局、checkGames 复量打几局 */
     ruler?: { kind: 'casual' | 'think'; budget?: number; slip?: number; games: number; checkGames: number };
     /** 想清楚的玩家的保底（docs/02 0.3）：不低于 min(max, 这一关的目标 + gap)；不给就一律 thinkFloor */
