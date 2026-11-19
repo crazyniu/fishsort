@@ -11,6 +11,8 @@ export interface AdUnits {
 export interface PlatformConfig {
   name: Record<string, string>;
   version: string;
+  /** 各端带哪些语言（game.json 的 languages）：app = iOS、Android 和调试网页，wechat = 微信小游戏 */
+  languages?: { app?: string[]; wechat?: string[] };
   /** 广告总开关（game.json 的 ads.enabled）：false = 三端都没有广告 */
   adsEnabled: boolean;
   ads: Record<string, AdUnits>;

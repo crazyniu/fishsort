@@ -1,931 +1,931 @@
-keys,zh_CN,en
-UI_LEVEL,第 %d 关,Level %d
-UI_CHALLENGE,困难,Hard
-UI_NET_HINT,点一个鱼缸把它装满,Tap a tank to fill it
-UI_LOSE,闯关失败,Level Failed
-UI_LOSE_BUFFER,槽位满了,Slots full
-UI_LOSE_TIMEOUT,时间到了,Time's up
-UI_LOSE_STUCK,无路可走,Out of moves
-UI_COINS_GAIN,+%d 金币,+%d coins
-UI_NEXT_LEVEL,下一关,Next
-UI_NO_COINS,金币不足,Out of Coins
-UI_TOOL_LIMIT,本关已用完,Used up this level
-UI_SETTINGS,设置,Settings
-UI_AD_UNAVAILABLE,暂无广告,No ads right now
-UI_SIGNIN,签到,Daily Gift
-UI_SIGNIN_DAY,第 %d 天,Day %d
-UI_CLAIM,领取,Claim
-UI_CLAIM_DOUBLE,双倍,2x
-UI_CLAIMED,已领取,Claimed
-UI_AD_TEST,广告测试,Ad test
-UI_PRIVACY_OPTIONS,隐私选项,Privacy Options
-UI_TAB_SHOP,商店,Shop
-UI_TAB_COLLECTION,收藏,Album
-UI_OWNED,已有 %d,Owned %d
-UI_RARITY_COMMON,普通,Common
-UI_RARITY_UNCOMMON,精良,Uncommon
-UI_RARITY_RARE,稀有,Rare
-UI_RARITY_EPIC,史诗,Epic
-UI_RARITY_LEGEND,传说,Legend
-UI_UNKNOWN,？？？,???
-UI_COMBO_WORD,连击,COMBO
-UI_COMBO_T1,不错！,Good!
-UI_COMBO_T2,漂亮！,Nice!
-UI_COMBO_T3,太强了！,Awesome!
-UI_COMBO_T4,无敌！,Unstoppable!
-UI_COMBO_CARD,连击送卡！,Combo card!
-GUEST_SAVED,救出 %s！,Rescued %s!
-TIMED_SAVED,赶上了！,Just in time!
-TIP_LAYER,先点开压在上面的气泡,Pop the top bubbles first
-TIP_CHAIN,锁链泡：每装满一缸减 1，到 0 解开,Chains: each full tank counts down
-TIP_TIMER,限时缸：时间到之前装满它,Timer tank: fill it before time's up
-TIP_FOG,迷雾泡：点破别的气泡，雾就散开,Fog: pop other bubbles to clear it
-TIP_ICE,冰冻泡：点破连着的气泡就解冻,Ice: pop the linked bubble to thaw it
-TIP_BIG,大鱼缸：要装 6 条,Big tank: holds 6 fish
-TIP_PAIR,结伴鱼：点一条，两条一起走,"Buddies: tap one, both go"
-UI_PRAISE_1,不错！,Good!
-UI_PRAISE_2,真棒！,Great!
-UI_PRAISE_3,太强了！,Awesome!
-UI_SKILL_FREE,FREE,FREE
-UI_SKILL_TRY,新道具：%s,New booster: %s
-UI_BLOW_EMPTY,槽位里没有鱼,Slots are empty
-UI_CURRENT_EMPTY,没有能直接进缸的鱼,No fish can go in
-UI_SHUFFLE_EMPTY,现在不能洗牌,Can't shuffle now
-UI_REPLAY_NO_REWARD,今日重玩奖励已领完,No rewards left today
-H_LIVES_TITLE,生命,Lives
-H_BUY_ONE,买1条,Buy 1
-H_REFILL,补满,Refill
-H_WATCH_COINS,+%d 金币,+%d coins
-H_INF_LEFT,无限生命 %s,Unlimited %s
-H_NEXT_LIFE,下一条 %s,Next in %s
-H_LIVES_FULL,生命已满,Full
-H_LEAVE_TITLE,退出关卡,Quit Level
-H_LEAVE_LINE,现在退出会扣 1 条命,Quitting costs 1 life
-H_KEEP_PLAYING,继续玩,Keep Playing
-H_LEAVE,退出,Quit
-H_SLOT_TITLE,加鱼缸,Extra Tank
-H_WATCH_AD,看广告,Watch
-H_REVIVE_LINE,复活后接着玩,Revive and keep going
-H_REVIVE_AD,复活,Revive
-H_GIVE_UP,放弃,Give Up
-H_UNLOCK_TITLE,新功能,Unlocked!
-H_UNLOCK_LINE,%s 已解锁,%s unlocked
-H_GO_LOOK,去看看,Go
-H_UNLOCKS_AT,第 %d 关解锁,Level %d
-H_ENTRY_LOCKED,等级 %d,Level %d
-H_FEAT_SIGNIN,签到,Check-in
-H_FEAT_LEVELS,选关,Levels
-H_FEAT_COLLECTION,收藏,Album
-H_FEAT_WHEEL,抽奖,Treasure
-H_SKILL_SHUFFLE,洗牌,Shuffle
-H_SKILL_BLOW,吹泡,Blow
-H_SKILL_NET,渔网,Net
-H_SKILL_FLOW,洋流,Current
-H_NEED_COINS,金币不足,Out of Coins
-H_NEED_COINS_LINE,还差 %d 金币,Need %d more coins
-H_MUSIC,音乐,Music
-H_SOUND,音效,Sound
-H_VIBRATION,震动,Vibration
-H_LANGUAGE,语言,Language
-H_TO_HOME,主页,Home
-H_RETRY,重试,Retry
-H_CONGRATS,恭喜获得,Rewards
-H_SPINS_LEFT,剩 %d 次,%d left
-H_SPIN,开箱,Open
-H_TEN_PULL,十连,Open ×10
-UI_MINUTES,%d 分钟,%d min
-UI_SHARE_SHORT,分享,Share
-TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life"
-TIP_DROP,后面还会掉下新气泡,More bubbles will drop in
-TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time
-TIP_QUEUE,排队泡：里面的鱼排着队，只能取最前面最亮的那条,Queue bubble: fish line up. Only the bright one in front can go
-TIP_TOOLS3,从这里起关卡更难了，每种道具每关能用 3 次,Levels get harder from here. Each booster can be used 3 times per level
-TIP_BUFFER4,从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具,Only 4 holding slots from here on. They fill up fast — use boosters when stuck
-REVIVE_CLOCK,时间 +30 秒,+30s on the clock
-UI_TAB_DAILY,每日挑战,Daily
-H_GRAND_PRIZE,大奖,Grand prize
-ALBUM_BOOK_1,晨光沙滩,Sunrise Shore
-ALBUM_BOOK_2,珊瑚花园,Coral Garden
-ALBUM_BOOK_3,海草森林,Kelp Forest
-ALBUM_BOOK_4,沉船湾,Sunken Ship
-ALBUM_BOOK_5,水晶洞窟,Crystal Cave
-ALBUM_BOOK_6,海底宫殿,Sea Palace
-ALBUM_BOOK_7,红树林,Mangroves
-ALBUM_BOOK_8,月光潟湖,Moonlit Cove
-ALBUM_BOOK_9,火山热泉,Volcano Vents
-ALBUM_BOOK_10,远古遗迹,Ancient Ruins
-ALBUM_BOOK_11,深海峡谷,Deep Trench
-ALBUM_BOOK_12,星海秘境,Starry Sea
-ALBUM_BOOK_13,樱花海湾,Blossom Bay
-ALBUM_BOOK_14,海底集市,Sea Market
-ALBUM_BOOK_15,云朵浮岛,Cloud Isles
-ALBUM_BOOK_16,珍珠贝湾,Pearl Cove
-ALBUM_BOOK_17,齿轮钟湾,Gear Harbor
-ALBUM_BOOK_18,歌声海湾,Melody Cove
-ALBUM_CLAIMED,已领取,Claimed
-ALBUM_TAKE,领取,Claim
-DAILY_START,开始挑战,Play
-DAILY_DONE,已完成,Completed
-DAILY_TOMORROW,明天再来,Back tomorrow
-DAILY_FREE,免费 1 次,1 free try
-DAILY_STREAK,连胜 %d/%d 天,Streak %d/%d
-DAILY_CHEST,通关奖励,Rewards
-DAILY_BIG_CHEST,七日大奖,Streak Prize
-SIGNIN_CHEST,宝箱,Chest
-SIGNIN_BIG_CHEST,大宝箱,Big chest
-DAILY_RETRY,重试,Retry
-H_PRIZE_FRAME,头像框,Avatar frame
-UI_CARD_OWNED,重复卡，换成,Duplicate →
-REVIVE_TITLE,继续闯关？,Continue?
-RESCUE_TITLE,槽位满了,Slots Full
-RESCUE_LINE,用吹泡清空槽位，接着玩,Use Blow to clear the slots and keep going
-RESCUE_USE,用吹泡,Use Blow
-RESCUE_SKIP,不用,No Thanks
-REVIVE_BUFFER,清空槽位,Clear the slots
-REVIVE_TIMEOUT,限时缸 +30 秒,+30s on the timer tank
-REVIVE_STUCK,解开锁链和冰冻,Break the chains and ice
-LIFE_MINUS,生命 −1,Life −1
-PAUSE_TITLE,暂停,Paused
-WIN_TITLE,通关成功,Level Clear!
-WIN_DOUBLE,翻倍,Double
-RETURN_HOME,主页,Home
-SKILL_BUY_TITLE,购买%s,Get %s
-SKILL_AD,+1,+1
-SKILL_LOCKED,第 %d 关解锁,Level %d
-TEN_REWARD,十连奖励,×10 Rewards
-CARD_RARITY_NEW,新卡片！,New card!
-TAP_CONTINUE,继续,Continue
-UI_PLAY,开始,Play
-UI_CHALLENGE_TAG,困难,Hard
-DAILY_TITLE,每日挑战,Daily Puzzle
-ADS_LEFT,剩 %d 次,%d left
-MECH_TITLE,新玩法,New!
-GOT_IT,知道了,Got it
-SLOT_LINE,多一个鱼缸，装满一缸就收走,One extra tank. It leaves when full
-LOCK_PREVIEW,解锁奖励,Unlock rewards
-H_FEAT_DAILY,每日挑战,Daily
-PRIZE_HOURS,%d 小时,%dh
-LV_CURRENT,当前,Now
-LV_LOCKED,先过前面的关,Beat earlier levels first
-LV_REPLAY_LEFT,重玩奖励 %d/%d,Replay bonus %d/%d
-MAP_TITLE,海图,Sea Map
-MAP_RANGE,第 %d–%d 关,Levels %d–%d
-SEA_NEW,新海域,New Sea
-SEA_NEW_LINE,这里有 %d 种新的小鱼,%d new fish live here
-SEA_GO,出发,Let's go
-SHOP_AD_LEFT,今日 %d/%d,Today %d/%d
-SHOP_AD_DONE,今日已领完,Come back tomorrow
-UI_FULL,已满,Full
-SHOP_FREE_COINS,免费金币,Free Coins
-ALBUM_FINAL_PREVIEW,集齐全部册子可领,Complete every album
-DEX_RESCUED,已救 %d 只,Rescued %d
-RANK_TITLE,周排行,Leaderboard
-RANK_RESET_IN,%d 天后重置,Resets in %dd
-RANK_ME,我,Me
-RANK_LEVELS,%d 关,Lv.%d
-PROFILE_TITLE,个人资料,Profile
-PROFILE_DEFAULT_NAME,小鱼玩家,Player
-PROFILE_LEVEL,关卡,Level
-PROFILE_BEST_COMBO,最佳连击,Best combo
-PROFILE_CARDS,收藏,Album
-DAILY_RETRY_HINT,看广告或用金币重试,Retry with an ad or coins
-DAILY_RETRY_HINT_COINS,用金币再试一次,Retry with coins
-PRIZE_COINS,金币,Coins
-SPECIES_C01,小丑丑,Clowny
-SPECIES_C02,泡泡豚,Puffy
-SPECIES_C03,星星糖,Starry
-SPECIES_C04,鲨小宝,Sharkle
-SPECIES_C05,钳钳,Pinchy
-SPECIES_C06,八爪团,Octo
-SPECIES_C07,卷卷马,Curly
-SPECIES_C08,果冻伞,Jelly
-SPECIES_C09,慢慢龟,Slowpoke
-SPECIES_C10,飞毯,Flappy
-SPECIES_C11,珍珠贝,Pearlie
-SPECIES_C12,墨墨,Inky
-SPECIES_C13,红须须,Whiskers
-SPECIES_C14,小灯笼,Lantern
-SPECIES_C15,尖尖,Pointy
-SPECIES_C16,跳跳豚,Hoppy
-SPECIES_C17,薄荷卷,Minty
-SPECIES_C18,汽水泡,Fizzy
-SPECIES_C19,盐团团,Salty
-SPECIES_C20,蓝豆豆,Bluebean
-SPECIES_C21,海纹纹,Stripes
-SPECIES_C22,沙花饼,Sandy
-SPECIES_C23,墨绒绒,Fuzzy
-SPECIES_C24,夜飘带,Ribbon
-SPECIES_C25,葡萄软,Grapey
-SPECIES_C26,紫弯弯,Twirl
-SPECIES_C27,芋耳朵,Taro
-SPECIES_C28,桃管管,Peachy
-SPECIES_C29,糯花花,Mochi
-SPECIES_C30,樱贝贝,Blossom
-SPECIES_C31,螺居居,Shelly
-SPECIES_C32,圆胆胆,Bumpy
-SPECIES_C33,参参,Cuke
-SPECIES_C34,虾米米,Shrimpy
-SPECIES_C35,鲽饼饼,Flatty
-SPECIES_C36,花海兔,Ruffle
-SPECIES_C37,蓝吊吊,Tangy
-SPECIES_C38,鹦嘴嘴,Parry
-SPECIES_C39,斑马马,Zebby
-SPECIES_C40,管花花,Tufty
-SPECIES_C41,獭宝宝,Otty
-SPECIES_C42,金橙橙,Garry
-SPECIES_C43,蜗蜗,Snaily
-SPECIES_C44,鳗条条,Eely
-SPECIES_C45,粉伞伞,Pinkie
-SPECIES_C46,金币币,Goldie
-SPECIES_C47,绿鳗鳗,Morry
-SPECIES_C48,葵葵,Annie
-SPECIES_C49,海螺螺,Conchy
-SPECIES_C50,幽幽,Ghosty
-SPECIES_C51,企企,Pengy
-SPECIES_C52,海豹豹,Sealy
-SPECIES_C53,磷虾虾,Krilly
-SPECIES_C54,圆球球,Lumpy
-SPECIES_C55,一角角,Narly
-SPECIES_C56,金蟹蟹,Kingy
-SPECIES_C57,小天使,Angie
-SPECIES_C58,锦锦,Fancy
-SPECIES_C59,灯灯伞,Glowy
-SPECIES_C60,月月,Moony
-SPECIES_C61,射水鱼,Archer
-SPECIES_C62,招潮蟹,Fiddler
-SPECIES_C63,绿河豚,Greenpuff
-SPECIES_C64,鲎宝宝,Domey
-SPECIES_C65,紫螺螺,Perry
-SPECIES_C66,倒水母,Flipjelly
-SPECIES_C67,四眼鱼,Peeper
-SPECIES_C68,沙海葵,Anemo
-SPECIES_C69,牡蛎宝,Oyster
-SPECIES_C70,树蟹蟹,Rooty
-SPECIES_C71,鹦鹉宝,Dozy
-SPECIES_C72,月水母,Moonjelly
-SPECIES_C73,沙鬼蟹,Sandghost
-SPECIES_C74,夜虾虾,Nightshrimp
-SPECIES_C75,蓝章章,Bluey
-SPECIES_C76,金天竺,Cardi
-SPECIES_C77,夜海星,Nightstar
-SPECIES_C78,花扁扁,Ripple
-SPECIES_C79,海萤萤,Seafly
-SPECIES_C80,月螺螺,Moonsnail
-SPECIES_C81,管虫虫,Tubey
-SPECIES_C82,热泉虾,Venty
-SPECIES_C83,硫磺鱼,Sulfy
-SPECIES_C84,深蓝章,Deepy
-SPECIES_C85,鳞足螺,Scaly
-SPECIES_C86,紫海参,Plum
-SPECIES_C87,盲蟹蟹,Blindy
-SPECIES_C88,绿岩鱼,Pebble
-SPECIES_C89,烟囱宝,Smokey
-SPECIES_C90,火山贝,Magma Clam
-SPECIES_C91,红鲷鲷,Snappy
-SPECIES_C92,花瓶绵,Vase
-SPECIES_C93,黄嘴鱼,Beaky
-SPECIES_C94,苔藓龟,Mossy
-SPECIES_C95,青石鳐,Tilly
-SPECIES_C96,蓝陶鱼,Pottery
-SPECIES_C97,古星星,Relic Star
-SPECIES_C98,粉蛙鱼,Blush
-SPECIES_C99,石像鱼,Statue
-SPECIES_C100,青铜蟹,Bronze
-SPECIES_C101,红灯虾,Redlamp
-SPECIES_C102,橙棘鲷,Roughy
-SPECIES_C103,金海参,Goldcuke
-SPECIES_C104,绿冠母,Atolla
-SPECIES_C105,吞吞鳗,Gulpy
-SPECIES_C106,长腿蛛,Leggy
-SPECIES_C107,三脚鱼,Tripod
-SPECIES_C108,粉深葵,Deepbloom
-SPECIES_C109,灯眼鱼,Lampeye
-SPECIES_C110,雪花参,Snowcuke
-SPECIES_C111,红星鱼,Twinkle
-SPECIES_C112,彗星鱼,Comet
-SPECIES_C113,小金星,Sparkle
-SPECIES_C114,云雾兔,Misty
-SPECIES_C115,青云母,Nebby
-SPECIES_C116,星鲸鲸,Starwhale
-SPECIES_C117,月牙鳐,Lunaray
-SPECIES_C118,梦梦鱼,Dreamfin
-SPECIES_C119,流星螺,Meteor
-SPECIES_C120,星尘虾,Shimmer
-SPECIES_C121,樱花虾,Sakura
-SPECIES_C122,春鲷鲷,Bream
-SPECIES_C123,青虾虎,Greengoby
-SPECIES_C124,小蓝鳐,Skipray
-SPECIES_C125,紫裙裙,Frillo
-SPECIES_C126,金鲤鲤,Goldfin
-SPECIES_C127,杏花蟹,Apricrab
-SPECIES_C128,薄荷螺,Swirlsnail
-SPECIES_C129,灰扁扁,Flounder
-SPECIES_C130,花蛤蛤,Clammy
-SPECIES_C131,黄鱼鱼,Croaky
-SPECIES_C132,红梭蟹,Swimmer
-SPECIES_C133,青柠星,Limestar
-SPECIES_C134,蓝鲳鲳,Pompy
-SPECIES_C135,紫贻贝,Musselly
-SPECIES_C136,粉鱿鱿,Squidy
-SPECIES_C137,橙鼓鼓,Tangerine
-SPECIES_C138,青马马,Aqua
-SPECIES_C139,灰鲈鲈,Perchy
-SPECIES_C140,棕螺螺,Whelk
-SPECIES_C141,飞鱼鱼,Soary
-SPECIES_C142,红鼓鼓,Balloony
-SPECIES_C143,青团龟,Minto
-SPECIES_C144,天蓝母,Skybell
-SPECIES_C145,紫海马,Lavvy
-SPECIES_C146,粉豚豚,Rosydol
-SPECIES_C147,杏仁蟹,Almond
-SPECIES_C148,青虾虾,Skyshrimp
-SPECIES_C149,白云鳐,Cloudy
-SPECIES_C150,灰蛞蛞,Foggy
-SPECIES_C151,柠檬蝶,Lemony
-SPECIES_C152,红扇贝,Scallop
-SPECIES_C153,绿鲍鲍,Abalo
-SPECIES_C154,蓝虾蛄,Mantie
-SPECIES_C155,紫团章,Plumy
-SPECIES_C156,粉鳗鳗,Pearly
-SPECIES_C157,橙蛞蛞,Tangelo
-SPECIES_C158,青盒盒,Cubby
-SPECIES_C159,白砗磲,Gianty
-SPECIES_C160,棕宝螺,Cowrie
-SPECIES_C161,黄蝠蝠,Battino
-SPECIES_C162,红龙龙,Lobby
-SPECIES_C163,绿鹦螺,Nauty
-SPECIES_C164,蓝扳扳,Triggy
-SPECIES_C165,紫月螺,Lilac
-SPECIES_C166,粉隆隆,Wrasly
-SPECIES_C167,橙方母,Cubie
-SPECIES_C168,青乌乌,Cuttly
-SPECIES_C169,铁甲蟹,Ironclaw
-SPECIES_C170,杜父鱼,Sculpin
-SPECIES_C171,黄号号,Trumpy
-SPECIES_C172,红鼓鱼,Drummy
-SPECIES_C173,绿羽笔,Seapen
-SPECIES_C174,歌鲸鲸,Hummy
-SPECIES_C175,紫法螺,Tritone
-SPECIES_C176,粉鸟蛤,Cockly
-SPECIES_C177,橙枪虾,Clicky
-SPECIES_C178,青铃母,Chimey
-SPECIES_C179,灰石鲈,Grunty
-SPECIES_C180,拖鞋虾,Slipper
-SPECIES_U01,叶卷龙,Leafy
-SPECIES_U02,霞扇扇,Fanny
-SPECIES_U03,饼壳壳,Crusty
-SPECIES_U04,蛋黄爪,Yolky
-SPECIES_U05,青方方,Boxy
-SPECIES_U06,苹耳耳,Bunny
-SPECIES_U07,翠尾卷,Jade
-SPECIES_U08,叶背背,Leafback
-SPECIES_U09,薄荷墩,Minty Moo
-SPECIES_U10,浪裙裙,Frilly
-SPECIES_U11,冰围围,Frosty
-SPECIES_U12,雪领领,Snowy
-SPECIES_U13,星帽帽,Star Cap
-SPECIES_U14,芋飘飘,Drifty
-SPECIES_U15,桃绒条,Peach Pickle
-SPECIES_U16,草帽蟹,Sunhat
-SPECIES_U17,沙钻钻,Lance
-SPECIES_U18,潮池虾,Pooly
-SPECIES_U19,鳚宝宝,Blenny
-SPECIES_U20,帽贝贝,Limpy
-SPECIES_U21,螳螳虾,Mantis
-SPECIES_U22,虾虎虎,Goby
-SPECIES_U23,瓷瓷蟹,Porcy
-SPECIES_U24,宝螺螺,Cowry
-SPECIES_U25,破壳龟,Hatchy
-SPECIES_U26,跳跳泥,Skippy
-SPECIES_U27,鸟蛤蛤,Cockle
-SPECIES_U28,蝶蝶鱼,Butterfly
-SPECIES_U29,狮鬃鱼,Leo
-SPECIES_U30,擦擦虾,Scrubby
-SPECIES_U31,迷彩彩,Swirly
-SPECIES_U32,砗砗,Tridac
-SPECIES_U33,牛牛鱼,Moo
-SPECIES_U34,花鮨鮨,Anthy
-SPECIES_U35,羽星星,Feathers
-SPECIES_U36,礁鲨宝,Reefy
-SPECIES_U37,隆头头,Wrassy
-SPECIES_U38,鹰鹰鱼,Hawky
-SPECIES_U39,蛙蛙鱼,Froggy
-SPECIES_U40,藻藻蟹,Kelpy
-SPECIES_U41,羊头头,Sheepy
-SPECIES_U42,海狮狮,Lion
-SPECIES_U43,向日星,Sunny
-SPECIES_U44,狼鳗鳗,Wolfy
-SPECIES_U45,鲍鲍,Abby
-SPECIES_U46,岩岩鱼,Rocky
-SPECIES_U47,绿翅翅,Greeny
-SPECIES_U48,豹鲨宝,Leopard
-SPECIES_U49,藻鱼鱼,Twiggy
-SPECIES_U50,石鳖鳖,Chitty
-SPECIES_U51,瓶瓶章,Bottle
-SPECIES_U52,海盗蟹,Pirate
-SPECIES_U53,锚锚鱼,Anchor
-SPECIES_U54,船长鱼,Captain
-SPECIES_U55,藤壶壶,Barney
-SPECIES_U56,铠虾虾,Squat
-SPECIES_U57,蝙蝠鱼,Batty
-SPECIES_U58,胡子鱼,Musty
-SPECIES_U59,兵兵鱼,Soldier
-SPECIES_U60,短尾尾,Bobby
-SPECIES_U61,茶杯蟹,Teacup
-SPECIES_U62,口孵鱼,Jawsy
-SPECIES_U63,钥匙鱼,Keys
-SPECIES_U64,海绵绵,Spongy
-SPECIES_U65,红点鲑,Char
-SPECIES_U66,雪蟹蟹,Earmuff
-SPECIES_U67,软软鱼,Softy
-SPECIES_U68,白熊熊,Polar
-SPECIES_U69,睡鲨鲨,Sleepy
-SPECIES_U70,栉水母,Comby
-SPECIES_U71,冰鳕鳕,Cod
-SPECIES_U72,海鹦鹦,Puffin
-SPECIES_U73,玻璃鱿,Glassy
-SPECIES_U74,雪花星,Flake
-SPECIES_U75,毛鳞鳞,Capy
-SPECIES_U76,弓头鲸,Bowie
-SPECIES_U77,霜螺螺,Rime
-SPECIES_U78,卫兵鱼,Guard
-SPECIES_U79,皇带鱼,Oar
-SPECIES_U80,管眼鱼,Barrel
-SPECIES_U81,腔棘棘,Fossil
-SPECIES_U82,海猪猪,Piggy
-SPECIES_U83,具足足,Isopod
-SPECIES_U84,萤乌贼,Firefly
-SPECIES_U85,管家贝,Butler
-SPECIES_U86,皇家鱼,Gramma
-SPECIES_U87,水滴鱼,Blobby
-SPECIES_U88,雪人蟹,Yeti
-SPECIES_U89,斗篷鱼,Cloaky
-SPECIES_U90,啦啦蟹,Cheery
-SPECIES_U91,宫殿蟹,Tower
-SPECIES_U92,叶帽鲎,Leafcap
-SPECIES_U93,水滴鱼宝,Droplet
-SPECIES_U94,儒艮宝,Dugie
-SPECIES_U95,小鳄鳄,Crocky
-SPECIES_U96,小桶蟹,Bucket
-SPECIES_U97,叶伞虾,Leafbrella
-SPECIES_U98,竹蛏蛏,Razor
-SPECIES_U99,海鞘鞘,Squirty
-SPECIES_U100,斑斑蛇,Bandy
-SPECIES_U101,椰壳蟹,Coco
-SPECIES_U102,贝链鳐,Spotty
-SPECIES_U103,花鳉鳉,Killy
-SPECIES_U104,豆荚龟,Podder
-SPECIES_U105,背包蟹,Packer
-SPECIES_U106,草笛鱼,Fluty
-SPECIES_U107,睡帽章,Nightcap
-SPECIES_U108,星夹海星,Star Pin
-SPECIES_U109,提灯鱼,Lampy
-SPECIES_U110,弯月蟹,Crescent
-SPECIES_U111,星包虾,Starpack
-SPECIES_U112,抱枕豹,Pillow
-SPECIES_U113,睡衣鱼,Jammies
-SPECIES_U114,星夹母,Clippy
-SPECIES_U115,猫头鱼,Hooty
-SPECIES_U116,小夜灯兔,Nitey
-SPECIES_U117,萤石蟹,Glowstone
-SPECIES_U118,围巾鳐,Scarfy
-SPECIES_U119,牛奶鱼,Milky
-SPECIES_U120,梦泡豚,Dreamy
-SPECIES_U121,月坠鳗,Lunar
-SPECIES_U122,安全帽蟹,Hardhat
-SPECIES_U123,护目镜虾,Goggles
-SPECIES_U124,手套蟹,Mitts
-SPECIES_U125,温泉章,Spa Octo
-SPECIES_U126,煮蛋鱼,Eggy
-SPECIES_U127,火苗鱼,Flicker
-SPECIES_U128,岩壳龟,Lava Turtle
-SPECIES_U129,晶坠豚,Crystal Puff
-SPECIES_U130,礼帽虫,Tophat
-SPECIES_U131,煤球鱼,Coaly
-SPECIES_U132,蒸汽母,Steamy
-SPECIES_U133,螺栓螺,Bolty
-SPECIES_U134,小锅蟹,Pot Crab
-SPECIES_U135,围巾鳗,Ember
-SPECIES_U136,温度鱼,Thermy
-SPECIES_U137,桂冠鱼,Laurel
-SPECIES_U138,卷轴虾,Scroll
-SPECIES_U139,陶罐章,Jarvo
-SPECIES_U140,火炬鱼,Torchy
-SPECIES_U141,头盔蟹,Helm
-SPECIES_U142,地图鳐,Mapray
-SPECIES_U143,石柱虫,Pillar
-SPECIES_U144,古币豚,Drachma
-SPECIES_U145,面具鱼,Masky
-SPECIES_U146,马赛克星,Mosaic
-SPECIES_U147,苔背蟹,Mossback
-SPECIES_U148,石狮鱼,Guardian
-SPECIES_U149,月桂母,Bay
-SPECIES_U150,书卷鳗,Scribe
-SPECIES_U151,竖琴马,Lyre
-SPECIES_U152,头灯鱼,Headlamp
-SPECIES_U153,潜水盔章,Diver
-SPECIES_U154,荧光棒虾,Glowstick
-SPECIES_U155,探照鳗,Searchlight
-SPECIES_U156,潜艇豚,Subby
-SPECIES_U157,泡盔母,Bubblehelm
-SPECIES_U158,星帽蛛,Starhat
-SPECIES_U159,背包参,Hiker
-SPECIES_U160,夜视鱼,Goggly
-SPECIES_U161,光带鱼,Ribbonlight
-SPECIES_U162,铃铛蟹,Jingle
-SPECIES_U163,心灯鱼,Lovelure
-SPECIES_U164,火箭鱿,Rocket
-SPECIES_U165,围巾章,Snuggle
-SPECIES_U166,帽帽滴,Droppy
-SPECIES_U167,宇航鱼,Astro
-SPECIES_U168,星杖马,Wand
-SPECIES_U169,土星豚,Saturn
-SPECIES_U170,望远镜蟹,Scope
-SPECIES_U171,火箭章,Blastoff
-SPECIES_U172,月帽鳐,Moonhat
-SPECIES_U173,风筝鱼,Kite
-SPECIES_U174,彗尾星,Trail
-SPECIES_U175,天线母,Antenna
-SPECIES_U176,星座龟,Zodiac
-SPECIES_U177,星球螺,Planet
-SPECIES_U178,太空虾,Spacey
-SPECIES_U179,星带鳗,Starband
-SPECIES_U180,外星兔,Alien
-SPECIES_U181,光环鱼,Ringlet
-SPECIES_U182,花伞鱼,Parasol
-SPECIES_U183,樱帽虾,Bloomhat
-SPECIES_U184,杯杯蟹,Cupcrab
-SPECIES_U185,风筝鳐,Kitey
-SPECIES_U186,团子鱼,Dango
-SPECIES_U187,花篮螺,Basket
-SPECIES_U188,铃铛鲤,Dingle
-SPECIES_U189,樱扇章,Fanfan
-SPECIES_U190,纸鹤鱼,Cranefin
-SPECIES_U191,粉结兔,Bowbun
-SPECIES_U192,野餐蟹,Picnic
-SPECIES_U193,春笛鱼,Piper
-SPECIES_U194,抹茶龟,Matcha
-SPECIES_U195,花环豚,Wreath
-SPECIES_U196,雨靴虾,Bootsy
-SPECIES_U197,菜篮蟹,Shopper
-SPECIES_U198,钱袋鱼,Pursey
-SPECIES_U199,围裙章,Apron
-SPECIES_U200,草帽虾,Strawhat
-SPECIES_U201,气球鱼,Balloon
-SPECIES_U202,糖串鳗,Sweetie
-SPECIES_U203,纸袋蟹,Baggy
-SPECIES_U204,店铃螺,Shopbell
-SPECIES_U205,眼镜鲷,Specs
-SPECIES_U206,头巾鱿,Bandana
-SPECIES_U207,灯笼豚,Lanterny
-SPECIES_U208,包子鱼,Bunbun
-SPECIES_U209,风车虾,Pinwheel
-SPECIES_U210,邮差龟,Postie
-SPECIES_U211,厨帽鲈,Chef
-SPECIES_U212,风筝虾,Kitesy
-SPECIES_U213,云帽豚,Cloudcap
-SPECIES_U214,雨伞章,Brolly
-SPECIES_U215,伞包龟,Chute
-SPECIES_U216,翅膀鱼,Winglet
-SPECIES_U217,虹巾马,Arcy
-SPECIES_U218,飞行鳐,Aviator
-SPECIES_U219,雨滴蟹,Drippy
-SPECIES_U220,云枕鱼,Napper
-SPECIES_U221,星棒母,Wandy
-SPECIES_U222,纸机鱼,Planey
-SPECIES_U223,风铃螺,Chime
-SPECIES_U224,羽毛鲀,Feather
-SPECIES_U225,墨镜蟹,Shady
-SPECIES_U226,水手鱼,Sailor
-SPECIES_U227,珠链蝶,Necklace
-SPECIES_U228,贝帽章,Shellcap
-SPECIES_U229,首饰蟹,Jewelbox
-SPECIES_U230,发夹鳗,Clasp
-SPECIES_U231,小镜虾,Handmirror
-SPECIES_U232,蕾丝鲍,Lacy
-SPECIES_U233,螺号鱼,Conchhorn
-SPECIES_U234,沙堡蟹,Castle
-SPECIES_U235,珠帘母,Beady
-SPECIES_U236,泡泡兔,Bubbly
-SPECIES_U237,贝包鱼,Clutch
-SPECIES_U238,小铲虾,Shovel
-SPECIES_U239,星卡龟,Starclip
-SPECIES_U240,手镯章,Bangle
-SPECIES_U241,珠袋鳐,Satchel
-SPECIES_U242,发条鱼,Windup
-SPECIES_U243,怀表蟹,Pocketwatch
-SPECIES_U244,铜镜章,Brassgoggle
-SPECIES_U245,齿轮螺,Cogsnail
-SPECIES_U246,礼帽鱼,Dapper
-SPECIES_U247,扳手虾,Wrenchy
-SPECIES_U248,桨帽龟,Propeller
-SPECIES_U249,小钟母,Clocky
-SPECIES_U250,领结螺,Bowtie
-SPECIES_U251,油壶鳐,Oily
-SPECIES_U252,单镜鱼,Monocle
-SPECIES_U253,马甲虾,Vesty
-SPECIES_U254,灯泡乌,Bulby
-SPECIES_U255,工具蟹,Toolbox
-SPECIES_U256,齿链鲀,Geary
-SPECIES_U257,鼓手蟹,Drummer
-SPECIES_U258,小号鱼,Trumpet
-SPECIES_U259,提琴章,Fiddlo
-SPECIES_U260,铃鼓虾,Tambo
-SPECIES_U261,耳机鲸,Headphones
-SPECIES_U262,沙锤鱼,Maraca
-SPECIES_U263,琴琴马,Harpo
-SPECIES_U264,口琴豚,Harmonica
-SPECIES_U265,指挥鱼,Maestro
-SPECIES_U266,唱片龟,Vinyl
-SPECIES_U267,音符母,Notey
-SPECIES_U268,麦克螺,Micky
-SPECIES_U269,吉他蟹,Strummy
-SPECIES_U270,笛子鳗,Piccolo
-SPECIES_U271,披风豹,Crooner
-SPECIES_R01,珠卷卷,Pearl Curl
-SPECIES_R02,琉璃伞,Glass Brolly
-SPECIES_R03,花鼓鼓,Drum
-SPECIES_R04,珠帽丸,Pearl Cap
-SPECIES_R05,金扇饼,Gold Fan
-SPECIES_R06,星灯灯,Star Lamp
-SPECIES_R07,珠星酥,Pearl Star
-SPECIES_R08,珊钳钳,Coral Claws
-SPECIES_R09,珠居居,Pearl Home
-SPECIES_R10,晨光兔,Dawny
-SPECIES_R11,月砂饼,Moonsand
-SPECIES_R12,花环龟,Lei
-SPECIES_R13,虹虾虾,Rainbow
-SPECIES_R14,蓝龙龙,Glaucus
-SPECIES_R15,杜父父,Sculpy
-SPECIES_R16,炫炫墨,Flair
-SPECIES_R17,帝帝鱼,Regal
-SPECIES_R18,小丑虾,Harley
-SPECIES_R19,灯兔兔,Lumi
-SPECIES_R20,丝带鳗,Silk
-SPECIES_R21,珠丑丑,Pearl Clown
-SPECIES_R22,花园蟹,Garden
-SPECIES_R23,草龙龙,Weedy
-SPECIES_R24,花冠獭,Petal
-SPECIES_R25,藻灵灵,Sprite
-SPECIES_R26,塔螺螺,Toppy
-SPECIES_R27,鼠海豚,Porpy
-SPECIES_R28,海蝶蝶,Flutter
-SPECIES_R29,银鲛鲛,Chimera
-SPECIES_R30,宝藏蟹,Treasure
-SPECIES_R31,墨船长,Captain Ink
-SPECIES_R32,罗盘龟,Compass
-SPECIES_R33,闪光鱼,Flashy
-SPECIES_R34,斧头头,Mirror
-SPECIES_R35,海百合,Lily
-SPECIES_R36,雪天使,Snow Angel
-SPECIES_R37,冰钳钳,Icicle
-SPECIES_R38,冠白鲸,Crowny
-SPECIES_R39,冰晶鱼,Crystalfin
-SPECIES_R40,冰屋蟹,Igloo
-SPECIES_R41,竖琴豹,Harpy
-SPECIES_R42,斗篷鱿,Vamp
-SPECIES_R43,宫灯链,Lanterns
-SPECIES_R44,珠耳章,Princess
-SPECIES_R45,海鳃鳃,Quill
-SPECIES_R46,夜光鲨,Glimmer
-SPECIES_R47,金螺螺,Gilded
-SPECIES_R48,萤管管,Glowtube
-SPECIES_R49,飞飞鱼,Glider
-SPECIES_R50,海苹果,Sea Apple
-SPECIES_R51,冠海胆,Urchin
-SPECIES_R52,铜铃母,Bell
-SPECIES_R53,霜马马,Frostmane
-SPECIES_R54,银锦锦,Silverfin
-SPECIES_R55,花冠鳄,Crocrown
-SPECIES_R56,珠鲎鲎,Pearldome
-SPECIES_R57,萤林鱼,Glowfin
-SPECIES_R58,儒艮仙,Dugong Fairy
-SPECIES_R59,月光蟹,Moonclaw
-SPECIES_R60,叶仙虾,Leaf Sprite
-SPECIES_R61,珠螺仙,Pearl Snail
-SPECIES_R62,露珠母,Dewdrop
-SPECIES_R63,鹭羽鱼,Plume
-SPECIES_R64,月冠母,Moon Crown
-SPECIES_R65,星冠章,Starcrown
-SPECIES_R66,夜明蟹,Night Pearl
-SPECIES_R67,萤冠虾,Glow Crown
-SPECIES_R68,月牙鱼,Crescentfin
-SPECIES_R69,梦冠豚,Dream Puff
-SPECIES_R70,星光鳐,Starray
-SPECIES_R71,夜露螺,Night Dew
-SPECIES_R72,银月鹦,Silver Parrot
-SPECIES_R73,熔晶蟹,Magma Crab
-SPECIES_R74,火冠虾,Flame Crown
-SPECIES_R75,炎珠章,Ember Pearl
-SPECIES_R76,红玉管虫,Ruby Plume
-SPECIES_R77,金硫鱼,Gold Sulfur
-SPECIES_R78,熔光母,Lava Glow
-SPECIES_R79,火山龟,Ember Turtle
-SPECIES_R80,炉石螺,Hearthstone
-SPECIES_R81,焰尾鳐,Flametail
-SPECIES_R82,神殿蟹,Temple Crab
-SPECIES_R83,金桂鱼,Gold Laurel
-SPECIES_R84,石灵龟,Stone Spirit
-SPECIES_R85,圣杯母,Chalice
-SPECIES_R86,王冠鳐,Crown Ray
-SPECIES_R87,玉璧鱼,Jade Disc
-SPECIES_R88,宝瓶章,Treasure Jar
-SPECIES_R89,遗迹海马,Relic Horse
-SPECIES_R90,金币鳗,Coin Eel
-SPECIES_R91,深渊冠母,Abyss Crown
-SPECIES_R92,光圈鱼,Haloed
-SPECIES_R93,星灯鮟鱇,Star Angler
-SPECIES_R94,荧珠虾,Glow Pearl
-SPECIES_R95,暗月章,Dark Moon
-SPECIES_R96,珠光鳗,Pearl Eel
-SPECIES_R97,晶眼鱼,Crystal Eye
-SPECIES_R98,夜光参,Night Cuke
-SPECIES_R99,银冠蛛,Silver Spider
-SPECIES_R100,星冠鲸,Star Crown
-SPECIES_R101,银河马,Galaxy Pony
-SPECIES_R102,月冠鳐,Moon Ray
-SPECIES_R103,星钻蟹,Gem Crab
-SPECIES_R104,彗星章,Comet Octo
-SPECIES_R105,极光鱼,Aurora Fish
-SPECIES_R106,星珠母,Star Pearl
-SPECIES_R107,星梦豚,Star Dream
-SPECIES_R108,星鹅鱼,Swanfin
-SPECIES_R109,樱冠鲤,Bloom Carp
-SPECIES_R110,珠樱虾,Pearl Sakura
-SPECIES_R111,花仙章,Petal Fairy
-SPECIES_R112,月樱鳐,Bloom Ray
-SPECIES_R113,春灯鲷,Lamp Bream
-SPECIES_R114,樱珠蟹,Bloom Crab
-SPECIES_R115,花冠兔,Bloom Bunny
-SPECIES_R116,露珠龟,Dew Turtle
-SPECIES_R117,柳叶鱼,Willow
-SPECIES_R118,珠灯蟹,Lamplight
-SPECIES_R119,宝袋鱼,Pouchy
-SPECIES_R120,霓灯章,Neon Octo
-SPECIES_R121,珠伞鱿,Pearl Squid
-SPECIES_R122,银鲳仙,Silver Pompy
-SPECIES_R123,茶仙虾,Tea Sprite
-SPECIES_R124,灯会豚,Lantern Puff
-SPECIES_R125,花帽鲷,Petal Bream
-SPECIES_R126,珠贝商,Pearl Mussel
-SPECIES_R127,云冠豚,Cloud Crown
-SPECIES_R128,虹珠马,Prism Pearl
-SPECIES_R129,天使鳐,Sky Angel
-SPECIES_R130,晴光鱼,Sunbeam
-SPECIES_R131,雨珠母,Raindrop
-SPECIES_R132,羽冠龟,Plume Turtle
-SPECIES_R133,云纱章,Veil Octo
-SPECIES_R134,珠云蟹,Cloud Pearl
-SPECIES_R135,霞光虾,Dawn Shrimp
-SPECIES_R136,珠后蝶,Pearl Belle
-SPECIES_R137,虹贝章,Opal Octo
-SPECIES_R138,月珠鳗,Moon Eel
-SPECIES_R139,珠贝仙,Shell Fairy
-SPECIES_R140,银鲍鲍,Silver Abby
-SPECIES_R141,星珠虾,Starbead
-SPECIES_R142,粉珠母,Rose Pearl
-SPECIES_R143,珠冠蟹,Pearl Crown
-SPECIES_R144,雪珠兔,Snow Pearl
-SPECIES_R145,金钟螺,Gold Shell
-SPECIES_R146,时光鱼,Timekeeper
-SPECIES_R147,铜冠虾,Brass Prawn
-SPECIES_R148,星齿章,Star Gear
-SPECIES_R149,钟楼蟹,Clocktower
-SPECIES_R150,月轮母,Moonwheel
-SPECIES_R151,银机龟,Silver Turtle
-SPECIES_R152,琥珀蝠,Amber
-SPECIES_R153,发条仙,Windup Fairy
-SPECIES_R154,歌后鲸,Diva Whale
-SPECIES_R155,竖琴仙,Harp Fairy
-SPECIES_R156,星鼓蟹,Star Drum
-SPECIES_R157,银铃母,Silver Bell
-SPECIES_R158,月光号,Moon Horn
-SPECIES_R159,和声豚,Harmony
-SPECIES_R160,金笛鳗,Golden Flute
-SPECIES_R161,晨曲螺,Dawn Song
-SPECIES_R162,舞会章,Ball Dancer
-SPECIES_E01,晶背宝,Crystal Back
-SPECIES_E02,星披披,Star Cape
-SPECIES_E03,珠角团,Pearl Horn
-SPECIES_E04,云冠鲨,Cloud Shark
-SPECIES_E05,珠旋旋,Pearl Swirl
-SPECIES_E06,宝晶蟹,Gemshell
-SPECIES_E07,日冕马,Sunmane
-SPECIES_E08,星砂灵,Stardust
-SPECIES_E09,珠后贝,Pearl Queen
-SPECIES_E10,珊瑚龙,Coral Dragon
-SPECIES_E11,琉璃鹦,Prism
-SPECIES_E12,宝石葵,Jewelia
-SPECIES_E13,光蝶蝶,Lumina
-SPECIES_E14,翡翠龙,Emerald
-SPECIES_E15,獭王王,Otter King
-SPECIES_E16,极光母,Aurora
-SPECIES_E17,星鲍鲍,Galaxy
-SPECIES_E18,金阳星,Sunburst
-SPECIES_E19,宝龙龙,Hoard
-SPECIES_E20,幽灵帆,Phantom Sail
-SPECIES_E21,金锚章,Anchora
-SPECIES_E22,冰后母,Ice Queen
-SPECIES_E23,晶企鹅,Frost Knight
-SPECIES_E24,极光鲸,Borealis
-SPECIES_E25,钻石蟹,Diamond
-SPECIES_E26,龙王王,Dragon King
-SPECIES_E27,宫灯后,Lamp Queen
-SPECIES_E28,凤羽鱼,Phoenix
-SPECIES_E29,星云章,Nebula
-SPECIES_E30,月神马,Selene
-SPECIES_E31,翡根龙,Rootdragon
-SPECIES_E32,金鳄王,Croc King
-SPECIES_E33,萤光鲎,Glow Dome
-SPECIES_E34,森灵儒艮,Grove Spirit
-SPECIES_E35,宝根蟹,Jewel Crab
-SPECIES_E36,月华龙,Moon Dragon
-SPECIES_E37,星河鳐,Galaxy Ray
-SPECIES_E38,夜后章,Night Queen
-SPECIES_E39,萤光凤,Firebird
-SPECIES_E40,月宫兔,Moon Rabbit
-SPECIES_E41,熔岩龙,Lava Dragon
-SPECIES_E42,炎晶鲸,Lava Whale
-SPECIES_E43,火山神蟹,Volcano Lord
-SPECIES_E44,熔金章,Molten Gold
-SPECIES_E45,红宝管,Ruby Spire
-SPECIES_E46,守护石龙,Stone Wyrm
-SPECIES_E47,太阳神龟,Sun Turtle
-SPECIES_E48,黄金面具鱼,Golden Mask
-SPECIES_E49,圣杯水母,Grail Jelly
-SPECIES_E50,水晶神鳐,Crystal Ray
-SPECIES_E51,深渊龙,Deep Dragon
-SPECIES_E52,鮟鱇王,Angler King
-SPECIES_E53,幽光鲸,Ghost Whale
-SPECIES_E54,极光鱿,Aurora Squid
-SPECIES_E55,虹光管母,Glow Siphon
-SPECIES_E56,星河龙,Star Dragon
-SPECIES_E57,宇宙鲸王,Space Whale
-SPECIES_E58,太阳鳐,Solar Ray
-SPECIES_E59,星环章,Ring Lord
-SPECIES_E60,极光天马,Aurora Steed
-SPECIES_E61,樱龙龙,Bloom Wyrm
-SPECIES_E62,金鲤王,Carp King
-SPECIES_E63,花神鳐,Flora Ray
-SPECIES_E64,樱晶蟹,Rose Quartz
-SPECIES_E65,春之鲸,Spring Whale
-SPECIES_E66,灯王龙,Lamp Wyrm
-SPECIES_E67,宝市鲸,Trade Whale
-SPECIES_E68,招财蟹,Fortune Crab
-SPECIES_E69,琉璃章,Glass Octo
-SPECIES_E70,宝灯鳐,Jewel Ray
-SPECIES_E71,云龙龙,Sky Dragon
-SPECIES_E72,天空鲸,Sky Whale
-SPECIES_E73,彩虹鳐,Rainbow Ray
-SPECIES_E74,雷光豚,Thunder
-SPECIES_E75,日轮马,Sun Steed
-SPECIES_E76,珍珠龙,Pearl Dragon
-SPECIES_E77,砗磲王,Clam King
-SPECIES_E78,宝珠鲸,Orb Whale
-SPECIES_E79,欧泊鳐,Opal Ray
-SPECIES_E80,皇冠蝶,Crown Fly
-SPECIES_E81,机械龙,Clock Dragon
-SPECIES_E82,钟表鲸,Clock Whale
-SPECIES_E83,齿轮王,Gear King
-SPECIES_E84,星轨螺,Orbit Shell
-SPECIES_E85,晶钟母,Crystal Bell
-SPECIES_E86,乐章龙,Song Dragon
-SPECIES_E87,天籁鲸,Choir Whale
-SPECIES_E88,金琴蟹,Lyre King
-SPECIES_E89,歌光母,Aurora Song
-SPECIES_E90,晶琴马,Crystal Harp
-SPECIES_L01,曦尾锦,Dawn Koi
-SPECIES_L02,月眠鲸,Moon Whale
-PROFILE_CHANGE_AVATAR,换头像,Change
-PROFILE_PICK_AVATAR,选头像,Avatar
-PROFILE_DEFAULT_AVATAR,默认,Default
-UI_TAB_TASKS,任务,Tasks
-TASK_TITLE,任务,Tasks
-TASK_GO,前往,Go
-TASK_NAME_WIN,过 %d 关,Win %d levels
-TASK_NAME_RESCUE,救 %d 条鱼,Rescue %d fish
-TASK_NAME_AD,看广告 ×%d,Watch ads ×%d
-TASK_NAME_COMBO,达成 %d 连击,Get a %d combo
-TASK_NAME_SKILL,用道具 ×%d,Use boosters ×%d
-TASK_NAME_DAILY,每日挑战 ×%d,Play Daily ×%d
-TASK_NAME_WHEEL,抽奖 ×%d,Open chests ×%d
-TASK_NAME_BOWLS,装满 %d 个鱼缸,Fill %d tanks
-TASK_NAME_PLAY,玩 %d 局,Play %d games
-TASK_CHEST_DAY,每日宝箱,Daily Chest
-TASK_CHEST_WEEK,每周宝箱,Weekly Chest
-TASK_CARD_MIN,%s以上,%s+
-TASK_TAB_DAY,每日,Daily
-TASK_TAB_WEEK,每周,Weekly
-BOOT_TIP_1,排队泡里只有最前面那条能点,Only the front fish in a queue bubble can be taken
-BOOT_TIP_2,同一种三条装满一缸,Three of a kind fill a tank
-BOOT_TIP_3,卡住了试试洗牌,Stuck? Try Shuffle
-BOOT_TIP_4,暂存槽快满时用吹泡清空,Slots almost full? Use Blow
-BOOT_TIP_5,渔网能把一缸直接装满,The Net fills a whole tank
-BOOT_TIP_6,连击越高金币越多,"Bigger combos, more coins"
-BOOT_TIP_7,每天来签到领奖励,Sign in daily for rewards
-BOOT_TIP_8,收集卡片能集齐整本收藏册,Collect cards to finish an album
-BOOT_FAIL,网络不太好，加载失败,Couldn't load. Check your connection
-BOOT_RETRY,重试,Retry
+keys,zh_CN,en,zh_TW,ja,ko,de,fr,es,pt,it,ru,tr
+UI_LEVEL,第 %d 关,Level %d,第 %d 關,ステージ %d,레벨 %d,Level %d,Niveau %d,Nivel %d,Nível %d,Livello %d,Уровень %d,Seviye %d
+UI_CHALLENGE,困难,Hard,困難,むずかしい,어려움,Schwer,Difficile,Difícil,Difícil,Difficile,Сложно,Zor
+UI_NET_HINT,点一个鱼缸把它装满,Tap a tank to fill it,點一個魚缸把它裝滿,満タンにする水そうをタップ,가득 채울 어항을 탭하세요,Tippe auf ein Becken zum Füllen,Touche un aquarium à remplir,Toca una pecera para llenarla,Toque num aquário para enchê-lo,Tocca un acquario da riempire,"Нажми на аквариум, чтобы заполнить",Doldurmak için bir akvaryuma dokun
+UI_LOSE,闯关失败,Level Failed,闖關失敗,失敗…,실패,Verloren,Perdu !,¡Fallaste!,Não deu!,Peccato!,Не вышло,Olmadı!
+UI_LOSE_BUFFER,槽位满了,Slots full,槽位滿了,待機マスがいっぱい,대기 칸이 꽉 찼어요,Ablage voll,Cases pleines,Casillas llenas,Espaços cheios,Caselle piene,Ячейки заняты,Bölmeler dolu
+UI_LOSE_TIMEOUT,时间到了,Time's up,時間到了,時間切れ,시간 초과,Zeit um,Temps écoulé,Se acabó el tiempo,Acabou o tempo,Tempo scaduto,Время вышло,Süre bitti
+UI_LOSE_STUCK,无路可走,Out of moves,無路可走,手づまり,더 둘 곳이 없어요,Keine Züge mehr,Plus de coups,Sin movimientos,Sem jogadas,Nessuna mossa,Нет ходов,Hamle kalmadı
+UI_COINS_GAIN,+%d 金币,+%d coins,+%d 金幣,+%d コイン,+%d 코인,+%d Münzen,+%d pièces,+%d monedas,+%d moedas,+%d monete,+%d монет,+%d altın
+UI_NEXT_LEVEL,下一关,Next,下一關,次へ,다음,Weiter,Suivant,Siguiente,Próximo,Avanti,Дальше,Sonraki
+UI_NO_COINS,金币不足,Out of Coins,金幣不足,コイン不足,코인 부족,Zu wenig Münzen,Plus de pièces,Faltan monedas,Sem moedas,Niente monete,Мало монет,Altın yetersiz
+UI_TOOL_LIMIT,本关已用完,Used up this level,本關已用完,このステージでは使い切り,이 레벨에선 다 썼어요,In diesem Level aufgebraucht,Épuisé pour ce niveau,Agotado en este nivel,Esgotado nesta fase,Esaurito in questo livello,На этом уровне всё,Bu seviyede bitti
+UI_SETTINGS,设置,Settings,設定,設定,설정,Optionen,Réglages,Ajustes,Ajustes,Impostazioni,Настройки,Ayarlar
+UI_AD_UNAVAILABLE,暂无广告,No ads right now,暫無廣告,広告を準備中です,지금은 광고가 없어요,Gerade keine Werbung,Pas de pub pour l’instant,Ahora no hay anuncios,Sem anúncios agora,Nessuna pubblicità ora,Сейчас нет рекламы,Şu an reklam yok
+UI_SIGNIN,签到,Daily Gift,簽到,ログボ,출석,Tagesbonus,Cadeau du jour,Regalo diario,Presente diário,Regalo del giorno,Подарок дня,Günlük hediye
+UI_SIGNIN_DAY,第 %d 天,Day %d,第 %d 天,%d日目,%d일차,Tag %d,Jour %d,Día %d,Dia %d,Giorno %d,День %d,%d. gün
+UI_CLAIM,领取,Claim,領取,受け取る,받기,Holen,Prendre,Recoger,Pegar,Prendi,Забрать,Al
+UI_CLAIM_DOUBLE,双倍,2x,雙倍,2倍,2배,2x,x2,x2,2x,x2,x2,2x
+UI_CLAIMED,已领取,Claimed,已領取,受け取り済み,받음,Erhalten,Reçu,Recogido,Recebido,Preso,Получено,Alındı
+UI_AD_TEST,广告测试,Ad test,廣告測試,広告テスト,광고 테스트,Werbetest,Test pub,Prueba de anuncios,Teste de anúncios,Test pubblicità,Тест рекламы,Reklam testi
+UI_PRIVACY_OPTIONS,隐私选项,Privacy Options,隱私選項,プライバシー設定,개인정보 설정,Datenschutz,Confidentialité,Privacidad,Privacidade,Privacy,Конфиденциальность,Gizlilik
+UI_TAB_SHOP,商店,Shop,商店,ショップ,상점,Shop,Boutique,Tienda,Loja,Negozio,Магазин,Mağaza
+UI_TAB_COLLECTION,收藏,Album,收藏,図鑑,도감,Album,Album,Álbum,Álbum,Album,Альбом,Albüm
+UI_OWNED,已有 %d,Owned %d,已有 %d,所持 %d,보유 %d,Hast %d,Tu as %d,Tienes %d,Tem %d,Ne hai %d,Есть %d,Sende %d
+UI_RARITY_COMMON,普通,Common,普通,コモン,일반,Normal,Commun,Común,Comum,Comune,Обычная,Sıradan
+UI_RARITY_UNCOMMON,精良,Uncommon,精良,アンコモン,고급,Besonders,Peu commun,Poco común,Incomum,Non comune,Необычная,Seçkin
+UI_RARITY_RARE,稀有,Rare,稀有,レア,희귀,Selten,Rare,Raro,Raro,Raro,Редкая,Nadir
+UI_RARITY_EPIC,史诗,Epic,史詩,エピック,영웅,Episch,Épique,Épico,Épico,Epico,Эпическая,Destansı
+UI_RARITY_LEGEND,传说,Legend,傳說,レジェンド,전설,Legendär,Légendaire,Legendario,Lendário,Leggendario,Легенда,Efsanevi
+UI_UNKNOWN,？？？,???,？？？,？？？,???,???,???,???,???,???,???,???
+UI_COMBO_WORD,连击,COMBO,連擊,コンボ,콤보,COMBO,COMBO,COMBO,COMBO,COMBO,КОМБО,KOMBO
+UI_COMBO_T1,不错！,Good!,不錯！,いいね！,좋아요!,Gut!,Bien !,¡Bien!,Boa!,Bene!,Неплохо!,İyi!
+UI_COMBO_T2,漂亮！,Nice!,漂亮！,ナイス！,멋져요!,Klasse!,Joli !,¡Genial!,Show!,Grande!,Отлично!,Harika!
+UI_COMBO_T3,太强了！,Awesome!,太強了！,すごい！,대단해요!,Super!,Génial !,¡Increíble!,Incrível!,Fantastico!,Супер!,Muhteşem!
+UI_COMBO_T4,无敌！,Unstoppable!,無敵！,無敵！,무적!,Unschlagbar!,Inarrêtable !,¡Imparable!,Imparável!,Inarrestabile!,Не остановить!,Durdurulamaz!
+UI_COMBO_CARD,连击送卡！,Combo card!,連擊送卡！,コンボでカード！,콤보 카드!,Combo-Karte!,Carte combo !,¡Carta combo!,Carta de combo!,Carta combo!,Карта за комбо!,Kombo kartı!
+GUEST_SAVED,救出 %s！,Rescued %s!,救出 %s！,%sを救出！,%s 구출!,%s gerettet!,%s sauvé !,¡%s a salvo!,%s salvo!,%s salvo!,%s спасён!,%s kurtarıldı!
+TIMED_SAVED,赶上了！,Just in time!,趕上了！,セーフ！,아슬아슬!,Gerade noch!,Juste à temps !,¡Por los pelos!,Na hora H!,Appena in tempo!,Успел!,Tam zamanında!
+TIP_LAYER,先点开压在上面的气泡,Pop the top bubbles first,先點開壓在上面的氣泡,上に重なった泡から割ろう,위에 겹친 방울부터 터뜨려요,Erst die oberen Blasen platzen lassen,Éclate d’abord les bulles du dessus,Revienta primero las burbujas de arriba,Estoure primeiro as bolhas de cima,Scoppia prima le bolle in cima,Сначала лопни верхние пузыри,Önce üstteki baloncukları patlat
+TIP_CHAIN,锁链泡：每装满一缸减 1，到 0 解开,Chains: each full tank counts down,鎖鏈泡：每裝滿一缸減 1，到 0 解開,くさり泡：水そうが1つ満タンになるたび-1、0で外れる,사슬 방울: 어항을 채울 때마다 1씩 줄고 0이 되면 풀려요,Ketten: Jedes volle Becken zählt runter,Chaînes : chaque aquarium plein fait −1,Cadenas: cada pecera llena resta 1,Correntes: cada aquário cheio tira 1,Catene: ogni acquario pieno toglie 1,Цепи: каждый полный аквариум снимает 1,Zincir: Her dolan akvaryum 1 azaltır
+TIP_TIMER,限时缸：时间到之前装满它,Timer tank: fill it before time's up,限時缸：時間到之前裝滿它,時間制限の水そう：時間内に満タンにしよう,시간제 어항: 시간 안에 채워요,"Zeitbecken: Fülle es, bevor die Zeit abläuft",Aquarium chrono : remplis-le à temps,Pecera con reloj: llénala a tiempo,Aquário com tempo: encha antes que acabe,Acquario a tempo: riempilo prima dello scadere,"Аквариум с таймером: заполни, пока есть время",Süreli akvaryum: Süre bitmeden doldur
+TIP_FOG,迷雾泡：点破别的气泡，雾就散开,Fog: pop other bubbles to clear it,迷霧泡：點破別的氣泡，霧就散開,きり泡：ほかの泡を割ると晴れる,안개 방울: 다른 방울을 터뜨리면 걷혀요,"Nebel: Platze andere Blasen, dann lichtet er sich",Brume : éclate d’autres bulles pour la dissiper,Niebla: revienta otras burbujas para despejarla,Névoa: estoure outras bolhas para ela sumir,Nebbia: scoppia altre bolle per diradarla,"Туман: лопай другие пузыри, и он рассеется",Sis: Başka baloncukları patlatınca dağılır
+TIP_ICE,冰冻泡：点破连着的气泡就解冻,Ice: pop the linked bubble to thaw it,冰凍泡：點破連著的氣泡就解凍,こおり泡：つながった泡を割ると溶ける,얼음 방울: 연결된 방울을 터뜨리면 녹아요,Eis: Platze die verbundene Blase zum Auftauen,Glace : éclate la bulle liée pour la faire fondre,Hielo: revienta la burbuja unida para derretirlo,Gelo: estoure a bolha ligada para derreter,Ghiaccio: scoppia la bolla collegata per scioglierlo,"Лёд: лопни связанный пузырь, чтобы растопить",Buz: Bağlı baloncuğu patlatınca erir
+TIP_BIG,大鱼缸：要装 6 条,Big tank: holds 6 fish,大魚缸：要裝 6 條,大きな水そう：6匹入るよ,큰 어항: 6마리가 들어가요,Großes Becken: Platz für 6 Fische,Grand aquarium : 6 poissons,Pecera grande: caben 6 peces,Aquário grande: cabem 6 peixes,Acquario grande: contiene 6 pesci,Большой аквариум: вмещает 6 рыбок,Büyük akvaryum: 6 balık alır
+TIP_PAIR,结伴鱼：点一条，两条一起走,"Buddies: tap one, both go",結伴魚：點一條，兩條一起走,なかよし魚：1匹タップで2匹いっしょに,단짝 물고기: 하나를 탭하면 둘이 같이 가요,"Freunde: Tippe einen an, beide schwimmen","Copains : touches-en un, les deux partent",Amigos: toca uno y se van los dos,Amigos: toque em um e os dois vão,"Amici: toccane uno, vanno via in due","Друзья: нажми на одного, уплывут оба","Kanka balıklar: Birine dokun, ikisi gider"
+UI_PRAISE_1,不错！,Good!,不錯！,いいね！,좋아요!,Gut!,Bien !,¡Bien!,Boa!,Bene!,Неплохо!,İyi!
+UI_PRAISE_2,真棒！,Great!,真棒！,すてき！,훌륭해요!,Toll!,Bravo !,¡Genial!,Mandou bem!,Bravo!,Здорово!,Süper!
+UI_PRAISE_3,太强了！,Awesome!,太強了！,すごい！,대단해요!,Super!,Génial !,¡Increíble!,Incrível!,Fantastico!,Супер!,Muhteşem!
+UI_SKILL_FREE,FREE,FREE,FREE,FREE,FREE,GRATIS,GRATUIT,GRATIS,GRÁTIS,GRATIS,FREE,BEDAVA
+UI_SKILL_TRY,新道具：%s,New booster: %s,新道具：%s,新アイテム：%s,새 아이템: %s,Neues Extra: %s,Nouveau bonus : %s,Nuevo potenciador: %s,Novo reforço: %s,Nuovo aiuto: %s,Новый бонус: %s,Yeni güçlendirici: %s
+UI_BLOW_EMPTY,槽位里没有鱼,Slots are empty,槽位裡沒有魚,待機マスに魚がいない,대기 칸에 물고기가 없어요,Ablage ist leer,Les cases sont vides,Las casillas están vacías,Os espaços estão vazios,Le caselle sono vuote,Ячейки пусты,Bölmeler boş
+UI_CURRENT_EMPTY,没有能直接进缸的鱼,No fish can go in,沒有能直接進缸的魚,水そうに入れる魚がいない,어항에 갈 물고기가 없어요,Kein Fisch passt ins Becken,Aucun poisson ne peut entrer,Ningún pez puede entrar,Nenhum peixe pode entrar,Nessun pesce può entrare,Некого отправить в аквариум,Akvaryuma girecek balık yok
+UI_SHUFFLE_EMPTY,现在不能洗牌,Can't shuffle now,現在不能洗牌,今はシャッフルできない,지금은 섞을 수 없어요,Mischen geht gerade nicht,Impossible de mélanger,Ahora no se puede mezclar,Não dá para embaralhar agora,Ora non puoi mescolare,Сейчас нельзя перемешать,Şu an karıştırılamaz
+UI_REPLAY_NO_REWARD,今日重玩奖励已领完,No rewards left today,今日重玩獎勵已領完,今日の再挑戦ボーナスは終了,오늘 재도전 보상은 끝났어요,Heute keine Belohnung mehr,Plus de récompense aujourd’hui,Hoy ya no hay premios,Sem prêmios por hoje,Niente premi per oggi,Награды на сегодня кончились,Bugünlük ödül kalmadı
+H_LIVES_TITLE,生命,Lives,生命,ライフ,하트,Leben,Vies,Vidas,Vidas,Vite,Жизни,Canlar
+H_BUY_ONE,买1条,Buy 1,買1條,1つ買う,1개 구매,1 kaufen,Acheter 1,Comprar 1,Comprar 1,Compra 1,Купить 1,1 tane al
+H_REFILL,补满,Refill,補滿,全回復,가득 채우기,Auffüllen,Tout remplir,Rellenar,Encher,Ricarica,Пополнить,Doldur
+H_WATCH_COINS,+%d 金币,+%d coins,+%d 金幣,+%d コイン,+%d 코인,+%d Münzen,+%d pièces,+%d monedas,+%d moedas,+%d monete,+%d монет,+%d altın
+H_INF_LEFT,无限生命 %s,Unlimited %s,無限生命 %s,ライフ無限 %s,무한 하트 %s,Unendlich %s,Illimitées %s,Ilimitadas %s,Infinitas %s,Infinite %s,Безлимит %s,Sınırsız %s
+H_NEXT_LIFE,下一条 %s,Next in %s,下一條 %s,次まで %s,다음 %s,Nächstes in %s,Prochaine : %s,Siguiente en %s,Próxima em %s,Prossima tra %s,Ещё одна через %s,Sonraki %s
+H_LIVES_FULL,生命已满,Full,生命已滿,満タン,가득 참,Voll,Plein,Llenas,Cheio,Piene,Полно,Dolu
+H_LEAVE_TITLE,退出关卡,Quit Level,退出關卡,やめる？,그만할까요?,Aufhören?,Quitter ?,¿Salir?,Sair?,Uscire?,Выйти?,Çıkılsın mı?
+H_LEAVE_LINE,现在退出会扣 1 条命,Quitting costs 1 life,現在退出會扣 1 條命,今やめるとライフが1減ります,지금 나가면 하트 1개가 줄어요,Aufhören kostet 1 Leben,Quitter coûte 1 vie,Salir te cuesta 1 vida,Sair custa 1 vida,Uscire costa 1 vita,Выход стоит 1 жизнь,Çıkarsan 1 can gider
+H_KEEP_PLAYING,继续玩,Keep Playing,繼續玩,つづける,계속하기,Weiterspielen,Continuer,Seguir,Continuar,Continua,Играть дальше,Devam et
+H_LEAVE,退出,Quit,退出,やめる,나가기,Aufhören,Quitter,Salir,Sair,Esci,Выйти,Çık
+H_SLOT_TITLE,加鱼缸,Extra Tank,加魚缸,水そう追加,어항 추가,Extra-Becken,Aquarium en plus,Pecera extra,Aquário extra,Acquario extra,Ещё аквариум,Ek akvaryum
+H_WATCH_AD,看广告,Watch,看廣告,広告を見る,광고 보기,Ansehen,Regarder,Ver,Assistir,Guarda,Смотреть,İzle
+H_REVIVE_LINE,复活后接着玩,Revive and keep going,復活後接著玩,復活してつづけよう,부활해서 계속해요,Wiederbeleben und weiter,Reprends la partie,Revive y sigue jugando,Reviva e continue,Torna in gioco e continua,Вернись в игру,Canlan ve devam et
+H_REVIVE_AD,复活,Revive,復活,復活,부활,Weiter,Reprendre,Revivir,Reviver,Riprova,Продолжить,Canlan
+H_GIVE_UP,放弃,Give Up,放棄,あきらめる,포기,Aufgeben,Abandonner,Rendirse,Desistir,Arrenditi,Сдаться,Pes et
+H_UNLOCK_TITLE,新功能,Unlocked!,新功能,新機能！,새 기능!,Neu!,Nouveau !,¡Nuevo!,Novidade!,Novità!,Новинка!,Yeni!
+H_UNLOCK_LINE,%s 已解锁,%s unlocked,%s 已解鎖,%sが解放されました,%s 열림,%s freigeschaltet,%s débloqué,%s desbloqueado,%s liberado,%s sbloccato,Открыто: %s,%s açıldı
+H_GO_LOOK,去看看,Go,去看看,見てみる,보러 가기,Los,Voir,Ver,Ver,Vai,Глянуть,Git
+H_UNLOCKS_AT,第 %d 关解锁,Level %d,第 %d 關解鎖,Lv.%dで解放,레벨 %d,Level %d,Niveau %d,Nivel %d,Nível %d,Livello %d,Уровень %d,Seviye %d
+H_ENTRY_LOCKED,等级 %d,Level %d,等級 %d,Lv.%d,레벨 %d,Level %d,Niv. %d,Nivel %d,Nível %d,Liv. %d,Ур. %d,Sv. %d
+H_FEAT_SIGNIN,签到,Check-in,簽到,ログボ,출석,Bonus,Cadeau,Regalo,Presente,Regalo,Подарок,Hediye
+H_FEAT_LEVELS,选关,Levels,選關,ステージ,레벨,Level,Niveaux,Niveles,Fases,Livelli,Уровни,Seviyeler
+H_FEAT_COLLECTION,收藏,Album,收藏,図鑑,도감,Album,Album,Álbum,Álbum,Album,Альбом,Albüm
+H_FEAT_WHEEL,抽奖,Treasure,抽獎,宝箱,보물상자,Schatz,Trésor,Tesoro,Tesouro,Tesoro,Клад,Hazine
+H_SKILL_SHUFFLE,洗牌,Shuffle,洗牌,まぜまぜ,섞기,Mischen,Mélange,Mezclar,Mexer,Mescola,Микс,Karıştır
+H_SKILL_BLOW,吹泡,Blow,吹泡,突風,불기,Pusten,Souffle,Soplar,Soprar,Soffia,Сдуть,Üfle
+H_SKILL_NET,渔网,Net,漁網,あみ,그물,Netz,Filet,Red,Rede,Rete,Сеть,Ağ
+H_SKILL_FLOW,洋流,Current,洋流,うず潮,해류,Strömung,Courant,Marea,Maré,Corrente,Течение,Akıntı
+H_NEED_COINS,金币不足,Out of Coins,金幣不足,コイン不足,코인 부족,Zu wenig Münzen,Plus de pièces,Faltan monedas,Sem moedas,Niente monete,Мало монет,Altın yetersiz
+H_NEED_COINS_LINE,还差 %d 金币,Need %d more coins,還差 %d 金幣,あと %d コイン必要,%d 코인이 더 필요해요,Dir fehlen %d Münzen,Il te manque %d pièces,Te faltan %d monedas,Faltam %d moedas,Ti mancano %d monete,Не хватает %d монет,%d altın daha lazım
+H_MUSIC,音乐,Music,音樂,BGM,음악,Musik,Musique,Música,Música,Musica,Музыка,Müzik
+H_SOUND,音效,Sound,音效,効果音,효과음,Sound,Sons,Sonido,Sons,Suoni,Звуки,Ses
+H_VIBRATION,震动,Vibration,震動,バイブ,진동,Vibration,Vibrations,Vibración,Vibração,Vibrazione,Вибрация,Titreşim
+H_LANGUAGE,语言,Language,語言,言語,언어,Sprache,Langue,Idioma,Idioma,Lingua,Язык,Dil
+H_TO_HOME,主页,Home,首頁,ホーム,홈,Start,Accueil,Inicio,Início,Home,Меню,Ana sayfa
+H_RETRY,重试,Retry,重試,もう一度,다시 하기,Nochmal,Rejouer,Reintentar,De novo,Riprova,Ещё раз,Tekrar
+H_CONGRATS,恭喜获得,Rewards,恭喜獲得,ゲット！,획득!,Belohnung,Récompenses,Premios,Prêmios,Premi,Награды,Ödüller
+H_SPINS_LEFT,剩 %d 次,%d left,剩 %d 次,残り %d 回,%d회 남음,Noch %d,Reste %d,Quedan %d,Restam %d,Ne restano %d,Осталось %d,%d hak kaldı
+H_SPIN,开箱,Open,開箱,開ける,열기,Öffnen,Ouvrir,Abrir,Abrir,Apri,Открыть,Aç
+H_TEN_PULL,十连,Open ×10,十連,10回開ける,10회 열기,×10 öffnen,Ouvrir ×10,Abrir ×10,Abrir ×10,Apri ×10,Открыть ×10,×10 aç
+UI_MINUTES,%d 分钟,%d min,%d 分鐘,%d分,%d분,%d Min.,%d min,%d min,%d min,%d min,%d мин,%d dk
+UI_SHARE_SHORT,分享,Share,分享,シェア,공유,Teilen,Partager,Compartir,Compartilhar,Condividi,Поделиться,Paylaş
+TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life",從這關起，中途退出會扣 1 條命,このステージから、途中でやめるとライフが1減ります,이번 레벨부터 중간에 나가면 하트 1개가 줄어요,Ab jetzt kostet Aufhören ein Leben,"Désormais, quitter un niveau coûte une vie","Desde ahora, salir a mitad cuesta una vida","A partir de agora, sair no meio custa uma vida","Da ora, uscire a metà costa una vita",Теперь выход посреди уровня стоит жизнь,Artık seviyeden çıkmak bir cana mal olur
+TIP_DROP,后面还会掉下新气泡,More bubbles will drop in,後面還會掉下新氣泡,あとから新しい泡が落ちてくるよ,새 방울이 계속 떨어져요,Es fallen noch neue Blasen nach,De nouvelles bulles vont tomber,Caerán más burbujas,Mais bolhas vão cair,Cadranno altre bolle,Сверху будут падать новые пузыри,Yeni baloncuklar düşmeye devam edecek
+TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time,從這關起挑戰關限時：時間用完前救出所有小魚，連擊能加時間,ここからチャレンジステージは時間制限あり。時間内に全員救出しよう。コンボで時間が増えるよ,이제 도전 레벨엔 시간 제한이 있어요. 시간 안에 모두 구출하세요. 콤보로 시간이 늘어나요,Herausforderungen haben jetzt ein Zeitlimit: Rette alle Fische rechtzeitig. Combos geben Extrazeit,Les niveaux défi sont chronométrés : sauve tous les poissons à temps. Les combos donnent du temps,Los niveles de reto tienen tiempo: rescata a todos los peces antes de que se acabe. Los combos suman tiempo,As fases desafio agora têm tempo: salve todos os peixes antes que acabe. Combos dão mais tempo,I livelli sfida ora sono a tempo: salva tutti i pesci prima dello scadere. Le combo danno tempo extra,Теперь на уровнях-испытаниях есть таймер: спаси всех рыбок вовремя. Комбо добавляют время,Meydan okuma seviyeleri artık süreli: Süre bitmeden tüm balıkları kurtar. Kombolar süre kazandırır
+TIP_QUEUE,排队泡：里面的鱼排着队，只能取最前面最亮的那条,Queue bubble: fish line up. Only the bright one in front can go,排隊泡：裡面的魚排著隊，只能取最前面最亮的那條,行列泡：魚が並んでいて、先頭の光っている1匹だけ取れる,줄 선 방울: 물고기가 줄을 서 있어서 맨 앞의 빛나는 한 마리만 꺼낼 수 있어요,Warteschlange: Nur der leuchtende Fisch vorne darf raus,Bulle file d’attente : seul le poisson brillant devant peut sortir,Burbuja en fila: solo sale el pez brillante de delante,Bolha em fila: só sai o peixe brilhante da frente,Bolla in fila: esce solo il pesce luminoso davanti,Пузырь-очередь: выйти может только яркая рыбка впереди,Sıra baloncuğu: Sadece öndeki parlayan balık çıkabilir
+TIP_TOOLS3,从这里起关卡更难了，每种道具每关能用 3 次,Levels get harder from here. Each booster can be used 3 times per level,從這裡起關卡更難了，每種道具每關能用 3 次,ここからむずかしくなるよ。各アイテムは1ステージ3回まで,여기부터 더 어려워져요. 아이템은 레벨마다 종류별로 3번까지,Ab hier wird es schwerer. Jedes Extra geht 3-mal pro Level,Ça se corse ! Chaque bonus s’utilise 3 fois par niveau,Desde aquí se pone difícil. Cada potenciador se usa 3 veces por nivel,Daqui em diante fica difícil. Cada reforço pode ser usado 3 vezes por fase,Da qui si fa dura. Ogni aiuto si usa 3 volte per livello,Дальше сложнее. Каждый бонус можно использовать 3 раза за уровень,Bundan sonra zorlaşıyor. Her güçlendirici seviye başına 3 kez kullanılır
+TIP_BUFFER4,从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具,Only 4 holding slots from here on. They fill up fast — use boosters when stuck,從這裡起暫存槽只有 4 格，放錯更容易滿，卡住就用道具,ここから待機マスは4つだけ。すぐ埋まるので、困ったらアイテムを使おう,여기부터 대기 칸이 4개뿐이에요. 금방 차니까 막히면 아이템을 써요,"Ab hier nur 4 Ablageplätze. Die sind schnell voll – nutze Extras, wenn du feststeckst",Plus que 4 cases d’attente. Elles se remplissent vite : utilise un bonus si tu bloques,Desde aquí solo hay 4 casillas. Se llenan rápido: usa potenciadores si te atascas,Daqui em diante só 4 espaços. Enchem rápido: use reforços se travar,Da qui solo 4 caselle d’attesa. Si riempiono presto: usa gli aiuti se ti blocchi,"Дальше только 4 ячейки. Они быстро заполняются — используй бонусы, если застрял","Bundan sonra sadece 4 bölme var. Çabuk dolar, takılırsan güçlendirici kullan"
+REVIVE_CLOCK,时间 +30 秒,+30s on the clock,時間 +30 秒,時間 +30秒,시간 +30초,+30 Sek.,+30 s au chrono,+30 s al reloj,+30 s no relógio,+30 s al timer,+30 с к таймеру,Süreye +30 sn
+UI_TAB_DAILY,每日挑战,Daily,每日挑戰,デイリー,데일리,Täglich,Défi,Diario,Diário,Sfida,Задача,Günlük
+H_GRAND_PRIZE,大奖,Grand prize,大獎,大当たり,대상,Hauptpreis,Gros lot,Gran premio,Prêmio máximo,Super premio,Главный приз,Büyük ödül
+ALBUM_BOOK_1,晨光沙滩,Sunrise Shore,晨光沙灘,朝やけビーチ,아침 해변,Sonnenstrand,Plage de l’aube,Playa del Alba,Praia Aurora,Alba Dorata,Пляж зари,Şafak Kumsalı
+ALBUM_BOOK_2,珊瑚花园,Coral Garden,珊瑚花園,サンゴの花園,산호 정원,Korallengarten,Récif fleuri,Coralia,Coralina,Coralli,Коралловый сад,Mercan Bahçesi
+ALBUM_BOOK_3,海草森林,Kelp Forest,海草森林,海そうの森,해초 숲,Tangwald,Forêt d’algues,Bosque Verde,Selva Verde,Selva Verde,Лес водорослей,Yosun Ormanı
+ALBUM_BOOK_4,沉船湾,Sunken Ship,沉船灣,沈没船の入り江,난파선 만,Wrackbucht,Baie de l’épave,Bahía Pecio,Naufrágio,Il Relitto,Затон,Batık Koyu
+ALBUM_BOOK_5,水晶洞窟,Crystal Cave,水晶洞窟,水晶のどうくつ,수정 동굴,Kristallhöhle,Grotte bleue,Gruta Azul,Gruta Azul,Grotta Blu,Синий грот,Kristal Mağara
+ALBUM_BOOK_6,海底宫殿,Sea Palace,海底宮殿,海底のお城,바닷속 궁전,Meerespalast,Palais marin,Palacio Marino,Palácio do Mar,Palazzo Marino,Морской дворец,Deniz Sarayı
+ALBUM_BOOK_7,红树林,Mangroves,紅樹林,マングローブ,맹그로브 숲,Mangroven,Mangrove,Manglar,Manguezal,Mangrovie,Мангры,Mangrovlar
+ALBUM_BOOK_8,月光潟湖,Moonlit Cove,月光潟湖,月夜のラグーン,달빛 석호,Mondlagune,Lagon de lune,Laguna Lunar,Lagoa do Luar,Laguna di Luna,Лунная лагуна,Ay Lagünü
+ALBUM_BOOK_9,火山热泉,Volcano Vents,火山熱泉,火山の温泉,화산 온천,Vulkanquellen,Fumerolles,Termas,Termas,Terme,Гейзеры,Lav Kaynağı
+ALBUM_BOOK_10,远古遗迹,Ancient Ruins,遠古遺跡,古代の遺跡,고대 유적,Alte Ruinen,Ruines antiques,Ruinas Antiguas,Ruínas Antigas,Rovine Antiche,Древние руины,Antik Harabe
+ALBUM_BOOK_11,深海峡谷,Deep Trench,深海峽谷,深海の谷,심해 협곡,Tiefseegraben,Fosse abyssale,Fosa Abisal,Fossa Abissal,Fossa Abissale,Пучина,Derin Çukur
+ALBUM_BOOK_12,星海秘境,Starry Sea,星海秘境,星の海,별빛 바다,Sternenmeer,Mer d’étoiles,Mar Estelar,Mar Estelar,Mare di Stelle,Звёздное море,Yıldız Denizi
+ALBUM_BOOK_13,樱花海湾,Blossom Bay,櫻花海灣,さくら湾,벚꽃 만,Blütenbucht,Baie fleurie,Bahía Florida,Baía Florida,Baia dei Fiori,Цветник,Çiçek Koyu
+ALBUM_BOOK_14,海底集市,Sea Market,海底集市,海底マーケット,바닷속 시장,Meeresmarkt,Marché marin,Mercado Marino,Feira do Mar,Mercatino,Морской рынок,Deniz Pazarı
+ALBUM_BOOK_15,云朵浮岛,Cloud Isles,雲朵浮島,雲の浮島,구름 섬,Wolkeninseln,Îles nuages,Islas Nube,Ilhas Nuvem,Isole di Nuvola,Поднебесье,Bulut Adaları
+ALBUM_BOOK_16,珍珠贝湾,Pearl Cove,珍珠貝灣,真珠の入り江,진주 만,Perlenbucht,Anse perlée,Cala de Perlas,Baía Pérola,Cala Perla,Перламутр,İnci Koyu
+ALBUM_BOOK_17,齿轮钟湾,Gear Harbor,齒輪鐘灣,歯車の港,톱니바퀴 항구,Zahnradhafen,Port-Rouage,Puerto Rueda,Porto Roda,Porto Ruote,Механика,Çark Limanı
+ALBUM_BOOK_18,歌声海湾,Melody Cove,歌聲海灣,うたう入り江,노래하는 만,Liederbucht,Anse chantante,Cala Cantarina,Baía Melodia,Cala Canora,Поющая бухта,Şarkı Koyu
+ALBUM_CLAIMED,已领取,Claimed,已領取,受け取り済み,받음,Erhalten,Reçu,Recogido,Recebido,Preso,Получено,Alındı
+ALBUM_TAKE,领取,Claim,領取,受け取る,받기,Holen,Prendre,Recoger,Pegar,Prendi,Забрать,Al
+DAILY_START,开始挑战,Play,開始挑戰,スタート,도전,Spielen,Jouer,Jugar,Jogar,Gioca,Играть,Oyna
+DAILY_DONE,已完成,Completed,已完成,クリア済み,완료,Geschafft,Terminé,Completado,Concluído,Completata,Пройдено,Tamamlandı
+DAILY_TOMORROW,明天再来,Back tomorrow,明天再來,また明日,내일 또 와요,Bis morgen,À demain,Vuelve mañana,Volte amanhã,A domani,До завтра,Yarın gel
+DAILY_FREE,免费 1 次,1 free try,免費 1 次,無料 1回,무료 1회,1x gratis,1 essai gratuit,1 intento gratis,1 tentativa grátis,1 tentativo gratis,1 попытка даром,1 bedava hak
+DAILY_STREAK,连胜 %d/%d 天,Streak %d/%d,連勝 %d/%d 天,連続 %d/%d日,연속 %d/%d일,Serie %d/%d,Série %d/%d,Racha %d/%d,Sequência %d/%d,Serie %d/%d,Серия %d/%d,Seri %d/%d
+DAILY_CHEST,通关奖励,Rewards,通關獎勵,クリア報酬,클리어 보상,Belohnung,Récompenses,Premios,Prêmios,Premi,Награды,Ödüller
+DAILY_BIG_CHEST,七日大奖,Streak Prize,七日大獎,7日間ボーナス,7일 보상,Serienpreis,Prix de série,Premio de racha,Prêmio da sequência,Premio serie,Приз за серию,Seri ödülü
+SIGNIN_CHEST,宝箱,Chest,寶箱,宝箱,상자,Truhe,Coffre,Cofre,Baú,Forziere,Сундук,Sandık
+SIGNIN_BIG_CHEST,大宝箱,Big chest,大寶箱,大きな宝箱,큰 상자,Große Truhe,Gros coffre,Cofre grande,Baú grande,Forziere grande,Большой сундук,Büyük sandık
+DAILY_RETRY,重试,Retry,重試,もう一度,다시 하기,Nochmal,Rejouer,Reintentar,De novo,Riprova,Ещё раз,Tekrar
+H_PRIZE_FRAME,头像框,Avatar frame,頭像框,アイコン枠,프로필 테두리,Bilderrahmen,Cadre de profil,Marco de avatar,Moldura,Cornice avatar,Рамка аватара,Profil çerçevesi
+UI_CARD_OWNED,重复卡，换成,Duplicate →,重複卡，換成,ダブり →,중복 →,Doppelt →,Doublon →,Repetida →,Repetida →,Doppione →,Повтор →,Tekrar kart →
+REVIVE_TITLE,继续闯关？,Continue?,繼續闖關？,つづける？,계속할까요?,Weitermachen?,Continuer ?,¿Continuar?,Continuar?,Continuare?,Продолжить?,Devam mı?
+RESCUE_TITLE,槽位满了,Slots Full,槽位滿了,待機マスがいっぱい,대기 칸이 꽉 찼어요,Ablage voll,Cases pleines,Casillas llenas,Espaços cheios,Caselle piene,Ячейки заняты,Bölmeler dolu
+RESCUE_LINE,用吹泡清空槽位，接着玩,Use Blow to clear the slots and keep going,用吹泡清空槽位，接著玩,突風で待機マスを空けてつづけよう,불기로 대기 칸을 비우고 계속해요,Mit Pusten die Ablage leeren und weiter,Utilise Souffle pour vider les cases,Usa Soplar para vaciar las casillas y sigue,Use Soprar para esvaziar os espaços,Usa Soffia per svuotare le caselle,"Используй «Сдуть», чтобы освободить ячейки","Üfle ile bölmeleri boşalt, devam et"
+RESCUE_USE,用吹泡,Use Blow,用吹泡,突風を使う,불기 사용,Pusten,Souffler,Soplar,Soprar,Soffia,Сдуть,Üfle
+RESCUE_SKIP,不用,No Thanks,不用,使わない,괜찮아요,"Nein, danke",Non merci,"No, gracias","Não, valeu","No, grazie",Не надо,Gerek yok
+REVIVE_BUFFER,清空槽位,Clear the slots,清空槽位,待機マスを空にする,대기 칸 비우기,Ablage leeren,Vider les cases,Vaciar casillas,Esvaziar espaços,Svuota le caselle,Очистить ячейки,Bölmeleri boşalt
+REVIVE_TIMEOUT,限时缸 +30 秒,+30s on the timer tank,限時缸 +30 秒,水そうの時間 +30秒,어항 시간 +30초,+30 Sek. fürs Becken,+30 s pour l’aquarium,+30 s a la pecera,+30 s no aquário,+30 s all’acquario,+30 с аквариуму,Akvaryuma +30 sn
+REVIVE_STUCK,解开锁链和冰冻,Break the chains and ice,解開鎖鏈和冰凍,くさりとこおりを解除,사슬과 얼음 풀기,Ketten und Eis lösen,Briser chaînes et glace,Romper cadenas y hielo,Quebrar correntes e gelo,Rompi catene e ghiaccio,Снять цепи и лёд,Zinciri ve buzu çöz
+LIFE_MINUS,生命 −1,Life −1,生命 −1,ライフ −1,하트 −1,Leben −1,Vie −1,Vida −1,Vida −1,Vita −1,Жизнь −1,Can −1
+PAUSE_TITLE,暂停,Paused,暫停,ポーズ,일시 정지,Pause,Pause,Pausa,Pausa,Pausa,Пауза,Duraklat
+WIN_TITLE,通关成功,Level Clear!,通關成功,クリア！,클리어!,Geschafft!,Réussi !,¡Superado!,Passou!,Superato!,Пройдено!,Başardın!
+WIN_DOUBLE,翻倍,Double,翻倍,2倍,2배,Doppelt,Doubler,Doblar,Dobrar,Raddoppia,Удвоить,2 katı
+RETURN_HOME,主页,Home,首頁,ホーム,홈,Start,Accueil,Inicio,Início,Home,Меню,Ana sayfa
+SKILL_BUY_TITLE,购买%s,Get %s,購買%s,%sを買う,%s 받기,%s holen,Obtenir : %s,Conseguir %s,Pegar %s,Ottieni %s,Получить: %s,%s al
+SKILL_AD,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1
+SKILL_LOCKED,第 %d 关解锁,Level %d,第 %d 關解鎖,Lv.%d,레벨 %d,Level %d,Niveau %d,Nivel %d,Nível %d,Livello %d,Ур. %d,Seviye %d
+TEN_REWARD,十连奖励,×10 Rewards,十連獎勵,10回分の報酬,10회 보상,×10 Belohnung,Récompenses ×10,Premios ×10,Prêmios ×10,Premi ×10,Награды ×10,×10 ödül
+CARD_RARITY_NEW,新卡片！,New card!,新卡片！,NEW！,새 카드!,Neue Karte!,Nouvelle carte !,¡Carta nueva!,Carta nova!,Carta nuova!,Новая карта!,Yeni kart!
+TAP_CONTINUE,继续,Continue,繼續,つづける,계속,Weiter,Continuer,Continuar,Continuar,Continua,Дальше,Devam
+UI_PLAY,开始,Play,開始,スタート,시작,Spielen,Jouer,Jugar,Jogar,Gioca,Играть,Oyna
+UI_CHALLENGE_TAG,困难,Hard,困難,むずかしい,어려움,Schwer,Difficile,Difícil,Difícil,Difficile,Сложно,Zor
+DAILY_TITLE,每日挑战,Daily Puzzle,每日挑戰,デイリーパズル,데일리 퍼즐,Tagesrätsel,Défi du jour,Reto diario,Desafio diário,Sfida del giorno,Задача дня,Günün bulmacası
+ADS_LEFT,剩 %d 次,%d left,剩 %d 次,残り %d 回,%d회 남음,Noch %d,Reste %d,Quedan %d,Restam %d,Ne restano %d,Осталось %d,%d hak kaldı
+MECH_TITLE,新玩法,New!,新玩法,新ルール,새 규칙!,Neu!,Nouveau !,¡Nuevo!,Novidade!,Novità!,Новинка!,Yeni!
+GOT_IT,知道了,Got it,知道了,OK,알겠어요,Alles klar,Compris,Entendido,Entendi,Ok,Понятно,Anladım
+SLOT_LINE,多一个鱼缸，这一关都能用,One extra tank for the whole level,多一個魚缸，這一關都能用,水そうが1つ増えて、このステージ中ずっと使える,어항이 하나 늘어나고 이번 레벨 내내 쓸 수 있어요,Ein Becken mehr – für das ganze Level,Un aquarium de plus pour tout le niveau,Una pecera más para todo el nivel,Um aquário a mais para a fase toda,Un acquario in più per tutto il livello,Ещё один аквариум до конца уровня,Seviye boyunca bir akvaryum fazla
+LOCK_PREVIEW,解锁奖励,Unlock rewards,解鎖獎勵,解放ボーナス,열림 보상,Belohnungen,Récompenses,Premios,Prêmios,Premi,Награды,Ödüller
+H_FEAT_DAILY,每日挑战,Daily,每日挑戰,デイリー,데일리,Täglich,Défi,Diario,Diário,Sfida,Задача,Günlük
+PRIZE_HOURS,%d 小时,%dh,%d 小時,%d時間,%d시간,%d Std.,%d h,%d h,%d h,%d h,%d ч,%d sa
+LV_CURRENT,当前,Now,目前,いまここ,현재,Jetzt,Ici,Aquí,Aqui,Qui,Сейчас,Şimdi
+LV_LOCKED,先过前面的关,Beat earlier levels first,先過前面的關,前のステージをクリアしよう,앞 레벨을 먼저 깨요,Erst frühere Level schaffen,Termine d’abord les niveaux d’avant,Supera antes los niveles anteriores,Passe as fases anteriores primeiro,Prima supera i livelli precedenti,Сначала пройди прошлые уровни,Önce önceki seviyeleri geç
+LV_REPLAY_LEFT,重玩奖励 %d/%d,Replay bonus %d/%d,重玩獎勵 %d/%d,再挑戦ボーナス %d/%d,재도전 보너스 %d/%d,Wiederholbonus %d/%d,Bonus rejeu %d/%d,Bonus de repetir %d/%d,Bônus de repetir %d/%d,Bonus rigioco %d/%d,Бонус за повтор %d/%d,Tekrar bonusu %d/%d
+MAP_TITLE,海图,Sea Map,海圖,海のマップ,바다 지도,Seekarte,Carte,Mapa del mar,Mapa do mar,Mappa del mare,Карта морей,Deniz haritası
+MAP_RANGE,第 %d–%d 关,Levels %d–%d,第 %d–%d 關,ステージ %d–%d,레벨 %d–%d,Level %d–%d,Niveaux %d–%d,Niveles %d–%d,Fases %d–%d,Livelli %d–%d,Уровни %d–%d,Seviye %d–%d
+SEA_NEW,新海域,New Sea,新海域,新しい海,새 바다,Neues Meer,Nouvelle mer,Mar nuevo,Mar novo,Nuovo mare,Новое море,Yeni deniz
+SEA_NEW_LINE,这里有 %d 种新的小鱼,%d new fish live here,這裡有 %d 種新的小魚,新しい魚が %d 種類いるよ,새 물고기 %d종이 살아요,Hier leben %d neue Fische,%d nouveaux poissons vivent ici,Aquí viven %d peces nuevos,%d peixes novos moram aqui,Qui vivono %d pesci nuovi,Здесь живут %d новых рыбок,Burada %d yeni balık yaşıyor
+SEA_GO,出发,Let's go,出發,出発！,출발!,Los geht’s,En route !,¡Vamos!,Bora!,Andiamo!,Вперёд!,Haydi!
+SHOP_AD_LEFT,今日 %d/%d,Today %d/%d,今日 %d/%d,今日 %d/%d,오늘 %d/%d,Heute %d/%d,Auj. %d/%d,Hoy %d/%d,Hoje %d/%d,Oggi %d/%d,Сегодня %d/%d,Bugün %d/%d
+SHOP_AD_DONE,今日已领完,Come back tomorrow,今日已領完,また明日,내일 또 와요,Morgen wieder,Reviens demain,Vuelve mañana,Volte amanhã,Torna domani,Приходи завтра,Yarın gel
+UI_FULL,已满,Full,已滿,満タン,가득 참,Voll,Plein,Lleno,Cheio,Pieno,Полно,Dolu
+SHOP_FREE_COINS,免费金币,Free Coins,免費金幣,無料コイン,무료 코인,Gratis-Münzen,Pièces gratuites,Monedas gratis,Moedas grátis,Monete gratis,Монеты даром,Bedava altın
+ALBUM_FINAL_PREVIEW,集齐全部册子可领,Complete every album,集齊全部冊子可領,全部の図鑑をコンプでもらえる,모든 도감을 채우면 받아요,Für alle vollen Alben,Complète tous les albums,Completa todos los álbumes,Complete todos os álbuns,Completa tutti gli album,Собери все альбомы,Tüm albümleri tamamla
+DEX_RESCUED,已救 %d 只,Rescued %d,已救 %d 隻,救出 %d,구출 %d,Gerettet: %d,Sauvés : %d,Rescatados: %d,Salvos: %d,Salvati: %d,Спасено: %d,Kurtarılan: %d
+RANK_TITLE,周排行,Leaderboard,週排行,ランキング,주간 순위,Rangliste,Classement,Clasificación,Ranking,Classifica,Рейтинг,Sıralama
+RANK_RESET_IN,%d 天后重置,Resets in %dd,%d 天後重置,残り%d日,%d일 후 초기화,Neu in %d T.,Reset dans %d j,Reinicio en %d d,Reinicia em %d d,Reset tra %d g,Сброс через %d д.,%d gün kaldı
+RANK_ME,我,Me,我,自分,나,Ich,Moi,Yo,Eu,Io,Я,Ben
+RANK_LEVELS,%d 关,Lv.%d,%d 關,Lv.%d,Lv.%d,Lv.%d,Niv.%d,Niv.%d,Nv.%d,Liv.%d,Ур.%d,Sv.%d
+PROFILE_TITLE,个人资料,Profile,個人資料,プロフィール,프로필,Profil,Profil,Perfil,Perfil,Profilo,Профиль,Profil
+PROFILE_DEFAULT_NAME,小鱼玩家,Player,小魚玩家,プレイヤー,플레이어,Spieler,Joueur,Jugador,Jogador,Giocatore,Игрок,Oyuncu
+PROFILE_LEVEL,关卡,Level,關卡,ステージ,레벨,Level,Niveau,Nivel,Fase,Livello,Уровень,Seviye
+PROFILE_BEST_COMBO,最佳连击,Best combo,最佳連擊,最高コンボ,최고 콤보,Beste Combo,Meilleur combo,Mejor combo,Melhor combo,Miglior combo,Лучшее комбо,En iyi kombo
+PROFILE_CARDS,收藏,Album,收藏,図鑑,도감,Album,Album,Álbum,Álbum,Album,Альбом,Albüm
+DAILY_RETRY_HINT,看广告或用金币重试,Retry with an ad or coins,看廣告或用金幣重試,広告かコインでもう一度,광고나 코인으로 다시 도전,Nochmal mit Werbung oder Münzen,Rejoue avec une pub ou des pièces,Reintenta con un anuncio o monedas,Tente de novo com anúncio ou moedas,Riprova con un video o monete,Ещё раз за рекламу или монеты,Reklam ya da altınla tekrar dene
+DAILY_RETRY_HINT_COINS,用金币再试一次,Retry with coins,用金幣再試一次,コインでもう一度,코인으로 다시 도전,Nochmal mit Münzen,Rejoue avec des pièces,Reintenta con monedas,Tente de novo com moedas,Riprova con le monete,Ещё раз за монеты,Altınla tekrar dene
+PRIZE_COINS,金币,Coins,金幣,コイン,코인,Münzen,Pièces,Monedas,Moedas,Monete,Монеты,Altın
+SPECIES_C01,小丑丑,Clowny,小丑醜,ピエロン,삐에로,Klauni,Clownet,Payasito,Palhacinho,Pagliaccino,Клоуни,Palyaço
+SPECIES_C02,泡泡豚,Puffy,泡泡豚,ぷくまる,뽀복이,Pusti,Poufi,Globito,Baiacuzinho,Palloncino,Пузик,Balonik
+SPECIES_C03,星星糖,Starry,星星糖,ほしぽん,별사탕,Sternchen,Étoilette,Estrellita,Estrelinha,Stellina,Звёздочка,Yıldızcık
+SPECIES_C04,鲨小宝,Sharkle,鯊小寶,さめっこ,상어콩,Haifi,Requinou,Tiburoncín,Tubarãozito,Squaletto,Акулёнок,Köpekçik
+SPECIES_C05,钳钳,Pinchy,鉗鉗,チョキン,집게콩,Zwicki,Pinçou,Pinzitas,Belisco,Pizzichino,Щипуля,Kıskaç
+SPECIES_C06,八爪团,Octo,八爪團,たこまる,문어방울,Okti,Poulpito,Pulpito,Polvinho,Polpetto,Осьминожка,Ahtapotçuk
+SPECIES_C07,卷卷马,Curly,卷卷馬,くるりん,꼬불이,Kringel,Frisette,Rizos,Cachinho,Ricciolo,Кудряш,Kıvırcık
+SPECIES_C08,果冻伞,Jelly,果凍傘,ぷるぷる,말랑해파리,Wabbel,Gélou,Gelatina,Gelatina,Gelatina,Желейка,Jöle
+SPECIES_C09,慢慢龟,Slowpoke,慢慢龜,のんびり,느림보,Trödel,Lentin,Lentito,Devagarinho,Lentino,Тихоня,Yavaşçık
+SPECIES_C10,飞毯,Flappy,飛毯,ひらひら,팔랑이,Flatter,Flapi,Aleteo,Abanadinho,Svolazzo,Махалка,Pırpır
+SPECIES_C11,珍珠贝,Pearlie,珍珠貝,しんじゅ,진주콩,Perli,Perlette,Perlita,Perolinha,Perlina,Жемчужка,İncicik
+SPECIES_C12,墨墨,Inky,墨墨,すみっこ,먹물이,Tinti,Encrin,Tintín,Tintinha,Inchiostro,Чернилка,Mürekkep
+SPECIES_C13,红须须,Whiskers,紅鬚鬚,ひげまる,수염이,Bärtchen,Moustachu,Bigotes,Bigodinho,Baffino,Усатик,Bıyıklı
+SPECIES_C14,小灯笼,Lantern,小燈籠,ちょうちん,초롱이,Laternchen,Lanterneau,Farolito,Lanterninha,Lanternino,Фонарик,Fenercik
+SPECIES_C15,尖尖,Pointy,尖尖,とんがり,뾰족이,Spitzi,Pointu,Puntitas,Pontudo,Puntino,Колючка,Sivri
+SPECIES_C16,跳跳豚,Hoppy,跳跳豚,はねるん,통통돌고래,Hüpfi,Sautillon,Saltarín,Pulinho,Saltello,Прыгунок,Zıpzıp
+SPECIES_C17,薄荷卷,Minty,薄荷卷,ミントン,민트말이,Minzi,Mentholin,Mentita,Mentinha,Mentina,Мятик,Nanecik
+SPECIES_C18,汽水泡,Fizzy,汽水泡,シュワっこ,탄산이,Sprudel,Pétillant,Burbujas,Borbulha,Frizzante,Шипучка,Gazoz
+SPECIES_C19,盐团团,Salty,鹽團團,しおまる,소금이,Salzi,Salé,Salado,Salgadinho,Salatino,Солька,Tuzlu
+SPECIES_C20,蓝豆豆,Bluebean,藍豆豆,あおまめ,파랑콩,Blaubohne,Haricot,Judía Azul,Feijão Azul,Fagiolino,Синебоб,Mavi Fasulye
+SPECIES_C21,海纹纹,Stripes,海紋紋,しましま,줄무늬,Streifi,Rayé,Rayitas,Listrado,Strisce,Полоска,Çizgili
+SPECIES_C22,沙花饼,Sandy,沙花餅,すなもち,모래떡,Sandkeks,Sablé,Arenito,Areinha,Sabbiolino,Песочек,Kumcuk
+SPECIES_C23,墨绒绒,Fuzzy,墨絨絨,もふすみ,보송먹물,Flausch,Duveteux,Peludito,Fofinho,Morbidone,Пушистик,Pofuduk
+SPECIES_C24,夜飘带,Ribbon,夜飄帶,よるリボン,밤리본,Nachtband,Ruban,Cinta,Fitinha,Nastrino,Ленточка,Kurdele
+SPECIES_C25,葡萄软,Grapey,葡萄軟,ぶどうっこ,포도말랑,Traubi,Raisinet,Uvita,Uvinha,Uvetta,Виноградик,Üzümcük
+SPECIES_C26,紫弯弯,Twirl,紫彎彎,むらさき,보라회오리,Zwirbel,Tourbillon,Remolino,Rodopio,Girotondo,Завитушка,Fırıldak
+SPECIES_C27,芋耳朵,Taro,芋耳朵,タロちゃん,토란귀,Taro,Taro,Malanga,Inhame,Taro,Таро,Taro
+SPECIES_C28,桃管管,Peachy,桃管管,ももっこ,복숭아관,Pfirsi,Pêchou,Melocotín,Pessegão,Pescotto,Персик,Şeftali
+SPECIES_C29,糯花花,Mochi,糯花花,おもち,찹쌀꽃,Mochi,Mochi,Mochi,Mochi,Mochi,Моти,Moçi
+SPECIES_C30,樱贝贝,Blossom,櫻貝貝,さくらがい,벚꽃조개,Blütchen,Fleurette,Florecita,Florzinha,Fiorellino,Цветочек,Çiçekçik
+SPECIES_C31,螺居居,Shelly,螺居居,ヤドリン,소라집,Häusli,Coquillon,Casita,Casinha,Casetta,Домик,Kabukçu
+SPECIES_C32,圆胆胆,Bumpy,圓膽膽,ころまる,동글이,Knubbel,Bosselé,Bultito,Calombo,Bitorzolo,Пупырка,Tombik
+SPECIES_C33,参参,Cuke,參參,なまっこ,해삼콩,Gurki,Concombrin,Pepinito,Pepininho,Cetriolino,Огурчик,Hıyarcık
+SPECIES_C34,虾米米,Shrimpy,蝦米米,えびりん,새우콩,Krabbi,Crevettou,Gambita,Camarãozinho,Gamberetto,Креветик,Karidesçik
+SPECIES_C35,鲽饼饼,Flatty,鰈餅餅,ぺったん,납작이,Platti,Plat-Plat,Planito,Achatado,Piattone,Плоскуша,Yassı
+SPECIES_C36,花海兔,Ruffle,花海兔,フリルン,꽃군소,Rüschi,Froufrou,Volantito,Babadinho,Balzino,Рюшка,Fırfır
+SPECIES_C37,蓝吊吊,Tangy,藍吊吊,あおタン,블루탱,Blauflosse,Chirurgien,Cirujano,Cirurgião,Chirurgo,Хирург,Cerrah
+SPECIES_C38,鹦嘴嘴,Parry,鸚嘴嘴,オウムっこ,앵무입,Papageili,Perroquet,Lorito,Papagaio,Pappagallo,Попугайчик,Papağan
+SPECIES_C39,斑马马,Zebby,斑馬馬,ゼブラン,얼룩말,Zebri,Zébré,Cebrita,Zebrinha,Zebretta,Зебрик,Zebracık
+SPECIES_C40,管花花,Tufty,管花花,ふさふさ,술꽃이,Büschel,Plumeau,Penachito,Penachinho,Pennacchio,Хохолок,Püskül
+SPECIES_C41,獭宝宝,Otty,獺寶寶,ラッコちゃん,수달콩,Otti,Loutrou,Nutria,Lontrinha,Lontrina,Выдрёнок,Susamuru
+SPECIES_C42,金橙橙,Garry,金橙橙,オレンジィ,오렌지,Orangi,Garibaldi,Garibaldi,Laranjinha,Arancino,Апельсинка,Portakal
+SPECIES_C43,蜗蜗,Snaily,蝸蝸,カタツム,달팽이,Schnecki,Escargot,Caracolín,Caracolzinho,Lumachina,Улиточка,Salyangoz
+SPECIES_C44,鳗条条,Eely,鰻條條,うなっこ,장어끈,Aali,Anguillou,Anguilita,Enguicinha,Anguillina,Угорёк,Yılancık
+SPECIES_C45,粉伞伞,Pinkie,粉傘傘,ピンクラゲ,분홍우산,Rosali,Rosette,Rosita,Rosinha,Rosellina,Розочка,Pembiş
+SPECIES_C46,金币币,Goldie,金幣幣,きんかっこ,금화콩,Goldi,Doré,Doradito,Douradinho,Dorino,Золотко,Altıncık
+SPECIES_C47,绿鳗鳗,Morry,綠鰻鰻,みどうつぼ,초록곰치,Muräni,Murène,Morena,Moreia,Murena,Мурена,Müren
+SPECIES_C48,葵葵,Annie,葵葵,イソギン,말미잘,Anemoni,Anémone,Anémona,Anêmona,Anemone,Актиния,Şakayık
+SPECIES_C49,海螺螺,Conchy,海螺螺,ほらがい,소라고둥,Muschelhorn,Conque,Caracola,Búzio,Conchiglia,Ракушка,Deniz Kabuğu
+SPECIES_C50,幽幽,Ghosty,幽幽,ゆうれい,유령이,Gespensti,Fantômou,Fantasmín,Fantasminha,Fantasmino,Призрачок,Hayalet
+SPECIES_C51,企企,Pengy,企企,ペンちゃん,펭펭이,Pingu,Pingou,Pingüi,Pinguinho,Pinguino,Пингвиша,Pengu
+SPECIES_C52,海豹豹,Sealy,海豹豹,アザラシン,물범이,Robbi,Phoquinou,Foquita,Foquinha,Fochetta,Тюлешка,Fokçuk
+SPECIES_C53,磷虾虾,Krilly,磷蝦蝦,オキアミン,크릴콩,Krilli,Krillou,Krilín,Krill,Krillino,Крилька,Krilcik
+SPECIES_C54,圆球球,Lumpy,圓球球,まんまる,동글공,Kugeli,Boulot,Bolita,Bolinha,Pallottola,Колобок,Topik
+SPECIES_C55,一角角,Narly,一角角,イッカクン,일각이,Einhörni,Narvalou,Narvalito,Narvalzinho,Narvalino,Нарвалик,Narvalcık
+SPECIES_C56,金蟹蟹,Kingy,金蟹蟹,きんカニ,금게,Goldkrabbe,Crabe-roi,Cangrejo Rey,Rei Siri,Granchio Re,Краб-король,Kral Yengeç
+SPECIES_C57,小天使,Angie,小天使,エンジェル,엔젤,Engelchen,Angelot,Angelito,Anjinho,Angioletto,Ангелок,Meleğim
+SPECIES_C58,锦锦,Fancy,錦錦,にしきっこ,비단이,Schmucki,Chic,Elegante,Chiquinho,Elegantino,Модница,Süslü
+SPECIES_C59,灯灯伞,Glowy,燈燈傘,ひかりん,반딧우산,Glimmi,Lueur,Lucecita,Brilhinho,Lucina,Светлячок,Işıltı
+SPECIES_C60,月月,Moony,月月,つきまる,달콩,Mondi,Lunette,Lunita,Luazinha,Lunetta,Лунёк,Ayçık
+SPECIES_C61,射水鱼,Archer,射水魚,テッポウ,물총고기,Schütze,Archer,Arquero,Arqueiro,Arciere,Стрелок,Okçu
+SPECIES_C62,招潮蟹,Fiddler,招潮蟹,シオマネキ,농게,Winkekrabbe,Violoniste,Violinista,Chama-maré,Violinista,Скрипач,Kemancı
+SPECIES_C63,绿河豚,Greenpuff,綠河豚,みどりフグ,초록복어,Grünkugel,Vert-Bouffi,Globo Verde,Baiacu Verde,Palla Verde,Зелепуз,Yeşil Balon
+SPECIES_C64,鲎宝宝,Domey,鱟寶寶,カブトン,투구콩,Kuppeli,Dômou,Cupulita,Domo,Cupolino,Куполок,Kubbecik
+SPECIES_C65,紫螺螺,Perry,紫螺螺,むらさき貝,보라소라,Lilaschnecke,Pervenche,Lila,Lilás,Lillà,Сиреневка,Mor Salyangoz
+SPECIES_C66,倒水母,Flipjelly,倒水母,さかクラゲ,거꾸로해파리,Kopfqualle,Cassiopée,Bocabajo,Cambalhota,Capovolta,Вверхтормаш,Tersbaş
+SPECIES_C67,四眼鱼,Peeper,四眼魚,よつめん,네눈이,Vierauge,Quatre-Yeux,Cuatrojos,Quatro-Olhos,Quattrocchi,Четырёхглаз,Dört Göz
+SPECIES_C68,沙海葵,Anemo,沙海葵,すなイソ,모래말미잘,Sandrose,Anémolle,Anemonita,Anemoninha,Anemonina,Песчанка,Kum Şakayığı
+SPECIES_C69,牡蛎宝,Oyster,牡蠣寶,かきっこ,굴콩,Austi,Huîtrou,Ostrita,Ostrinha,Ostrichina,Устричка,İstiridye
+SPECIES_C70,树蟹蟹,Rooty,樹蟹蟹,きのぼり,나무게,Baumkrabbe,Racinou,Raicita,Raizinha,Radicetta,Корешок,Köklü Yengeç
+SPECIES_C71,鹦鹉宝,Dozy,鸚鵡寶,ねむオウム,졸린앵무,Döserle,Somnolent,Dormilón,Sonolento,Dormiglione,Соня,Uykucu
+SPECIES_C72,月水母,Moonjelly,月水母,ミズクラゲ,보름해파리,Mondqualle,Aurélie,Medusa Luna,Água-viva Lua,Medusa Luna,Медуза-Луна,Ay Denizanası
+SPECIES_C73,沙鬼蟹,Sandghost,沙鬼蟹,すなおばけ,모래유령,Sandgeist,Crabe-Sable,Fantasma,Maria-farinha,Fantasmagno,Песчаный дух,Kum Hayaleti
+SPECIES_C74,夜虾虾,Nightshrimp,夜蝦蝦,よるエビ,밤새우,Nachtkrabbe,Nocturne,Gamba Noche,Noturninho,Notturnino,Полуночник,Gece Karidesi
+SPECIES_C75,蓝章章,Bluey,藍章章,あおダコ,파란문어,Blauarm,Bleuet,Azulito,Azulzinho,Azzurrino,Синька,Mavi Ahtapot
+SPECIES_C76,金天竺,Cardi,金天竺,テンジク,금동이,Kardi,Cardinal,Cardenal,Cardeal,Cardinale,Кардинал,Kardinal
+SPECIES_C77,夜海星,Nightstar,夜海星,よるヒトデ,밤불가사리,Nachtstern,Étoile-Nuit,Nocturna,Estrela Noite,Stella Notte,Полночь,Gece Yıldızı
+SPECIES_C78,花扁扁,Ripple,花扁扁,ひらひら虫,꽃넙적,Wellchen,Ondulé,Ondita,Ondinha,Ondina,Волнушка,Dalgacık
+SPECIES_C79,海萤萤,Seafly,海螢螢,うみほたる,바다반디,Meeresglüh,Luciole,Luciérnaga,Vaga-lume,Lucciola,Огонёчек,Ateşböceği
+SPECIES_C80,月螺螺,Moonsnail,月螺螺,つき貝,달소라,Mondschnecke,Lune-Escargot,Caracol Luna,Caramujo Lua,Lumaca Luna,Луняшка,Ay Salyangozu
+SPECIES_C81,管虫虫,Tubey,管蟲蟲,チューブン,관벌레,Röhrli,Tubulin,Tubito,Tubinho,Tubetto,Трубочка,Boruk
+SPECIES_C82,热泉虾,Venty,熱泉蝦,ねっせんエビ,온천새우,Quellkrebs,Fumerolle,Fumarola,Fumacinha,Fumarola,Гейзерок,Kaynarca
+SPECIES_C83,硫磺鱼,Sulfy,硫磺魚,いおうっこ,유황이,Schwefli,Soufrou,Azufrito,Enxofre,Zolfino,Серчик,Kükürtçük
+SPECIES_C84,深蓝章,Deepy,深藍章,しんかいダコ,심해문어,Tiefblau,Profond,Pulpo Hondo,Polvo Fundo,Polpo Blu,Глубинка,Derinci
+SPECIES_C85,鳞足螺,Scaly,鱗足螺,うろこ貝,비늘소라,Schuppi,Écaillé,Escamoso,Escamoso,Squamoso,Чешуйка,Pullu
+SPECIES_C86,紫海参,Plum,紫海參,うめなまこ,자두해삼,Pflaumi,Prune,Ciruela,Ameixa,Prugna,Сливка,Erik
+SPECIES_C87,盲蟹蟹,Blindy,盲蟹蟹,めかくしガニ,눈먼게,Blindkrabbe,Aveuglon,Cieguito,Ceguinho,Ciechino,Слепышка,Kör Yengeç
+SPECIES_C88,绿岩鱼,Pebble,綠巖魚,いしころ,초록돌,Kieselchen,Caillou,Piedrita,Pedrinha,Sassolino,Камушек,Çakıl
+SPECIES_C89,烟囱宝,Smokey,煙囪寶,えんとつ,굴뚝이,Schlotti,Cheminée,Chimenea,Chaminé,Comignolo,Трубочист,Baca
+SPECIES_C90,火山贝,Magma Clam,火山貝,マグマ貝,마그마조개,Magmamuschel,Palourde-Feu,Almeja Magma,Magminho,Magmina,Магмушка,Magma Midyesi
+SPECIES_C91,红鲷鲷,Snappy,紅鯛鯛,タイっこ,참돔이,Schnappi,Vivaneau,Pargo,Vermelhinho,Dentice,Луциан,Mercan
+SPECIES_C92,花瓶绵,Vase,花瓶綿,かびんっこ,꽃병해면,Vasi,Vase,Jarrón,Vaso,Vasetto,Вазочка,Vazo
+SPECIES_C93,黄嘴鱼,Beaky,黃嘴魚,くちばし,노랑부리,Schnabel,Bec-Jaune,Piquito,Biquinho,Beccuccio,Клювик,Gagalı
+SPECIES_C94,苔藓龟,Mossy,苔蘚龜,こけガメ,이끼거북,Moosi,Moussu,Musguito,Musguinho,Muschietto,Мшистик,Yosuncuk
+SPECIES_C95,青石鳐,Tilly,青石鰩,あおエイ,푸른가오리,Rochelchen,Raie-Bleue,Raya Azul,Arraia Azul,Razza Blu,Синий скат,Mavi Vatoz
+SPECIES_C96,蓝陶鱼,Pottery,藍陶魚,とうきっこ,도자기,Töpfi,Poterie,Cerámica,Cerâmica,Terracotta,Глиняшка,Çömlek
+SPECIES_C97,古星星,Relic Star,古星星,いにしえ星,옛별,Altstern,Astre-Vieux,Estrella Vieja,Antiguinha,Stella Antica,Старинка,Kadim Yıldız
+SPECIES_C98,粉蛙鱼,Blush,粉蛙魚,ほっぺっこ,발그레,Rotbäckchen,Rougissant,Rubor,Corado,Rossore,Румянчик,Allık
+SPECIES_C99,石像鱼,Statue,石像魚,せきぞう,석상이,Statue,Statue,Estatua,Estátua,Statua,Статуйка,Heykel
+SPECIES_C100,青铜蟹,Bronze,青銅蟹,ブロンズ,청동게,Bronzi,Bronze,Bronce,Bronze,Bronzetto,Бронзик,Bronz
+SPECIES_C101,红灯虾,Redlamp,紅燈蝦,あかランプ,빨강등,Rotlicht,Lampe-Rouge,Farol Rojo,Luz Vermelha,Luce Rossa,Рыжик,Kırmızı Fener
+SPECIES_C102,橙棘鲷,Roughy,橙棘鯛,とげダイ,가시돔,Stachli,Hoplostète,Reloj,Olho-de-vidro,Lucente,Колючик,Dikenli Balık
+SPECIES_C103,金海参,Goldcuke,金海參,きんなまこ,금해삼,Goldgurke,Concombre-Or,Pepino Oro,Pepino Ouro,Cetriolone,Златогурчик,Altın Hıyar
+SPECIES_C104,绿冠母,Atolla,綠冠母,かんむりん,왕관해파리,Kronqualle,Atolla,Atolla,Atolla,Atolla,Атолла,Atolla
+SPECIES_C105,吞吞鳗,Gulpy,吞吞鰻,ぱくぱく,꿀꺽장어,Schluckaal,Gobe-Tout,Tragón,Engolidor,Ingoione,Глотальщик,Yutağan
+SPECIES_C106,长腿蛛,Leggy,長腿蛛,あしながっこ,다리긴게,Langbein,Échassier,Patas Largas,Pernalonga,Zampelunghe,Длинноножка,Uzunbacak
+SPECIES_C107,三脚鱼,Tripod,三腳魚,さんきゃく,세발이,Dreibein,Trépied,Trípode,Tripé,Treppiede,Треножник,Üçayak
+SPECIES_C108,粉深葵,Deepbloom,粉深葵,しんかい花,심해꽃,Tiefblüte,Fleur-Abysse,Flor Abisal,Flor Abissal,Fiorabisso,Цвет бездны,Derin Çiçek
+SPECIES_C109,灯眼鱼,Lampeye,燈眼魚,ランプアイ,등눈이,Leuchtauge,Œil-Lampe,Ojo Linterna,Olho-lanterna,Occhiolume,Фонароглаз,Fener Göz
+SPECIES_C110,雪花参,Snowcuke,雪花參,ゆきなまこ,눈꽃해삼,Schneegurke,Flocon-Mer,Pepino Nieve,Pepino Neve,Fiocco,Снежок,Kar Hıyarı
+SPECIES_C111,红星鱼,Twinkle,紅星魚,きらりん,반짝별,Funkel,Scintille,Destello,Cintilante,Scintilla,Мерцалка,Pırıltı
+SPECIES_C112,彗星鱼,Comet,彗星魚,すいせいっこ,혜성이,Komet,Comète,Cometa,Cometa,Cometa,Кометка,Kuyrukluyıldız
+SPECIES_C113,小金星,Sparkle,小金星,きらぼし,금별이,Glitzer,Paillette,Chispita,Faísca,Brillantino,Искорка,Simli
+SPECIES_C114,云雾兔,Misty,雲霧兔,きりうさぎ,안개토끼,Nebelhase,Brumeux,Neblina,Neblina,Nebbiolina,Туманыш,Sis Tavşanı
+SPECIES_C115,青云母,Nebby,青雲母,せいうんっこ,성운이,Nebuli,Nébulin,Nebulín,Nebulinha,Nebulino,Туманка,Bulutsu
+SPECIES_C116,星鲸鲸,Starwhale,星鯨鯨,ほしクジラ,별고래,Sternwal,Baleinastre,Ballenita,Baleiazinha,Balena Stella,Звёздный кит,Yıldız Balina
+SPECIES_C117,月牙鳐,Lunaray,月牙鰩,みかづきエイ,초승가오리,Mondrochen,Raie-Lune,Raya Luna,Arraia Lua,Razza Luna,Лунный скат,Hilal Vatoz
+SPECIES_C118,梦梦鱼,Dreamfin,夢夢魚,ゆめびれ,꿈지느러미,Traumflosse,Rêveur,Soñador,Sonhador,Sognatore,Мечтатель,Düşçü
+SPECIES_C119,流星螺,Meteor,流星螺,りゅうせい,유성소라,Meteor,Météore,Meteoro,Meteoro,Meteora,Метеорчик,Meteor
+SPECIES_C120,星尘虾,Shimmer,星塵蝦,ほしくず,별가루,Schimmer,Miroite,Brillito,Brilhante,Luccichio,Блёстка,Yıldız Tozu
+SPECIES_C121,樱花虾,Sakura,櫻花蝦,さくらエビ,벚꽃새우,Kirschkrebs,Sakura,Sakura,Sakura,Sakura,Сакура,Sakura
+SPECIES_C122,春鲷鲷,Bream,春鯛鯛,はるダイ,봄돔,Lenzbrasse,Dorade,Besugo,Pargo,Orata,Лещик,Baharcık
+SPECIES_C123,青虾虎,Greengoby,青蝦虎,みどりハゼ,초록망둥,Grüngrundel,Gobie-Vert,Gobio Verde,Gobi Verde,Ghiozzo Verde,Зеленушка,Yeşilcik
+SPECIES_C124,小蓝鳐,Skipray,小藍鰩,ちびエイ,꼬마가오리,Hüpfrochen,Raie-Sautille,Rayita,Arraiazinha,Razzetta,Скатик,Vatozcuk
+SPECIES_C125,紫裙裙,Frillo,紫裙裙,フリルっこ,보라치마,Rüschelchen,Volant,Faldita,Saiote,Gonnellina,Юбочка,Etekli
+SPECIES_C126,金鲤鲤,Goldfin,金鯉鯉,きんぎょっこ,금붕어,Goldkarpf,Carpe-Or,Carpa Oro,Carpa Ouro,Carpa d’Oro,Золотой карп,Altın Sazan
+SPECIES_C127,杏花蟹,Apricrab,杏花蟹,あんずガニ,살구게,Aprikrabbe,Abricrabe,Albaricoque,Damasco,Albicocca,Абрикоска,Kayısı
+SPECIES_C128,薄荷螺,Swirlsnail,薄荷螺,うずまき,소용돌이,Wirbelchen,Spirale,Espiral,Espiral,Spirale,Спиралька,Burgu
+SPECIES_C129,灰扁扁,Flounder,灰扁扁,ひらめっこ,가자미,Flunder,Flétan,Lenguado,Linguado,Passera,Камбала,Pisi
+SPECIES_C130,花蛤蛤,Clammy,花蛤蛤,あさりん,바지락,Muschelli,Clovisse,Almejita,Mariscote,Vongolina,Венерка,Akivades
+SPECIES_C131,黄鱼鱼,Croaky,黃魚魚,イシモチ,조기,Quaki,Maigre,Corvina,Corvina,Ombrina,Горбыль,Minekop
+SPECIES_C132,红梭蟹,Swimmer,紅梭蟹,わたりガニ,꽃게,Schwimmi,Nageur,Nadador,Nadador,Nuotatore,Плавунец,Yüzücü
+SPECIES_C133,青柠星,Limestar,青檸星,ライムスター,라임별,Limettstern,Étoile-Citron,Lima,Limão,Lime,Лаймик,Misket Limon
+SPECIES_C134,蓝鲳鲳,Pompy,藍鯧鯧,マナっこ,병어,Pompi,Pampou,Palometa,Pampo,Pampo,Помпано,Pompano
+SPECIES_C135,紫贻贝,Musselly,紫貽貝,ムール,홍합이,Miesi,Moulette,Mejillón,Mexilhão,Cozza,Мидия,Midye
+SPECIES_C136,粉鱿鱿,Squidy,粉魷魷,イカっこ,분홍오징어,Tintli,Calamar,Calamarcito,Lulinha,Calamaretto,Кальмарик,Kalamarcık
+SPECIES_C137,橙鼓鼓,Tangerine,橙鼓鼓,みかんっこ,귤복이,Mandarini,Mandarine,Mandarina,Tangerina,Mandarino,Мандаринка,Mandalina
+SPECIES_C138,青马马,Aqua,青馬馬,アクアン,아쿠아,Aqua,Aqua,Aqua,Aqua,Acqua,Аква,Aqua
+SPECIES_C139,灰鲈鲈,Perchy,灰鱸鱸,スズキっこ,농어콩,Barschi,Perchou,Percha,Robalo,Persico,Окунёк,Levrekçik
+SPECIES_C140,棕螺螺,Whelk,棕螺螺,つぶ貝,고둥이,Wellhorn,Bulot,Bígaro,Búzio Pardo,Buccino,Трубач,Helezon
+SPECIES_C141,飞鱼鱼,Soary,飛魚魚,トビウオ,날치,Segler,Exocet,Volador,Peixe-voador,Pesce Volante,Летучка,Uçan Balık
+SPECIES_C142,红鼓鼓,Balloony,紅鼓鼓,ふうせん,풍선이,Ballonfisch,Ballonnet,Globote,Balãozinho,Palloncione,Шарик,Balon
+SPECIES_C143,青团龟,Minto,青團龜,あおだんご,쑥떡거북,Minzkugel,Tortumenthe,Tortu Menta,Tartamenta,Tartamenta,Мятушка,Tosbik
+SPECIES_C144,天蓝母,Skybell,天藍母,そらクラゲ,하늘종,Himmelsglocke,Clochette,Campanilla,Sininho,Campanella,Колокольчик,Gök Çanı
+SPECIES_C145,紫海马,Lavvy,紫海馬,ラベンダー,라벤더,Lavendel,Lavande,Lavanda,Lavanda,Lavanda,Лаванда,Lavanta
+SPECIES_C146,粉豚豚,Rosydol,粉豚豚,ももイルカ,분홍돌고래,Rosadelfi,Dauphin-Rose,Delfín Rosa,Boto Rosa,Delfino Rosa,Дельфинка,Pembe Yunus
+SPECIES_C147,杏仁蟹,Almond,杏仁蟹,アーモンド,아몬드게,Mandel,Amande,Almendra,Amêndoa,Mandorla,Миндалька,Badem
+SPECIES_C148,青虾虾,Skyshrimp,青蝦蝦,そらエビ,하늘새우,Himmelskrebs,Crevette-Ciel,Gamba Cielo,Camarão Céu,Celestino,Голубок,Gök Karidesi
+SPECIES_C149,白云鳐,Cloudy,白雲鰩,くもエイ,구름가오리,Wölkchen,Nuageux,Nubecita,Nuvenzinha,Nuvoletta,Облачко,Bulutçuk
+SPECIES_C150,灰蛞蛞,Foggy,灰蛞蛞,きりウミウシ,안개군소,Nebli,Brume,Niebla,Névoa,Nebbia,Туманчик,Siscik
+SPECIES_C151,柠檬蝶,Lemony,檸檬蝶,レモンっこ,레몬나비,Zitroni,Citronnelle,Limoncito,Limãozinho,Limoncino,Лимончик,Limoncuk
+SPECIES_C152,红扇贝,Scallop,紅扇貝,ホタテン,가리비,Jakobi,Coquille,Vieira,Vieira,Capasanta,Гребешок,Tarak
+SPECIES_C153,绿鲍鲍,Abalo,綠鮑鮑,アワビん,전복이,Abali,Ormeau,Oreja Marina,Abalone,Orecchia,Ушастик,Deniz Kulağı
+SPECIES_C154,蓝虾蛄,Mantie,藍蝦蛄,シャコっこ,갯가재,Fangschrecke,Squille,Galera,Tamarutaca,Canocchia,Рак-богомол,Hamsi Karides
+SPECIES_C155,紫团章,Plumy,紫團章,うめダコ,자두문어,Pflaumarm,Poulpe-Prune,Pulpo Ciruela,Polvo Ameixa,Polpo Prugna,Сливёнок,Erik Ahtapot
+SPECIES_C156,粉鳗鳗,Pearly,粉鰻鰻,パールうなぎ,분홍장어,Perlaal,Anguille-Rose,Anguila Rosa,Enguia Rosa,Anguilla Rosa,Розовик,Pembe Yılan
+SPECIES_C157,橙蛞蛞,Tangelo,橙蛞蛞,タンジェロ,탠저린,Tangelo,Clémentine,Tangerina,Mexerica,Clementina,Танжело,Tanjelo
+SPECIES_C158,青盒盒,Cubby,青盒盒,はこっこ,상자이,Würfeli,Cube,Cubito,Cubinho,Cubetto,Кубик,Kutucuk
+SPECIES_C159,白砗磲,Gianty,白硨磲,シャコガイ,대왕조개,Riesenmuschel,Bénitier,Tridacna,Tridacna,Tridacna,Тридакна,Dev Midye
+SPECIES_C160,棕宝螺,Cowrie,棕寶螺,たから貝,개오지,Kauri,Porcelaine,Porcelana,Porcelana,Porcellana,Каури,Porselen
+SPECIES_C161,黄蝠蝠,Battino,黃蝠蝠,コウモリん,박쥐고기,Fledi,Chauve-Mer,Murciélago,Morcego,Pipistrello,Летунок,Yarasa Balığı
+SPECIES_C162,红龙龙,Lobby,紅龍龍,イセエビ,랍스터,Hummi,Homard,Langosta,Lagosta,Aragosta,Омар,Istakoz
+SPECIES_C163,绿鹦螺,Nauty,綠鸚螺,オウムガイ,앵무조개,Nauti,Nautile,Nautilo,Náutilo,Nautilo,Наутилус,Nautilus
+SPECIES_C164,蓝扳扳,Triggy,藍扳扳,モンガラ,쥐치,Drücki,Baliste,Ballesta,Peixe-porco,Balestra,Спинорог,Tetik Balığı
+SPECIES_C165,紫月螺,Lilac,紫月螺,ライラック,라일락,Flieder,Lilas,Lirio,Lírio,Glicine,Сирень,Leylak
+SPECIES_C166,粉隆隆,Wrasly,粉隆隆,ベラっこ,놀래기,Lippi,Labre-Rose,Doncella,Bodião,Labride,Губан,Lapina
+SPECIES_C167,橙方母,Cubie,橙方母,しかくクラゲ,네모해파리,Würfelqualle,Méduse-Cube,Cubomedusa,Cubomedusa,Cubomedusa,Кубомедуза,Küp Medusa
+SPECIES_C168,青乌乌,Cuttly,青烏烏,コウイカ,갑오징어,Sepi,Seiche,Sepia,Siba,Seppia,Каракатица,Sübye
+SPECIES_C169,铁甲蟹,Ironclaw,鐵甲蟹,てっこうガニ,철갑게,Eisenschere,Pince-de-Fer,Pinza Hierro,Pinça Ferro,Chela Ferro,Железяка,Demir Kıskaç
+SPECIES_C170,杜父鱼,Sculpin,杜父魚,カジカっこ,둑중개,Groppi,Chabot,Cabracho,Escorpião,Scazzone,Камешник,Kayabalığı
+SPECIES_C171,黄号号,Trumpy,黃號號,ラッパっこ,나팔이,Trompi,Trompette,Trompetín,Trompete,Trombetta,Трубадур,Trompet
+SPECIES_C172,红鼓鱼,Drummy,紅鼓魚,ドラムっこ,북북이,Trommli,Tambour,Tamborcito,Tambor,Tamburino,Барабанщик,Davulcu
+SPECIES_C173,绿羽笔,Seapen,綠羽筆,ウミエラ,바다펜,Seefeder,Plume-de-Mer,Pluma Marina,Pena-do-mar,Pennamare,Морское перо,Deniz Kalemi
+SPECIES_C174,歌鲸鲸,Hummy,歌鯨鯨,うたクジラ,노래고래,Summwal,Fredonne,Tarareo,Cantarolo,Canticchio,Мурлыка-кит,Mırıltı
+SPECIES_C175,紫法螺,Tritone,紫法螺,ホラふき,나팔고둥,Tritonhorn,Triton,Tritón,Tritão,Tritone,Тритон,Triton
+SPECIES_C176,粉鸟蛤,Cockly,粉鳥蛤,トリガイ,새조개,Herzmuschel,Coque,Berberecho,Berbigão,Cuore Edule,Сердцевидка,Kalp Midye
+SPECIES_C177,橙枪虾,Clicky,橙槍蝦,テッポウエビ,딱총새우,Knallkrebs,Claqueur,Chasquido,Estalinho,Schiocco,Щелкунчик,Çıtçıt
+SPECIES_C178,青铃母,Chimey,青鈴母,すずクラゲ,방울해파리,Glöckchen,Carillon,Repique,Sineta,Campanellino,Бубенчик,Çıngırak
+SPECIES_C179,灰石鲈,Grunty,灰石鱸,イサキっこ,벤자리,Grunzi,Grogneur,Gruñón,Resmungão,Brontolone,Ворчун,Homurdanan
+SPECIES_C180,拖鞋虾,Slipper,拖鞋蝦,スリッパ,슬리퍼,Pantoffel,Pantoufle,Zapatilla,Chinelo,Pantofola,Тапочек,Terlik
+SPECIES_U01,叶卷龙,Leafy,葉卷龍,はっぱりゅう,나뭇잎용,Blattdrache,Feuillagon,Dragón Hoja,Dragão-folha,Drago Foglia,Листодракон,Yaprak Ejder
+SPECIES_U02,霞扇扇,Fanlet,霞扇扇,あかね扇,노을부채,Fächerli,Éventail,Abanico,Leque,Ventaglio,Веерок,Yelpaze
+SPECIES_U03,饼壳壳,Crusty,餅殼殼,せんべい,전병게,Kruste,Croûton,Galleta,Biscoito,Biscotto,Сухарик,Bisküvi
+SPECIES_U04,蛋黄爪,Yolky,蛋黃爪,きみっこ,노른자,Dotter,Jaune-d’Œuf,Yema,Gema,Tuorlo,Желток,Sarıcık
+SPECIES_U05,青方方,Boxy,青方方,はこフグ,상자복어,Kofferfisch,Coffret,Cofre,Baú,Scatolino,Кузовок,Kutu Balığı
+SPECIES_U06,苹耳耳,Bunny,蘋耳耳,うさみみ,토끼귀,Häschen,Lapinou,Conejito,Coelhinho,Coniglietto,Зайка,Tavşancık
+SPECIES_U07,翠尾卷,Jade,翠尾卷,ひすい,비취꼬리,Jadeschweif,Jade,Jade,Jade,Giada,Нефрит,Yeşim
+SPECIES_U08,叶背背,Leafback,葉背背,このは,잎등이,Blattrücken,Dos-Feuille,Lomo Hoja,Folhinha,Dorsofoglia,Листоспин,Yaprak Sırtı
+SPECIES_U09,薄荷墩,Minty Moo,薄荷墩,ミントもー,민트음매,Minzmuh,Meuh-Menthe,Mu Menta,Mu Menta,Muu Menta,Мятуля,Naneli İnek
+SPECIES_U10,浪裙裙,Frilly,浪裙裙,なみフリル,물결치마,Wellenrock,Volant-Vague,Ola Volante,Babado Onda,Onda Balza,Юбчонка,Dalga Etek
+SPECIES_U11,冰围围,Frosty,冰圍圍,しもマフラー,서리목도리,Frostschal,Givré,Escarcha,Gelinho,Brinetta,Морозик,Ayazcık
+SPECIES_U12,雪领领,Snowy,雪領領,ゆきえり,눈깃이,Schneekragen,Col-Neige,Cuello Nieve,Gola Neve,Colletto,Воротничок,Kar Yakası
+SPECIES_U13,星帽帽,Star Cap,星帽帽,ほしぼうし,별모자,Sternmütze,Bonnet-Étoile,Gorro Astral,Gorro Estrela,Berretto,Шапочка,Yıldız Şapka
+SPECIES_U14,芋飘飘,Drifty,芋飄飄,タロふわ,토란둥실,Schwebi,Flottin,Flotador,Flutuador,Galleggino,Плывунчик,Süzülen
+SPECIES_U15,桃绒条,Peach Pickle,桃絨條,もものこ,복숭아털,Pfirsichhaar,Pêche-Duvet,Pepino Pelusa,Pessegote,Pesca Pelosa,Персикуша,Şeftali Tüyü
+SPECIES_U16,草帽蟹,Sunhat,草帽蟹,むぎわらガニ,밀짚게,Strohhut,Canotier,Sombrero,Palhinha,Cappello,Соломка,Hasır Şapka
+SPECIES_U17,沙钻钻,Lance,沙鑽鑽,キス,보리멸,Sandaal,Lançon,Lanzón,Lanceta,Cicerello,Песчаник,Kum Mızrağı
+SPECIES_U18,潮池虾,Pooly,潮池蝦,しおだまり,웅덩새우,Pfützkrebs,Flaque,Charquito,Poçinha,Pozzanghera,Лужица,Su Birikintisi
+SPECIES_U19,鳚宝宝,Blenny,䲁寶寶,ギンポ,베도라치,Schleimi,Blennie,Blenio,Macaquinho,Bavosa,Собачка,Horozbina
+SPECIES_U20,帽贝贝,Limpy,帽貝貝,カサガイ,삿갓조개,Napfi,Patelle,Lapa,Lapa,Patella,Блюдечко,Deniz Çanağı
+SPECIES_U21,螳螳虾,Mantis,螳螳蝦,カマキリエビ,사마귀새우,Mantis,Mante,Mantis,Louva-a-deus,Mantide,Богомол,Mantis
+SPECIES_U22,虾虎虎,Goby,蝦虎虎,ハゼっこ,망둥이,Grundel,Gobie,Gobio,Gobi,Ghiozzo,Бычок,Kaya Balığı
+SPECIES_U23,瓷瓷蟹,Porcy,瓷瓷蟹,せとガニ,도자기게,Porzi,Crabe-Émail,Porcelanita,Porcelaninha,Smaltino,Фарфорик,Porselenci
+SPECIES_U24,宝螺螺,Cowry,寶螺螺,たからっこ,보물조개,Kaurinchen,Cauri,Cauri,Búzio Real,Ciprea,Каурёнок,Cauri
+SPECIES_U25,破壳龟,Hatchy,破殼龜,からわりガメ,껍질거북,Schlüpfi,Éclos,Eclosión,Chocadinho,Schiusa,Малыш,Yumurtadan
+SPECIES_U26,跳跳泥,Skippy,跳跳泥,トビハゼ,짱뚱어,Hüpferling,Sauteur,Saltabarro,Saltador,Saltafango,Илистик,Çamur Zıpzıpı
+SPECIES_U27,鸟蛤蛤,Cockle,鳥蛤蛤,ザルガイ,꼬막,Muschelchen,Coquillette,Chirla,Berbigãozinho,Cuoricino,Сердечко,Kum Midyesi
+SPECIES_U28,蝶蝶鱼,Butterfly,蝶蝶魚,チョウチョ,나비고기,Falter,Papillon,Mariposa,Borboleta,Farfalla,Бабочка,Kelebek
+SPECIES_U29,狮鬃鱼,Leo,獅鬃魚,たてがみ,사자갈기,Mähnchen,Crinière,Melenita,Juba,Criniera,Гривка,Yeleli
+SPECIES_U30,擦擦虾,Scrubby,擦擦蝦,おそうじエビ,청소새우,Putzi,Nettoyeur,Limpiador,Faxineiro,Pulitore,Чистильщик,Temizlikçi
+SPECIES_U31,迷彩彩,Swirly,迷彩彩,めいさい,얼룩무늬,Tarni,Camouflé,Camuflaje,Camuflado,Mimetico,Камуфляж,Kamuflaj
+SPECIES_U32,砗砗,Tridac,硨硨,おおシャコ,큰조개,Riesi,Tridacne,Almejón,Gigante,Gigante,Гигант,Devcik
+SPECIES_U33,牛牛鱼,Moo,牛牛魚,うしっこ,소고기,Muhfisch,Meuh,Vaquita,Vaquinha,Muccotto,Бурёнка,Ineğim
+SPECIES_U34,花鮨鮨,Anthy,花鮨鮨,ハナダイ,꽃돔,Fahnenbarsch,Barbier,Antias,Anthias,Anthias,Антиас,Anthias
+SPECIES_U35,羽星星,Feathers,羽星星,はねぼし,깃털별,Federstern,Plumette,Plumita,Peninha,Piumetta,Пёрышко,Tüylü Yıldız
+SPECIES_U36,礁鲨宝,Reefy,礁鯊寶,リーフザメ,산호상어,Riffhai,Récif,Arrecife,Recife,Scogliera,Рифовик,Resifçi
+SPECIES_U37,隆头头,Wrassy,隆頭頭,ベラりん,놀래미,Lippfisch,Labre,Lábrido,Bodiãozinho,Labro,Губанчик,Lapincik
+SPECIES_U38,鹰鹰鱼,Hawky,鷹鷹魚,タカっこ,매고기,Falki,Faucon,Halcón,Falcão,Falco,Ястребок,Şahin
+SPECIES_U39,蛙蛙鱼,Froggy,蛙蛙魚,カエルん,개구리,Fröschi,Grenouille,Ranita,Sapinho,Ranocchio,Лягушонок,Kurbağacık
+SPECIES_U40,藻藻蟹,Kelpy,藻藻蟹,もずくガニ,해초게,Tangkrabbe,Crabe-Varech,Alguita,Alga,Alghetta,Водоросль,Yosun Yengeci
+SPECIES_U41,羊头头,Sheepy,羊頭頭,ひつじっこ,양머리,Schafskopf,Tête-Mouton,Borreguito,Carneirinho,Pecorella,Барашек,Kuzucuk
+SPECIES_U42,海狮狮,Lion,海獅獅,アシカ,바다사자,Seelöwe,Otarie,León Marino,Leão-marinho,Leone Marino,Морской лев,Deniz Aslanı
+SPECIES_U43,向日星,Sunny,向日星,ひまわり星,해바라기,Sonnenstern,Soleil,Girasol,Girassol,Girasole,Подсолнух,Ayçiçeği
+SPECIES_U44,狼鳗鳗,Wolfy,狼鰻鰻,ウルフうな,늑대장어,Wolfsaal,Loup-Anguille,Lobo Marino,Lobo,Lupo,Волчок,Kurt Yılan
+SPECIES_U45,鲍鲍,Abby,鮑鮑,アワビっこ,전복콩,Abby,Ormelet,Abby,Abby,Abby,Ушко,Abby
+SPECIES_U46,岩岩鱼,Rocky,巖巖魚,いわっこ,바위이,Felsi,Rocher,Rocoso,Rochedo,Scoglio,Скалка,Kayacık
+SPECIES_U47,绿翅翅,Greeny,綠翅翅,みどりばね,초록날개,Grünflügel,Aile-Verte,Ala Verde,Asa Verde,Ala Verde,Зелёнокрыл,Yeşil Kanat
+SPECIES_U48,豹鲨宝,Leopard,豹鯊寶,ヒョウザメ,표범상어,Leopardhai,Léopard,Leopardo,Leopardo,Leopardo,Леопард,Leopar
+SPECIES_U49,藻鱼鱼,Twiggy,藻魚魚,こえだっこ,나뭇가지,Zweigi,Brindille,Ramita,Gravetinho,Rametto,Веточка,Dalcık
+SPECIES_U50,石鳖鳖,Chitty,石鱉鱉,ヒザラガイ,군부,Chiton,Chiton,Quitón,Quíton,Chitone,Хитон,Kiton
+SPECIES_U51,瓶瓶章,Bottle,瓶瓶章,ボトルダコ,병문어,Flaschenarm,Bouteille,Botella,Garrafa,Bottiglia,Бутылочка,Şişe Ahtapot
+SPECIES_U52,海盗蟹,Pirate,海盜蟹,かいぞくガニ,해적게,Piratkrabbe,Pirate,Pirata,Pirata,Pirata,Пират,Korsan
+SPECIES_U53,锚锚鱼,Anchor,錨錨魚,いかりっこ,닻고기,Ankerli,Ancre,Ancla,Âncora,Ancora,Якорёк,Çapa
+SPECIES_U54,船长鱼,Captain,船長魚,せんちょう,선장님,Käpt’n,Capitaine,Capitán,Capitão,Capitano,Капитан,Kaptan
+SPECIES_U55,藤壶壶,Barney,藤壺壺,フジツボ,따개비,Seepocki,Bernacle,Percebe,Craca,Balano,Балянус,Midye Kabuk
+SPECIES_U56,铠虾虾,Squat,鎧蝦蝦,コシオリ,쪼그미새우,Hockerkrebs,Galathée,Galatea,Agachado,Galatea,Приседайка,Çömelen
+SPECIES_U57,蝙蝠鱼,Batty,蝙蝠魚,コウモリっこ,박쥐콩,Flattermaus,Chauve-Souris,Murcielito,Morceguinho,Pipistrellino,Нетопырь,Yarasacık
+SPECIES_U58,胡子鱼,Musty,鬍子魚,ひげじい,콧수염,Schnurrbart,Moustache,Bigotón,Bigodão,Baffone,Усач,Bıyıkçı
+SPECIES_U59,兵兵鱼,Soldier,兵兵魚,へいたいっこ,병정이,Soldat,Soldat,Soldadito,Soldadinho,Soldatino,Солдатик,Asker
+SPECIES_U60,短尾尾,Bobby,短尾尾,しっぽちび,짧은꼬리,Stummelchen,Courte-Queue,Colita,Rabicho,Codino,Куцый,Kısa Kuyruk
+SPECIES_U61,茶杯蟹,Teacup,茶杯蟹,ティーカップ,찻잔게,Teetasse,Tasse-de-Thé,Tacita,Xicrinha,Tazzina,Чашечка,Çay Fincanı
+SPECIES_U62,口孵鱼,Jawsy,口孵魚,くちそだて,입육아,Maulbrüter,Bouche-Nid,Bocacría,Bocudo,Bocca Nido,Ротовик,Ağız Yuvası
+SPECIES_U63,钥匙鱼,Keys,鑰匙魚,かぎっこ,열쇠고기,Schlüsseli,Clé,Llavecita,Chavinha,Chiavetta,Ключик,Anahtar
+SPECIES_U64,海绵绵,Spongy,海綿綿,スポンジ,해면이,Schwammi,Éponge,Esponja,Esponja,Spugna,Губка,Sünger
+SPECIES_U65,红点鲑,Char,紅點鮭,イワナっこ,곤들메기,Saibling,Omble,Salvelino,Truta,Salmerino,Голец,Alabalık
+SPECIES_U66,雪蟹蟹,Earmuff,雪蟹蟹,みみあてガニ,귀마개게,Ohrwärmer,Cache-Oreille,Orejeras,Protetor,Paraorecchie,Наушники,Kulaklık
+SPECIES_U67,软软鱼,Softy,軟軟魚,ふにゃっこ,말랑이,Weichi,Mollasson,Blandito,Molenga,Mollicchio,Мякиш,Yumuşak
+SPECIES_U68,白熊熊,Polar,白熊熊,しろくまん,북극곰,Eisbär,Ours-Polaire,Polar,Ursão,Orso Polare,Мишка,Kutup Ayısı
+SPECIES_U69,睡鲨鲨,Sleepy,睡鯊鯊,ねむりザメ,졸린상어,Schlafhai,Dormeur,Dormido,Dorminhoco,Dormiente,Соня-акула,Uyuşuk
+SPECIES_U70,栉水母,Comby,櫛水母,クシクラゲ,빗해파리,Rippenqualle,Cténo,Ctenóforo,Ctenóforo,Ctenoforo,Гребневик,Taraklı
+SPECIES_U71,冰鳕鳕,Cod,冰鱈鱈,こおりダラ,얼음대구,Eisdorsch,Morue,Bacalao,Bacalhau,Merluzzo,Треска,Morina
+SPECIES_U72,海鹦鹦,Puffin,海鸚鸚,ツノメドリ,퍼핀,Lundi,Macareux,Frailecillo,Puffin,Pulcinella,Тупик,Puffin
+SPECIES_U73,玻璃鱿,Glassy,玻璃魷,ガラスイカ,유리오징어,Glasi,Calmar-Verre,Cristalito,Vidrinho,Vetrino,Стекляшка,Camcık
+SPECIES_U74,雪花星,Flake,雪花星,ゆきのほし,눈꽃별,Flöckchen,Flocon,Copito,Floco,Fiocchetto,Снежинка,Kar Tanesi
+SPECIES_U75,毛鳞鳞,Capy,毛鱗鱗,けむくじゃら,털복숭이,Zottel,Poilu,Peludo,Peludão,Pelosetto,Мохнатик,Kıllı
+SPECIES_U76,弓头鲸,Bowie,弓頭鯨,ホッキョク鯨,북극고래,Grönlandwal,Baleine-Arc,Ballena Arco,Polarzão,Balena Artica,Гренландец,Kutupçu
+SPECIES_U77,霜螺螺,Rime,霜螺螺,しもがい,서리소라,Reifschnecke,Givrette,Escarchito,Geada,Brina,Иней,Kırağı
+SPECIES_U78,卫兵鱼,Guard,衛兵魚,もんばん,파수꾼,Wächter,Garde,Guardián,Guarda,Guardiano,Страж,Muhafız
+SPECIES_U79,皇带鱼,Oar,皇帶魚,リュウグウ,산갈치,Riemenfisch,Régalec,Remo,Regaleco,Remo,Ремнетел,Kürek Balığı
+SPECIES_U80,管眼鱼,Barrel,管眼魚,デメニギス,통눈이,Fassauge,Tonneau,Barril,Barril,Barilotto,Бочка,Fıçı Göz
+SPECIES_U81,腔棘棘,Fossil,腔棘棘,シーラカンス,실러캔스,Fossili,Fossile,Fósil,Fóssil,Fossile,Целакант,Fosil
+SPECIES_U82,海猪猪,Piggy,海豬豬,うみぶた,바다돼지,Seeschwein,Cochonnet,Cerdito,Porquinho,Maialino,Поросёнок,Deniz Domuzu
+SPECIES_U83,具足足,Isopod,具足足,グソクン,갑옷벌레,Assel,Isopode,Isópodo,Isópode,Isopode,Изопод,İzopod
+SPECIES_U84,萤乌贼,Firefly,螢烏賊,ホタルイカ,반딧오징어,Glühkalmar,Luciolmar,Calamar Luz,Lula Luz,Lucciolino,Мерцун,Pırıl
+SPECIES_U85,管家贝,Butler,管家貝,しつじ貝,집사조개,Butler,Majordome,Mayordomo,Mordomo,Maggiordomo,Дворецкий,Uşak
+SPECIES_U86,皇家鱼,Gramma,皇家魚,ロイヤル,로열이,Königsfisch,Royal,Grama Real,Real,Reale,Королевская,Kraliyet
+SPECIES_U87,水滴鱼,Blobby,水滴魚,ぶよぶよ,블롭피쉬,Blobbi,Blob,Gotón,Gotão,Blob,Блоб,Damla Balık
+SPECIES_U88,雪人蟹,Yeti,雪人蟹,イエティ,예티게,Yeti,Yéti,Yeti,Yeti,Yeti,Йети,Yeti
+SPECIES_U89,斗篷鱼,Cloaky,斗篷魚,マントっこ,망토고기,Umhang,Cape,Capa,Capa,Mantello,Плащик,Pelerin
+SPECIES_U90,啦啦蟹,Cheery,啦啦蟹,おうえんガニ,응원게,Jubelkrabbe,Pom-Pom,Animador,Animador,Tifoso,Заводила,Ponpon
+SPECIES_U91,宫殿蟹,Tower,宮殿蟹,おしろガニ,궁전게,Turmkrabbe,Tourelle,Torre,Torre,Torretta,Башенка,Kule
+SPECIES_U92,叶帽鲎,Leafcap,葉帽鱟,はっぱぼうし,잎모자,Blattkappe,Casquette,Gorra Hoja,Boné Folha,Cappellino,Листошапка,Yaprak Kep
+SPECIES_U93,水滴鱼宝,Droplet,水滴魚寶,しずくっこ,물방울,Tröpfchen,Gouttelette,Gotita,Gotinha,Goccina,Капелька,Damlacık
+SPECIES_U94,儒艮宝,Dugie,儒艮寶,ジュゴン,듀공이,Dugi,Dugong,Dugongo,Dugongo,Dugongo,Дюгонь,Dugong
+SPECIES_U95,小鳄鳄,Crocky,小鱷鱷,ワニっこ,꼬마악어,Krokodilchen,Crocou,Coco Croco,Jacarezinho,Coccodrillino,Крокодильчик,Timsahçık
+SPECIES_U96,小桶蟹,Bucket,小桶蟹,バケツガニ,양동이게,Eimerkrabbe,Seau,Cubo,Balde,Secchiello,Ведёрко,Kova
+SPECIES_U97,叶伞虾,Leafbrella,葉傘蝦,はっぱがさ,잎우산,Blattschirm,Parapluie,Paraguas,Guarda-chuva,Ombrellino,Зонтик-лист,Şemsiyecik
+SPECIES_U98,竹蛏蛏,Razor,竹蟶蟶,マテガイ,맛조개,Messerling,Couteau,Navaja,Lingueirão,Cannolicchio,Черенок,Ustura Midye
+SPECIES_U99,海鞘鞘,Squirty,海鞘鞘,ホヤっこ,멍게,Spritzi,Ascidie,Chorrito,Esguicho,Spruzzino,Брызгалка,Fışkırık
+SPECIES_U100,斑斑蛇,Bandy,斑斑蛇,しましまヘビ,줄무늬뱀,Ringelnatter,Serpent-Rayé,Serpiente,Cobrinha,Serpentello,Полосатик,Çizgili Yılan
+SPECIES_U101,椰壳蟹,Coco,椰殼蟹,ヤシガニ,야자게,Kokoskrabbe,Coco,Coquito,Coquinho,Cocco,Кокос,Cevizli
+SPECIES_U102,贝链鳐,Spotty,貝鏈鰩,てんてんエイ,점박가오리,Punktrochen,Tacheté,Lunares,Pintadinho,Pois,Пятнышко,Benekli
+SPECIES_U103,花鳉鳉,Killy,花鱂鱂,メダカっこ,송사리,Kärpfling,Killi,Killi,Killi,Killi,Карпозубик,Killi
+SPECIES_U104,豆荚龟,Podder,豆莢龜,まめガメ,콩깍지,Schötchen,Petit-Pois,Vainita,Vagem,Bacello,Стручок,Bezelye
+SPECIES_U105,背包蟹,Packer,背包蟹,リュックガニ,배낭게,Rucksack,Sac-à-Dos,Mochila,Mochila,Zainetto,Рюкзачок,Sırt Çantası
+SPECIES_U106,草笛鱼,Fluty,草笛魚,くさぶえ,풀피리,Flötchen,Flûtiau,Flautín,Flautinha,Flautino,Дудочка,Düdük
+SPECIES_U107,睡帽章,Nightcap,睡帽章,ねぼすけ,수면모자,Schlafmütze,Bonnet-Nuit,Gorro Noche,Touca,Berrettino,Колпачок,Gece Takkesi
+SPECIES_U108,星夹海星,Star Pin,星夾海星,ほしピン,별핀,Sternspange,Barrette,Horquilla,Presilha,Spilla,Булавочка,Yıldız Toka
+SPECIES_U109,提灯鱼,Lampy,提燈魚,ランタン,등불이,Lämpchen,Lampion,Farolillo,Lampião,Lampadina,Лампадка,Kandil
+SPECIES_U110,弯月蟹,Crescent,彎月蟹,みかづきガニ,초승게,Sichelkrabbe,Croissant,Medialuna,Lua Crescente,Mezzaluna,Полумесяц,Hilal
+SPECIES_U111,星包虾,Starpack,星包蝦,ほしリュック,별가방,Sternranzen,Cartable,Mochi Astral,Mochilinha,Zaino Stella,Ранец,Yıldız Çanta
+SPECIES_U112,抱枕豹,Pillow,抱枕豹,だきまくら,베개표범,Kuschelkatz,Câlin,Almohada,Travesseiro,Cuscino,Подушка,Yastık
+SPECIES_U113,睡衣鱼,Jammies,睡衣魚,パジャマっこ,잠옷이,Schlafanzug,Pyjama,Pijama,Pijama,Pigiama,Пижамка,Pijama
+SPECIES_U114,星夹母,Clippy,星夾母,ほしクリップ,별집게,Sternklemme,Pince-Étoile,Pinza Astral,Prendedor,Molletta,Заколка,Mandal
+SPECIES_U115,猫头鱼,Hooty,貓頭魚,ふくろうっこ,부엉이,Uhu,Hibou,Búho,Coruja,Gufetto,Совушка,Baykuş
+SPECIES_U116,小夜灯兔,Nitey,小夜燈兔,よあかり,밤불토끼,Nachtlicht,Veilleuse,Lucero,Luz da Noite,Lumino,Ночник,Gece Lambası
+SPECIES_U117,萤石蟹,Glowstone,螢石蟹,ほたる石,형석게,Glühstein,Pierre-Lueur,Piedra Luz,Pedra-luz,Pietra Luce,Светокамень,Işıltaş
+SPECIES_U118,围巾鳐,Scarfy,圍巾鰩,マフラーエイ,목도리,Schalrochen,Écharpe,Bufanda,Cachecol,Sciarpa,Шарфик,Atkı
+SPECIES_U119,牛奶鱼,Milky,牛奶魚,ミルクっこ,우유고기,Milchi,Lait,Lechita,Leitinho,Latte,Молочко,Sütlü
+SPECIES_U120,梦泡豚,Dreamy,夢泡豚,ゆめぷく,꿈풍선,Träumi,Rêvasseur,Ensueño,Sonhinho,Sognino,Сонька,Rüyacık
+SPECIES_U121,月坠鳗,Lunar,月墜鰻,つきしずく,달방울,Mondtropfen,Goutte-Lune,Gota Lunar,Gota de Lua,Goccia Luna,Лунная капля,Ay Damlası
+SPECIES_U122,安全帽蟹,Hardhat,安全帽蟹,ヘルメット,안전모게,Bauhelm,Casque,Casco,Capacete,Caschetto,Каска,Baret
+SPECIES_U123,护目镜虾,Goggles,護目鏡蝦,ゴーグル,고글새우,Taucherbrille,Lunettes,Gafas,Óculos,Occhialini,Очкарик,Gözlüklü
+SPECIES_U124,手套蟹,Mitts,手套蟹,てぶくろガニ,장갑게,Handschuh,Moufles,Guantes,Luvas,Guanti,Варежка,Eldiven
+SPECIES_U125,温泉章,Spa Octo,溫泉章,おんせんダコ,온천문어,Wellnessokti,Poulpe-Spa,Pulpo Spa,Polvo Spa,Polpo Terme,Спа-спрут,Kaplıcacı
+SPECIES_U126,煮蛋鱼,Eggy,煮蛋魚,ゆでたまご,삶은달걀,Eierchen,Œuf-Dur,Huevito,Ovinho,Uovo Sodo,Яичко,Haşlanmış
+SPECIES_U127,火苗鱼,Flicker,火苗魚,ゆらめき,불꽃이,Flackerli,Flammèche,Llamita,Chama,Fiammella,Огонёк,Alevcik
+SPECIES_U128,岩壳龟,Lava Turtle,巖殼龜,ようがんガメ,용암거북,Lavakröte,Tortue-Lave,Tortu Lava,Tartalava,Tarta Lava,Лавушка,Lavcık
+SPECIES_U129,晶坠豚,Crystal Puff,晶墜豚,水晶フグ,수정복어,Kristallkugel,Boule-Cristal,Cristal,Cristal,Cristallo,Хрусталик,Kristal
+SPECIES_U130,礼帽虫,Tophat,禮帽蟲,シルクハット,실크햇,Zylinder,Gibus,Chistera,Cartola,Cilindro,Цилиндр,Silindir Şapka
+SPECIES_U131,煤球鱼,Coaly,煤球魚,すみだま,연탄이,Kohli,Charbon,Carbón,Carvão,Carboncino,Уголёк,Kömürcük
+SPECIES_U132,蒸汽母,Steamy,蒸汽母,ゆげクラゲ,김해파리,Dampfi,Vapeur,Vapor,Vapor,Vapore,Парок,Buhar
+SPECIES_U133,螺栓螺,Bolty,螺栓螺,ボルト貝,볼트소라,Schraubi,Boulon,Tornillo,Parafuso,Bullone,Болтик,Cıvata
+SPECIES_U134,小锅蟹,Pot Crab,小鍋蟹,おなべガニ,냄비게,Topfkrabbe,Marmite,Olla,Panela,Pentolino,Кастрюлька,Tencere
+SPECIES_U135,围巾鳗,Ember,圍巾鰻,ほむら,불씨장어,Glutaal,Braise,Brasa,Brasa,Brace,Головёшка,Kor
+SPECIES_U136,温度鱼,Thermy,溫度魚,ほかほか,따끈이,Thermi,Thermo,Termo,Termo,Termo,Градусник,Termo
+SPECIES_U137,桂冠鱼,Laurel,桂冠魚,げっけい,월계관,Lorbeer,Laurier,Laurel,Louro,Alloro,Лавр,Defne
+SPECIES_U138,卷轴虾,Scroll,卷軸蝦,まきもの,두루마리,Schriftrolle,Parchemin,Pergamino,Pergaminho,Pergamena,Свиток,Parşömen
+SPECIES_U139,陶罐章,Jarvo,陶罐章,つぼダコ,항아리문어,Krugarm,Jarre,Ánfora,Jarra,Anfora,Кувшин,Testi
+SPECIES_U140,火炬鱼,Torchy,火炬魚,たいまつ,횃불이,Fackel,Torche,Antorcha,Tocha,Fiaccola,Факел,Meşale
+SPECIES_U141,头盔蟹,Helm,頭盔蟹,かぶとガニ,투구게,Helmkrabbe,Heaume,Yelmo,Elmo,Elmo,Шлем,Miğfer
+SPECIES_U142,地图鳐,Mapray,地圖鰩,ちずエイ,지도가오리,Kartenroch,Raie-Carte,Mapa,Mapa,Mappa,Карта,Harita
+SPECIES_U143,石柱虫,Pillar,石柱蟲,いしばしら,돌기둥,Säulchen,Colonne,Columna,Coluna,Colonna,Колонна,Sütun
+SPECIES_U144,古币豚,Drachma,古幣豚,こせんイルカ,동전돌고래,Drachme,Drachme,Dracma,Dracma,Dracma,Драхма,Drahmi
+SPECIES_U145,面具鱼,Masky,面具魚,かめんっこ,가면고기,Maske,Masque,Máscara,Máscara,Maschera,Маска,Maske
+SPECIES_U146,马赛克星,Mosaic,馬賽剋星,モザイク,모자이크,Mosaik,Mosaïque,Mosaico,Mosaico,Mosaico,Мозаика,Mozaik
+SPECIES_U147,苔背蟹,Mossback,苔背蟹,こけガニ,이끼게,Moosrücken,Dos-Moussu,Lomo Musgo,Musgoso,Dorso Muschio,Моховик,Yosunsırt
+SPECIES_U148,石狮鱼,Guardian,石獅魚,しーさー,수호사자,Wächterlöwe,Gardien,Guardián León,Leão-guarda,Leone Guardia,Лев-страж,Aslan Muhafız
+SPECIES_U149,月桂母,Bay,月桂母,ローリエ,월계수,Lorbeerqual,Laurelle,Laurelito,Louro-cereja,Lauretta,Лаврушка,Defnecik
+SPECIES_U150,书卷鳗,Scribe,書卷鰻,しょもつ,서기장어,Schreiberling,Scribe,Escriba,Escriba,Scriba,Писарь,Katip
+SPECIES_U151,竖琴马,Lyre,豎琴馬,たてごと,하프해마,Leierpferd,Lyre,Lira,Lira,Lira,Лира,Lir
+SPECIES_U152,头灯鱼,Headlamp,頭燈魚,ヘッドライト,헤드램프,Stirnlampe,Frontale,Frontal,Lanterna,Frontalino,Налобник,Kafa Lambası
+SPECIES_U153,潜水盔章,Diver,潛水盔章,せんすいダコ,잠수문어,Taucher,Scaphandre,Buzo,Mergulhador,Palombaro,Водолаз,Dalgıç
+SPECIES_U154,荧光棒虾,Glowstick,熒光棒蝦,ひかり棒,야광봉,Leuchtstab,Bâton-Lueur,Barra Luz,Bastão Luz,Bastoncino,Светопалка,Işık Çubuğu
+SPECIES_U155,探照鳗,Searchlight,探照鰻,サーチライト,탐조등,Scheinwerfer,Projecteur,Reflector,Holofote,Faro,Прожектор,Projektör
+SPECIES_U156,潜艇豚,Subby,潛艇豚,せんすいかん,잠수함,U-Bootchen,Sous-Marin,Submarino,Submarino,Sottomarino,Подлодка,Denizaltı
+SPECIES_U157,泡盔母,Bubblehelm,泡盔母,あわかぶと,거품투구,Blasenhelm,Casque-Bulle,Escafandra,Escafandro,Casco Bolla,Пузырешлем,Fanus
+SPECIES_U158,星帽蛛,Starhat,星帽蛛,ほしぼうグモ,별모자거미,Sternspinne,Araignée-Ciel,Araña Astral,Aranha Astral,Ragno Stella,Звездопаук,Örümcek
+SPECIES_U159,背包参,Hiker,背包參,ハイカー,등산객,Wanderer,Randonneur,Excursión,Trilheiro,Escursionista,Турист,Gezgin
+SPECIES_U160,夜视鱼,Goggly,夜視魚,よるめがね,야간경,Nachtsicht,Lunette-Nuit,Visor,Visor,Visore,Ночегляд,Gece Gözlüğü
+SPECIES_U161,光带鱼,Ribbonlight,光帶魚,ひかりおび,빛띠,Lichtband,Ruban-Lumière,Cinta Luz,Fita de Luz,Nastro Luce,Светолента,Işık Şeridi
+SPECIES_U162,铃铛蟹,Jingle,鈴鐺蟹,すずガニ,방울게,Bimmel,Grelot,Cascabel,Guizo,Sonaglino,Бубенец,Zilli
+SPECIES_U163,心灯鱼,Lovelure,心燈魚,ハート灯,하트등,Herzköder,Cœur-Leurre,Corazón,Coração,Cuore Esca,Любушка,Kalp Fener
+SPECIES_U164,火箭鱿,Rocket,火箭魷,ロケットイカ,로켓오징어,Rakete,Fusée,Cohete,Foguete,Razzo,Ракета,Roket
+SPECIES_U165,围巾章,Snuggle,圍巾章,ぬくぬくダコ,포근문어,Kuschelarm,Doudou,Mimoso,Chamego,Coccolone,Обнимашка,Sarılgan
+SPECIES_U166,帽帽滴,Droppy,帽帽滴,しずくぼうし,물방울모,Tropfhut,Gouttin,Goterón,Gotícula,Gocciolone,Капельшапка,Damla Şapka
+SPECIES_U167,宇航鱼,Astro,宇航魚,うちゅうっこ,우주인,Astro,Astro,Astro,Astro,Astro,Астро,Astro
+SPECIES_U168,星杖马,Wand,星杖馬,ほしのつえ,별지팡이,Sternstab,Baguette,Varita,Varinha,Bacchetta,Жезл,Asa
+SPECIES_U169,土星豚,Saturn,土星豚,どせいイルカ,토성이,Saturn,Saturne,Saturno,Saturno,Saturno,Сатурн,Satürn
+SPECIES_U170,望远镜蟹,Scope,望遠鏡蟹,ぼうえんガニ,망원경게,Fernrohr,Télescope,Telescopio,Luneta,Cannocchiale,Подзорка,Teleskop
+SPECIES_U171,火箭章,Blastoff,火箭章,はっしゃダコ,발사문어,Abheben,Décollage,Despegue,Decolagem,Decollo,Взлёт,Kalkış
+SPECIES_U172,月帽鳐,Moonhat,月帽鰩,つきぼうし,달모자,Mondhut,Bonnet-Lune,Gorro Luna,Gorro Lua,Cappello Luna,Лунная шапка,Ay Şapka
+SPECIES_U173,风筝鱼,Kite,風箏魚,たこあげ,연날리기,Drachi,Cerf-Volant,Cometa Papel,Pipa,Aquilone,Змейка,Uçurtma
+SPECIES_U174,彗尾星,Trail,彗尾星,ほうきぼし,꼬리별,Schweif,Traînée,Estela,Rastro,Scia,Хвост кометы,İz
+SPECIES_U175,天线母,Antenna,天線母,アンテナ,안테나,Antenne,Antenne,Antena,Antena,Antenna,Антенна,Anten
+SPECIES_U176,星座龟,Zodiac,星座龜,せいざガメ,별자리,Tierkreis,Zodiaque,Zodiaco,Zodíaco,Zodiaco,Зодиак,Burç
+SPECIES_U177,星球螺,Planet,星球螺,わくせい貝,행성소라,Planet,Planète,Planeta,Planeta,Pianeta,Планета,Gezegen
+SPECIES_U178,太空虾,Spacey,太空蝦,スペースエビ,우주새우,Raumkrebs,Spatial,Espacial,Espacial,Spaziale,Космос,Uzaycık
+SPECIES_U179,星带鳗,Starband,星帶鰻,ほしおび,별띠장어,Sternband,Ceinture,Cinta Astral,Faixa Astral,Fascia Stella,Поясок,Yıldız Kuşak
+SPECIES_U180,外星兔,Alien,外星兔,うちゅうじん,외계토끼,Alien,Alien,Alien,Alien,Alieno,Пришелец,Uzaylı
+SPECIES_U181,光环鱼,Ringlet,光環魚,わっかっこ,고리이,Ringel,Anneau,Anillo,Anel,Anellino,Колечко,Halka
+SPECIES_U182,花伞鱼,Parasol,花傘魚,ひがさ,양산이,Sonnenschirm,Ombrelle,Sombrilla,Sombrinha,Parasole,Зонтик,Güneşlik
+SPECIES_U183,樱帽虾,Bloomhat,櫻帽蝦,さくらぼうし,벚꽃모자,Blütenhut,Bibi-Fleur,Gorro Flor,Chapéu Flor,Fioretto,Цветошапка,Çiçek Şapka
+SPECIES_U184,杯杯蟹,Cupcrab,杯杯蟹,カップガニ,컵게,Becherkrabbe,Tasse-Crabe,Taza,Xícara,Tazzone,Чашка-краб,Fincan Yengeç
+SPECIES_U185,风筝鳐,Kitey,風箏鰩,たこエイ,연가오리,Drachenroch,Raie-Volante,Raya Cometa,Arraia Pipa,Aquilina,Змей-скат,Uçurtma Vatoz
+SPECIES_U186,团子鱼,Dango,糰子魚,だんごっこ,경단이,Dango,Dango,Dango,Dango,Dango,Данго,Dango
+SPECIES_U187,花篮螺,Basket,花籃螺,はなかご,꽃바구니,Körbchen,Panier,Cestita,Cestinha,Cestino,Корзинка,Sepet
+SPECIES_U188,铃铛鲤,Dingle,鈴鐺鯉,すずゴイ,방울잉어,Klingelkarpf,Carpe-Grelot,Cascabelín,Carpa Sino,Sonaglio,Звонок-карп,Zil Sazan
+SPECIES_U189,樱扇章,Fanfan,櫻扇章,さくらおうぎ,벚꽃부채,Fächerarm,Éventail-Fleur,Abanico Flor,Leque Flor,Ventaglino,Цветной веер,Çiçek Yelpaze
+SPECIES_U190,纸鹤鱼,Cranefin,紙鶴魚,おりづる,종이학,Kranich,Origami,Grulla,Tsuru,Origami,Журавлик,Turna
+SPECIES_U191,粉结兔,Bowbun,粉結兔,リボンうさぎ,리본토끼,Schleifhase,Nœud-Lapin,Lazo,Lacinho,Nastrino Rosa,Бантик,Fiyonk
+SPECIES_U192,野餐蟹,Picnic,野餐蟹,ピクニック,소풍게,Picknick,Pique-Nique,Picnic,Piquenique,Picnic,Пикник,Piknik
+SPECIES_U193,春笛鱼,Piper,春笛魚,はるぶえ,봄피리,Pfeifer,Pipeau,Flautista,Flautista,Zufolo,Свирель,Kaval
+SPECIES_U194,抹茶龟,Matcha,抹茶龜,まっちゃガメ,말차거북,Matcha,Matcha,Matcha,Matcha,Matcha,Матча,Matcha
+SPECIES_U195,花环豚,Wreath,花環豚,はなわ,꽃다발,Blumenkranz,Couronne,Corona Flor,Guirlanda,Ghirlanda,Венок,Çelenk
+SPECIES_U196,雨靴虾,Bootsy,雨靴蝦,ながぐつ,장화새우,Gummistiefel,Bottes,Botas,Galocha,Stivaletti,Сапожок,Çizme
+SPECIES_U197,菜篮蟹,Shopper,菜籃蟹,かいものガニ,장바구니,Einkäufer,Cabas,Compras,Sacola,Spesa,Покупашка,Alışverişçi
+SPECIES_U198,钱袋鱼,Pursey,錢袋魚,がまぐち,복주머니,Geldbeutel,Bourse,Monedero,Porta-moedas,Borsellino,Кошелёк,Kese
+SPECIES_U199,围裙章,Apron,圍裙章,エプロン,앞치마,Schürze,Tablier,Delantal,Avental,Grembiule,Фартук,Önlük
+SPECIES_U200,草帽虾,Strawhat,草帽蝦,むぎわらエビ,밀짚새우,Strohkrebs,Paille,Gamba Paja,Chapelinho,Paglietta,Брыль,Saman Karides
+SPECIES_U201,气球鱼,Balloon,氣球魚,ふうせんっこ,풍선고기,Luftballon,Ballon,Globo,Balão,Palloncino Blu,Шарик-рыба,Balonlu
+SPECIES_U202,糖串鳗,Sweetie,糖串鰻,だがし,사탕꼬치,Süßspieß,Sucrerie,Dulce,Docinho,Dolcetto,Сладкоежка,Şekerleme
+SPECIES_U203,纸袋蟹,Baggy,紙袋蟹,かみぶくろ,종이봉투,Tüte,Sachet,Bolsita,Saquinho,Sacchetto,Пакетик,Kese Kağıdı
+SPECIES_U204,店铃螺,Shopbell,店鈴螺,みせのすず,가게방울,Ladenglocke,Sonnette,Campanita,Sininho Loja,Campanello,Звоночек,Dükkan Zili
+SPECIES_U205,眼镜鲷,Specs,眼鏡鯛,メガネダイ,안경돔,Brilli,Lunettu,Gafitas,Óculos Fundo,Occhialone,Очки,Gözlükçü
+SPECIES_U206,头巾鱿,Bandana,頭巾魷,バンダナ,반다나,Kopftuch,Bandana,Pañuelo,Bandana,Bandana,Бандана,Bandana
+SPECIES_U207,灯笼豚,Lanterny,燈籠豚,提灯イルカ,초롱돌고래,Laterndelfi,Lampion-Rose,Farol Rosa,Boto-luz,Lanterna Rosa,Плафон,Fener Yunus
+SPECIES_U208,包子鱼,Bunbun,包子魚,にくまん,찐빵이,Dampfnudel,Brioche,Bollito,Pãozinho,Panino,Пирожок,Mantı
+SPECIES_U209,风车虾,Pinwheel,風車蝦,かざぐるま,바람개비,Windrad,Moulinet,Molinillo,Cata-vento,Girandola,Вертушка,Rüzgar Gülü
+SPECIES_U210,邮差龟,Postie,郵差龜,ゆうびんガメ,우체부,Postbote,Facteur,Cartero,Carteiro,Postino,Почтальон,Postacı
+SPECIES_U211,厨帽鲈,Chef,廚帽鱸,シェフ,요리사,Koch,Chef,Chef,Chef,Cuoco,Повар,Şef
+SPECIES_U212,风筝虾,Kitesy,風箏蝦,たこエビ,연새우,Drachenkrebs,Crevette-Kite,Gamba Cometa,Camarão Pipa,Gambero Kite,Змейчик,Uçurtmacık
+SPECIES_U213,云帽豚,Cloudcap,雲帽豚,くもぼうし,구름모자,Wolkenmütze,Bonnet-Nuage,Gorro Nube,Gorro Nuvem,Cappello Nube,Облакошапка,Bulut Şapka
+SPECIES_U214,雨伞章,Brolly,雨傘章,かさダコ,우산문어,Schirmarm,Pépin,Paragüitas,Polvo Chuva,Ombrello,Зонтоспрут,Şemsiye
+SPECIES_U215,伞包龟,Chute,傘包龜,パラシュート,낙하산,Fallschirm,Parachute,Paracaídas,Paraquedas,Paracadute,Парашют,Paraşüt
+SPECIES_U216,翅膀鱼,Winglet,翅膀魚,はねっこ,날개콩,Flügelchen,Ailette,Alita,Asinha,Alette,Крылышко,Kanatçık
+SPECIES_U217,虹巾马,Arcy,虹巾馬,にじマフラー,무지개띠,Regenbogi,Arc-en-Ciel,Arcoíris,Arco-íris,Arcobaleno,Радуга,Gökkuşağı
+SPECIES_U218,飞行鳐,Aviator,飛行鰩,パイロット,비행사,Flieger,Aviateur,Aviador,Aviador,Aviatore,Лётчик,Pilot
+SPECIES_U219,雨滴蟹,Drippy,雨滴蟹,あまつぶ,빗방울게,Tropfkrabbe,Goutte,Gota,Pingo,Goccia,Капля,Yağmurcuk
+SPECIES_U220,云枕鱼,Napper,雲枕魚,ひるね,낮잠이,Schläfchen,Sieste,Siestita,Soneca,Pisolino,Дрёма,Kestirme
+SPECIES_U221,星棒母,Wandy,星棒母,ほしステッキ,별봉,Zauberstab,Fée-Baguette,Varita Mágica,Mágica,Magica,Волшебник,Sihirli Asa
+SPECIES_U222,纸机鱼,Planey,紙機魚,かみひこうき,종이비행기,Papierflieger,Avion-Papier,Avioncito,Aviãozinho,Aeroplanino,Самолётик,Kağıt Uçak
+SPECIES_U223,风铃螺,Chime,風鈴螺,ふうりん,풍경소라,Windspiel,Carillonnette,Campanillo,Mensageiro,Campanula,Ветерок,Rüzgar Çanı
+SPECIES_U224,羽毛鲀,Feather,羽毛魨,はねフグ,깃털복어,Federkugel,Plume,Pluma,Pena,Piuma,Пушинка,Tüy
+SPECIES_U225,墨镜蟹,Shady,墨鏡蟹,サングラス,선글라스,Sonnenbrille,Solaires,Gafas de Sol,Óculos Sol,Solare,Тёмные очки,Güneş Gözlüğü
+SPECIES_U226,水手鱼,Sailor,水手魚,すいへい,수병이,Matrose,Matelot,Marinero,Marujo,Marinaio,Моряк,Denizci
+SPECIES_U227,珠链蝶,Necklace,珠鏈蝶,ネックレス,목걸이,Halskette,Collier,Collar,Colar,Collana,Ожерелье,Kolye
+SPECIES_U228,贝帽章,Shellcap,貝帽章,かいぼうし,조개모자,Muschelhut,Bonnet-Coque,Gorro Concha,Gorro Concha,Cuffietta,Шляпка,Kabuk Şapka
+SPECIES_U229,首饰蟹,Jewelbox,首飾蟹,ほうせきばこ,보석상자,Schmuckdose,Écrin,Joyero,Porta-joias,Portagioie,Шкатулка,Sandıkçık
+SPECIES_U230,发夹鳗,Clasp,髮夾鰻,かみどめ,머리핀,Haarspange,Fermoir,Pasador,Presilhinha,Fermaglio,Заколочка,Toka
+SPECIES_U231,小镜虾,Handmirror,小鏡蝦,てかがみ,손거울,Handspiegel,Miroir,Espejito,Espelhinho,Specchietto,Зеркальце,El Aynası
+SPECIES_U232,蕾丝鲍,Lacy,蕾絲鮑,レース貝,레이스,Spitzerl,Dentelle,Encaje,Rendinha,Merletto,Кружево,Dantel
+SPECIES_U233,螺号鱼,Conchhorn,螺號魚,ほらぶえ,소라나팔,Muschelhorni,Corne,Cuerno,Corneta,Corno,Рог,Boru
+SPECIES_U234,沙堡蟹,Castle,沙堡蟹,すなのしろ,모래성게,Sandburg,Château,Castillo,Castelo,Castello,Замочек,Kumdan Kale
+SPECIES_U235,珠帘母,Beady,珠簾母,たますだれ,구슬발,Perlvorhang,Perlé,Cortinita,Cortina,Tendina,Бусинки,Boncuk Perde
+SPECIES_U236,泡泡兔,Bubbly,泡泡兔,あわうさぎ,거품토끼,Bläschen,Bullette,Burbujín,Bolhinha,Bollicina,Пузырёк,Köpükçük
+SPECIES_U237,贝包鱼,Clutch,貝包魚,かいバッグ,조개가방,Täschchen,Pochette,Bolso,Bolsinha,Pochette,Сумочка,Çantacık
+SPECIES_U238,小铲虾,Shovel,小鏟蝦,スコップ,삽새우,Schaufel,Pelle,Pala,Pá,Paletta,Лопатка,Kürek
+SPECIES_U239,星卡龟,Starclip,星卡龜,ほしピンガメ,별클립,Sternclip,Clip-Étoile,Clip Astral,Clipe Astral,Clip Stella,Клипса,Yıldız Klips
+SPECIES_U240,手镯章,Bangle,手鐲章,うでわダコ,팔찌문어,Armreif,Bracelet,Pulsera,Pulseira,Braccialetto,Браслет,Bilezik
+SPECIES_U241,珠袋鳐,Satchel,珠袋鰩,たまぶくろ,구슬가방,Perltasche,Besace,Morral,Bolsa Pérola,Borsa Perla,Котомка,Heybe
+SPECIES_U242,发条鱼,Windup,發條魚,ねじまき,태엽이,Aufzieh,Remontoir,Cuerda,Corda,Carillon,Заводной,Kurmalı
+SPECIES_U243,怀表蟹,Pocketwatch,懷錶蟹,懐中時計,회중시계,Taschenuhr,Gousset,Relojito,Relógio,Orologino,Брегет,Cep Saati
+SPECIES_U244,铜镜章,Brassgoggle,銅鏡章,真鍮ダコ,놋쇠문어,Messingbrille,Laiton,Latón,Latão,Ottone,Латунь,Pirinç
+SPECIES_U245,齿轮螺,Cogsnail,齒輪螺,はぐるま貝,톱니소라,Radschnecke,Engrenage,Engranaje,Engrenagem,Ingranaggio,Шестерёнка,Dişli
+SPECIES_U246,礼帽鱼,Dapper,禮帽魚,しんしっこ,멋쟁이,Feinfisch,Élégant,Elegantón,Elegante,Damerino,Франт,Şık
+SPECIES_U247,扳手虾,Wrenchy,扳手蝦,スパナエビ,스패너,Schrauber,Clé-à-Molette,Llave Inglesa,Chave Inglesa,Chiave,Гаечный ключ,Anahtarcı
+SPECIES_U248,桨帽龟,Propeller,槳帽龜,プロペラ,프로펠러,Propeller,Hélice,Hélice,Hélice,Elica,Пропеллер,Pervane
+SPECIES_U249,小钟母,Clocky,小鐘母,とけいクラゲ,시계해파리,Uhrqualle,Horloge,Reloj Medusa,Reloginho,Orologio,Часики,Saatçik
+SPECIES_U250,领结螺,Bowtie,領結螺,蝶ネクタイ,나비넥타이,Fliege,Nœud-Pap,Pajarita,Gravatinha,Papillon,Бабочка-бант,Papyon
+SPECIES_U251,油壶鳐,Oily,油壺鰩,あぶらさし,기름통,Ölkännchen,Burette,Aceitera,Almotolia,Oliatore,Маслёнка,Yağdanlık
+SPECIES_U252,单镜鱼,Monocle,單鏡魚,かためがね,외알안경,Monokel,Monocle,Monóculo,Monóculo,Monocolo,Монокль,Monokl
+SPECIES_U253,马甲虾,Vesty,馬甲蝦,ベストエビ,조끼새우,Westchen,Gilet,Chaleco,Colete,Panciotto,Жилетка,Yelek
+SPECIES_U254,灯泡乌,Bulby,燈泡烏,でんきゅう,전구오징어,Glühbirne,Ampoule,Bombilla,Lâmpada,Lampadone,Лампочка,Ampul
+SPECIES_U255,工具蟹,Toolbox,工具蟹,どうぐばこ,공구함,Werkzeug,Outillage,Herramientas,Ferramenta,Attrezzi,Мастер,Alet Kutusu
+SPECIES_U256,齿链鲀,Geary,齒鏈魨,ギアフグ,톱니복어,Zahnrädchen,Rouage,Rueda,Rodinha,Rotella,Зубчик,Çark
+SPECIES_U257,鼓手蟹,Drummer,鼓手蟹,たいこガニ,북치기게,Trommler,Batteur,Tamborilero,Baterista,Batterista,Ударник,Bateri
+SPECIES_U258,小号鱼,Trumpet,小號魚,トランペット,트럼펫,Trompete,Trompettiste,Trompeta,Trombeta,Tromba,Труба,Borazan
+SPECIES_U259,提琴章,Fiddlo,提琴章,バイオリン,바이올린,Geiger,Violon,Violín,Violino,Violino,Скрипка,Keman
+SPECIES_U260,铃鼓虾,Tambo,鈴鼓蝦,タンバリン,탬버린,Tamburin,Tambourin,Pandereta,Pandeiro,Tamburello,Бубен,Tef
+SPECIES_U261,耳机鲸,Headphones,耳機鯨,ヘッドホン,헤드폰고래,Kopfhörer,Casque-Audio,Auriculares,Fone,Cuffie,Наушники-кит,Kulaklıklı
+SPECIES_U262,沙锤鱼,Maraca,沙錘魚,マラカス,마라카스,Rassel,Maracas,Maraca,Maraca,Maracas,Маракас,Marakas
+SPECIES_U263,琴琴马,Harpo,琴琴馬,ハープっこ,하프콩,Harfi,Harpiste,Arpita,Harpinha,Arpetta,Арфочка,Arpçık
+SPECIES_U264,口琴豚,Harmonica,口琴豚,ハーモニカ,하모니카,Harmonika,Harmonica,Armónica,Gaita,Armonica,Гармошка,Mızıka
+SPECIES_U265,指挥鱼,Maestro,指揮魚,マエストロ,지휘자,Maestro,Maestro,Maestro,Maestro,Maestro,Маэстро,Maestro
+SPECIES_U266,唱片龟,Vinyl,唱片龜,レコードガメ,레코드,Schallplatte,Vinyle,Vinilo,Vinil,Vinile,Пластинка,Plak
+SPECIES_U267,音符母,Notey,音符母,おんぷっこ,음표해파리,Notenqualle,Notine,Notita,Notinha,Notina,Ноточка,Notacık
+SPECIES_U268,麦克螺,Micky,麥克螺,マイク貝,마이크,Mikro,Micro,Micro,Microfone,Microfono,Микрофон,Mikrofon
+SPECIES_U269,吉他蟹,Strummy,吉他蟹,ギターガニ,기타게,Klampfe,Guitare,Guitarra,Violão,Chitarra,Гитара,Gitar
+SPECIES_U270,笛子鳗,Piccolo,笛子鰻,ピッコロ,피콜로,Piccolo,Piccolo,Píccolo,Flautim,Ottavino,Пикколо,Pikolo
+SPECIES_U271,披风豹,Crooner,披風豹,マントヒョウ,망토표범,Schlagerstar,Crooner,Cantante,Seresteiro,Crooner,Крунер,Şarkıcı
+SPECIES_R01,珠卷卷,Pearl Curl,珠卷卷,しんじゅまき,진주말이,Perllocke,Boucle-Perle,Rizo Perla,Cacho Pérola,Riccio Perla,Завиток,İnci Bukle
+SPECIES_R02,琉璃伞,Glass Brolly,琉璃傘,ガラスがさ,유리우산,Glasschirm,Parasol-Verre,Cristalina,Guarda-sol,Cristallina,Стеклозонт,Cam Şemsiye
+SPECIES_R03,花鼓鼓,Drum,花鼓鼓,はなだいこ,꽃북이,Paukenfisch,Grosse-Caisse,Bombo,Bumbo,Grancassa,Барабан,Trampet
+SPECIES_R04,珠帽丸,Pearl Cap,珠帽丸,しんじゅぼう,진주모자,Perlmütze,Bonnet-Perle,Gorro Perla,Gorro Pérola,Perlotto,Беретик,İnci Şapka
+SPECIES_R05,金扇饼,Gold Fan,金扇餅,きんおうぎ,금부채,Goldfächer,Éventail-Or,Abanico Oro,Leque Ouro,Ventoro,Золотой веер,Altın Yelpaze
+SPECIES_R06,星灯灯,Star Lamp,星燈燈,ほしあかり,별등불,Sternlampe,Lampe-Étoile,Farol Astral,Luz Estelar,Stellume,Звездосвет,Yıldız Lamba
+SPECIES_R07,珠星酥,Pearl Star,珠星酥,しんじゅぼし,진주별,Perlstern,Perle-Étoile,Perla Astral,Perolada,Stella Perla,Перлинка,İnci Yıldız
+SPECIES_R08,珊钳钳,Coral Claws,珊鉗鉗,サンゴばさみ,산호집게,Korallschere,Pince-Corail,Pinza Coral,Pinça Coral,Chela Corallo,Кораллик,Mercan Kıskaç
+SPECIES_R09,珠居居,Pearl Home,珠居居,しんじゅやど,진주집,Perlhäusli,Maison-Perle,Casa Perla,Casa Pérola,Casa Perla,Теремок,İnci Ev
+SPECIES_R10,晨光兔,Dawny,晨光兔,あさやけうさ,새벽토끼,Morgenhase,Aurore,Alba,Aurora,Alba,Рассвет,Şafak
+SPECIES_R11,月砂饼,Moonsand,月砂餅,つきすな,달모래,Mondsand,Sable-Lune,Arena Lunar,Areia Lunar,Sabbia Luna,Лунный песок,Ay Kumu
+SPECIES_R12,花环龟,Lei,花環龜,レイガメ,꽃목걸이,Blütenkranz,Collier-Fleur,Guirnalda,Colar de Flor,Ghirlandina,Гирлянда,Çiçek Kolye
+SPECIES_R13,虹虾虾,Rainbow,虹蝦蝦,にじエビ,무지개새우,Regenbogen,Prismette,Arcoirisito,Arco-irisinho,Iride,Радужка,Gökkuşakçık
+SPECIES_R14,蓝龙龙,Glaucus,藍龍龍,アオミノウミ,푸른갯민숭,Blaudrachen,Glaucus,Dragón Azul,Dragão Azul,Drago Blu,Синий дракон,Mavi Ejder
+SPECIES_R15,杜父父,Sculpy,杜父父,カジカぼう,둑중이,Grobbi,Chabot-Roi,Cabracho Rey,Escorpião Rei,Scazzone Re,Подкаменщик,Kral Kaya
+SPECIES_R16,炫炫墨,Flair,炫炫墨,はなやか,화려먹물,Prunki,Flamboyant,Llamativo,Vistoso,Vanitoso,Щёголь,Gösterişli
+SPECIES_R17,帝帝鱼,Regal,帝帝魚,おうさま,황제고기,Regal,Régal,Real,Majestade,Regale,Император,Asil
+SPECIES_R18,小丑虾,Harley,小丑蝦,ピエロエビ,광대새우,Harlekin,Arlequin,Arlequín,Arlequim,Arlecchino,Арлекин,Harlekin
+SPECIES_R19,灯兔兔,Lumi,燈兔兔,ルミうさ,빛토끼,Lumi,Lumi,Lumi,Lumi,Lumi,Люми,Lumi
+SPECIES_R20,丝带鳗,Silk,絲帶鰻,きぬおび,비단장어,Seidi,Soie,Seda,Seda,Seta,Шёлк,İpek
+SPECIES_R21,珠丑丑,Pearl Clown,珠醜醜,真珠ピエロ,진주광대,Perlclown,Clown-Perle,Payaso Perla,Bobo Pérola,Clown Perla,Петрушка,İnci Palyaço
+SPECIES_R22,花园蟹,Garden,花園蟹,にわガニ,정원게,Gärtner,Jardinier,Jardinero,Jardineiro,Giardiniere,Садовник,Bahçıvan
+SPECIES_R23,草龙龙,Weedy,草龍龍,ウィーディー,해초용,Fetzenfisch,Dragon-Algue,Dragoncito,Dragão-alga,Drago Alga,Дракоша,Yosun Ejder
+SPECIES_R24,花冠獭,Petal,花冠獺,はなかんむり,꽃관수달,Blütenotter,Pétale,Pétalo,Pétala,Petalo,Лепесток,Taçyaprak
+SPECIES_R25,藻灵灵,Sprite,藻靈靈,もくずのせい,해초요정,Algengeist,Lutin,Duende,Duende,Folletto,Водяной дух,Su Perisi
+SPECIES_R26,塔螺螺,Toppy,塔螺螺,とうがい,탑소라,Turmschnecke,Toupie,Peonza,Pião,Trottola,Юла,Topaç
+SPECIES_R27,鼠海豚,Porpy,鼠海豚,ネズミイルカ,쇠돌고래,Schweinswal,Marsouin,Marsopa,Toninha,Focena,Свинка,Mutur
+SPECIES_R28,海蝶蝶,Flutter,海蝶蝶,うみちょう,바다나비,Seefalter,Papillon-Mer,Mariposa Mar,Mariposa,Farfalla Mare,Мотылёк,Kelebekçik
+SPECIES_R29,银鲛鲛,Chimera,銀鮫鮫,ギンザメ,은상어,Chimäre,Chimère,Quimera,Quimera,Chimera,Химера,Kimera
+SPECIES_R30,宝藏蟹,Treasure,寶藏蟹,おたからガニ,보물게,Schatzi,Trésor,Tesoro,Tesouro,Tesoro,Сокровище,Hazine
+SPECIES_R31,墨船长,Captain Ink,墨船長,墨船長,먹물선장,Käpt’n Tinte,Cap’taine,Capitán Tinta,Capitão Tinta,Corsaro,Клякса,Korsancık
+SPECIES_R32,罗盘龟,Compass,羅盤龜,らしんばん,나침반,Kompass,Boussole,Brújula,Bússola,Bussola,Компас,Pusula
+SPECIES_R33,闪光鱼,Flashy,閃光魚,ピカピカ,번쩍이,Blitzi,Éclair,Relámpago,Relâmpago,Lampo,Вспышка,Şimşek
+SPECIES_R34,斧头头,Mirror,斧頭頭,かがみっこ,거울고기,Spiegelchen,Miroir-Hache,Espejo,Espelho,Specchio,Зеркало,Ayna
+SPECIES_R35,海百合,Lily,海百合,うみゆり,바다백합,Seelilie,Lys-de-Mer,Lirio Marino,Lírio-do-mar,Gigliomare,Лилия,Zambak
+SPECIES_R36,雪天使,Snow Angel,雪天使,ゆきてんし,눈천사,Schneeengel,Ange-Neige,Ángel Nieve,Anjo da Neve,Angelo Neve,Снегурка,Kar Meleği
+SPECIES_R37,冰钳钳,Icicle,冰鉗鉗,つららガニ,고드름게,Eiszapfen,Glaçon,Carámbano,Pingente,Ghiacciolo,Сосулька,Buz Saçağı
+SPECIES_R38,冠白鲸,Crowny,冠白鯨,冠クジラ,왕관흰고래,Kronwal,Béluga-Roi,Beluga Real,Beluga Real,Beluga Re,Белуха,Kral Beluga
+SPECIES_R39,冰晶鱼,Crystalfin,冰晶魚,ひょうしょう,얼음수정,Kristalli,Cristal,Cristalín,Cristalino,Cristallino,Кристаллик,Kristalcik
+SPECIES_R40,冰屋蟹,Igloo,冰屋蟹,かまくらガニ,이글루게,Iglu,Igloo,Iglú,Iglu,Igloo,Иглу,İglo
+SPECIES_R41,竖琴豹,Harpy,豎琴豹,竪琴ヒョウ,하프표범,Harfrobbe,Harpe-Phoque,Foca Arpa,Foca-harpa,Foca Arpa,Бельок,Arp Foku
+SPECIES_R42,斗篷鱿,Vamp,斗篷魷,マントイカ,망토오징어,Vampi,Vampire,Vampiro,Vampiro,Vampiro,Вампир,Vampir
+SPECIES_R43,宫灯链,Lanterns,宮燈鏈,きゅうとう,궁등불,Laternen,Lanternes,Faroles,Lanternas,Lanterne,Фонари,Fenerler
+SPECIES_R44,珠耳章,Princess,珠耳章,プリンセス,공주문어,Prinzessin,Princesse,Princesa,Princesa,Principessa,Принцесса,Prenses
+SPECIES_R45,海鳃鳃,Quill,海鰓鰓,ウミエラ姫,바다깃,Federkiel,Plume-Mer,Plumilla,Plumada,Penna,Перо,Kuş Tüyü
+SPECIES_R46,夜光鲨,Glimmer,夜光鯊,よびかりザメ,야광상어,Glimmerhai,Requin-Lueur,Tiburón Luz,Tubarão Luz,Squalo Luce,Акулина,Işılköpek
+SPECIES_R47,金螺螺,Gilded,金螺螺,きんいろ貝,금소라,Vergoldet,Doré-Or,Dorado,Dourado,Dorato,Позолота,Yaldızlı
+SPECIES_R48,萤管管,Glowtube,螢管管,ひかりつつ,반딧관,Glühröhre,Tube-Lueur,Tubo Luz,Tubo Luz,Tubo Luce,Светотрубка,Işık Boru
+SPECIES_R49,飞飞鱼,Glider,飛飛魚,グライダー,글라이더,Gleiter,Planeur,Planeador,Planador,Aliante,Планер,Planör
+SPECIES_R50,海苹果,Sea Apple,海蘋果,うみりんご,바다사과,Seeapfel,Pomme-Mer,Manzana Mar,Maçã do Mar,Mela di Mare,Яблочко,Deniz Elması
+SPECIES_R51,冠海胆,Urchin,冠海膽,かんむりウニ,왕관성게,Kroni,Oursin-Roi,Erizo Real,Ouriço Rei,Riccio Re,Морской ёж,Kral Kirpi
+SPECIES_R52,铜铃母,Bell,銅鈴母,銅鈴クラゲ,구리종,Glocke,Cloche,Campana,Sino,Campana,Колокол,Çan
+SPECIES_R53,霜马马,Frostmane,霜馬馬,しもたてがみ,서리갈기,Frostmähne,Crin-Givre,Crin Helada,Crina Gelo,Criniera Gelo,Морозко,Ayaz Yele
+SPECIES_R54,银锦锦,Silverfin,銀錦錦,ぎんにしき,은비단,Silberflosse,Aile-Argent,Plateado,Prateado,Argentino,Серебрянка,Gümüş Yüzgeç
+SPECIES_R55,花冠鳄,Crocrown,花冠鱷,はなワニ,꽃관악어,Kronkroko,Croco-Fleur,Croco Corona,Jacaré Coroa,Coccofiore,Крококорона,Taçlı Timsah
+SPECIES_R56,珠鲎鲎,Pearldome,珠鱟鱟,真珠カブト,진주투구,Perlkuppel,Dôme-Perle,Cúpula Perla,Domo Pérola,Cupola Perla,Шлемик,İnci Kubbe
+SPECIES_R57,萤林鱼,Glowfin,螢林魚,ほたるびれ,반딧지느,Glühflosse,Lumineuse,Aleta Luz,Nadadeira Luz,Pinna Luce,Светоплавник,Işık Yüzgeç
+SPECIES_R58,儒艮仙,Dugong Fairy,儒艮仙,ジュゴンひめ,듀공요정,Dugongfee,Fée-Dugong,Hada Dugongo,Fada Dugongo,Fata Dugongo,Фея-дюгонь,Dugong Perisi
+SPECIES_R59,月光蟹,Moonclaw,月光蟹,つきばさみ,달집게,Mondschere,Pince-Lune,Pinza Lunar,Pinça Lunar,Chela Luna,Клешнюша,Ay Kıskacı
+SPECIES_R60,叶仙虾,Leaf Sprite,葉仙蝦,このはのせい,잎요정,Blattfee,Lutin-Feuille,Hada Hoja,Fada Folha,Fata Foglia,Листовая фея,Yaprak Perisi
+SPECIES_R61,珠螺仙,Pearl Snail,珠螺仙,真珠貝ひめ,진주소라,Perlschnecke,Escarperle,Caracol Perla,Caramujinho,Lumaca Perla,Улитушка,İncigoz
+SPECIES_R62,露珠母,Dewdrop,露珠母,つゆクラゲ,이슬해파리,Tautropfen,Rosée,Rocío,Orvalho,Rugiada,Росинка,Çiy Damlası
+SPECIES_R63,鹭羽鱼,Plume,鷺羽魚,さぎのはね,깃털고기,Federbusch,Panache,Penacho,Penacho,Piumino,Плюмаж,Sorguç
+SPECIES_R64,月冠母,Moon Crown,月冠母,つきかんむり,달왕관,Mondkrone,Tiare-Lune,Corona Lunar,Coroa Lunar,Corona Luna,Лунница,Ay Tacı
+SPECIES_R65,星冠章,Starcrown,星冠章,ほしかんむり,별왕관,Sternkrone,Tiare-Astre,Corona Astral,Coroa Estelar,Corona Stella,Звездица,Yıldız Tacı
+SPECIES_R66,夜明蟹,Night Pearl,夜明蟹,やこうガニ,야명주게,Nachtperle,Perle-Nuit,Perla Noche,Pérola Noite,Perla Notte,Полуночка,Gece İncisi
+SPECIES_R67,萤冠虾,Glow Crown,螢冠蝦,光の冠,빛왕관,Glühkrone,Tiare-Lueur,Corona Luz,Coroa de Luz,Corona Luce,Светокорона,Işık Tacı
+SPECIES_R68,月牙鱼,Crescentfin,月牙魚,みかづきびれ,초승지느,Sichelflosse,Croissant-Fin,Aleta Luna,Nadadeira Lua,Pinna Falce,Серпоплавник,Hilal Yüzgeç
+SPECIES_R69,梦冠豚,Dream Puff,夢冠豚,ゆめかんむり,꿈왕관,Traumkugel,Bouffi-Rêve,Globo Sueño,Baiacu Sonho,Palla Sogno,Сонный пузик,Rüya Balonu
+SPECIES_R70,星光鳐,Starray,星光鰩,ほしエイ,별가오리,Sternrochen,Raie-Étoile,Raya Astral,Raia Astral,Razza Stella,Звездоскат,Yıldız Vatoz
+SPECIES_R71,夜露螺,Night Dew,夜露螺,よつゆ貝,밤이슬,Nachttau,Rosée-Nuit,Rocío Noche,Orvalho Noite,Rugiada Notte,Ночная роса,Gece Çiyi
+SPECIES_R72,银月鹦,Silver Parrot,銀月鸚,ぎんオウム,은앵무,Silberpapagei,Perro-Lune,Loro Plata,Louro Prata,Lorino,Попка,Gümüşkuş
+SPECIES_R73,熔晶蟹,Magma Crab,熔晶蟹,マグマガニ,용암게,Magmakrabbe,Crabe-Magma,Magmín,Siri Lava,Granchio Lava,Магмокраб,Magma Yengeç
+SPECIES_R74,火冠虾,Flame Crown,火冠蝦,炎の冠,불꽃왕관,Flammkrone,Couronne-Feu,Corona Fuego,Coroa Fogo,Corona Fuoco,Жарница,Alev Tacı
+SPECIES_R75,炎珠章,Ember Pearl,炎珠章,ほむらダコ,불씨진주,Glutperle,Perle-Braise,Perla Brasa,Pérola Brasa,Perla Brace,Угольница,Kor İnci
+SPECIES_R76,红玉管虫,Ruby Plume,紅玉管蟲,ルビーはね,루비깃,Rubinfeder,Plume-Rubis,Pluma Rubí,Pluma Rubi,Piuma Rubino,Рубинчик,Yakut Tüy
+SPECIES_R77,金硫鱼,Gold Sulfur,金硫魚,きんいおう,금유황,Goldschwefel,Soufre-Or,Azufre Oro,Enxofre Ouro,Zolfo d’Oro,Золотая сера,Altın Kükürt
+SPECIES_R78,熔光母,Lava Glow,熔光母,溶岩クラゲ,용암빛,Lavaglühen,Lueur-Lave,Luz de Lava,Brilho Lava,Lava Luce,Лавосвет,Lav Işığı
+SPECIES_R79,火山龟,Ember Turtle,火山龜,ほむらガメ,화산거북,Glutkröte,Tortue-Braise,Tortu Brasa,Tartabrasa,Tarta Brace,Черепашка,Korcuk
+SPECIES_R80,炉石螺,Hearthstone,爐石螺,ろばた貝,화로소라,Herdstein,Âtre,Hogar,Lareira,Focolare,Очаг,Ocak Taşı
+SPECIES_R81,焰尾鳐,Flametail,焰尾鰩,ほのおエイ,불꼬리,Flammschweif,Queue-de-Feu,Cola Fuego,Cauda Fogo,Coda Fuoco,Огнехвост,Alev Kuyruk
+SPECIES_R82,神殿蟹,Temple Crab,神殿蟹,しんでんガニ,신전게,Tempelkrabbe,Crabe-Temple,Templario,Templário,Templare,Храмовник,Tapınakçı
+SPECIES_R83,金桂鱼,Gold Laurel,金桂魚,きんげっけい,금월계,Goldlorbeer,Laurier-Or,Laurel Oro,Louro Ouro,Alloro d’Oro,Золотой лавр,Altın Defne
+SPECIES_R84,石灵龟,Stone Spirit,石靈龜,いしのせい,돌정령,Steingeist,Esprit-Pierre,Espíritu,Gnomo,Spirito Pietra,Каменный дух,Taş Ruhu
+SPECIES_R85,圣杯母,Chalice,聖盃母,聖杯クラゲ,성배해파리,Kelch,Calice,Cáliz,Cálice,Calice,Чаша,Kadeh
+SPECIES_R86,王冠鳐,Crown Ray,王冠鰩,おうかんエイ,왕관가오리,Kronrochen,Raie-Tiare,Raya Corona,Arraia Coroa,Razza Corona,Царь-скат,Taç Vatoz
+SPECIES_R87,玉璧鱼,Jade Disc,玉璧魚,ぎょくへき,옥구슬,Jadescheibe,Disque-Jade,Disco Jade,Disco de Jade,Giadina,Нефритик,Yeşim Disk
+SPECIES_R88,宝瓶章,Treasure Jar,寶瓶章,たからつぼ,보물항아리,Schatzkrug,Jarre-Trésor,Ánfora Real,Jarra Tesouro,Anforina,Кубышка,Hazine Testisi
+SPECIES_R89,遗迹海马,Relic Horse,遺跡海馬,いせきタツ,유적해마,Ruinenpferd,Cheval-Rune,Caballito,Relíquia,Cavalluccio,Конёк,Kalıntı Atı
+SPECIES_R90,金币鳗,Coin Eel,金幣鰻,きんかうなぎ,금화장어,Münzaal,Anguille-Sou,Anguila Oro,Enguia Moeda,Monetina,Копеечка,Sikke Yılan
+SPECIES_R91,深渊冠母,Abyss Crown,深淵冠母,深淵の冠,심연왕관,Abgrundkrone,Tiare-Abysse,Abisal,Coroa Abissal,Corona Abisso,Бездна,Uçurum Tacı
+SPECIES_R92,光圈鱼,Haloed,光圈魚,こうりん,후광이,Heiligenschein,Auréole,Aureola,Auréola,Aureola,Нимб,Haleli
+SPECIES_R93,星灯鮟鱇,Star Angler,星燈鮟鱇,ほしアンコウ,별아귀,Sternangler,Lotte-Astre,Rape Astral,Tamboril,Pescatrice,Удильщик,Yıldız Fener
+SPECIES_R94,荧珠虾,Glow Pearl,熒珠蝦,光る真珠,빛진주,Glühperle,Perle-Lueur,Perla Luz,Pérola Luz,Perla Luce,Светожемчуг,Işık İnci
+SPECIES_R95,暗月章,Dark Moon,暗月章,やみつきダコ,어둠달,Dunkelmond,Lune-Noire,Luna Negra,Lua Escura,Luna Scura,Тёмная луна,Kara Ay
+SPECIES_R96,珠光鳗,Pearl Eel,珠光鰻,真珠うなぎ,진주장어,Perlenaal,Anguiperle,Anguila Perla,Enguia Pérola,Anguiperla,Жемчужник,İnci Yılan
+SPECIES_R97,晶眼鱼,Crystal Eye,晶眼魚,すいしょうめ,수정눈,Kristallauge,Œil-Cristal,Ojo Cristal,Olho Cristal,Sguardo,Глазок,Kristal Göz
+SPECIES_R98,夜光参,Night Cuke,夜光參,よるなまこ,밤해삼,Nachtgurke,Holonuit,Pepino Noche,Pepino Noite,Notturno,Сумрак,Gece Hıyarı
+SPECIES_R99,银冠蛛,Silver Spider,銀冠蛛,ぎんかんグモ,은관거미,Silberspinne,Toile-Argent,Araña Plata,Aranha Prata,Ragnetto,Паучок,Gümüşağ
+SPECIES_R100,星冠鲸,Star Crown,星冠鯨,星冠クジラ,별관고래,Sternenkrone,Astrocet,Ballena Rey,Baleia Coroa,Balena Re,Венец,Yıldız Taç
+SPECIES_R101,银河马,Galaxy Pony,銀河馬,ぎんがポニー,은하포니,Galaxiepony,Astroponey,Poni Galaxia,Pônei Galáxia,Pony Galassia,Галапони,Galaksi Pony
+SPECIES_R102,月冠鳐,Moon Ray,月冠鰩,つきエイ,달가오리,Mondroch,Raie-de-Lune,Raya Lunar,Arraia Lunar,Razza Lunare,Лунатик,Ay Vatozu
+SPECIES_R103,星钻蟹,Gem Crab,星鑽蟹,ほうせきガニ,보석게,Juwelkrabbe,Crabe-Gemme,Cangrejoya,Siri Joia,Gemmino,Самоцвет,Mücevher
+SPECIES_R104,彗星章,Comet Octo,彗星章,すいせいダコ,혜성문어,Kometenarm,Poulpastre,Pulpo Cometa,Polvo Cometa,Polpo Cometa,Спрутик,Kuyrukçu
+SPECIES_R105,极光鱼,Aurora Fish,極光魚,オーロラうお,오로라,Polarlicht,Boréale,Aurora,Aurorinha,Aurora,Сияние,Kutup Işığı
+SPECIES_R106,星珠母,Star Pearl,星珠母,ほしたま,별진주,Sternperle,Perle-Astrale,Perla Astro,Pérola Astral,Perla Stella,Звёздинка,Yıldız İnci
+SPECIES_R107,星梦豚,Star Dream,星夢豚,ほしゆめ,별꿈이,Sterntraum,Rêve-Étoile,Sueño Astral,Sonho Estelar,Sogno Stella,Звёздный сон,Yıldız Rüya
+SPECIES_R108,星鹅鱼,Swanfin,星鵝魚,星の白鳥,별백조,Schwanflosse,Cygne,Cisne,Cisne,Cigno,Лебедь,Kuğu
+SPECIES_R109,樱冠鲤,Bloom Carp,櫻冠鯉,さくらゴイ,벚꽃잉어,Blütenkarpf,Carpe-Fleur,Carpa Flor,Carpa Flor,Carpa Fiore,Карпик,Çiçek Sazan
+SPECIES_R110,珠樱虾,Pearl Sakura,珠櫻蝦,真珠ざくら,진주벚꽃,Perlkirsche,Sakura-Perle,Perla Sakura,Pérola Sakura,Perla Sakura,Сакурка,İnci Sakura
+SPECIES_R111,花仙章,Petal Fairy,花仙章,花の妖精,꽃요정,Blütenfee,Fée-Pétale,Hada Pétalo,Fada Pétala,Fata Petalo,Цветуша,Peri Kızı
+SPECIES_R112,月樱鳐,Bloom Ray,月櫻鰩,さくらエイ,벚꽃가오리,Blütenroch,Raie-Fleur,Raya Flor,Arraia Flor,Razza Fiore,Цветоскат,Çiçek Vatoz
+SPECIES_R113,春灯鲷,Lamp Bream,春燈鯛,はるあかり,봄등불,Lampenbrasse,Dorade-Lampe,Besugo Farol,Pargo Luz,Orata Lume,Фонарщик,Fener Mercan
+SPECIES_R114,樱珠蟹,Bloom Crab,櫻珠蟹,さくらガニ,벚꽃게,Blütenkrabbe,Crabe-Fleur,Cangrejo Flor,Siri Flor,Granfiore,Цветокраб,Çiçek Yengeç
+SPECIES_R115,花冠兔,Bloom Bunny,花冠兔,はなうさぎ,꽃토끼,Blütenhase,Lapin-Fleur,Conejo Flor,Coelho Flor,Leprotto,Зайчик,Çiçek Tavşan
+SPECIES_R116,露珠龟,Dew Turtle,露珠龜,つゆガメ,이슬거북,Tauschildi,Tortue-Rosée,Tortu Rocío,Orvalhinha,Tarta Rugiada,Росянка,Çiyli
+SPECIES_R117,柳叶鱼,Willow,柳葉魚,やなぎっこ,버들이,Weidi,Saule,Sauce,Salgueiro,Salice,Ивушка,Söğüt
+SPECIES_R118,珠灯蟹,Lamplight,珠燈蟹,ともしびガニ,등불게,Lampenlicht,Lumignon,Candil,Candeeiro,Lumicino,Светильник,Kandilci
+SPECIES_R119,宝袋鱼,Pouchy,寶袋魚,たからぶくろ,보물주머니,Beutelchen,Bourse-d’Or,Bolsa Tesoro,Bolsa Tesouro,Borsa Tesoro,Мешочек,Hazine Kesesi
+SPECIES_R120,霓灯章,Neon Octo,霓燈章,ネオンダコ,네온문어,Neonarm,Poulpe-Néon,Pulpo Neón,Polvo Neon,Polpo Neon,Неончик,Neon Ahtapot
+SPECIES_R121,珠伞鱿,Pearl Squid,珠傘魷,しんじゅイカ,진주오징어,Perlkalmar,Calmar-Perle,Perlamar,Lula Pérola,Perlamaro,Кальмарчик,İnci Kalamar
+SPECIES_R122,银鲳仙,Silver Pompy,銀鯧仙,ぎんマナ,은병어,Silberpompi,Pampargent,Platita,Pampo Prata,Pampino,Серебрик,Gümüşçük
+SPECIES_R123,茶仙虾,Tea Sprite,茶仙蝦,おちゃのせい,차요정,Teefee,Fée-du-Thé,Hada del Té,Fada do Chá,Fata del Tè,Чайная фея,Çay Perisi
+SPECIES_R124,灯会豚,Lantern Puff,燈會豚,灯ろうイルカ,연등돌고래,Laternkugel,Lampouffi,Farolón,Baiacu Luz,Lanternone,Фонарушка,Fener Balon
+SPECIES_R125,花帽鲷,Petal Bream,花帽鯛,はなダイひめ,꽃모자돔,Blütenbrasse,Dorapétale,Besuflor,Pargo Pétala,Orata Petalo,Лещинка,Taçlı Mercan
+SPECIES_R126,珠贝商,Pearl Mussel,珠貝商,真珠商人,진주상인,Perlhändler,Moule-Perle,Mejiperla,Perolinho,Cozza Perla,Купчик,İnci Tüccar
+SPECIES_R127,云冠豚,Cloud Crown,雲冠豚,くもかんむり,구름왕관,Wolkenkrone,Couronne-Ciel,Corona Nube,Coroa Nuvem,Corona Nuvola,Тучка,Bulut Tacı
+SPECIES_R128,虹珠马,Prism Pearl,虹珠馬,プリズム,프리즘,Prisma,Prisme,Prisma,Prisma,Prisma,Призма,Prizma
+SPECIES_R129,天使鳐,Sky Angel,天使鰩,そらてんし,하늘천사,Himmelsengel,Ange-du-Ciel,Ángel Celeste,Anjo do Céu,Celestina,Ангелина,Gök Meleği
+SPECIES_R130,晴光鱼,Sunbeam,晴光魚,ひだまり,햇살이,Sonnenstrahl,Rayon,Rayo de Sol,Raio de Sol,Solicello,Лучик,Güneş Işını
+SPECIES_R131,雨珠母,Raindrop,雨珠母,あまつゆ,빗방울,Regentropfen,Goutte-Pluie,Gota Lluvia,Chuvinha,Piovina,Дождинка,Yağmur Tanesi
+SPECIES_R132,羽冠龟,Plume Turtle,羽冠龜,はねかんむり,깃관거북,Federschild,Tortue-Plume,Tortu Pluma,Tartapluma,Tarta Piuma,Пернатка,Tüycük
+SPECIES_R133,云纱章,Veil Octo,雲紗章,ヴェールダコ,면사포문어,Schleierarm,Poulpe-Voile,Pulpo Velo,Polvo Véu,Polpo Velo,Вуаль-спрут,Peçeli
+SPECIES_R134,珠云蟹,Cloud Pearl,珠雲蟹,くもしんじゅ,구름진주,Wolkenperle,Perle-Nuage,Perla Nube,Pérola Nuvem,Perla Nuvola,Облачинка,Bulut İnci
+SPECIES_R135,霞光虾,Dawn Shrimp,霞光蝦,あさやけエビ,노을새우,Morgenkrebs,Aurorette,Gamba Alba,Auroral,Gambero Alba,Зорька,Şafak Karides
+SPECIES_R136,珠后蝶,Pearl Belle,珠後蝶,しんじゅひめ,진주아씨,Perlbelle,Belle-Perle,Bella Perla,Bela Pérola,Bella Perla,Красава,İnci Güzeli
+SPECIES_R137,虹贝章,Opal Octo,虹貝章,オパールダコ,오팔문어,Opalarm,Poulpe-Opale,Pulpo Ópalo,Polvo Opala,Polpo Opale,Опалик,Opal Ahtapot
+SPECIES_R138,月珠鳗,Moon Eel,月珠鰻,つきうなぎ,달장어,Mondaal,Anguille-Lune,Anguila Luna,Enguia Lua,Anguilla Luna,Лунный угорь,Ay Yılanı
+SPECIES_R139,珠贝仙,Shell Fairy,珠貝仙,貝の妖精,조개요정,Muschelfee,Fée-Coquille,Hada Concha,Fada Concha,Fata Guscio,Феечка,Kabuk Perisi
+SPECIES_R140,银鲍鲍,Silver Abby,銀鮑鮑,ぎんアワビ,은전복,Silberabby,Ormargent,Abby Plata,Abby Prata,Abby Argento,Серебрушко,Gümüş Abby
+SPECIES_R141,星珠虾,Starbead,星珠蝦,ほしビーズ,별구슬,Sternperli,Perle-Astre,Cuenta Astral,Conta Astral,Perlina Stella,Бусинка,Yıldız Boncuk
+SPECIES_R142,粉珠母,Rose Pearl,粉珠母,ばらしんじゅ,장미진주,Rosenperle,Perle-Rose,Perla Rosa,Pérola Rosa,Perla Rosa,Розалия,Gül İnci
+SPECIES_R143,珠冠蟹,Pearl Crown,珠冠蟹,しんじゅかん,진주왕관,Perlkrone,Tiare-Perle,Corona Perla,Coroa Pérola,Corona Perla,Диадема,İnci Taç
+SPECIES_R144,雪珠兔,Snow Pearl,雪珠兔,ゆきだま,눈진주,Schneeperle,Perle-Neige,Perla Nieve,Pérola Neve,Perla Neve,Снежана,Kar İncisi
+SPECIES_R145,金钟螺,Gold Shell,金鐘螺,きんのかね,금종소라,Goldglocke,Cloche-Or,Campana Oro,Sino de Ouro,Dorata,Златозвон,Altın Çan
+SPECIES_R146,时光鱼,Timekeeper,時光魚,ときのばん,시간지기,Zeitwächter,Horloger,Relojero,Relojoeiro,Orologiaio,Часовщик,Zaman Bekçisi
+SPECIES_R147,铜冠虾,Brass Prawn,銅冠蝦,真鍮エビ,놋쇠새우,Messingkrebs,Laitonnette,Gamba Latón,Latãozinho,Ottonino,Латунька,Pirinç Karides
+SPECIES_R148,星齿章,Star Gear,星齒章,ほしギア,별톱니,Sternzahnrad,Rouage-Étoile,Rueda Astral,Astrorroda,Astroruota,Звёздозуб,Yıldız Dişli
+SPECIES_R149,钟楼蟹,Clocktower,鐘樓蟹,とけいとう,시계탑게,Uhrturm,Beffroi,Campanario,Relogião,Campanile,Курант,Saat Kulesi
+SPECIES_R150,月轮母,Moonwheel,月輪母,つきぐるま,달바퀴,Mondrad,Roue-Lune,Rueda Lunar,Roda Lunar,Ruota Luna,Луноход,Ay Çarkı
+SPECIES_R151,银机龟,Silver Turtle,銀機龜,ぎんきかい,은기계,Silberschild,Tortargent,Tortu Plata,Tartaprata,Tartargento,Тортилла,Gümüşsırt
+SPECIES_R152,琥珀蝠,Amber,琥珀蝠,こはく,호박박쥐,Bernstein,Ambre,Ámbar,Âmbar,Ambra,Янтарь,Kehribar
+SPECIES_R153,发条仙,Windup Fairy,發條仙,ねじまきひめ,태엽요정,Aufziehfee,Fée-Ressort,Hada Cuerda,Fada Corda,Fata Carillon,Заводная фея,Kurmalı Peri
+SPECIES_R154,歌后鲸,Diva Whale,歌后鯨,歌姫クジラ,디바고래,Diva-Wal,Diva,Diva,Diva,Diva,Дива-кит,Diva Balina
+SPECIES_R155,竖琴仙,Harp Fairy,豎琴仙,ハープのせい,하프요정,Harfenfee,Fée-Harpe,Hada Arpa,Fada Harpa,Fata Arpa,Арфовая фея,Arp Perisi
+SPECIES_R156,星鼓蟹,Star Drum,星鼓蟹,ほしだいこ,별북게,Sterntrommel,Tam-Tam,Tambor Astral,Tambor Astral,Rullante,Барабашка,Yıldız Davul
+SPECIES_R157,银铃母,Silver Bell,銀鈴母,ぎんのすず,은방울,Silberglocke,Clochargent,Tintineo,Sino de Prata,Squilla,Динь-динь,Gümüş Çan
+SPECIES_R158,月光号,Moon Horn,月光號,つきぶえ,달나팔,Mondhorn,Cor-de-Lune,Cuerno Lunar,Trompa Lunar,Corno Luna,Лунный рог,Ay Borusu
+SPECIES_R159,和声豚,Harmony,和聲豚,ハーモニー,하모니,Harmonie,Harmonie,Armonía,Harmonia,Armonia,Гармония,Ahenk
+SPECIES_R160,金笛鳗,Golden Flute,金笛鰻,きんのふえ,금피리,Goldflöte,Flûte-d’Or,Flauta Oro,Flauta Ouro,Flauto d’Oro,Флейточка,Altın Flüt
+SPECIES_R161,晨曲螺,Dawn Song,晨曲螺,あさのうた,새벽노래,Morgenlied,Aubade,Alborada,Alvorada,Mattutino,Утренница,Şafak Şarkısı
+SPECIES_R162,舞会章,Ball Dancer,舞會章,ぶとうかい,무도회,Ballerina,Danseur,Bailarina,Bailarina,Ballerina,Танцовщица,Balerin
+SPECIES_E01,晶背宝,Crystal Back,晶背寶,クリスタル,수정등,Kristallrücken,Dos-Cristal,Lomo Cristal,Vitral,Vetrata,Хрусталь,Kristal Sırt
+SPECIES_E02,星披披,Star Cape,星披披,ほしマント,별망토,Sternumhang,Cape-Étoile,Capa Astral,Capa Astral,Astromanto,Звездоплащ,Pelerinli
+SPECIES_E03,珠角团,Pearl Horn,珠角團,しんじゅづの,진주뿔,Perlhorn,Corne-Perle,Cuerno Perla,Chifre Pérola,Corno Perla,Рожок,İnci Boynuz
+SPECIES_E04,云冠鲨,Cloud Shark,雲冠鯊,くもザメ,구름상어,Wolkenhai,Requin-Nuage,Tiburón Nube,Nimbo,Squalo Nuvola,Грозовик,Bulutköpek
+SPECIES_E05,珠旋旋,Pearl Swirl,珠旋旋,しんじゅうず,진주소용돌,Perlwirbel,Spirale-Perle,Remoperla,Redemoinho,Spirale Perla,Вихрь,İnci Girdap
+SPECIES_E06,宝晶蟹,Gemshell,寶晶蟹,ほうせき貝,보석껍질,Juwelpanzer,Gemmecoque,Concha Joya,Concha Joia,Guscio Gemma,Панцирь,Taşkabuk
+SPECIES_E07,日冕马,Sunmane,日冕馬,たいようタツ,태양갈기,Sonnenmähne,Crin-Soleil,Melena Solar,Juba Solar,Criniera Sole,Солнцегрив,Güneş Yele
+SPECIES_E08,星砂灵,Stardust,星砂靈,ほしのすな,별모래,Sternstaub,Stellaire,Polvo Astral,Pó de Estrela,Pulviscolo,Звездопыль,Tozruhu
+SPECIES_E09,珠后贝,Pearl Queen,珠後貝,真珠の女王,진주여왕,Perlkönigin,Reine-Perle,Reina Perla,Rainha Pérola,Regina Perla,Царица,İnci Kraliçe
+SPECIES_E10,珊瑚龙,Coral Dragon,珊瑚龍,サンゴりゅう,산호용,Riffdrache,Dragon-Corail,Dragón Coral,Dragão Coral,Drago Corallo,Змей Риф,Mercan Ejder
+SPECIES_E11,琉璃鹦,Prism,琉璃鸚,るりオウム,유리앵무,Prismi,Prisma,Prismático,Prismado,Prismino,Призмик,Prizmacık
+SPECIES_E12,宝石葵,Jewelia,寶石葵,ほうせきイソ,보석꽃,Juwelia,Joyau,Joyita,Joinha,Gioiellina,Самоцветка,Mücevherli
+SPECIES_E13,光蝶蝶,Lumina,光蝶蝶,ひかりちょう,빛나비,Lumina,Lumina,Lúmina,Lúmina,Lumina,Люмина,Lumina
+SPECIES_E14,翡翠龙,Emerald,翡翠龍,エメラルド,에메랄드,Smaragd,Émeraude,Esmeralda,Esmeralda,Smeraldo,Изумруд,Zümrüt
+SPECIES_E15,獭王王,Otter King,獺王王,ラッコキング,수달왕,Otterkönig,Roi-Loutre,Rey Nutria,Rei Lontra,Re Lontra,Король выдр,Susamuru Kral
+SPECIES_E16,极光母,Aurora,極光母,オーロラ,오로라여왕,Aurora,Aurora,Aurora Real,Aurora Real,Aurora Regina,Аврора,Aurora
+SPECIES_E17,星鲍鲍,Galaxy,星鮑鮑,ぎんがアワビ,은하전복,Galaxie,Galaxie,Galaxia,Galáxia,Galassia,Галактика,Galaksi
+SPECIES_E18,金阳星,Sunburst,金陽星,サンバースト,햇살폭발,Sonnenstoß,Éclat-Soleil,Estallido,Clarão,Esplosione,Сполох,Patlangaç
+SPECIES_E19,宝龙龙,Hoard,寶龍龍,たからりゅう,보물용,Hortdrache,Dragor,Dragón Oro,Dragão Ouro,Drago Tesoro,Дракон-клад,Hazine Ejder
+SPECIES_E20,幽灵帆,Phantom Sail,幽靈帆,ゆうれいせん,유령돛,Geistersegel,Voile-Fantôme,Vela Fantasma,Vela Fantasma,Vela Fantasma,Парусник,Yelkenli
+SPECIES_E21,金锚章,Anchora,金錨章,きんのいかり,금닻문어,Ankerkönig,Ancre-d’Or,Ancla de Oro,Âncora Ouro,Ancora d’Oro,Златоякорь,Altın Çapa
+SPECIES_E22,冰后母,Ice Queen,冰後母,氷の女王,얼음여왕,Eiskönigin,Reine-Glace,Reina Hielo,Rainha Gelo,Regina Gelo,Льдица,Buz Kraliçesi
+SPECIES_E23,晶企鹅,Frost Knight,晶企鵝,しもナイト,서리기사,Frostritter,Frimas,Caballero,Cavaleiro,Cavaliere,Рыцарь,Ayaz Şövalye
+SPECIES_E24,极光鲸,Borealis,極光鯨,ボレアリス,북극광고래,Borealis,Boréal,Boreal,Boreal,Boreale,Борей,Boreal
+SPECIES_E25,钻石蟹,Diamond,鑽石蟹,ダイヤガニ,다이아게,Diamant,Diamant,Diamante,Diamante,Diamante,Алмаз,Elmas
+SPECIES_E26,龙王王,Dragon King,龍王王,りゅうおう,용왕,Drachenkönig,Roi-Dragon,Rey Dragón,Rei Dragão,Re Drago,Царь-змей,Ejder Kral
+SPECIES_E27,宫灯后,Lamp Queen,宮燈後,提灯ひめ,초롱여왕,Lampenkönig,Reine-Lampe,Reina Farol,Rainha Luz,Regina Lume,Фонарица,Fener Kraliçe
+SPECIES_E28,凤羽鱼,Phoenix,鳳羽魚,ほうおう,봉황,Phönix,Phénix,Fénix,Fênix,Fenice,Феникс,Anka
+SPECIES_E29,星云章,Nebula,星雲章,ネビュラ,성운문어,Nebula,Nébuleuse,Nebulosa,Nebulosa,Nebulosa,Туманность,Nebula
+SPECIES_E30,月神马,Selene,月神馬,セレーネ,셀레네,Selene,Séléné,Selene,Selene,Selene,Селена,Selene
+SPECIES_E31,翡根龙,Rootdragon,翡根龍,ねっこりゅう,뿌리용,Wurzeldrache,Dragon-Racine,Dragón Raíz,Dragão Raiz,Drago Radice,Корнедракон,Kök Ejder
+SPECIES_E32,金鳄王,Croc King,金鱷王,ワニキング,악어왕,Krokokönig,Roi-Croco,Rey Croco,Rei Jacaré,Re Cocco,Крокодилыч,Timsah Kral
+SPECIES_E33,萤光鲎,Glow Dome,螢光鱟,ひかりカブト,빛투구,Glühkuppel,Dôme-Lueur,Cúpula Luz,Domo de Luz,Cupola Luce,Светокупол,Işık Kubbe
+SPECIES_E34,森灵儒艮,Grove Spirit,森靈儒艮,もりのせい,숲정령,Hainsgeist,Sylvain,Silvano,Silvano,Spirito Bosco,Дух рощи,Koru Ruhu
+SPECIES_E35,宝根蟹,Jewel Crab,寶根蟹,宝根ガニ,보석뿌리게,Juwelkrebs,Crabe-Joyau,Cangregema,Siri Gema,Gioiello,Самоцветик,Cevherci
+SPECIES_E36,月华龙,Moon Dragon,月華龍,つきりゅう,달용,Monddrache,Dragon-Lune,Dragón Lunar,Dragão Lunar,Drago Luna,Луноящер,Ay Ejderi
+SPECIES_E37,星河鳐,Galaxy Ray,星河鰩,ぎんがエイ,은하가오리,Galaxieroch,Raie-Galaxie,Raya Galaxia,Galáctica,Galattica,Галактик,Galaksi Vatoz
+SPECIES_E38,夜后章,Night Queen,夜後章,夜の女王,밤여왕,Nachtkönig,Reine-Nuit,Reina Noche,Noturna,Regina Notte,Ночница,Gece Hanım
+SPECIES_E39,萤光凤,Firebird,螢光鳳,ひのとり,불새,Feuervogel,Oiseau-Feu,Pájaro Fuego,Fogaréu,Fiammante,Жар-птица,Ateş Kuşu
+SPECIES_E40,月宫兔,Moon Rabbit,月宮兔,つきうさぎ,달토끼,Mondhase,Lapin-Lune,Conejo Lunar,Coelho Lunar,Coniglio Luna,Лунный заяц,Ay Tavşanı
+SPECIES_E41,熔岩龙,Lava Dragon,熔岩龍,溶岩竜,용암용,Lavadrache,Dragon-Lave,Dragón Lava,Dragão Lava,Drago Lava,Лавоящер,Lav Ejderi
+SPECIES_E42,炎晶鲸,Lava Whale,炎晶鯨,溶岩クジラ,용암고래,Lavawal,Baleine-Lave,Ballena Lava,Baleia Lava,Balena Lava,Лавовый кит,Lav Balinası
+SPECIES_E43,火山神蟹,Volcano Lord,火山神蟹,かざんおう,화산군주,Vulkanfürst,Volcanor,Señor Volcán,Senhor Vulcão,Vulcanio,Вулкан,Yanardağ
+SPECIES_E44,熔金章,Molten Gold,熔金章,とけたきん,녹은황금,Flüssiggold,Or-Fondu,Oro Fundido,Fundição,Oro Fuso,Злато,Erimiş Altın
+SPECIES_E45,红宝管,Ruby Spire,紅寶管,ルビーのとう,루비탑,Rubinturm,Flèche-Rubis,Aguja Rubí,Torre Rubi,Guglia Rubino,Шпиль,Yakut Kule
+SPECIES_E46,守护石龙,Stone Wyrm,守護石龍,いしりゅう,돌용,Steinwurm,Vouivre,Sierpe,Serpe Pedra,Viverna,Камнезмей,Taş Ejder
+SPECIES_E47,太阳神龟,Sun Turtle,太陽神龜,たいようガメ,태양거북,Sonnenkröte,Tortue-Soleil,Tortu Solar,Tartaruga Sol,Tarta Sole,Ярило,Güneşli
+SPECIES_E48,黄金面具鱼,Golden Mask,黃金面具魚,黄金仮面,황금가면,Goldmaske,Masque-d’Or,Máscara Oro,Mascarado,Mascherone,Маскарад,Altın Maske
+SPECIES_E49,圣杯水母,Grail Jelly,聖盃水母,せいはいひめ,성배여왕,Gralsqualle,Méduse-Graal,Medusa Grial,Medusa Graal,Medusa Graal,Грааль,Kadehçik
+SPECIES_E50,水晶神鳐,Crystal Ray,水晶神鰩,水晶エイ,수정가오리,Kristallroch,Raie-Cristal,Raya Cristal,Arraia Cristal,Razza Vetro,Стеклоскат,Kristal Vatoz
+SPECIES_E51,深渊龙,Deep Dragon,深淵龍,深海竜,심해용,Tiefdrache,Abyssagon,Abisaurio,Abissal,Drago Abisso,Пучинник,Derin Ejder
+SPECIES_E52,鮟鱇王,Angler King,鮟鱇王,アンコウおう,아귀왕,Anglerkönig,Roi-Baudroie,Rey Rape,Rei Tamboril,Re Pescatrice,Рыбоцарь,Fener Kral
+SPECIES_E53,幽光鲸,Ghost Whale,幽光鯨,幽霊クジラ,유령고래,Geisterwal,Spectrale,Espectral,Fantasmona,Spettrale,Кит-призрак,Ruh Balina
+SPECIES_E54,极光鱿,Aurora Squid,極光魷,オーロライカ,오로라오징어,Aurorakalmar,Calmaurore,Auroramar,Lula Aurora,Aurorino,Сиялка,Kutup Kalamar
+SPECIES_E55,虹光管母,Glow Siphon,虹光管母,ひかりクダ,빛관해파리,Glühsiphon,Siphon-Lueur,Sifón Luz,Sifão de Luz,Sifone Luce,Светосифон,Işık Sifon
+SPECIES_E56,星河龙,Star Dragon,星河龍,ほしりゅう,별용,Sterndrache,Dragon-Étoile,Dragón Astral,Estelar,Drago Stella,Звездозмей,Yıldız Ejder
+SPECIES_E57,宇宙鲸王,Space Whale,宇宙鯨王,宇宙クジラ,우주고래,Weltraumwal,Cosmocète,Cósmica,Cósmica,Cosmica,Космокит,Uzay Balinası
+SPECIES_E58,太阳鳐,Solar Ray,太陽鰩,たいようエイ,태양가오리,Sonnenroch,Raie-Solaire,Raya Solar,Arraia Solar,Razza Solare,Солнцескат,Güneş Vatoz
+SPECIES_E59,星环章,Ring Lord,星環章,わっかのおう,고리군주,Ringfürst,Annelor,Señor Anillo,Senhor Anel,Signore Anelli,Кольцевик,Halka Lordu
+SPECIES_E60,极光天马,Aurora Steed,極光天馬,オーロラ天馬,오로라천마,Polarross,Pégaurore,Corcel Aurora,Corcel Aurora,Destriero,Конь-сияние,Aurora Atı
+SPECIES_E61,樱龙龙,Bloom Wyrm,櫻龍龍,さくらりゅう,벚꽃용,Blütenwurm,Vouivre-Fleur,Sierpe Flor,Serpe Flor,Viverna Fiore,Цветозмей,Çiçek Ejder
+SPECIES_E62,金鲤王,Carp King,金鯉王,コイのおう,잉어왕,Karpfkönig,Roi-Carpe,Rey Carpa,Rei Carpa,Re Carpa,Карп-царь,Sazan Kral
+SPECIES_E63,花神鳐,Flora Ray,花神鰩,はなのエイ,꽃가오리,Florarochen,Raie-Flore,Raya Flora,Arraia Flora,Razza Flora,Скат Флоры,Flora Vatoz
+SPECIES_E64,樱晶蟹,Rose Quartz,櫻晶蟹,ローズ水晶,장미수정,Rosenquarz,Quartz-Rose,Cuarzo Rosa,Quartzo Rosa,Quarzo Rosa,Кварцик,Pembe Kuvars
+SPECIES_E65,春之鲸,Spring Whale,春之鯨,はるクジラ,봄고래,Frühlingswal,Printanière,Primavera,Primavera,Primavera,Весенний кит,Baharcı
+SPECIES_E66,灯王龙,Lamp Wyrm,燈王龍,ランタン竜,등불용,Lampenwurm,Lampivre,Sierpe Farol,Serpe Luz,Viverna Lume,Светозмей,Fener Ejder
+SPECIES_E67,宝市鲸,Trade Whale,寶市鯨,いちばクジラ,장터고래,Handelswal,Marchande,Ballena Feria,Baleia Feira,Mercantina,Торговый кит,Pazarcı
+SPECIES_E68,招财蟹,Fortune Crab,招財蟹,まねきガニ,복덩이게,Glückskrabbe,Fortunelle,Suertudo,Sortudo,Fortunello,Краб удачи,Talih Yengeci
+SPECIES_E69,琉璃章,Glass Octo,琉璃章,ガラスダコ,유리문어,Glasarm,Poulpe-Verre,Pulpo Cristal,Polvo Vidro,Polpo Vetro,Стекляш,Cam Ahtapot
+SPECIES_E70,宝灯鳐,Jewel Ray,寶燈鰩,ほうせきエイ,보석가오리,Juwelroch,Raie-Joyau,Raya Joya,Arraia Joia,Razza Gioiello,Яхонт,Taşvatoz
+SPECIES_E71,云龙龙,Sky Dragon,雲龍龍,そらりゅう,하늘용,Himmeldrache,Dragon-Ciel,Dragón Cielo,Dragão Céu,Drago Cielo,Небозмей,Gök Ejder
+SPECIES_E72,天空鲸,Sky Whale,天空鯨,そらクジラ,하늘고래,Himmelswal,Baleine-Ciel,Ballena Cielo,Baleia Céu,Balena Cielo,Небесный кит,Gök Balinası
+SPECIES_E73,彩虹鳐,Rainbow Ray,彩虹鰩,にじエイ,무지개가오리,Bogenrochen,Raie-Iris,Raya Arcoíris,Raia Íris,Razza Iride,Радужник,Alaca
+SPECIES_E74,雷光豚,Thunder,雷光豚,いかずち,번개돌고래,Donner,Tonnerre,Trueno,Trovão,Tuono,Гром,Gök Gürültüsü
+SPECIES_E75,日轮马,Sun Steed,日輪馬,にちりんま,해바퀴말,Sonnenross,Pégasol,Corcel Solar,Corcel Solar,Corsiero,Златогрив,Güneş Atı
+SPECIES_E76,珍珠龙,Pearl Dragon,珍珠龍,真珠竜,진주용,Perldrache,Dragon-Perle,Dragón Perla,Perolão,Drago Perla,Перлозмей,İnci Ejder
+SPECIES_E77,砗磲王,Clam King,硨磲王,シャコおう,조개왕,Muschelkönig,Roi-Bénitier,Rey Almeja,Rei Marisco,Re Vongola,Ракушкин,Midye Kral
+SPECIES_E78,宝珠鲸,Orb Whale,寶珠鯨,たまクジラ,구슬고래,Kugelwal,Baleine-Orbe,Ballena Orbe,Baleia Orbe,Balena Sfera,Кит-сфера,Küre Balina
+SPECIES_E79,欧泊鳐,Opal Ray,歐泊鰩,オパールエイ,오팔가오리,Opalrochen,Raie-Opale,Raya Ópalo,Arraia Opala,Razza Opale,Опалоскат,Opal Vatoz
+SPECIES_E80,皇冠蝶,Crown Fly,皇冠蝶,王冠ちょう,왕관나비,Kronfalter,Papillon-Roi,Mariposa Rey,Borboleta Rei,Farfalla Re,Царевна,Taç Kelebek
+SPECIES_E81,机械龙,Clock Dragon,機械龍,からくり竜,태엽용,Uhrdrache,Horlogon,Dragón Reloj,Cronos,Cronodrago,Часозмей,Saat Ejderi
+SPECIES_E82,钟表鲸,Clock Whale,鐘錶鯨,とけいクジラ,시계고래,Uhrwal,Horlocète,Ballena Reloj,Ponteiro,Pendolina,Часовой кит,Saat Balinası
+SPECIES_E83,齿轮王,Gear King,齒輪王,はぐるまおう,톱니왕,Zahnradkönig,Roi-Rouage,Rey Rueda,Rei Roda,Re Rotella,Шестерняк,Dişli Kral
+SPECIES_E84,星轨螺,Orbit Shell,星軌螺,きどう貝,궤도소라,Orbitschnecke,Orbicoque,Concha Órbita,Concha Órbita,Guscio Orbita,Орбитка,Yörüngeci
+SPECIES_E85,晶钟母,Crystal Bell,晶鐘母,水晶の鈴,수정종,Kristallglocke,Cristelle,Campanil,Sino Cristal,Tintinnio,Звонница,Kristal Çan
+SPECIES_E86,乐章龙,Song Dragon,樂章龍,うたりゅう,노래용,Lieddrache,Dragon-Chant,Trovador,Trovador,Drago Canto,Песнозмей,Şarkı Ejderi
+SPECIES_E87,天籁鲸,Choir Whale,天籟鯨,せいかクジラ,합창고래,Chorwal,Chorale,Ballena Coro,Baleia Coral,Balena Coro,Хоровой кит,Koro Balinası
+SPECIES_E88,金琴蟹,Lyre King,金琴蟹,たてごとおう,하프왕게,Leierkönig,Roi-Lyre,Rey Lira,Rei Lira,Re Lira,Король лиры,Lir Kral
+SPECIES_E89,歌光母,Aurora Song,歌光母,オーロラ歌,오로라노래,Lichtgesang,Chant-Aurore,Canto Aurora,Canto Aurora,Canto Aurora,Песня сияния,Ezgi
+SPECIES_E90,晶琴马,Crystal Harp,晶琴馬,水晶ハープ,수정하프,Kristallharfe,Harpe-Cristal,Arpa Cristal,Harpa Cristal,Arpa Vetro,Хрусталина,Kristal Arp
+SPECIES_L01,曦尾锦,Dawn Koi,曦尾錦,あかつきゴイ,새벽비단잉어,Morgenkoi,Koï-Aurore,Koi del Alba,Koi da Aurora,Koi dell’Alba,Зорянка,Şafak Koi
+SPECIES_L02,月眠鲸,Moon Whale,月眠鯨,月眠クジラ,달잠고래,Mondschlafwal,Baleine-Lune,Ballena Lunar,Baleia Lunar,Balena Luna,Лунный кит,Ay Balinası
+PROFILE_CHANGE_AVATAR,换头像,Change,換頭像,変更,변경,Ändern,Changer,Cambiar,Trocar,Cambia,Сменить,Değiştir
+PROFILE_PICK_AVATAR,选头像,Avatar,選頭像,アイコン,프로필 사진,Profilbild,Avatar,Avatar,Avatar,Avatar,Аватар,Avatar
+PROFILE_DEFAULT_AVATAR,默认,Default,預設,デフォルト,기본,Standard,Par défaut,Predeterminado,Padrão,Predefinito,Обычный,Varsayılan
+UI_TAB_TASKS,任务,Tasks,任務,クエスト,미션,Aufgaben,Missions,Misiones,Missões,Missioni,Задания,Görevler
+TASK_TITLE,任务,Tasks,任務,クエスト,미션,Aufgaben,Missions,Misiones,Missões,Missioni,Задания,Görevler
+TASK_GO,前往,Go,前往,GO,가기,Los,Go,Ir,Ir,Vai,Вперёд,Git
+TASK_NAME_WIN,过 %d 关,Win %d levels,過 %d 關,%dステージクリア,레벨 %d개 클리어,%d Level schaffen,Réussir %d niveaux,Supera %d niveles,Passe %d fases,Supera %d livelli,Пройди уровни: %d,%d seviye geç
+TASK_NAME_RESCUE,救 %d 条鱼,Rescue %d fish,救 %d 條魚,魚を%d匹救出,물고기 %d마리 구출,%d Fische retten,Sauver %d poissons,Rescata %d peces,Salve %d peixes,Salva %d pesci,Спаси рыбок: %d,%d balık kurtar
+TASK_NAME_AD,看广告 ×%d,Watch ads ×%d,看廣告 ×%d,広告を見る ×%d,광고 보기 ×%d,Werbung ×%d,Regarder %d pubs,Ver anuncios ×%d,Assista anúncios ×%d,Guarda video ×%d,Реклама ×%d,Reklam izle ×%d
+TASK_NAME_COMBO,达成 %d 连击,Get a %d combo,達成 %d 連擊,%dコンボ達成,%d 콤보 달성,Combo ×%d schaffen,Faire un combo de %d,Haz un combo de %d,Faça um combo de %d,Fai una combo da %d,Комбо ×%d,%d kombo yap
+TASK_NAME_SKILL,用道具 ×%d,Use boosters ×%d,用道具 ×%d,アイテム ×%d,아이템 사용 ×%d,Extras ×%d,Utiliser %d bonus,Usa potenciadores ×%d,Use reforços ×%d,Usa aiuti ×%d,Бонусы ×%d,Güçlendirici ×%d
+TASK_NAME_DAILY,每日挑战 ×%d,Play Daily ×%d,每日挑戰 ×%d,デイリー ×%d,데일리 ×%d,Tagesrätsel ×%d,Défi du jour ×%d,Reto diario ×%d,Desafio diário ×%d,Sfida del giorno ×%d,Задача дня ×%d,Günün bulmacası ×%d
+TASK_NAME_WHEEL,抽奖 ×%d,Open chests ×%d,抽獎 ×%d,宝箱 ×%d,보물상자 ×%d,Truhen ×%d,Ouvrir %d coffres,Abre cofres ×%d,Abra baús ×%d,Apri forzieri ×%d,Сундуки ×%d,Sandık aç ×%d
+TASK_NAME_BOWLS,装满 %d 个鱼缸,Fill %d tanks,裝滿 %d 個魚缸,水そう%d個を満タン,어항 %d개 채우기,%d Becken füllen,Remplir %d aquariums,Llena %d peceras,Encha %d aquários,Riempi %d acquari,Заполни аквариумы: %d,%d akvaryum doldur
+TASK_NAME_PLAY,玩 %d 局,Play %d games,玩 %d 局,%d回プレイ,%d판 플레이,%d Runden spielen,Jouer %d parties,Juega %d partidas,Jogue %d partidas,Gioca %d partite,Сыграй раз: %d,%d oyun oyna
+TASK_CHEST_DAY,每日宝箱,Daily Chest,每日寶箱,デイリー宝箱,일일 상자,Tagestruhe,Coffre du jour,Cofre diario,Baú diário,Forziere giornaliero,Сундук дня,Günlük sandık
+TASK_CHEST_WEEK,每周宝箱,Weekly Chest,每週寶箱,ウィークリー宝箱,주간 상자,Wochentruhe,Coffre de la semaine,Cofre semanal,Baú semanal,Forziere settimanale,Сундук недели,Haftalık sandık
+TASK_CARD_MIN,%s以上,%s+,%s以上,%s以上,%s 이상,%s+,%s+,%s+,%s+,%s+,%s+,%s+
+TASK_TAB_DAY,每日,Daily,每日,毎日,일일,Tag,Jour,Día,Dia,Oggi,День,Günlük
+TASK_TAB_WEEK,每周,Weekly,每週,毎週,주간,Woche,Semaine,Semana,Semana,7 giorni,Неделя,Haftalık
+BOOT_TIP_1,排队泡里只有最前面那条能点,Only the front fish in a queue bubble can be taken,排隊泡裡只有最前面那條能點,行列泡は先頭の魚だけ取れるよ,줄 선 방울은 맨 앞 물고기만 꺼낼 수 있어요,In der Warteschlange darf nur der vordere Fisch raus,"Dans une file, seul le poisson devant peut sortir",En una fila solo sale el pez de delante,"Na fila, só sai o peixe da frente",In fila esce solo il pesce davanti,Из очереди выходит только первая рыбка,Sırada sadece öndeki balık çıkabilir
+BOOT_TIP_2,同一种三条装满一缸,Three of a kind fill a tank,同一種三條裝滿一缸,同じ魚3匹で水そうが満タン,같은 물고기 3마리면 어항이 가득 차요,Drei gleiche Fische füllen ein Becken,Trois poissons pareils remplissent un aquarium,Tres peces iguales llenan una pecera,Três peixes iguais enchem um aquário,Tre pesci uguali riempiono un acquario,Три одинаковые рыбки заполняют аквариум,Üç aynı balık bir akvaryumu doldurur
+BOOT_TIP_3,卡住了试试洗牌,Stuck? Try Shuffle,卡住了試試洗牌,困ったらまぜまぜ,막히면 섞기를 써 보세요,Fest? Versuch’s mit Mischen,Bloqué ? Essaie Mélange,¿Atascado? Prueba a mezclar,Travou? Use Mexer,Bloccato? Prova Mescola,Застрял? Попробуй «Микс»,Takıldın mı? Karıştır’ı dene
+BOOT_TIP_4,暂存槽快满时用吹泡清空,Slots almost full? Use Blow,暫存槽快滿時用吹泡清空,待機マスがいっぱいなら突風,대기 칸이 꽉 차기 전에 불기!,Ablage fast voll? Pusten!,Cases presque pleines ? Souffle !,¿Casillas casi llenas? ¡Sopla!,Espaços quase cheios? Sopre!,Caselle quasi piene? Soffia!,Ячейки почти заняты? Сдувай!,Bölmeler dolmak üzere mi? Üfle!
+BOOT_TIP_5,渔网能把一缸直接装满,The Net fills a whole tank,漁網能把一缸直接裝滿,あみで水そうを一気に満タン,그물로 어항을 단번에 채워요,Das Netz füllt ein ganzes Becken,Le Filet remplit tout un aquarium,La red llena una pecera entera,A rede enche um aquário inteiro,La Rete riempie un acquario intero,Сеть заполняет весь аквариум,Ağ koca bir akvaryumu doldurur
+BOOT_TIP_6,连击越高金币越多,"Bigger combos, more coins",連擊越高金幣越多,コンボが長いほどコインが増える,콤보가 길수록 코인이 늘어나요,"Größere Combos, mehr Münzen","Plus de combo, plus de pièces","Más combo, más monedas","Mais combo, mais moedas","Più combo, più monete",Больше комбо — больше монет,Kombo büyüdükçe altın artar
+BOOT_TIP_7,每天来签到领奖励,Sign in daily for rewards,每天來簽到領獎勵,毎日ログインでボーナス,매일 출석하고 보상 받기,Hol dir jeden Tag deinen Bonus,Reviens chaque jour pour ton cadeau,Entra cada día por tu regalo,Volte todo dia para ganhar presentes,Torna ogni giorno per il regalo,Заходи каждый день за подарком,"Her gün gel, hediyeni al"
+BOOT_TIP_8,收集卡片能集齐整本收藏册,Collect cards to finish an album,收集卡片能集齊整本收藏冊,カードを集めて図鑑をコンプ,카드를 모아 도감을 완성해요,Sammle Karten für volle Alben,Collectionne les cartes pour finir un album,Colecciona cartas para completar álbumes,Junte cartas para completar álbuns,Raccogli carte per completare gli album,"Собирай карты, чтобы заполнить альбом","Kart topla, albümü tamamla"
+BOOT_FAIL,网络不太好，加载失败,Couldn't load. Check your connection,網路不太好，載入失敗,読み込めませんでした。通信を確認してね,불러오지 못했어요. 연결을 확인해 주세요,Laden fehlgeschlagen. Prüfe deine Verbindung,Échec du chargement. Vérifie ta connexion,No se pudo cargar. Revisa tu conexión,Falha ao carregar. Verifique sua conexão,Caricamento non riuscito. Controlla la connessione,Не удалось загрузить. Проверь интернет,Yüklenemedi. Bağlantını kontrol et
+BOOT_RETRY,重试,Retry,重試,もう一度,다시 시도,Nochmal,Réessayer,Reintentar,Tentar de novo,Riprova,Повторить,Tekrar dene
 BOOT_HEALTH,"抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。
-适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。",
-BOOT_NAME,啵啵救援队,Bubble Fish
+适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。",,,,,,,,,,,
+BOOT_NAME,啵啵救援队,Bubble Fish,啵啵救援隊,ぷくぷくレスキュー,뽀글뽀글 구조대,Bubble Fish,Bubble Fish,Bubble Fish,Bubble Fish,Bubble Fish,Bubble Fish,Bubble Fish

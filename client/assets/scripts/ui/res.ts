@@ -77,10 +77,15 @@ export function startupFrames(): string[] {
 }
 
 let fontLoading: Promise<Font> | null = null;
+let baseFont: Font | null = null;
+/** 另用一套字体的语言：游戏字体（荆南麦圆体）没有韩文，韩文用资源圆体的韩文版（client/tools/font_subset.py 裁出来）。
+ * 放在 resources 而不是 boot 包：微信版不带韩文，不占微信的主包 */
+const LANG_FONT: Record<string, string> = { ko: 'font/game_ko' };
+const langFonts = new Map<string, Font>();
 
 /** 读游戏字体（boot 包的 game.ttf）；加载页和启动步骤都会调，只读一次 */
-export function loadFont(): Promise<Font> {
-  if (font) return Promise.resolve(font);
+function loadBaseFont(): Promise<Font> {
+  if (baseFont) return Promise.resolve(baseFont);
   if (!fontLoading) {
     fontLoading = loadBootBundle().then(
       (b) =>
@@ -91,7 +96,7 @@ export function loadFont(): Promise<Font> {
             const family: unknown = Reflect.get(f, '_fontFamily');
             if (typeof family !== 'string' || !family || family === 'Arial') console.warn(`游戏字体没装上（family=${String(family)}），界面会用系统字体`);
             else console.log(`游戏字体：${family}`);
-            font = f;
+            baseFont = f;
             resolve(f);
           });
         }),
@@ -99,6 +104,21 @@ export function loadFont(): Promise<Font> {
     fontLoading.catch(() => (fontLoading = null));
   }
   return fontLoading;
+}
+
+/** 读这种语言要用的字体，并把它设成界面字体（换语言前先调它，读好了再换，免得新界面闪一下系统字） */
+export async function loadFont(lang = ''): Promise<Font> {
+  const base = await loadBaseFont();
+  const path = LANG_FONT[lang];
+  let f = path ? langFonts.get(lang) : base;
+  if (!f && path) {
+    f = await new Promise<Font>((resolve, reject) => {
+      resources.load(path, TTFFont, (err: Error | null, t: TTFFont) => (err ? reject(err) : resolve(t)));
+    });
+    langFonts.set(lang, f);
+  }
+  font = f ?? base;
+  return font;
 }
 
 export function uiFont(): Font | null {

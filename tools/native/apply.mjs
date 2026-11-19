@@ -26,13 +26,39 @@ const json = (v) => JSON.stringify(v, null, 2) + '\n';
 const xml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 /** 工程名：只留字母数字（Xcode / Gradle 工程名里有空格容易出问题） */
 const projectName = game.name.en.replace(/[^A-Za-z0-9]/g, '') || game.codeName;
+/**
+ * 游戏里的语言代码 → iOS 的 .lproj、Android 的 values 目录（繁体给台湾和香港各一份）。
+ * 英文是 iOS 的 Base 和 Android 的默认 values；要加语言先在这里加一行，再把代码写进 game.json 的 languages
+ */
+const LOCALES = {
+  en: { ios: 'en', android: [] },
+  zh_CN: { ios: 'zh-Hans', android: ['zh-rCN'] },
+  zh_TW: { ios: 'zh-Hant', android: ['zh-rTW', 'zh-rHK'] },
+  ja: { ios: 'ja', android: ['ja'] },
+  ko: { ios: 'ko', android: ['ko'] },
+  de: { ios: 'de', android: ['de'] },
+  fr: { ios: 'fr', android: ['fr'] },
+  es: { ios: 'es', android: ['es'] },
+  pt: { ios: 'pt-BR', android: ['pt'] },
+  it: { ios: 'it', android: ['it'] },
+  ru: { ios: 'ru', android: ['ru'] },
+  tr: { ios: 'tr', android: ['tr'] },
+};
+const appLangs = game.languages.app;
+for (const l of appLangs) if (!LOCALES[l]) throw new Error(`game.json 的 languages.app 里有 ${l}，apply.mjs 的 LOCALES 里没有`);
 /** 广告总开关（game.json 的 ads.enabled）：关掉时三端都没有广告，原生包里不带广告 SDK */
 const adsOn = game.ads.enabled === true;
 
 // 1. 游戏运行时读的平台配置（platform/platformConfig.ts）
 write(
   join(CLIENT, 'assets/resources/config/platform.json'),
-  json({ name: game.name, version: game.version, adsEnabled: adsOn, ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat } }),
+  json({
+    name: game.name,
+    version: game.version,
+    languages: { app: game.languages.app, wechat: game.languages.wechat },
+    adsEnabled: adsOn,
+    ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat },
+  }),
 );
 
 // 2. 各平台的 Cocos 构建配置
@@ -78,6 +104,9 @@ if (existsSync(ios)) {
     '',
   ].join('\n');
   edit(join(ios, 'Info.plist'), (s) => {
+    // 支持的语言：系统设成这些语言时，系统界面（应用名、权限弹窗）跟着用这种语言
+    const locs = appLangs.map((l) => `\t\t<string>${LOCALES[l].ios}</string>`).join('\n');
+    s = s.replace(/(<key>CFBundleLocalizations<\/key>\s*<array>)[\s\S]*?(\s*<\/array>)/, `$1\n${locs}$2`);
     s = plistValue(s, 'CFBundleShortVersionString', game.version);
     s = plistValue(s, 'CFBundleVersion', String(game.build));
     s = s.replace(AD_KEYS, '');
@@ -87,12 +116,17 @@ if (existsSync(ios)) {
   const strings = (lang) =>
     `/* 由 tools/native/apply.mjs 按 game.json 生成 */\n"CFBundleDisplayName" = "${game.name[lang]}";\n` +
     (adsOn ? `"NSUserTrackingUsageDescription" = "${game.ios.trackingText[lang]}";\n` : '');
+  // 各语言的 InfoPlist.strings 由 CMakeLists 构建完拷进 .app（FS_LPROJ 列目录；Cocos 的模板不带它们，2026-11-19 以前的中文应用名因此没进包）
+  const lproj = ['Base', ...appLangs.map((l) => LOCALES[l].ios)].join(' ');
   // 工程名：Cocos 构建时也会这样改写，先写好免得每次构建都有改动；FS_ADS：链不链广告 SDK
   edit(join(ios, 'CMakeLists.txt'), (s) =>
-    s.replace(/set\(APP_NAME "[^"]*"/, `set(APP_NAME "${projectName}"`).replace(/set\(FS_ADS (ON|OFF)\)/, `set(FS_ADS ${adsOn ? 'ON' : 'OFF'})`),
+    s
+      .replace(/set\(APP_NAME "[^"]*"/, `set(APP_NAME "${projectName}"`)
+      .replace(/set\(FS_ADS (ON|OFF)\)/, `set(FS_ADS ${adsOn ? 'ON' : 'OFF'})`)
+      .replace(/set\(FS_LPROJ [^)]*\)/, `set(FS_LPROJ ${lproj})`),
   );
   write(join(ios, 'Base.lproj/InfoPlist.strings'), strings('en'));
-  write(join(ios, 'zh-Hans.lproj/InfoPlist.strings'), strings('zh_CN'));
+  for (const l of appLangs) write(join(ios, `${LOCALES[l].ios}.lproj/InfoPlist.strings`), strings(l));
 }
 
 // 4. Android：版本号、AdMob 应用 ID、各语言的应用名；带不带广告 SDK（FS_ADS）和广告 ID 权限
@@ -113,7 +147,9 @@ if (existsSync(android)) {
   );
   const label = (s, name) => s.replace(/(<string name="fs_app_name">)[^<]*(<\/string>)/, `$1${xml(name)}$2`);
   edit(join(android, 'res/values/strings.xml'), (s) => label(s, game.name.en));
-  edit(join(android, 'res/values-zh-rCN/strings.xml'), (s) => label(s, game.name.zh_CN));
+  const localeXml = (name) =>
+    `<resources>\n    <!-- 这种系统语言下的应用名（tools/native/apply.mjs 按 game.json 生成） -->\n    <string name="fs_app_name">${xml(name).replace(/'/g, "\\'")}</string>\n</resources>\n`;
+  for (const l of appLangs) for (const q of LOCALES[l].android) write(join(android, `res/values-${q}/strings.xml`), localeXml(game.name[l]));
 }
 
 console.log(changed.length ? `✓ 按 game.json 改了：\n  ${changed.join('\n  ')}` : '✓ 各平台配置和 game.json 一致');

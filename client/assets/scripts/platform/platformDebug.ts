@@ -24,8 +24,15 @@ export class PlatformDebug extends PlatformBase {
 
   override async init(): Promise<void> {
     const q = this.launchQuery().ads;
-    this.hasAds = q === '1' ? true : q === '0' ? false : (await loadPlatformConfig()).adsEnabled === true;
+    const cfg = await loadPlatformConfig();
+    this.hasAds = q === '1' ? true : q === '0' ? false : cfg.adsEnabled === true;
+    // 网页调试带 App 的全部语言；?lang=ja 这样指定系统语言（看各语言的默认选择）
+    if (cfg.languages?.app?.length) this.languages = cfg.languages.app;
     this.adsOn = this.hasAds;
+  }
+
+  override systemLanguage(): string {
+    return this.launchQuery().lang ?? String(sys.languageCode ?? '');
   }
 
   override adsAvailable(): boolean {

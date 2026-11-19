@@ -1,0 +1,4 @@
+<resources>
+    <!-- 这种系统语言下的应用名（tools/native/apply.mjs 按 game.json 生成） -->
+    <string name="fs_app_name">ぷくぷくレスキュー</string>
+</resources>

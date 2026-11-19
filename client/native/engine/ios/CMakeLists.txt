@@ -25,6 +25,16 @@ cc_ios_before_target(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME} ${CC_ALL_SOURCES})
 cc_ios_after_target(${EXECUTABLE_NAME})
 
+# 各语言的应用名（<语言>.lproj/InfoPlist.strings，tools/native/apply.mjs 按 game.json 生成）。
+# Cocos 的模板只把 Base.lproj 里的启动屏和 Localizable.strings 打进包；列进资源表又会被摊平到包根目录、同名文件互相覆盖，
+# 所以构建完（签名之前）按目录拷进 .app。FS_LPROJ 由 apply.mjs 改写
+set(FS_LPROJ Base en zh-Hans zh-Hant ja ko de fr es pt-BR it ru tr)
+foreach(d ${FS_LPROJ})
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/${d}.lproj"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CC_PROJECT_DIR}/${d}.lproj/InfoPlist.strings" "$<TARGET_BUNDLE_DIR:${EXECUTABLE_NAME}>/${d}.lproj/InfoPlist.strings")
+endforeach()
+
 # Xcode 27 的 libc++ 不许特化 std::is_floating_point 等（引擎带的 enoki/half.h 这么做了），这条诊断默认是错误，降成警告
 foreach(t cocos_engine ${EXECUTABLE_NAME})
     if(TARGET ${t})

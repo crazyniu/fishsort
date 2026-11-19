@@ -27,6 +27,7 @@ export class PlatformWechat extends PlatformBase {
   override async init(): Promise<void> {
     const cfg = await loadPlatformConfig();
     this.units = adUnits(cfg, 'wechat');
+    if (cfg.languages?.wechat?.length) this.languages = cfg.languages.wechat;
     this.title = cfg.name.zh_CN ?? '';
     // 右上角菜单里的「转发」「分享到朋友圈」（不给奖励，docs/01 5.8）
     try {
@@ -158,6 +159,14 @@ export class PlatformWechat extends PlatformBase {
       return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, windowWidth: info.windowWidth, windowHeight: info.windowHeight };
     } catch {
       return null;
+    }
+  }
+
+  override systemLanguage(): string {
+    try {
+      return String((wx.getSystemInfoSync() as { language?: string }).language ?? '');
+    } catch {
+      return '';
     }
   }
 

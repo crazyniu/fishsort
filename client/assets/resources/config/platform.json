@@ -1,9 +1,39 @@
 {
   "name": {
     "zh_CN": "啵啵救援队",
-    "en": "Bubble Fish"
+    "zh_TW": "啵啵救援隊",
+    "en": "Bubble Fish",
+    "ja": "ぷくぷくレスキュー",
+    "ko": "뽀글뽀글 구조대",
+    "de": "Bubble Fish",
+    "fr": "Bubble Fish",
+    "es": "Bubble Fish",
+    "pt": "Bubble Fish",
+    "it": "Bubble Fish",
+    "ru": "Bubble Fish",
+    "tr": "Bubble Fish"
   },
   "version": "1.0.0",
+  "languages": {
+    "app": [
+      "en",
+      "zh_CN",
+      "zh_TW",
+      "ja",
+      "ko",
+      "de",
+      "fr",
+      "es",
+      "pt",
+      "it",
+      "ru",
+      "tr"
+    ],
+    "wechat": [
+      "zh_CN",
+      "en"
+    ]
+  },
   "adsEnabled": false,
   "ads": {
     "ios": {

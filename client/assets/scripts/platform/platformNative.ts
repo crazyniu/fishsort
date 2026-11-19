@@ -43,8 +43,14 @@ export class PlatformNative extends PlatformBase {
     this.id = sys.os === sys.OS.IOS ? 'ios' : 'android';
   }
 
+  /** 引擎给的系统语言：iOS 是 zh-Hant-TW 这种，Android 是 zh-TW / zh_TW_#Hant 这种 */
+  override systemLanguage(): string {
+    return String(sys.languageCode ?? '');
+  }
+
   override async init(): Promise<void> {
     this.cfg = await loadPlatformConfig();
+    if (this.cfg.languages?.app?.length) this.languages = this.cfg.languages.app;
     const bridge = native.jsbBridgeWrapper;
     bridge.addNativeEventListener(EV.ads, (arg: string) => {
       const r = parse(arg);
