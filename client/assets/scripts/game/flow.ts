@@ -657,6 +657,7 @@ export function win(g: GamePage): void {
   const result = Settle.win(s, eco, {
     level: g.arg.level,
     challenge: g.lv.challenge,
+    boss: LevelCurve.isBoss(App.config.curve, g.lv.id),
     day: today(),
     now: now(),
     combo_coins: g.combo.coins,

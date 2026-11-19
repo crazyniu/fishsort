@@ -310,6 +310,9 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
   it('收入与支出', () => {
     assert.equal(ECO.levelCoins, 30);
     assert.equal(ECO.challengeCoins, 60);
+    assert.equal(ECO.bossCoins, 90, '超难关 90（docs/01 9.2）');
+    const save = PlayerData.create(ECO);
+    assert.equal(Settle.win(save, ECO, { level: 20, challenge: true, boss: true, day: 1, now: NOW }).coins_base, 90);
     assert.deepEqual(ECO.combo.tiers.map((t) => t.coins), [1, 1, 1, 2]);
     assert.equal(ECO.combo.maxCoinsPerLevel, 12);
     assert.deepEqual(ECO.freeCoin, { amount: 60, daily: 5 });

@@ -59,7 +59,9 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   } else {
     p = base(curve, id);
     mechanics(curve, id, p);
+    if (curve.normalFishMax !== undefined) p.fish = Math.min(p.fish, curve.normalFishMax);
     if (isChallenge(curve, id)) challenge(curve, id, p);
+    if (isBoss(curve, id)) p.species += curve.challenge.bossSpeciesPlus ?? 0;
   }
   jam(curve, id, ease, p);
   const e = curve.ease;
@@ -72,6 +74,25 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   p.fish = Math.max(9, idiv(p.fish, 3) * 3);
   p.buffer = bufferFor(curve, id);
   return p;
+}
+
+/** 超难关（每 jam.bigEvery 关一个，海域最后一关，原来叫「守关」；docs/01 9.2） */
+export function isBoss(curve: CurveConfig, id: number): boolean {
+  return jamKind(curve, id) === 'big';
+}
+
+/**
+ * 这一关随手点的玩家不用道具的过关率目标（0–1，docs/01 9.2）：第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；
+ * 难关、超难关在这条线上再低几个点，都不低于 min。没配 route.targets、或是新手期前几关返回 null
+ */
+export function routeTarget(curve: CurveConfig, id: number): number | null {
+  const t = curve.route?.targets;
+  if (!t) return null;
+  if (id < t.line[0][0]) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
+  let v = knot(t.line, id);
+  if (isBoss(curve, id)) v += t.boss;
+  else if (isChallenge(curve, id)) v += t.hard;
+  return Math.max(t.min, Math.round(v * 1000) / 1000);
 }
 
 /** 排队泡关卡：这一关是哪一档；不是排队泡关卡（jam 没配或还没到 jam.from）返回 null */

@@ -118,6 +118,8 @@ export interface TasksConfig {
 export interface EconomyConfig {
   levelCoins: number;
   challengeCoins: number;
+  /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
+  bossCoins?: number;
   adCoinMultiplier: number;
   toolStart: Record<string, number>;
   toolPrice: Record<string, number>;
@@ -244,7 +246,11 @@ export interface CurveConfig {
     capMin: number;
     layersMax: number;
     slackPlus: number;
+    /** 超难关（每 jam.bigEvery 关）在难关的基础上再多几种鱼（docs/01 9.2） */
+    bossSpeciesPlus?: number;
   };
+  /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多） */
+  normalFishMax?: number;
   ease: { species: number; fish: number; cap: number; slack: number };
   targets: {
     start: number;
@@ -301,7 +307,20 @@ export interface CurveConfig {
    * 想清楚的玩家过关率守在 thinkFloor 之上。preview = 局内预告几缸（两个玩家都只知道架上的缸和这几缸）；
    * casualGames / thinkGames = 收紧时每次量几局，checkCasual / checkThink = 收紧完换一组种子复量几局（写进调试页的数）
    */
-  route?: { preview: number; thinkFloor: number; iterations: number; casualGames: number; thinkGames: number; checkCasual: number; checkThink: number };
+  route?: {
+    preview: number;
+    thinkFloor: number;
+    iterations: number;
+    casualGames: number;
+    thinkGames: number;
+    checkCasual: number;
+    checkThink: number;
+    /**
+     * 随手点的玩家不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
+     * 难关在 line 上加 hard、超难关加 boss（负数），都不低于 min
+     */
+    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; min: number };
+  };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
   gen: Record<string, number>;

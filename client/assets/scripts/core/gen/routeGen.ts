@@ -3,7 +3,7 @@
 // - 随手点的玩家的过关率 = 难度：一点一点往下压，压到这一关的目标为止
 // - 想清楚的玩家的过关率 = 公平：一直守在下限之上（看得见的信息就排得出路线，不用读心）
 // 做法：先生成一关能过的，再反复交换两条鱼的种类（每种鱼的数量不变，订单照样凑得齐），
-// 只留「想清楚的照样能过、随手点的不更容易」的交换。一路上随手点的过关率每到一档（10% 一档）存一份：
+// 只留「想清楚的照样能过、随手点的不更容易」的交换（起点比目标还难时反过来，只留更容易的，放松到目标）。一路上随手点的过关率每到一档（10% 一档）存一份：
 // 目标那一档是本体，更容易的几档给连输后的变体和难度调试页（docs/01 9.7）挑。
 // 第一版按全知求解器的「容错」收紧，压出来的路线要知道后面第 3、4 缸要什么、要在脑子里推十几步，正常人全输（docs/02 0.2）。
 // 纯逻辑，同样的种子出同样的结果。
@@ -94,7 +94,10 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     }),
   );
   let tries = 0;
-  for (let it = 0; it < o.iterations && spots.length > 1 && cur.casual > o.casual; it++) {
+  // 起点已经比目标难（生成参数偏难）就反过来走：只留「更容易」的交换，放松到目标为止。两头都一档一档走、每档存一份
+  const up = cur.casual < o.casual;
+  const reached = () => (up ? cur.casual >= o.casual : cur.casual <= o.casual);
+  for (let it = 0; it < o.iterations && spots.length > 1 && !reached(); it++) {
     const [b1, k1] = rng.pick(spots);
     const [b2, k2] = rng.pick(spots);
     const f1 = lv.bubbles[b1].fish[k1];
@@ -105,8 +108,12 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     lv.bubbles[b2].fish[k2] = f1;
     // 先量便宜的随手点玩家：不更难就不用再量想清楚的玩家
     const c = Players.rate(lv, 'casual', o.casualGames ?? 80, { preview: o.preview });
-    // 一下子掉太多的不要（一步从「大部分能过」跳到「谁都过不去」，就是第一版的毛病），压过目标太多的也不要
-    const ok: boolean = hardness({ casual: c.win, peak: c.peak }) >= hardness(cur) && cur.casual - c.win <= (o.maxStep ?? 0.12) && c.win >= o.casual - 0.1;
+    // 一下子变太多的不要（一步从「大部分能过」跳到「谁都过不去」，就是第一版的毛病），越过目标太多的也不要
+    const h = hardness({ casual: c.win, peak: c.peak });
+    const step = o.maxStep ?? 0.12;
+    const ok: boolean = up
+      ? h <= hardness(cur) && c.win - cur.casual <= step && c.win <= o.casual + 0.1
+      : h >= hardness(cur) && cur.casual - c.win <= step && c.win >= o.casual - 0.1;
     const m: Measure | null = ok ? measure(lv, o, c) : null;
     if (m !== null) {
       cur = m;

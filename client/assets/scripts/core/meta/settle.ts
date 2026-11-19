@@ -13,6 +13,8 @@ import type { SaveData } from './save';
 export interface WinArgs {
   level: number;
   challenge: boolean;
+  /** 超难关（每 20 关，docs/01 9.2） */
+  boss?: boolean;
   day: number;
   now: number;
   combo_coins?: number;
@@ -63,7 +65,7 @@ export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResul
     chest_ok: rewarded,
   };
   if (rewarded) {
-    res.coins_base = args.challenge ? eco.challengeCoins : eco.levelCoins;
+    res.coins_base = args.boss ? (eco.bossCoins ?? eco.challengeCoins) : args.challenge ? eco.challengeCoins : eco.levelCoins;
     res.coins_combo = Math.trunc(args.combo_coins ?? 0);
     res.coins_best = bestBonusFor(Math.trunc(args.best_combo ?? 0), eco.combo);
     res.coins = res.coins_base + res.coins_combo + res.coins_best;

@@ -259,6 +259,33 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
   });
 });
 
+describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () => {
+  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，最低 1%', () => {
+    const c = loadCurve();
+    const t = (id: number) => LevelCurve.routeTarget(c, id) as number;
+    assert.equal(LevelCurve.routeTarget(c, 4), null, '新手期前几关不收紧');
+    assert.equal(t(5), 0.95);
+    assert.equal(t(6), 0.85);
+    assert.ok(Math.abs(t(59) - (0.85 - (53 * 0.84) / 354)) < 0.001);
+    assert.equal(t(359), 0.012);
+    assert.ok(Math.abs(t(55) - (0.85 - (49 * 0.84) / 354) + 0.15) < 0.001, '难关');
+    assert.ok(LevelCurve.isBoss(c, 60) && !LevelCurve.isBoss(c, 55));
+    assert.ok(Math.abs(t(60) - (0.85 - (54 * 0.84) / 354) + 0.25) < 0.001, '超难关');
+    assert.equal(t(360), 0.01, '最低 1%');
+    assert.equal(t(300), 0.01);
+  });
+
+  it('普通关最多 66 条鱼，难关多三成（最多 84），超难关再多一种鱼', () => {
+    const c = loadCurve();
+    for (let id = 6; id <= 360; id++) {
+      const p = LevelCurve.params(c, id, 0);
+      if (!LevelCurve.isChallenge(c, id)) assert.ok(p.fish <= 66, `第 ${id} 关 ${p.fish} 条`);
+      else assert.ok(p.fish <= 84, `第 ${id} 关 ${p.fish} 条`);
+    }
+    assert.equal(LevelCurve.params(c, 120, 0).species, LevelCurve.params(c, 115, 0).species + 1);
+  });
+});
+
 describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
   it('判断得出「不用道具还能不能过」，量得出容错和关键步', () => {
     // 两个缸位：先要 0、再要 1。泡 0 压着泡 1（只有点空泡 0 才露出泡 1）
