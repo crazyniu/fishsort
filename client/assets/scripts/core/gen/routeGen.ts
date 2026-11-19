@@ -28,6 +28,8 @@ export interface TightenOptions {
   thinkGames?: number;
   /** 一次交换随手点的过关率最多降几个点（0–1，不给 = 0.12）：一下子掉太多就不要，难度一档一档下来，中间每档都有 */
   maxStep?: number;
+  /** 量的时候用哪一组种子（不给 = 0）。同一组种子一直量，挑出来的交换会偏向坑到这几局；接着收的时候换一组 */
+  seedBase?: number;
 }
 
 export interface Measure {
@@ -60,8 +62,8 @@ const hardness = (m: { casual: number; peak: number }) => (1 - m.casual) * 100 +
 /** 量一关；想清楚的玩家明显过不了下限就提前停（返回 null） */
 export function measure(lv: LevelData, o: TightenOptions, casual?: Players.Rate): Measure | null {
   const opts = { preview: o.preview };
-  const c = casual ?? Players.rate(lv, 'casual', o.casualGames ?? 80, opts);
-  const t = Players.rate(lv, 'think', o.thinkGames ?? 10, opts, 0, o.thinkFloor);
+  const c = casual ?? Players.rate(lv, 'casual', o.casualGames ?? 80, opts, o.seedBase ?? 0);
+  const t = Players.rate(lv, 'think', o.thinkGames ?? 10, opts, o.seedBase ?? 0, o.thinkFloor);
   if (t.win < o.thinkFloor || t.route === null) return null;
   return { casual: c.win, think: t.win, peak: c.peak, route: t.route };
 }
@@ -107,7 +109,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     lv.bubbles[b1].fish[k1] = f2;
     lv.bubbles[b2].fish[k2] = f1;
     // 先量便宜的随手点玩家：不更难就不用再量想清楚的玩家
-    const c = Players.rate(lv, 'casual', o.casualGames ?? 80, { preview: o.preview });
+    const c = Players.rate(lv, 'casual', o.casualGames ?? 80, { preview: o.preview }, o.seedBase ?? 0);
     // 一下子变太多的不要（一步从「大部分能过」跳到「谁都过不去」，就是第一版的毛病），越过目标太多的也不要
     const h = hardness({ casual: c.win, peak: c.peak });
     const step = o.maxStep ?? 0.12;

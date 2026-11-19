@@ -109,10 +109,13 @@ const validRoute = (lv: LevelData, first: readonly [number, number][]): [number,
   return null;
 };
 const all: Ver[] = [];
-const start = lv;
 let tries = 0;
 for (let attempt = 0; attempt < 3; attempt++) {
-  const r = tighten(start, { ...opts, seed: opts.seed + attempt * 7777 });
+  // 第一轮从生成出来的关收；之后：所有档都还比目标容易（同一组种子量出来到了、复量又回弹），就从最接近目标的那档接着收，
+  // 换一组种子量；目标两边都有档（中间跳过了），从头换个随机种子重收
+  const above = all.filter((v) => v.casual > target).sort((a, b) => a.casual - b.casual);
+  const from = attempt > 0 && above.length > 0 && !all.some((v) => v.casual < target) ? above[0].lv : lv;
+  const r = tighten(from, { ...opts, seed: opts.seed + attempt * 7777, seedBase: attempt * 10007 });
   tries += r.tries;
   for (const snap of Array.from(r.byPct.values())) {
     const casual = Players.rate(snap.lv, 'casual', rc.checkCasual, { preview }, 1000).win;
@@ -125,10 +128,12 @@ for (let attempt = 0; attempt < 3; attempt++) {
     console.log(`  [${attempt + 1}] 随手点 ${Math.round(casual * 100)}%  想清楚 ${Math.round(think * 100)}%  路线最长连击 ${run}${tag}`);
     if (!tag) all.push({ pct: bucket(casual), lv: snap.lv, casual, think, run });
   }
-  // 有一档离目标 5 个点以内就行；所有档都在目标的同一边（压不下去 / 放不上来）再收一次也一样，不重来。
-  // 只有目标两边都有档、中间跳过了目标，才换种子重来
+  // 有一档离目标 5 个点以内就行；所有档都比目标难（放不上来）再收也一样，不重来；
+  // 跳过了目标、或者都还比目标容易（复量回弹），再收一轮
   if (all.some((v) => Math.abs(v.casual - target) <= 0.05)) break;
-  if (!(all.some((v) => v.casual < target) && all.some((v) => v.casual > target))) break;
+  if (!all.some((v) => v.casual > target)) break;
+  // 这一轮一档都没比上一轮更接近（压不动了），也停
+  if (attempt > 0 && r.byPct.size <= 1) break;
 }
 console.log(`  目标：随手点 ${Math.round(target * 100)}%，想清楚的不低于 ${Math.round(opts.thinkFloor * 100)}%，预告 ${opts.preview} 缸；试了 ${tries} 次交换，${((Date.now() - t0) / 1000).toFixed(0)}s`);
 if (all.length === 0) {
