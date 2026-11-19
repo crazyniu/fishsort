@@ -377,6 +377,23 @@ export function livesPopup(onChange?: () => void): void {
   }
 }
 
+// ---------------------------------------------------------------- 道具礼包（docs/01 9.6）
+
+/** 第一次过了礼包关：每种道具各送几个，并告诉玩家从下一关起道具要用库存或金币了。关掉后接着 onDone */
+export function giftPopup(ids: string[], count: number, onDone: () => void): void {
+  const p = openPopup({ w: 620, h: 470, title: tr('GIFT_TITLE'), onClose: onDone });
+  ids.forEach((id, i) => {
+    const icon = img(p.body, `icon/skill_${id}`, 110, 110, 'icon');
+    at(icon, (i - (ids.length - 1) / 2) * 130, 100);
+    at(text(icon, `×${count}`, 32).node, 34, -44);
+  });
+  const line = text(p.body, tr('GIFT_LINE'), 30, { width: 540 });
+  at(line.node, 0, -30);
+  const ok = button(p.body, { color: 'green', w: 300, h: 100, label: tr('GOT_IT'), onTap: () => p.close() });
+  at(ok.node, 0, -150);
+  sfx('coin');
+}
+
 // ---------------------------------------------------------------- 设置 / 暂停
 
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */

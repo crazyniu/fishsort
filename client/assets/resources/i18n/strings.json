@@ -929,7 +929,9 @@
   "BOOT_FAIL": "网络不太好，加载失败",
   "BOOT_RETRY": "重试",
   "BOOT_HEALTH": "抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。\n适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。",
-  "BOOT_NAME": "啵啵救援队"
+  "BOOT_NAME": "啵啵救援队",
+  "GIFT_TITLE": "道具礼包",
+  "GIFT_LINE": "从下一关起，道具要用库存或金币了"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -1861,7 +1863,9 @@
   "BOOT_FAIL": "Couldn't load. Check your connection",
   "BOOT_RETRY": "Retry",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Booster Pack",
+  "GIFT_LINE": "From the next level, boosters use your stock or coins"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -2793,7 +2797,9 @@
   "BOOT_FAIL": "網路不太好，載入失敗",
   "BOOT_RETRY": "重試",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "啵啵救援隊"
+  "BOOT_NAME": "啵啵救援隊",
+  "GIFT_TITLE": "道具禮包",
+  "GIFT_LINE": "從下一關起，道具要用庫存或金幣了"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -3725,7 +3731,9 @@
   "BOOT_FAIL": "読み込めませんでした。通信を確認してね",
   "BOOT_RETRY": "もう一度",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "ぷくぷくレスキュー"
+  "BOOT_NAME": "ぷくぷくレスキュー",
+  "GIFT_TITLE": "アイテムパック",
+  "GIFT_LINE": "次のレベルからアイテムは手持ちかコインで使います"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -4657,7 +4665,9 @@
   "BOOT_FAIL": "불러오지 못했어요. 연결을 확인해 주세요",
   "BOOT_RETRY": "다시 시도",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "뽀글뽀글 구조대"
+  "BOOT_NAME": "뽀글뽀글 구조대",
+  "GIFT_TITLE": "아이템 선물",
+  "GIFT_LINE": "다음 레벨부터 아이템은 보유분이나 코인으로 써요"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -5589,7 +5599,9 @@
   "BOOT_FAIL": "Laden fehlgeschlagen. Prüfe deine Verbindung",
   "BOOT_RETRY": "Nochmal",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Booster-Paket",
+  "GIFT_LINE": "Ab dem nächsten Level kosten Booster Vorrat oder Münzen"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -6521,7 +6533,9 @@
   "BOOT_FAIL": "Échec du chargement. Vérifie ta connexion",
   "BOOT_RETRY": "Réessayer",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Pack de bonus",
+  "GIFT_LINE": "Dès le prochain niveau, les bonus utilisent ton stock ou des pièces"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -7453,7 +7467,9 @@
   "BOOT_FAIL": "No se pudo cargar. Revisa tu conexión",
   "BOOT_RETRY": "Reintentar",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Paquete de potenciadores",
+  "GIFT_LINE": "Desde el próximo nivel, los potenciadores usan tu reserva o monedas"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -8385,7 +8401,9 @@
   "BOOT_FAIL": "Falha ao carregar. Verifique sua conexão",
   "BOOT_RETRY": "Tentar de novo",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Pacote de bônus",
+  "GIFT_LINE": "A partir da próxima fase, os bônus usam seu estoque ou moedas"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -9317,7 +9335,9 @@
   "BOOT_FAIL": "Caricamento non riuscito. Controlla la connessione",
   "BOOT_RETRY": "Riprova",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Pacchetto bonus",
+  "GIFT_LINE": "Dal prossimo livello i bonus usano la scorta o le monete"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -10249,7 +10269,9 @@
   "BOOT_FAIL": "Не удалось загрузить. Проверь интернет",
   "BOOT_RETRY": "Повторить",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Набор бустеров",
+  "GIFT_LINE": "Со следующего уровня бустеры тратят запас или монеты"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -11181,6 +11203,8 @@
   "BOOT_FAIL": "Yüklenemedi. Bağlantını kontrol et",
   "BOOT_RETRY": "Tekrar dene",
   "BOOT_HEALTH": "",
-  "BOOT_NAME": "Bubble Fish"
+  "BOOT_NAME": "Bubble Fish",
+  "GIFT_TITLE": "Güçlendirici Paketi",
+  "GIFT_LINE": "Sonraki bölümden itibaren güçlendiriciler stoktan veya altından gider"
  }
 }

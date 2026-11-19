@@ -33,6 +33,8 @@ export interface WinResult {
   wheel_spin: boolean;
   unlimited: number;
   chest_ok: boolean;
+  /** 第一次过了礼包关送的技能（docs/01 9.6）；没送就没有这一项 */
+  gift?: string[];
 }
 
 export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResult {
@@ -86,6 +88,8 @@ export function win(save: SaveData, eco: EconomyConfig, args: WinArgs): WinResul
     res.level_up = true;
     res.new_features = Features.newlyUnlocked(eco, old, levelId + 1);
     res.new_skills = Skills.syncUnlocks(save, eco);
+    const gift = Skills.grantGift(save, eco, levelId);
+    if (gift.length > 0) res.gift = gift;
   }
   return res;
 }

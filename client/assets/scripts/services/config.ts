@@ -68,10 +68,25 @@ export class Config {
   }
 
   /**
-   * 难度调试页生成的关卡（pages/lab.ts）：顶替包里同一关的文件（本体和变体都换成它），存在本机，重开游戏还在。
-   * 只有 game.json 开了 levelLab 才会读
+   * 难度调试页选的版本（pages/lab.ts）：顶替包里同一关的文件（本体和变体都换成它），存在本机，重开游戏还在。
+   * 只有 game.json 开了 levelLab 才会读。slack = 选的是容错几格的那一档
    */
-  readonly lab = new Map<number, LevelData>();
+  readonly lab = new Map<number, { lv: LevelData; slack: number }>();
+
+  /**
+   * 每关收紧时存下的各档容错（tools/level/route.ts --lab，config/levels_lab/index.json）：
+   * 关卡号 → { base: 包里用的是哪一档, 档: { keys 关键步, forced 只有一种点法的, minBuffer 最少要几格, run 路线最长连击 } }
+   */
+  labIndex: Record<string, { base: number; versions: Record<string, { keys: number; forced: number; minBuffer: number; run: number }> }> = {};
+
+  async loadLabIndex(): Promise<void> {
+    this.labIndex = await loadJson<typeof this.labIndex>('config/levels_lab/index').catch(() => ({}));
+  }
+
+  /** 读第 id 关容错 slack 那一档 */
+  async loadLabVersion(id: number, slack: number): Promise<LevelData> {
+    return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_lab/level_${pad(id)}_s${slack}`));
+  }
 
   /** 整体难度档：-1 困难、0 标准、1 简单（调试页设，存在本机） */
   labTier = 0;
@@ -94,23 +109,24 @@ export class Config {
     const t = Number(platform.loadData(LAB_TIER_KEY) || '0');
     this.setLabTier(Number.isFinite(t) ? t : 0, platform);
     try {
-      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, Record<string, unknown>>;
-      for (const id of Object.keys(raw)) this.lab.set(Number(id), LevelData.fromDict(raw[id]));
+      const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, { lv: Record<string, unknown>; slack: number }>;
+      for (const id of Object.keys(raw)) this.lab.set(Number(id), { lv: LevelData.fromDict(raw[id].lv), slack: Number(raw[id].slack) });
     } catch {
       this.lab.clear();
     }
+    void this.loadLabIndex();
   }
 
   saveLab(platform: PlatformBase): void {
     const out: Record<string, unknown> = {};
-    for (const [id, lv] of this.lab) out[String(id)] = lv.toDict();
+    for (const [id, v] of this.lab) out[String(id)] = { lv: v.lv.toDict(), slack: v.slack };
     platform.saveData(LAB_KEY, JSON.stringify(out));
   }
 
   /** 读关卡文件；ease > 0 时取易化变体，没有就退回普通版 */
   async loadLevel(fileId: number, ease: number): Promise<LevelData> {
     const custom = this.lab.get(fileId);
-    if (custom) return LevelData.fromDict(custom.toDict());
+    if (custom) return LevelData.fromDict(custom.lv.toDict());
     const base = `config/levels/level_${pad(fileId)}`;
     let raw: Record<string, unknown>;
     try {

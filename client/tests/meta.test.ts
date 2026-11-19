@@ -704,9 +704,9 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 100).reason, 'limit', '第 100 关还是 2 次');
   });
 
-  it('第 1–30 关每关第一次用技能免费：不扣库存、不占每天的免费次、每日挑战不算', () => {
+  it('第 11–14 关每关第一次用技能免费：不扣库存、不占每天的免费次、每日挑战不算（docs/01 9.6）', () => {
     const [save, eco] = setup(13);
-    assert.equal(eco.skills.freeLevelUntil, 30);
+    assert.equal(eco.skills.freeLevelUntil, 14);
     save.tools.shuffle = 0;
     save.tools.blow = 0;
     assert.ok(Skills.tryUse(save, eco, 'net', 0, 5).free, '先用掉今天的免费次（不传本关合计次数，不算前几关免费）');
@@ -716,11 +716,29 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.equal(save.tools.shuffle, 0, '不扣库存');
     assert.equal(Object.keys(save.daily.toolFree).length, 1, '不占每天的免费次');
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 13, 1).reason, 'empty', '同一关第二次就不免费了');
-    assert.ok(Skills.tryUse(save, eco, 'blow', 0, 5, 30, 0).free, '第 30 关还送');
-    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 31, 0).reason, 'empty', '第 31 关起不送');
+    assert.ok(Skills.tryUse(save, eco, 'blow', 0, 5, 14, 0).free, '第 14 关还送');
+    assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 15, 0).reason, 'empty', '第 15 关起要用库存或金币（花钱从 15 关开始）');
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 0, 0).reason, 'empty', '每日挑战（关卡号 0）不送');
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 13).reason, 'empty', '不传本关合计次数 = 不算这一条（旧的调用方式）');
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 13, 0).reason, 'limit', '每关次数上限照旧');
+  });
+
+  it('第 1–10 关道具全部免费（每种每关次数上限照旧）；第一次过第 14 关送礼包（docs/01 9.6）', () => {
+    const [save, eco] = setup(12);
+    assert.equal(eco.skills.freeAllUntil, 10);
+    save.tools.shuffle = 0;
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 0, 5, 8, 0).free);
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 1, 5, 8, 3).free, '本关用过几次也还免费');
+    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 8, 4).reason, 'limit', '每种每关 2 次的上限照旧');
+    assert.equal(save.tools.shuffle, 0);
+    const [p14, e14] = setup(14);
+    Skills.syncUnlocks(p14, e14); // 解锁送的 2 个先发掉
+    for (const id of Object.keys(p14.tools)) p14.tools[id] = 0;
+    const r = Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW });
+    assert.deepEqual(r.gift, ['shuffle', 'blow', 'net', 'current']);
+    for (const id of r.gift ?? []) assert.equal(p14.tools[id], 1);
+    assert.equal(Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW }).gift, undefined, '重玩不再送');
+    assert.equal(Settle.win(p14, e14, { level: 15, challenge: false, day: 7, now: NOW }).gift, undefined);
   });
 
   it('canUse 只问不扣：能用返回空串，原因和 tryUse 一样', () => {

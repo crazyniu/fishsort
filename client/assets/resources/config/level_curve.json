@@ -6,11 +6,12 @@
     "2": {"species": 3, "fish": 24, "layers": 1, "slack": 0, "per_min": 1, "per_max": 3}
   },
   "segments": [
-    {"from": 3, "to": 10, "species": [3, 4], "fish": [36, 48], "cap": [0, 0], "layers": 2, "per": [2, 3], "slack": [0, 1]},
-    {"from": 11, "to": 15, "species": [4, 5], "fish": [48, 54], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
-    {"from": 16, "to": 20, "species": [5, 5], "fish": [54, 57], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
-    {"from": 21, "to": 40, "species": [5, 6], "fish": [57, 69], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 2]},
-    {"from": 41, "to": 60, "species": [6, 7], "fish": [69, 78], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 2]},
+    {"from": 3, "to": 5, "species": [3, 4], "fish": [36, 42], "cap": [0, 0], "layers": 2, "per": [2, 3], "slack": [0, 1]},
+    {"from": 6, "to": 10, "species": [5, 5], "fish": [39, 48], "cap": [0, 0], "layers": 2, "per": [2, 3], "slack": [0, 1]},
+    {"from": 11, "to": 15, "species": [6, 6], "fish": [48, 54], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
+    {"from": 16, "to": 20, "species": [6, 6], "fish": [54, 57], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 1]},
+    {"from": 21, "to": 40, "species": [6, 7], "fish": [57, 69], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 2]},
+    {"from": 41, "to": 60, "species": [7, 7], "fish": [69, 78], "cap": [0, 0], "layers": 3, "per": [2, 4], "slack": [1, 2]},
     {"from": 61, "to": 80, "species": [7, 7], "fish": [78, 84], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
     {"from": 81, "to": 110, "species": [7, 8], "fish": [84, 93], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
     {"from": 111, "to": 120, "species": [8, 8], "fish": [93, 96], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
@@ -19,7 +20,7 @@
     {"from": 241, "to": 300, "species": [8, 8], "fish": [108, 111], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]},
     {"from": 301, "to": 360, "species": [8, 8], "fish": [111, 114], "cap": [18, 18], "layers": 1, "per": [2, 5], "slack": [2, 2]}
   ],
-  "colorGap": [[1, 55], [11, 45], [25, 34], [60, 24], [110, 16]],
+  "colorGap": [[1, 55], [10, 36], [25, 34], [60, 24], [110, 16]],
   "unlock": {"chain": 16, "timer": 9999, "fog": 31, "ice": 11, "big": 21, "pairs": 26},
   "iceAll": [[11, 2], [41, 3]],
   "counts": {"chain": 1, "timer": 1, "fog": 0.25, "ice": 2, "big": 1, "pairs": 2},
@@ -27,7 +28,7 @@
   "maxMechanics": 3,
   "rhythm": [1, 2, 1, 2, 3],
   "fresh": {"levels": 5, "share": 3},
-  "challenge": {"speciesPlus": [1, 2], "speciesPlusFrom": 60, "fishMul": 1.3, "fishMax": 126, "capMinus": 1, "capMin": 17, "layersMax": 4, "slackPlus": 1},
+  "challenge": {"speciesPlus": [0, 2], "speciesPlusFrom": 60, "fishMul": 1.3, "fishMax": 84, "capMinus": 1, "capMin": 17, "layersMax": 4, "slackPlus": 1},
   "ease": {"species": 1, "fish": 3, "cap": 1, "slack": 1},
   "targets": {"start": 97, "end": 55, "first": 3, "last": 120, "tol": 6, "easyFrom": 90, "tutorialUntil": 2, "challengeDrop": [10, 25], "challengeFloor": 8, "challengeDropUntil": 50, "tail": {"to": 240, "end": 35}, "knots": [[3, 97], [60, 77], [120, 42], [240, 22]], "bowl3": {"plus": 10, "easyFrom": 90, "capFrom": 26, "capPlus": 30, "cap": 95}, "segmentOffset": {"layered": 0, "drop": 0}},
   "bot": {"tapSec": 1.5, "bowlSec": 1.5},
@@ -35,7 +36,7 @@
   "buffer": [[1, 5], [61, 4]],
   "jam": {
     "from": 6, "bigEvery": 20,
-    "queue": [[6, 0.3], [10, 0.4], [25, 0.5], [60, 0.6], [120, 0.75], [240, 0.85], [360, 0.95]],
+    "queue": [[6, 0.6], [25, 0.65], [60, 0.7], [120, 0.75], [240, 0.85], [360, 0.95]],
     "scrambleFrom": [[6, 0.5], [120, 0.45], [240, 0.35], [360, 0.3]],
     "scramble": {
       "normal": [[6, 0.03], [120, 0.08], [360, 0.12]],

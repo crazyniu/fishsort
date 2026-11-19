@@ -27,7 +27,7 @@ import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, fit, fmt, img, lazyImg, slice, text } from '../ui/kit';
 import * as Alive from '../ui/alive';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
-import { confirmLeave, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
+import { confirmLeave, giftPopup, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
 import type { GamePage } from './gameView';
 
@@ -656,6 +656,13 @@ export function takeUnlocks(): string[] {
 
 export async function afterResult(d: WinData, next: boolean): Promise<void> {
   const s = App.save.data;
+  // 道具礼包（第一次过了礼包关）：先弹出来说清楚，关掉再往下走（docs/01 9.6）
+  const gift = d.result.gift;
+  if (gift && gift.length > 0) {
+    d.result.gift = undefined;
+    giftPopup(gift, App.config.eco.skills.gift?.count ?? 1, () => void afterResult(d, next));
+    return;
+  }
   if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, mono())) {
     Meta.markInterstitial(s, d.level, mono());
     App.save.write();
