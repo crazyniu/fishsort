@@ -9,6 +9,10 @@ import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
 import * as RouteGen from '../assets/scripts/core/gen/routeGen';
 import * as Players from '../assets/scripts/core/solver/players';
+import * as Prefill from '../assets/scripts/core/gen/prefill';
+import { Rng } from '../assets/scripts/core/rng/rng';
+import { GameState } from '../assets/scripts/core/model/gameState';
+import * as Rules from '../assets/scripts/core/rules/rules';
 import * as Careful from '../assets/scripts/core/solver/careful';
 import * as Route from '../assets/scripts/core/solver/route';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
@@ -320,6 +324,33 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     const lv = generate({ ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 }, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
     assert.deepEqual(Players.play(lv, 'casual', 7, { preview: 0 }).taps, Players.play(lv, 'casual', 7, { preview: 0 }).taps);
     assert.deepEqual(Players.play(lv, 'think', 7, { preview: 0 }).taps, Players.play(lv, 'think', 7, { preview: 0 }).taps);
+  });
+
+  it('开局占格：拿出后半段才要的鱼放进暂存槽，每种鱼的条数不变；想清楚的玩家照样过得去、提示给的是点得到的鱼', () => {
+    const c = loadCurve();
+    const lv = generate({ ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 }, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    const count = (x: LevelData) => {
+      const m = new Map<number, number>();
+      for (const b of x.bubbles) for (const f of b.fish) m.set(f, (m.get(f) ?? 0) + 1);
+      for (const f of x.prefill) m.set(f, (m.get(f) ?? 0) + 1);
+      return m;
+    };
+    const before = count(lv);
+    assert.ok(Prefill.apply(lv, 2, 0.5, new Rng(5)));
+    assert.equal(lv.prefill.length, 2);
+    assert.deepEqual(count(lv), before);
+    const first = new Map<number, number>();
+    lv.orders.forEach((o, i) => first.has(o.s) || first.set(o.s, i));
+    const t = Players.play(lv, 'think', 1, { preview: 3 });
+    assert.ok(t.won, '想清楚的玩家过得去');
+    lv.ref = t.taps;
+    assert.deepEqual(LevelCheck.errors(lv), []);
+    assert.equal(LevelData.fromJson(lv.toJson())?.prefill.length, 2, '写进文件再读回来');
+    const s = GameState.fromLevel(lv);
+    Rules.start(s);
+    assert.equal(s.buffer.length, 2, '开局就在暂存槽里');
+    const h = Players.hint(s, 3);
+    assert.ok(h !== null && Rules.isOpen(s, h[0]) && s.bubbles[h[0]].canTake(h[1]));
   });
 
   it('收紧：随手点的过关率每一档存一份，想清楚的玩家都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {

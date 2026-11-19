@@ -120,6 +120,20 @@ export interface EconomyConfig {
   challengeCoins: number;
   /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
   bossCoins?: number;
+  /** 某几个技能单独的每关次数上限（撤销 3 次，docs/01 9.6） */
+  toolMaxPerLevelById?: Record<string, number>;
+  /**
+   * 星级和首次三星（docs/01 9.5）：twoStarLine 用了几个道具以内两星；first3 第一次拿三星多送的（coins 金币、card 卡的稀有度、skill 几个随机技能），
+   * 第 earlyUntil 关以前金币只给 earlyCoins
+   */
+  stars?: {
+    twoStarLine: Record<'normal' | 'hard' | 'boss', number>;
+    first3: Record<'normal' | 'hard' | 'boss', { coins: number; card?: string; skill?: number }>;
+    earlyUntil: number;
+    earlyCoins: number;
+  };
+  /** 幸运泡（docs/01 9.3）：第 from 关起每次进关有 chance 的概率出一个；奖励按权重抽 */
+  lucky?: { from: number; chance: number; rewards: { kind: 'coins' | 'skill' | 'card'; w: number; coins?: number; rarity?: string }[] };
   /**
    * 连击目标（docs/01 9.4）：第 from 关起；N = 参考解最长连击 × share，夹在 [min, max]，不到 min 不出目标。
    * reward：三种关各给哪一档的卡（收藏开放后）或多少金币（还没开放时）
@@ -256,6 +270,8 @@ export interface CurveConfig {
   };
   /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多） */
   normalFishMax?: number;
+  /** 开局占格（docs/01 9.3）：第 from 关起的难关、超难关，开局暂存槽先放 count 表里的条数；只挑订单 after 比例之后才要的鱼种 */
+  prefill?: { from: number; count: [number, number][]; after: number };
   ease: { species: number; fish: number; cap: number; slack: number };
   targets: {
     start: number;

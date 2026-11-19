@@ -63,6 +63,12 @@ export function errors(lv: LevelData): string[] {
   const layer = new Map<number, number>();
   let chainSum = 0;
   for (const b of lv.bubbles) layer.set(b.id, b.layer);
+  // 开局占格的鱼也算进每种鱼的条数；至少留两格空着（放满就输）
+  for (const f of lv.prefill) {
+    if (f < 0 || f >= lv.palette) out.push(`开局占格有非法鱼种 ${f}`);
+    have.set(f, (have.get(f) ?? 0) + 1);
+  }
+  if (lv.prefill.length > lv.buffer - 2) out.push(`开局占了 ${lv.prefill.length} 格，暂存槽只有 ${lv.buffer} 格`);
   for (let idx = 0; idx < lv.bubbles.length; idx++) {
     const b = lv.bubbles[idx];
     const fish = b.fish;

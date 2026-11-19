@@ -39,6 +39,7 @@ export function create(eco: EconomyConfig): SaveData {
     seenTips: {},
     fails: { level: 0, count: 0 },
     settings: { sound: true, music: true, vibrate: true },
+    stars: {},
   };
 }
 

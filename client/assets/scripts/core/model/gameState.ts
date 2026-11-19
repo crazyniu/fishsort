@@ -125,6 +125,8 @@ export class GameState {
     s.orders = level.orders;
     s.openSlots = level.bowlSlots;
     s.bufferCap = level.buffer;
+    // 开局占格：这几条一开始就在暂存槽里（开局 settle 时有缸要就自己进缸）
+    s.buffer = level.prefill.slice();
     const cap = level.fieldCap;
     for (const d of level.bubbles) {
       const b = new Bubble();
