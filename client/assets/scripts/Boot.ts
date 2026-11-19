@@ -21,10 +21,10 @@ import { ShopPage } from './pages/shop';
 import { LockPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx, startMusic } from './services/audio';
-import { loadStrings, onLanguage, setLanguage } from './ui/i18n';
+import { loadStrings, matchLanguage, onLanguage } from './ui/i18n';
 import { fitLog, setTapSound } from './ui/kit';
 import * as Popups from './ui/popups';
-import { livesPopup, settingsPopup } from './ui/popups';
+import { livesPopup, settingsPopup, switchLanguage } from './ui/popups';
 import { closeAllPopups } from './ui/popup';
 import { signInPopup } from './pages/signin';
 import * as Flow from './game/flow';
@@ -37,6 +37,14 @@ import { Screen } from './ui/screen';
 import { reportError, setErrorSink, ui } from './ui/shell';
 
 const { ccclass } = _decorator;
+
+/** 开局用哪种语言：设置里选过、并且这一端带这种语言就用它，否则按系统语言（docs/10 第 8 节） */
+function startLanguage(): string {
+  const langs = App.platform.languages;
+  const saved = App.save.data.settings.lang;
+  if (saved && langs.includes(saved)) return saved;
+  return matchLanguage(App.platform.systemLanguage(), langs);
+}
 
 /** 设计分辨率：750×1334 竖屏，适配宽度（docs/09 第 8 节） */
 const DESIGN_WIDTH = 750;
@@ -66,6 +74,7 @@ export class Boot extends Component {
   /** 加载的几步（[进度占比, 做什么]）；失败停在那一步，显示「重试」，点了从那一步接着来 */
   private load(view: LoadingView): Promise<void> {
     let fishKeys: string[] = [];
+    let lang = 'zh_CN';
     const steps: [number, (p: (done: number, total: number) => void) => Promise<void>][] = [
       [0.04, () => ensureResources()],
       [
@@ -73,12 +82,13 @@ export class Boot extends Component {
         async () => {
           await App.start();
           Screen.applyPlatform(App.platform);
-          view.setLanguage(App.save.data.settings.lang ?? 'zh_CN', App.platform.hasCapability('health_notice'));
+          lang = startLanguage();
+          view.setLanguage(lang, App.platform.hasCapability('health_notice'));
           void loadPlatformConfig().then((c) => view.setVersion(c.version));
         },
       ],
-      [0.02, () => loadStrings(App.save.data.settings.lang ?? 'zh_CN')],
-      [0.04, () => loadFont().then(() => undefined)],
+      [0.02, () => loadStrings(lang)],
+      [0.04, () => loadFont(lang).then(() => undefined)],
       [
         0.75,
         (p) => {
@@ -149,7 +159,7 @@ export class Boot extends Component {
     ui.register('adtest', () => new AdTestPage());
     onLanguage(() => ui.rebuild(topActions));
     // 调试构建：控制台里 fsDebug.ui.go('tasks')、fsDebug.Popups.livesPopup() 直接打开页面、弹窗（截图审查用，./run.sh cdp eval）
-    if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups, fitLog, setLanguage };
+    if (DEBUG) (globalThis as unknown as Record<string, unknown>).fsDebug = { ui, App, Popups, Flow, signInPopup, profilePopup, closeAllPopups, fitLog, setLanguage: switchLanguage };
     // 调试：直接进关（./run.sh level N、./run.sh auto）；没给关卡号就进当前关
     if (App.flags.play) ui.go('game', { level: App.flags.level > 0 ? App.flags.level : App.save.data.level });
     else if (App.flags.page) ui.go(App.flags.page);

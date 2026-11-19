@@ -103,6 +103,14 @@ export abstract class PlatformBase {
     return null;
   }
 
+  /** 这一端带的语言（game.json 的 languages，各平台 init 时按自己那份填好），第一个是认不出系统语言时的默认语言 */
+  languages: string[] = ['zh_CN', 'en'];
+
+  /** 系统语言，原样返回平台给的写法（zh-Hant-TW、zh_TW、ja-JP、en…），由 ui/i18n 的 matchLanguage 认；拿不到返回 '' */
+  systemLanguage(): string {
+    return '';
+  }
+
   /** 启动参数：网页是地址栏的 ?level=65&autoplay=1，小游戏是启动 query */
   launchQuery(): Record<string, string> {
     return {};

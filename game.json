@@ -3,7 +3,38 @@
   "codeName": "fishsort",
   "name": {
     "zh_CN": "啵啵救援队",
-    "en": "Bubble Fish"
+    "zh_TW": "啵啵救援隊",
+    "en": "Bubble Fish",
+    "ja": "ぷくぷくレスキュー",
+    "ko": "뽀글뽀글 구조대",
+    "de": "Bubble Fish",
+    "fr": "Bubble Fish",
+    "es": "Bubble Fish",
+    "pt": "Bubble Fish",
+    "it": "Bubble Fish",
+    "ru": "Bubble Fish",
+    "tr": "Bubble Fish"
+  },
+  "languages": {
+    "_comment": "各端带哪些语言（用户 2026-11-19：App 做欧美、日韩和繁体区，跟着同类休闲游戏的常见语言来；微信只有大陆用户，只带简体和英文）。第一个是没有匹配到系统语言时的默认语言",
+    "app": [
+      "en",
+      "zh_CN",
+      "zh_TW",
+      "ja",
+      "ko",
+      "de",
+      "fr",
+      "es",
+      "pt",
+      "it",
+      "ru",
+      "tr"
+    ],
+    "wechat": [
+      "zh_CN",
+      "en"
+    ]
   },
   "version": "1.0.0",
   "build": 1,
@@ -14,7 +45,17 @@
     "admobAppId": "ca-app-pub-3940256099942544~1458002511",
     "trackingText": {
       "en": "This lets us show you ads that are more relevant to you.",
-      "zh_CN": "用来给你推荐更相关的广告。"
+      "zh_CN": "用来给你推荐更相关的广告。",
+      "zh_TW": "用來為你推薦更相關的廣告。",
+      "ja": "あなたの興味に合った広告を表示するために使います。",
+      "ko": "관심사에 더 잘 맞는 광고를 보여 드리는 데 사용됩니다.",
+      "de": "Damit zeigen wir dir Werbung, die besser zu dir passt.",
+      "fr": "Cela nous permet de vous montrer des publicités plus pertinentes.",
+      "es": "Así podemos mostrarte anuncios más relevantes para ti.",
+      "pt": "Assim podemos mostrar anúncios mais relevantes para você.",
+      "it": "Così possiamo mostrarti annunci più adatti a te.",
+      "ru": "Так мы сможем показывать вам более подходящую рекламу.",
+      "tr": "Böylece sana daha ilgi çekici reklamlar gösterebiliriz."
     }
   },
   "android": {

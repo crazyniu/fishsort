@@ -11,12 +11,13 @@ import { buzz, applySettings, sfx } from '../services/audio';
 import { mono, now, today } from '../services/clock';
 import * as fx from './fx';
 import * as Alive from './alive';
-import { language, setLanguage, tr } from './i18n';
+import { LANGUAGE_NAMES, language, setLanguage, tr } from './i18n';
 import { at, box, button, COLOR, DARK_INK, fit, fmt, hex, img, INK, onTap, opacity, setImg, setInk, slice, text, textWidth, twoLines } from './kit';
 
 /** 语言选择里没选中那一段的字色 */
 const SEG_DIM = hex('#5E86C0');
 import { openPopup, Popup } from './popup';
+import { loadFont } from './res';
 import { Screen } from './screen';
 import { ui } from './shell';
 
@@ -379,6 +380,49 @@ export function livesPopup(onChange?: () => void): void {
 // ---------------------------------------------------------------- 设置 / 暂停
 
 /** 主页打开 = 设置：三个开关 + 语言；局内打开 = 暂停：三个开关 +「回主页」「重试」（docs/09 第 4 节） */
+/** 两段切换键上的短名字（「简体中文」放不下） */
+const SEG_NAME: Record<string, string> = { zh_CN: '中文', en: 'English' };
+
+/** 换语言：先读好这种语言的字体，再换文案（换文案会重画整个界面、关掉弹窗），记进存档 */
+export async function switchLanguage(lang: string): Promise<void> {
+  if (lang === language()) return;
+  try {
+    await loadFont(lang);
+  } catch (e) {
+    console.warn('字体读不出来', e);
+  }
+  App.save.data.settings.lang = lang;
+  App.save.write();
+  setLanguage(lang);
+}
+
+/** 语言列表：两列，每种语言用它自己的文字写，当前的那个是绿色 */
+function languagePopup(): void {
+  const langs = App.platform.languages;
+  const rows = Math.ceil(langs.length / 2);
+  const bw = 262;
+  const bh = 84;
+  const gap = 16;
+  const h = 150 + rows * (bh + gap);
+  const p = openPopup({ w: 620, h, title: tr('H_LANGUAGE') });
+  langs.forEach((c, i) => {
+    const col = i % 2;
+    const r = Math.floor(i / 2);
+    const b = button(p.body, {
+      color: c === language() ? 'green' : 'blue',
+      w: bw,
+      h: bh,
+      label: LANGUAGE_NAMES[c] ?? c,
+      fontSize: 32,
+      onTap: () => {
+        p.close();
+        void switchLanguage(c);
+      },
+    });
+    at(b.node, (col - 0.5) * (bw + gap), h / 2 - 110 - r * (bh + gap) - bh / 2 + 20);
+  });
+}
+
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
   const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0);
@@ -423,27 +467,32 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
     at(ic, -556 / 2 + 48, 0);
     const l = text(row, tr('H_LANGUAGE'), 32, { align: 'left' });
     at(l.node, -556 / 2 + 96, 0);
-    const seg = slice(row, 'kit/seg_bg', 256, 64, 'seg');
-    at(seg, 556 / 2 - 16 - 128, 0);
-    const on = slice(seg, 'kit/seg_on', 128, 64, 'on');
-    const zh = text(seg, '中文', 28);
-    at(zh.node, -64, 2);
-    const en = text(seg, 'English', 26);
-    at(en.node, 64, 2);
-    const place = () => {
-      const zhOn = language() === 'zh_CN';
-      at(on, zhOn ? -64 : 64, 0);
-      // 深色凹槽里，选中的一段是蓝色果冻；没选中的字淡一点
-      zh.color = zhOn ? COLOR.white : SEG_DIM;
-      en.color = zhOn ? SEG_DIM : COLOR.white;
-    };
-    place();
-    onTap(seg, () => {
-      setLanguage(language() === 'zh_CN' ? 'en' : 'zh_CN');
-      s.settings.lang = language();
-      App.save.write();
+    const langs = App.platform.languages;
+    if (langs.length === 2) {
+      // 只有两种语言（微信：简体、英文）：一个两段的切换键
+      const seg = slice(row, 'kit/seg_bg', 256, 64, 'seg');
+      at(seg, 556 / 2 - 16 - 128, 0);
+      const on = slice(seg, 'kit/seg_on', 128, 64, 'on');
+      const names = langs.map((c, i) => {
+        const t = text(seg, SEG_NAME[c] ?? LANGUAGE_NAMES[c] ?? c, 26);
+        at(t.node, i === 0 ? -64 : 64, 2);
+        return t;
+      });
+      const place = () => {
+        const first = language() === langs[0];
+        at(on, first ? -64 : 64, 0);
+        // 深色凹槽里，选中的一段是蓝色果冻；没选中的字淡一点
+        names[0].color = first ? COLOR.white : SEG_DIM;
+        names[1].color = first ? SEG_DIM : COLOR.white;
+      };
       place();
-    });
+      onTap(seg, () => void switchLanguage(language() === langs[0] ? langs[1] : langs[0]));
+    } else {
+      // 语言多（App）：右边写当前语言，点了弹语言列表
+      const cur = text(row, `${LANGUAGE_NAMES[language()] ?? language()}  ›`, 30, { align: 'right' });
+      at(cur.node, 556 / 2 - 28, 0);
+      onTap(row, () => languagePopup());
+    }
     y -= 96 + 16;
     // 广告的隐私选项（欧洲等地要能随时改同意，docs/10 第 5 节）
     if (App.platform.hasCapability('privacy_options')) {
