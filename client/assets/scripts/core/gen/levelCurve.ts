@@ -97,11 +97,22 @@ export function isBoss(curve: CurveConfig, id: number): boolean {
 export function routeTarget(curve: CurveConfig, id: number): number | null {
   const t = curve.route?.targets;
   if (!t) return null;
+  const own = t.overrides?.[String(id)];
+  if (own !== undefined) return own;
   if (id < t.line[0][0]) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
   let v = knot(t.line, id);
   if (isBoss(curve, id)) v += t.boss;
   else if (isChallenge(curve, id)) v += t.hard;
   return Math.max(t.min, Math.round(v * 1000) / 1000);
+}
+
+/** 这一关想清楚的玩家不能低于多少（docs/02 0.3）：min(floor.max, 目标 + floor.gap)；没配 floor 用 route.thinkFloor */
+export function thinkFloorFor(curve: CurveConfig, id: number): number {
+  const r = curve.route;
+  if (!r) return 0.9;
+  const t = routeTarget(curve, id);
+  if (!r.floor || t === null) return r.thinkFloor;
+  return Math.min(r.floor.max, Math.round((t + r.floor.gap) * 100) / 100);
 }
 
 /** 排队泡关卡：这一关是哪一档；不是排队泡关卡（jam 没配或还没到 jam.from）返回 null */

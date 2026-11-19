@@ -267,6 +267,20 @@ export function rate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, s
   return { win: won / g, peak: peak / g, route };
 }
 
+/**
+ * 量难度用的「尺子」（docs/02 第 0.2 节，2026-11-19 第三版）：随手点的玩家（casual，slip = 点错的概率），
+ * 或想几步的玩家（think，budget = 每一步在脑子里推几个局面：60 ≈ 会看、会想几步的真人；300 是「想清楚」）
+ */
+export interface Ruler {
+  kind: Kind;
+  budget?: number;
+  slip?: number;
+}
+
+export function rulerRate(lv: LevelData, ruler: Ruler, games: number, preview: number, seedBase = 0): Rate {
+  return ruler.kind === 'think' ? rate(lv, 'think', games, { preview, budget: ruler.budget }, seedBase) : rate(lv, 'casual', games, { preview, slip: ruler.slip }, seedBase);
+}
+
 export function winRate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, seedBase = 0): number {
   return rate(lv, kind, games, o, seedBase).win;
 }

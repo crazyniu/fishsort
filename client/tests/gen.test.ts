@@ -359,10 +359,10 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
     const before = new Map<number, number>();
     for (const b of lv.bubbles) for (const f of b.fish) before.set(f, (before.get(f) ?? 0) + 1);
-    const r = RouteGen.tighten(lv, { casual: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
+    const r = RouteGen.tighten(lv, { target: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
     assert.ok(r.last !== null && r.byPct.size > 0);
     for (const [pct, snap] of r.byPct) {
-      assert.equal(RouteGen.bucket(snap.m.casual), pct);
+      assert.equal(RouteGen.bucket(snap.m.level), pct);
       assert.ok(snap.m.think >= 0.9);
       const after = new Map<number, number>();
       for (const b of snap.lv.bubbles) for (const f of b.fish) after.set(f, (after.get(f) ?? 0) + 1);

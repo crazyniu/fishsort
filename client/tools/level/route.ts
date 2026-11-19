@@ -39,10 +39,21 @@ const paramsFor = (ease: number) => {
 let p = paramsFor(0);
 const seed0 = Number(arg('seed', '1'));
 const t0 = Date.now();
-const rc = curve.route ?? { preview: 0, thinkFloor: 0.9, iterations: 800, casualGames: 120, thinkGames: 20, checkCasual: 300, checkThink: 40 };
-const floor = Number(arg('floor', String(rc.thinkFloor)));
+const rcMaybe = curve.route;
+if (!rcMaybe) {
+  console.log('level_curve.json 里没有 route（规定路线的收紧参数）');
+  process.exit(1);
+}
+const rc = rcMaybe;
 const preview = Number(arg('preview', String(rc.preview)));
 const target = Number(arg('target', String(LevelCurve.routeTarget(curve, id) ?? 0.95)));
+// 想清楚的玩家的保底按关定（docs/02 0.3：min(floor.max, 目标 + floor.gap)），--floor 可以手动给
+const floor = Number(arg('floor', String(LevelCurve.thinkFloorFor(curve, id))));
+// 尺子：量难度用哪个玩家（level_curve.json 的 route.ruler；不给 = 随手点的玩家）
+const ruler: Players.Ruler = rc.ruler ? { kind: rc.ruler.kind, budget: rc.ruler.budget, slip: rc.ruler.slip } : { kind: 'casual' };
+const rulerGames = rc.ruler?.games ?? rc.casualGames;
+const rulerCheck = rc.ruler?.checkGames ?? rc.checkCasual;
+const rulerName = ruler.kind === 'think' ? '想几步' : '随手点';
 // 起点：想清楚的玩家过得去、随手点的也比目标容易一截（从容易往难里收紧，中间每档都有）。随机生成的偶尔不满足，换下一个种子；
 // 20 个种子都比目标难，就换放松的生成参数（ease 1、2）再试；还是比目标难就取最容易的，收紧时反过来往容易里放松
 let lv: LevelData | null = null;
@@ -58,7 +69,7 @@ for (let ease = 0; ease <= 2 && easiest < want; ease++) {
     const pf = LevelCurve.prefillFor(curve, id);
     if (x && pf > 0 && curve.prefill) Prefill.apply(x, pf, curve.prefill.after, new Rng(id * 131 + sd * 17 + ease));
     if (!x || Players.rate(x, 'think', rc.thinkGames, { preview }, 0, floor).win < floor) continue;
-    const c = Players.rate(x, 'casual', rc.casualGames, { preview }).win;
+    const c = Players.rulerRate(x, ruler, rulerGames, preview).win;
     if (c > easiest) {
       easiest = c;
       lv = x;
@@ -79,7 +90,9 @@ lv.id = id;
 const fish = lv.bubbles.reduce((n, b) => n + b.fish.length, 0);
 console.log(`第 ${id} 关（种子 ${seed}）鱼 ${fish} 种 ${p.species} 泡 ${lv.bubbles.length} 层 ${p.layers} 排队 ${lv.bubbles.filter((b) => b.queue).length} 冰 ${lv.bubbles.filter((b) => b.ice.length).length} 锁 ${lv.bubbles.filter((b) => b.chain).length} 暂存槽 ${lv.buffer}`);
 const opts = {
-  casual: Math.min(target, Number(arg('down', String(target)))),
+  target: Math.min(target, Number(arg('down', String(target)))),
+  ruler,
+  rulerGames,
   thinkFloor: floor,
   preview,
   iterations: Number(arg('iter', String(rc.iterations))),
@@ -92,7 +105,10 @@ const opts = {
 interface Ver {
   pct: number;
   lv: LevelData;
+  /** 尺子量的过关率（复量）：这一档的难度 */
   casual: number;
+  /** 随手点的玩家（复量，调试页上参考） */
+  rand: number;
   think: number;
   run: number;
 }
@@ -123,15 +139,16 @@ for (let attempt = 0; attempt < 3; attempt++) {
   const r = tighten(from, { ...opts, seed: opts.seed + attempt * 7777, seedBase: attempt * 10007 });
   tries += r.tries;
   for (const snap of Array.from(r.byPct.values())) {
-    const casual = Players.rate(snap.lv, 'casual', rc.checkCasual, { preview }, 1000).win;
+    const casual = Players.rulerRate(snap.lv, ruler, rulerCheck, preview, 1000).win;
+    const rand = ruler.kind === 'casual' ? casual : Players.rate(snap.lv, 'casual', rc.checkCasual, { preview }, 1000).win;
     const think = Players.rate(snap.lv, 'think', rc.checkThink, { preview }, 1000).win;
     // 参考解换成想清楚的玩家赢下来的那条（看得见的信息走得出来；交换过鱼以后生成时的参考解也不对了）
     const route = validRoute(snap.lv, snap.m.route);
     if (route) snap.lv.ref = route;
     const run = route ? longestRun(snap.lv, route) : 0;
     const tag = think < floor - 0.05 ? '（想清楚的复量不够，不要）' : route === null ? '（找不到过结构校验的参考解，不要）' : '';
-    console.log(`  [${attempt + 1}] 随手点 ${Math.round(casual * 100)}%  想清楚 ${Math.round(think * 100)}%  路线最长连击 ${run}${tag}`);
-    if (!tag) all.push({ pct: bucket(casual), lv: snap.lv, casual, think, run });
+    console.log(`  [${attempt + 1}] ${rulerName} ${Math.round(casual * 100)}%  随手点 ${Math.round(rand * 100)}%  想清楚 ${Math.round(think * 100)}%  路线最长连击 ${run}${tag}`);
+    if (!tag) all.push({ pct: bucket(casual), lv: snap.lv, casual, rand, think, run });
   }
   // 有一档离目标 5 个点以内就行；所有档都比目标难（放不上来）再收也一样，不重来；
   // 跳过了目标、或者都还比目标容易（复量回弹），再收一轮
@@ -140,7 +157,7 @@ for (let attempt = 0; attempt < 3; attempt++) {
   // 这一轮一档都没比上一轮更接近（压不动了），也停
   if (attempt > 0 && r.byPct.size <= 1) break;
 }
-console.log(`  目标：随手点 ${Math.round(target * 100)}%，想清楚的不低于 ${Math.round(opts.thinkFloor * 100)}%，预告 ${opts.preview} 缸；试了 ${tries} 次交换，${((Date.now() - t0) / 1000).toFixed(0)}s`);
+console.log(`  目标：${rulerName} ${Math.round(target * 100)}%，想清楚的不低于 ${Math.round(opts.thinkFloor * 100)}%，预告 ${opts.preview} 缸；试了 ${tries} 次交换，${((Date.now() - t0) / 1000).toFixed(0)}s`);
 if (all.length === 0) {
   console.log('  没有一档想清楚的玩家过得去，换个种子');
   process.exit(1);
@@ -191,7 +208,7 @@ if (process.argv.includes('--pkg')) {
     lvE.variants = [];
     writeFileSync(join(LEVELS, `level_${pad(id)}_e${e}.json`), lvE.toJson() + '\n');
   }
-  console.log(`  包里的第 ${id} 关换成档 ${main.pct}（随手点 ${Math.round(main.casual * 100)}%）`);
+  console.log(`  包里的第 ${id} 关换成档 ${main.pct}（${rulerName} ${Math.round(main.casual * 100)}%）`);
 }
 if (process.argv.includes('--lab')) {
   mkdirSync(LAB, { recursive: true });
@@ -205,7 +222,7 @@ if (process.argv.includes('--lab')) {
     out.id = id;
     out.variants = [];
     writeFileSync(join(LAB, `level_${pad(id)}_p${v.pct}.json`), out.toJson() + '\n');
-    versions[String(v.pct)] = { natural: Math.round(v.casual * 100), think: Math.round(v.think * 100), run: v.run };
+    versions[String(v.pct)] = { natural: Math.round(v.casual * 100), casual: Math.round(v.rand * 100), think: Math.round(v.think * 100), run: v.run };
   }
   const entry = { base: main.pct, target: Math.round(target * 100), versions };
   // 批量生成（routeAll.ts）时几关同时跑，各写各的一小份，跑完再合进 index.json（不然同时改一个文件会互相盖掉）
@@ -225,6 +242,7 @@ console.log(
       kind: LevelCurve.isBoss(curve, id) ? 'boss' : LevelCurve.isChallenge(curve, id) ? 'hard' : 'normal',
       target: Math.round(target * 1000) / 10,
       casual: Math.round(main.casual * 1000) / 10,
+      rand: Math.round(main.rand * 1000) / 10,
       think: Math.round(main.think * 100),
       ease: easeUsed,
       versions: vers.map((v) => Math.round(v.casual * 100)),

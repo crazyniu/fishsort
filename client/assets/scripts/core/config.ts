@@ -337,10 +337,14 @@ export interface CurveConfig {
     checkCasual: number;
     checkThink: number;
     /**
-     * 随手点的玩家不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
-     * 难关在 line 上加 hard、超难关加 boss（负数），都不低于 min
+     * 尺子量的不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
+     * 难关在 line 上加 hard、超难关加 boss（负数），都不低于 min；overrides 单独指定某几关（关卡号 → 比例，优先）
      */
-    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; min: number };
+    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; min: number; overrides?: Record<string, number> };
+    /** 量难度用哪个玩家（docs/02 0.2）：casual 随手点，think 想几步（budget 每步推几个局面）；games 收紧时每次打几局、checkGames 复量打几局 */
+    ruler?: { kind: 'casual' | 'think'; budget?: number; slip?: number; games: number; checkGames: number };
+    /** 想清楚的玩家的保底（docs/02 0.3）：不低于 min(max, 这一关的目标 + gap)；不给就一律 thinkFloor */
+    floor?: { max: number; gap: number };
   };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
