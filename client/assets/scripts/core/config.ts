@@ -345,6 +345,11 @@ export interface CurveConfig {
     ruler?: { kind: 'casual' | 'think'; budget?: number; slip?: number; games: number; checkGames: number };
     /** 想清楚的玩家的保底（docs/02 0.3）：不低于 min(max, 这一关的目标 + gap)；不给就一律 thinkFloor */
     floor?: { max: number; gap: number };
+    /**
+     * 每日挑战的专用难关（docs/01 5.11，用户 2026-11-19）：第 from 关起每 step 关一份（和挑战关同一套生成参数），
+     * 尺子不用道具能过 target（不超过 max），想清楚的不低于 floor；存在 config/levels_daily/
+     */
+    daily?: { from: number; step: number; target: number; max: number; floor: number };
   };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };

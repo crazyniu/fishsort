@@ -522,17 +522,17 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(ECO.dailyChallenge.levelStep, curve().cycle);
   });
 
-  it('进场、每日宝箱 40 金币 + 卡、七日大宝箱（300 金币 + 随机技能 1 个 + 1 小时无限生命）', () => {
+  it('进场（再试 30 金币）、每日宝箱 200 金币 + 卡、七日大宝箱（1000 金币 + 随机技能 1 个 + 1 小时无限生命）', () => {
     const [save, eco, species] = setup(20);
     assert.ok(DailyChallenge.enter(save, eco, 100, 'free'));
     assert.ok(!DailyChallenge.enter(save, eco, 100, 'free'));
     assert.ok(!DailyChallenge.enter(save, eco, 100, 'coins'));
-    save.coins = 60;
+    save.coins = 30;
     assert.ok(DailyChallenge.enter(save, eco, 100, 'coins'));
     assert.equal(save.coins, 0);
     const toolsBefore = Object.values(save.tools).reduce((a, b) => a + b, 0);
     const r = DailyChallenge.win(save, eco, species, 100, 0, new Rng(1));
-    assert.equal(save.coins, 40);
+    assert.equal(save.coins, 200);
     // 每日宝箱原来送一个随机技能：免费技能太多、不用花金币买，2026-11-18 撤掉（docs/01 6.3）
     assert.equal(r.prizes.filter((p) => p.kind === 'skill').length, 0);
     assert.equal(Object.values(save.tools).reduce((a, b) => a + b, 0), toolsBefore);
@@ -546,7 +546,7 @@ describe('每日挑战（docs/01 5.11）', () => {
     const big = DailyChallenge.win(save, eco, species, 106, 0, new Rng(7));
     assert.ok(big.big);
     assert.equal(big.prizes.filter((p) => p.kind === 'skill').length, 1, '七日大宝箱：随机技能 1 个');
-    assert.equal(save.coins - coins, 40 + 300 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
+    assert.equal(save.coins - coins, 200 + 1000 + big.prizes.filter((p) => p.kind === 'card').reduce((a, p) => a + (p.dupe_coins ?? 0), 0));
     assert.ok(Lives.isUnlimited(save, 3599) && !Lives.isUnlimited(save, 3600 + 600), '七日大宝箱 1 小时无限生命');
     assert.equal(DailyChallenge.streak(save, 106), 0);
     DailyChallenge.win(save, eco, species, 107, 0, new Rng(8));

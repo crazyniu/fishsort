@@ -1128,13 +1128,13 @@
   },
   "dailyChallenge": {
     "levelStep": 5,
-    "retryCoins": 60,
+    "retryCoins": 30,
     "reward": {
-      "coins": 40
+      "coins": 200
     },
     "streakDays": 7,
     "streakReward": {
-      "coins": 300,
+      "coins": 1000,
       "skills": 1,
       "unlimited": 3600
     }

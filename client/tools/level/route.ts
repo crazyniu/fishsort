@@ -7,6 +7,7 @@
 //   --species / --queue  在难度曲线的基础上改鱼种数（+1 = 多一种）和排队泡比例，做实验用
 //   --lab     把每一档写进包里的 config/levels_lab/，并更新 index.json（难度调试页从这里挑，docs/01 9.7）
 //   --pkg     包里这一关（level_XXXX.json）换成最接近目标的那一档，两个变体（连输 2、4 次换上）用更容易的档
+//   --daily   每日挑战的专用难关（docs/01 5.11）：目标、保底用 level_curve.json 的 route.daily，只写 config/levels_daily/level_XXXX.json
 //   --labEntry=文件  和 --lab 一起用：这一关的索引写到这个文件，不直接改 index.json（批量并行时用，tools/level/routeAll.ts）
 // 最后一行打印 @@RESULT {…}（批量生成汇总用）
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -46,9 +47,14 @@ if (!rcMaybe) {
 }
 const rc = rcMaybe;
 const preview = Number(arg('preview', String(rc.preview)));
-const target = Number(arg('target', String(LevelCurve.routeTarget(curve, id) ?? 0.95)));
+const daily = process.argv.includes('--daily') ? rc.daily : undefined;
+if (process.argv.includes('--daily') && !daily) {
+  console.log('level_curve.json 的 route 里没有 daily（每日挑战关的目标）');
+  process.exit(1);
+}
+const target = Number(arg('target', String(daily ? daily.target : (LevelCurve.routeTarget(curve, id) ?? 0.95))));
 // 想清楚的玩家的保底按关定（docs/02 0.3：min(floor.max, 目标 + floor.gap)），--floor 可以手动给
-const floor = Number(arg('floor', String(LevelCurve.thinkFloorFor(curve, id))));
+const floor = Number(arg('floor', String(daily ? daily.floor : LevelCurve.thinkFloorFor(curve, id))));
 // 尺子：量难度用哪个玩家（level_curve.json 的 route.ruler；不给 = 随手点的玩家）
 const ruler: Players.Ruler = rc.ruler ? { kind: rc.ruler.kind, budget: rc.ruler.budget, slip: rc.ruler.slip } : { kind: 'casual' };
 const rulerGames = rc.ruler?.games ?? rc.casualGames;
@@ -172,6 +178,8 @@ const nearest = (want: number, above = -1): Ver | null => {
   return best;
 };
 const main = nearest(target) as Ver;
+/** 汇总行报的那一档（每日挑战报写进 levels_daily 的那一档） */
+let shown: Ver = main;
 // 调试页每 10% 一档：同一档留想清楚的更稳的；包里那一档一定留
 const vers: Ver[] = [];
 for (const v of all) {
@@ -187,6 +195,19 @@ if (vers.length === 0) process.exit(1);
 const pad = (n: number) => String(n).padStart(4, '0');
 const LEVELS = join(CLIENT, 'assets/resources/config/levels');
 const LAB = join(CLIENT, 'assets/resources/config/levels_lab');
+if (daily) {
+  // 每日挑战：取最接近目标、又不超过 max 的那一档（都超过就取最难的），不出变体（每日挑战不降难度）
+  const ok = all.filter((v) => v.casual <= daily.max);
+  const pick = ok.length > 0 ? ok.reduce((a, b) => (Math.abs(b.casual - target) < Math.abs(a.casual - target) ? b : a)) : all.reduce((a, b) => (b.casual < a.casual ? b : a));
+  const out = LevelData.fromDict(pick.lv.toDict());
+  out.id = id;
+  out.variants = [];
+  const DAILY = join(CLIENT, 'assets/resources/config/levels_daily');
+  mkdirSync(DAILY, { recursive: true });
+  writeFileSync(join(DAILY, `level_${pad(id)}.json`), out.toJson() + '\n');
+  console.log(`  每日挑战第 ${id} 关：${rulerName} ${Math.round(pick.casual * 100)}%（不超过 ${Math.round(daily.max * 100)}%${ok.length ? '' : '，压不到，取了最难的一档'}），想清楚 ${Math.round(pick.think * 100)}%`);
+  shown = pick;
+}
 if (process.argv.includes('--pkg')) {
   const out = LevelData.fromDict(main.lv.toDict());
   out.id = id;
@@ -241,9 +262,9 @@ console.log(
       id,
       kind: LevelCurve.isBoss(curve, id) ? 'boss' : LevelCurve.isChallenge(curve, id) ? 'hard' : 'normal',
       target: Math.round(target * 1000) / 10,
-      casual: Math.round(main.casual * 1000) / 10,
-      rand: Math.round(main.rand * 1000) / 10,
-      think: Math.round(main.think * 100),
+      casual: Math.round(shown.casual * 1000) / 10,
+      rand: Math.round(shown.rand * 1000) / 10,
+      think: Math.round(shown.think * 100),
       ease: easeUsed,
       versions: vers.map((v) => Math.round(v.casual * 100)),
       seconds: Math.round((Date.now() - t0) / 1000),

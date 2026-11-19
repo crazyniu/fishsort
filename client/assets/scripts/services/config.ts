@@ -57,8 +57,18 @@ export class Config {
     return this.curve.total;
   }
 
-  /** 读关卡文件；ease > 0 时取易化变体，没有就退回普通版 */
-  async loadLevel(fileId: number, ease: number): Promise<LevelData> {
+  /**
+   * 读关卡文件；ease > 0 时取易化变体，没有就退回普通版。
+   * daily：每日挑战先读专用难关 config/levels_daily/（docs/01 5.11），没有这一关就用普通版
+   */
+  async loadLevel(fileId: number, ease: number, daily = false): Promise<LevelData> {
+    if (daily) {
+      try {
+        return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_daily/level_${pad(fileId)}`));
+      } catch {
+        // 没生成过这一关的每日版：退回普通版
+      }
+    }
     // 开发版难度调试页挑了档的关（devtools/levelLab.ts）：本体和变体都换成挑的那一档
     const custom = lab.override(fileId);
     if (custom) return LevelData.fromDict(custom);

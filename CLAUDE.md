@@ -69,7 +69,10 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh check                 # 类型检查 + .meta / 图片压缩检查 + 单测，与 CI 相同
 ./run.sh test                  # 只跑单测
 ./run.sh level-gen             # 生成关卡（level-gen 26 125 = 指定范围；第 26 关起按普通玩家机器人「花几样才过」生成，docs/02 第 0 节，一关约半分钟，4 段并行）
-./run.sh level-verify          # 全量关卡校验（回放参考解；报告 tools/level/report.csv 里每关写花 0–6 样的过关比例）
+python3 difficulty.py          # 调难度（Mac 上跑）：菜单里看目标、改参数、后台生成关卡 / 每日挑战关、看进度、停止（docs/02 第 0.5 节）
+./run.sh level-route 6 360 --jobs=12 --lab   # 规定路线全量生成（difficulty.py 调的就是它；--daily 生成每日挑战专用难关，--resume 接着上次）
+./run.sh level-fixref          # 查全部关卡的参考解能不能过结构校验，过不了的换一条
+./run.sh level-verify          # 全量关卡校验（只查结构，几秒；加 --measure 才复测每关难度，要很久）
 ./run.sh level-probe 120,199   # 难度探针：随手玩家和细心玩家两个机器人的胜率（docs/02 第 0 节；动难度前先用它量）
 ./run.sh eco-sim               # 金币的账：一天挣多少、要花多少、要看几次广告（docs/01 第 6 节；动金币和技能奖励前后都要跑）
 ./run.sh meta                  # 给新资源补 .meta（结果要提交）

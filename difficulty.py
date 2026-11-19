@@ -9,6 +9,7 @@
 
     python3 difficulty.py show [关号 …]          看目标
     python3 difficulty.py gen [起 止] [--commit]  生成（--commit = 校验通过后自动提交推送）
+    python3 difficulty.py gen --daily [--commit]  生成每日挑战关
     python3 difficulty.py status                 看进度
     python3 difficulty.py stop                   停止
 
@@ -56,6 +57,12 @@ import time
 # 保证认真想一定有路能过；越往后目标越低，保底跟着往下放
 保底_最高 = 90
 保底_比目标高 = 40
+
+# 每日挑战（第 20 关开放）的专用难关：第 10 关起每 5 关做一份，和挑战关同一套鱼数。
+# 不用道具能过的目标、最多不超过多少，想清楚的玩家至少能过多少（菜单「生成每日挑战关卡」）
+每日挑战_能过 = 6
+每日挑战_最多 = 10
+每日挑战_保底 = 50
 
 # 局内看得到后面几缸要什么（机器人也按这个看；改了要连局内一起改，平时别动）
 预告缸数 = 3
@@ -151,6 +158,7 @@ def write_config():
     route['targets'] = _targets()
     route['ruler'] = {'kind': 'think', 'budget': 想几步的深度, 'games': 40, 'checkGames': 100} if 尺子 == '想几步' else {'kind': 'casual', 'games': 200, 'checkGames': 500}
     route['floor'] = {'max': 保底_最高 / 100, 'gap': 保底_比目标高 / 100}
+    route['daily'] = {'from': 10, 'step': 5, 'target': 每日挑战_能过 / 100, 'max': 每日挑战_最多 / 100, 'floor': 每日挑战_保底 / 100}
     prefill = curve.get('prefill', {'after': 0.5})
     prefill['from'] = 开局占格_从第几关起
     prefill['count'] = [[a, b] for a, b in 开局占格_条数]
@@ -219,29 +227,29 @@ def cmd_run(args):
         raise SystemExit('后台已经有一次生成在跑：先在菜单里看进度，或者停止它')
     commit = '--commit' in args
     resume = '--resume' in args
+    daily = '--daily' in args
     nums = [int(a) for a in args if a.isdigit()]
     lo, hi = (nums[0], nums[1]) if len(nums) >= 2 else (nums[0], nums[0]) if nums else (6, TOTAL)
     jobs = 并行数 or max(1, (os.cpu_count() or 4) - 2)
     write_config()
     steps = [
-        f'./run.sh level-route {lo} {hi} --jobs={jobs} --lab' + (' --resume' if resume else ''),
+        f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else ''),
         './run.sh meta',
-        './run.sh level-fixref',
-        './run.sh level-verify --measure',
-    ]
+    ] + ([] if daily else ['./run.sh level-fixref', './run.sh level-verify --measure'])
     if commit:
         steps.append(
-            'git add client/assets/resources/config/levels client/assets/resources/config/levels_lab client/assets/resources/config/level_curve.json'
-            f' && git commit -q -m "levels: 按 difficulty.py 重新生成第 {lo}–{hi} 关" && git push -q'
+            ('git add client/assets/resources/config/levels_daily client/assets/resources/config/level_curve.json' if daily else
+             'git add client/assets/resources/config/levels client/assets/resources/config/levels_lab client/assets/resources/config/level_curve.json')
+            + f' && git commit -q -m "levels: 按 difficulty.py 重新生成{"每日挑战" if daily else ""}第 {lo}–{hi} 关" && git push -q'
         )
     script = ' && '.join(f'{{ echo "@@步骤 {s}"; {s}; }}' for s in steps)
     script += ' && echo "@@完成" || echo "@@出错（往上看是哪一步）"'
     with open(LOG, 'w', encoding='utf-8') as f:
-        f.write(f'@@开始 {time.strftime("%Y-%m-%d %H:%M:%S")} 第 {lo}–{hi} 关，并行 {jobs}\n')
+        f.write(f'@@开始 {time.strftime("%Y-%m-%d %H:%M:%S")} 第 {lo}–{hi} 关{"（每日挑战）" if daily else ""}，并行 {jobs}\n')
     p = subprocess.Popen(['bash', '-c', script], cwd=ROOT, stdout=open(LOG, 'a'), stderr=subprocess.STDOUT, start_new_session=True)
     with open(PID, 'w') as f:
         f.write(str(p.pid))
-    print(f'已经在后台开始生成第 {lo}–{hi} 关（并行 {jobs}）。可以关掉这个终端。')
+    print(f'已经在后台开始生成{"每日挑战的" if daily else ""}第 {lo}–{hi} 关（并行 {jobs}）。可以关掉这个终端。')
     print('看进度：再运行 python3 difficulty.py，选「看进度」')
     print(f'全部输出：{LOG}')
 
@@ -304,6 +312,9 @@ PARAMS = [
     ('想几步的深度', '想几步的玩家每步试几种走法，越大越聪明、关卡越难'),
     ('保底_最高', '想清楚的玩家至少能过几 %（上限）'),
     ('保底_比目标高', '想清楚的保底 = 这一关的目标 + 几个点（不超过上面的上限）'),
+    ('每日挑战_能过', '每日挑战关不用道具能过几 %（目标）'),
+    ('每日挑战_最多', '每日挑战关最多不超过几 %'),
+    ('每日挑战_保底', '每日挑战关想清楚的玩家至少能过几 %'),
     ('开局占格_从第几关起', '难关开局暂存槽先放鱼，从第几关起'),
     ('开局占格_条数', '[(从第几关起, 几条), …]'),
     ('并行数', '同时生成几关，0 = 按核数自动'),
@@ -382,10 +393,10 @@ def _last_unfinished():
     if not os.path.exists(LOG):
         return None
     text = open(LOG, encoding='utf-8', errors='replace').read()
-    m = re.search(r'@@开始 .*? 第 (\d+)–(\d+) 关', text)
+    m = re.search(r'@@开始 .*? 第 (\d+)–(\d+) 关(（每日挑战）)?', text)
     if not m or '@@完成' in text or '@@步骤 ./run.sh meta' in text:
         return None
-    return int(m.group(1)), int(m.group(2))
+    return int(m.group(1)), int(m.group(2)), bool(m.group(3))
 
 
 def menu():
@@ -395,8 +406,9 @@ def menu():
         print('  1. 看每关的目标')
         print('  2. 改参数')
         print('  3. 生成关卡（后台跑）')
-        print('  4. 看进度')
-        print('  5. 停止后台生成')
+        print('  4. 生成每日挑战关卡（后台跑）')
+        print('  5. 看进度')
+        print('  6. 停止后台生成')
         print('  0. 退出')
         v = _ask('选一项：')
         if v in ('0', 'q', ''):
@@ -406,23 +418,27 @@ def menu():
             cmd_show([int(x) for x in re.findall(r'\d+', raw)])
         elif v == '2':
             menu_params()
-        elif v == '3':
+        elif v in ('3', '4'):
+            daily = v == '4'
             if busy:
                 print('后台已经有一次生成在跑，先看进度或者停止它')
                 continue
             last = _last_unfinished()
             resume = False
-            if last and _ask(f'上次第 {last[0]}–{last[1]} 关没跑完，接着跑？（跳过已经生成好的）(Y/n)：').lower() != 'n':
+            if last and last[2] == daily and _ask(f'上次第 {last[0]}–{last[1]} 关没跑完，接着跑？（跳过已经生成好的）(Y/n)：').lower() != 'n':
                 lo, hi, resume = last[0], last[1], True
+            elif daily:
+                lo, hi = 10, TOTAL
+                print(f'每日挑战关：第 10 关起每 5 关一份，共 {(TOTAL - 10) // 5 + 1} 关；不用道具能过 {每日挑战_能过}%（最多 {每日挑战_最多}%），想清楚的至少 {每日挑战_保底}%')
             else:
                 lo, hi = _ask_range()
             commit = _ask('校验通过后自动提交并推送？(y/N)：').lower() == 'y'
-            print(f'将按当前参数生成第 {lo}–{hi} 关（{hi - lo + 1} 关）' + ('，完成后自动提交推送' if commit else '，生成的文件不提交'))
+            print(f'将按当前参数生成{"每日挑战的" if daily else ""}第 {lo}–{hi} 关' + ('，完成后自动提交推送' if commit else '，生成的文件不提交'))
             if _ask('确定？(y/N)：').lower() == 'y':
-                cmd_run([str(lo), str(hi)] + (['--commit'] if commit else []) + (['--resume'] if resume else []))
-        elif v == '4':
-            cmd_status()
+                cmd_run([str(lo), str(hi)] + (['--commit'] if commit else []) + (['--resume'] if resume else []) + (['--daily'] if daily else []))
         elif v == '5':
+            cmd_status()
+        elif v == '6':
             if busy and _ask('确定停掉？已经生成好的关保留着 (y/N)：').lower() == 'y':
                 cmd_stop()
             elif not busy:

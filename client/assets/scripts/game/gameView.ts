@@ -319,7 +319,7 @@ export class GamePage extends Page {
     // 关卡文件和这关的鱼：微信版放在网上，用到时才下（docs/04 第 8 节）。下不下来就提示、回主页（不扣命）
     let species: string[];
     try {
-      this.lv = await config.loadLevel(file, ease);
+      this.lv = await config.loadLevel(file, ease, !!this.arg.daily);
       const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
       species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
       await loadFrames(species.map((sp) => `fish/${sp}`));

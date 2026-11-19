@@ -322,7 +322,7 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.deepEqual(ECO.toolPrice, { undo: 240, hint: 360, shuffle: 240, blow: 280, net: 360, current: 480 });
     assert.equal(ECO.bowlSlotCoinPrice, 300);
     assert.equal(ECO.skills.freeDaily, 1, '每天免费技能不分种类一共 1 次');
-    assert.equal(ECO.dailyChallenge.retryCoins, 60);
+    assert.equal(ECO.dailyChallenge.retryCoins, 30, '每日挑战是专用难关（不用道具 ≤10%），再试便宜');
     assert.deepEqual(ECO.dupeCoins, { common: 10, uncommon: 25, rare: 60, epic: 150, legend: 500 });
     assert.equal(ECO.wheel.coinCost, 200);
     assert.equal(ECO.wheel.tenCost, 1800);
