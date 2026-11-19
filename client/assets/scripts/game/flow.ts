@@ -7,6 +7,8 @@ import * as Cards from '../core/meta/cards';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Dex from '../core/meta/dex';
 import * as LevelChest from '../core/meta/levelChest';
+import * as Lucky from '../core/meta/lucky';
+import * as Stars from '../core/meta/stars';
 import * as Seas from '../core/meta/seas';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
@@ -194,7 +196,12 @@ export function checkTutorial(g: GamePage): void {
   const s = App.save.data;
   PlayerData.markTip(s, `skill_${id}`);
   App.save.write();
-  g.startTutorial(id, () => useSkill(g, id));
+  g.startTutorial(id, () => {
+    // 强制教学这一次不算进星级的道具数（docs/01 9.5）
+    const before = g.usedAll;
+    useSkill(g, id);
+    if (g.usedAll > before) g.freebies++;
+  });
 }
 
 /** 第一步有效操作：每日挑战的免费次这时才记（docs/01 5.11） */
@@ -212,6 +219,9 @@ export function onFirstMove(g: GamePage): void {
 /** 当前没有效果的技能不扣数量，局内给一句提示（docs/01 5.2） */
 export function hasEffect(g: GamePage, id: string): string | null {
   const s = g.s;
+  // 撤销：还没点过，或上一步是用道具、开缸（那些退不回去）。提示在 useSkill 里现算（算一次要想几百个局面，这里每帧都可能被问）
+  if (id === 'undo') return g.canUndo ? null : 'UI_UNDO_EMPTY';
+  if (id === 'hint') return null;
   if (id === 'blow' && s.buffer.length === 0) return 'UI_BLOW_EMPTY';
   if (id === 'current' && Rules.useCurrent(s.clone()).length === 0) return 'UI_CURRENT_EMPTY';
   if (id === 'shuffle' && Rules.useShuffle(s.clone(), 1).length === 0) return 'UI_SHUFFLE_EMPTY';
@@ -234,6 +244,12 @@ export function useSkill(g: GamePage, id: string): void {
     ui.toast(tr(none));
     return;
   }
+  // 提示：先算出要亮哪一步，算不出来（没有能点的）不扣
+  const hintTap = id === 'hint' ? g.skillHintTap() : null;
+  if (id === 'hint' && !hintTap) {
+    ui.toast(tr('UI_HINT_EMPTY'));
+    return;
+  }
   const used = g.used[id] ?? 0;
   const r = Skills.tryUse(s, eco, id, used, today(), g.freeLevelId, g.usedAll);
   if (!r.ok) {
@@ -244,8 +260,13 @@ export function useSkill(g: GamePage, id: string): void {
   g.used[id] = used + 1;
   App.save.write();
   g.refreshSkills();
-  sfx(id === 'current' ? 'current' : id === 'net' ? 'net' : id);
-  if (id === 'shuffle') g.act(() => Rules.useShuffle(g.s, rng.nextU32()));
+  // 撤销、提示先借用现成的声音（切页的「嘟」、星星的「叮」），专门的音色等用户试听后再定
+  sfx(id === 'undo' ? 'tab' : id === 'hint' ? 'star' : id);
+  if (id === 'undo') {
+    g.undo();
+    g.refreshSkills();
+  } else if (id === 'hint' && hintTap) g.showSkillHint(hintTap);
+  else if (id === 'shuffle') g.act(() => Rules.useShuffle(g.s, rng.nextU32()));
   else if (id === 'blow') g.act(() => Rules.useBlow(g.s));
   else if (id === 'current') g.act(() => Rules.useCurrent(g.s));
   else if (id === 'net') g.enterNetMode();
@@ -316,6 +337,8 @@ export function unlockSlot(g: GamePage): void {
   at(l.node, 0, -10 + dy);
   const done = () => {
     p.close();
+    // 加开鱼缸算用了一样道具（星级，docs/01 9.5）
+    g.extras++;
     g.act(() => Rules.unlockBowl(g.s));
     sfx('unlock');
   };
@@ -439,6 +462,18 @@ export function comboCard(g: GamePage): void {
   });
 }
 
+// ---------------------------------------------------------------- 幸运泡
+
+/** 幸运泡里带奖励的那条鱼被取走：当场入账（卡留到结算页翻），返回给了什么，界面拿去飞图标 */
+export function luckyGain(plan: Lucky.LuckyPlan): Lucky.LuckyGain {
+  const s = App.save.data;
+  const eco = App.config.eco;
+  const gain = Lucky.grant(s, eco, plan, Album.pool(eco, App.config.species, s.level), rng);
+  if (gain.card) pendingCards.push(gain.card);
+  App.save.write();
+  return gain;
+}
+
 // ---------------------------------------------------------------- 失败、复活
 
 const LOSE_KEY: Record<number, string> = {
@@ -556,6 +591,7 @@ function revivePopup(g: GamePage): void {
       if (!(await watchAd('rv_revive'))) return;
       p.close();
       g.paused = false;
+      g.extras++;
       const ev = Rules.revive(g.s);
       g.resync();
       g.play(ev, false);
@@ -637,6 +673,8 @@ export interface WinData {
   combo: number;
   best: number;
   challenge: boolean;
+  /** 这次拿了几颗星、是不是第一次三星（奖励已经入账，docs/01 9.5） */
+  stars: Stars.StarResult;
 }
 
 export function win(g: GamePage): void {
@@ -678,6 +716,9 @@ export function win(g: GamePage): void {
     if (rw.card) pendingCards.push(rw.card);
     else result.coins += rw.coins;
   }
+  // 星级（docs/01 9.5）：按这一关用了几样道具记星；第一次三星多送一份（金币当场入账、卡进结算页的开卡）
+  const stars = Stars.record(s, eco, g.arg.level, levelKind(g.arg.level), g.items, Album.pool(eco, App.config.species, s.level), rng, Features.isUnlocked(eco, 'album', s.level));
+  if (stars.first3?.card) pendingCards.push(stars.first3.card);
   // 宝箱按开局定好的结果入账（开出卡的话就是关卡里救下的那只稀客，docs/01 3.4）
   const chest = result.chest_ok
     ? g.chestPlan
@@ -697,6 +738,7 @@ export function win(g: GamePage): void {
     combo: g.combo.coins,
     best: g.combo.best,
     challenge: g.lv.challenge,
+    stars,
   } satisfies WinData);
 }
 

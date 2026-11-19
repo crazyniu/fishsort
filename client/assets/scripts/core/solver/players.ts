@@ -204,6 +204,15 @@ function thinkPick(s: GameState, rng: Rng, preview: number, budget: number, slip
   return { tap: casualPick(s, rng, preview, slip), planned: false };
 }
 
+/**
+ * 提示道具（docs/01 9.3）：从现在这个局面算下一步该点哪条——就是想清楚的玩家此刻会点的那条（只看屏幕上的信息）。
+ * 一条都点不了返回 null
+ */
+export function hint(s: GameState, preview: number, seed = 1): Tap | null {
+  if (s.status !== Status.PLAYING) return null;
+  return thinkPick(s, new Rng(seed), preview, THINK_BUDGET, 0).tap;
+}
+
 /** 打一局（不用道具、不开缸，只开关卡给的缸） */
 export function play(lv: LevelData, kind: Kind, seed: number, o: PlayOptions): PlayResult {
   const s = GameState.fromLevel(lv);
@@ -256,6 +265,20 @@ export function rate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, s
     }
   }
   return { win: won / g, peak: peak / g, route };
+}
+
+/**
+ * 量难度用的「尺子」（docs/02 第 0.2 节，2026-11-19 第三版）：随手点的玩家（casual，slip = 点错的概率），
+ * 或想几步的玩家（think，budget = 每一步在脑子里推几个局面：60 ≈ 会看、会想几步的真人；300 是「想清楚」）
+ */
+export interface Ruler {
+  kind: Kind;
+  budget?: number;
+  slip?: number;
+}
+
+export function rulerRate(lv: LevelData, ruler: Ruler, games: number, preview: number, seedBase = 0): Rate {
+  return ruler.kind === 'think' ? rate(lv, 'think', games, { preview, budget: ruler.budget }, seedBase) : rate(lv, 'casual', games, { preview, slip: ruler.slip }, seedBase);
 }
 
 export function winRate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, seedBase = 0): number {

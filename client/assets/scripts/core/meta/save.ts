@@ -64,6 +64,8 @@ export interface SaveData {
   settings: { sound: boolean; music: boolean; vibrate: boolean; lang?: string };
   /** 头像换成的收藏生物 id；没有 = 用平台头像（docs/01 5.9） */
   avatar?: string;
+  /** 每关拿过最好几颗星（docs/01 9.5），键是关卡号 */
+  stars: Record<string, number>;
 }
 
 /** 一件奖品（开奖弹窗用） */

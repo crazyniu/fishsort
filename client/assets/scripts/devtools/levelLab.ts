@@ -5,9 +5,10 @@
 import { JsonAsset, resources } from 'cc';
 import type { PlatformBase } from '../platform/platformBase';
 
-/** 一档的量具读数（core/solver/players.ts）：natural 正常打法（随手点）能过 %、think 想清楚能过 %、run 按路线最长连击 */
+/** 一档的量具读数（core/solver/players.ts）：natural 尺子（认真玩、想几步的玩家）能过 %、casual 随手点能过 %、think 想清楚能过 %、run 按路线最长连击 */
 export interface LabVersion {
   natural: number;
+  casual?: number;
   think: number;
   run: number;
 }

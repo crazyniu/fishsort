@@ -14,8 +14,10 @@ import { start, tap } from '../rules/rules';
 import * as Players from '../solver/players';
 
 export interface TightenOptions {
-  /** 随手点的玩家过关率压到多少为止（0–1） */
-  casual: number;
+  /** 尺子量出来的过关率压到多少为止（0–1） */
+  target: number;
+  /** 量难度用哪个玩家（不给 = 随手点的玩家） */
+  ruler?: Players.Ruler;
   /** 想清楚的玩家过关率不能低于多少（0–1） */
   thinkFloor: number;
   /** 局内预告几缸（玩家看得到架上的缸之外的几缸） */
@@ -23,16 +25,19 @@ export interface TightenOptions {
   /** 最多试几次交换 */
   iterations: number;
   seed: number;
-  /** 每次量随手点的玩家打几局、想清楚的玩家打几局 */
+  /** 每次量随手点的玩家打几局、尺子打几局、想清楚的玩家打几局 */
   casualGames?: number;
+  rulerGames?: number;
   thinkGames?: number;
-  /** 一次交换随手点的过关率最多降几个点（0–1，不给 = 0.12）：一下子掉太多就不要，难度一档一档下来，中间每档都有 */
+  /** 一次交换尺子量的过关率最多降几个点（0–1，不给 = 0.12）：一下子掉太多就不要，难度一档一档下来，中间每档都有 */
   maxStep?: number;
   /** 量的时候用哪一组种子（不给 = 0）。同一组种子一直量，挑出来的交换会偏向坑到这几局；接着收的时候换一组 */
   seedBase?: number;
 }
 
 export interface Measure {
+  /** 尺子量的过关率（难度） */
+  level: number;
   casual: number;
   think: number;
   /** 随手点的玩家暂存槽平均最多占几格（过关率一样时，越高越接近输） */
@@ -47,7 +52,7 @@ export interface Snapshot {
 }
 
 export interface TightenResult {
-  /** 随手点的玩家过关率每一档（键 = 百分数，10 一档，向下取整）存的那一份 */
+  /** 尺子量的过关率每一档（键 = 百分数，10 一档，向下取整）存的那一份 */
   byPct: Map<number, Snapshot>;
   /** 最后停在哪 */
   last: Snapshot | null;
@@ -56,23 +61,26 @@ export interface TightenResult {
 
 const copy = (lv: LevelData) => LevelData.fromDict(lv.toDict());
 
-/** 难度刻度：随手点的玩家输得越多、暂存槽塞得越满越难（过关率一样时靠暂存槽给收紧一个方向） */
-const hardness = (m: { casual: number; peak: number }) => (1 - m.casual) * 100 + m.peak;
+/** 难度刻度：尺子输得越多、随手点的暂存槽塞得越满越难（过关率一样时靠暂存槽给收紧一个方向） */
+const hardness = (level: number, peak: number) => (1 - level) * 100 + peak;
+
+const isCasual = (o: TightenOptions) => !o.ruler || o.ruler.kind === 'casual';
 
 /**
  * 量一关；想清楚的玩家明显过不了下限就提前停（返回 null）。thinkSeed：想清楚的玩家这一次用哪组种子——
  * 收紧时每次都换一组：一直用同一组的话，挑出来的交换会偏向「只有这几局想得通」，换种子复量就掉到六七成（2026-11-19 第 273 关）
  */
-export function measure(lv: LevelData, o: TightenOptions, casual?: Players.Rate, thinkSeed = o.seedBase ?? 0): Measure | null {
+export function measure(lv: LevelData, o: TightenOptions, casual?: Players.Rate, ruler?: Players.Rate, thinkSeed = o.seedBase ?? 0): Measure | null {
   const opts = { preview: o.preview };
   const c = casual ?? Players.rate(lv, 'casual', o.casualGames ?? 80, opts, o.seedBase ?? 0);
+  const r = isCasual(o) ? c : (ruler ?? Players.rulerRate(lv, o.ruler as Players.Ruler, o.rulerGames ?? 40, o.preview, o.seedBase ?? 0));
   const t = Players.rate(lv, 'think', o.thinkGames ?? 10, opts, thinkSeed, o.thinkFloor);
   if (t.win < o.thinkFloor || t.route === null) return null;
-  return { casual: c.win, think: t.win, peak: c.peak, route: t.route };
+  return { level: r.win, casual: c.win, think: t.win, peak: c.peak, route: t.route };
 }
 
-export function bucket(casual: number): number {
-  return Math.floor(casual * 10 + 1e-9) * 10;
+export function bucket(rate: number): number {
+  return Math.floor(rate * 10 + 1e-9) * 10;
 }
 
 export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
@@ -80,10 +88,10 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
   const lv = copy(start0);
   const byPct = new Map<number, Snapshot>();
   const keep = (m: Measure) => {
-    const b = bucket(m.casual);
+    const b = bucket(m.level);
     const old = byPct.get(b);
     // 同一档里想清楚的玩家越稳越好，再看离这一档的中间近不近
-    if (!old || m.think > old.m.think || (m.think === old.m.think && Math.abs(m.casual * 100 - b - 5) < Math.abs(old.m.casual * 100 - b - 5))) {
+    if (!old || m.think > old.m.think || (m.think === old.m.think && Math.abs(m.level * 100 - b - 5) < Math.abs(old.m.level * 100 - b - 5))) {
       byPct.set(b, { lv: copy(lv), m });
     }
   };
@@ -100,8 +108,9 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
   );
   let tries = 0;
   // 起点已经比目标难（生成参数偏难）就反过来走：只留「更容易」的交换，放松到目标为止。两头都一档一档走、每档存一份
-  const up = cur.casual < o.casual;
-  const reached = () => (up ? cur.casual >= o.casual : cur.casual <= o.casual);
+  const up = cur.level < o.target;
+  const reached = () => (up ? cur.level >= o.target : cur.level <= o.target);
+  const step = o.maxStep ?? 0.12;
   for (let it = 0; it < o.iterations && spots.length > 1 && !reached(); it++) {
     const [b1, k1] = rng.pick(spots);
     const [b2, k2] = rng.pick(spots);
@@ -111,15 +120,23 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     tries++;
     lv.bubbles[b1].fish[k1] = f2;
     lv.bubbles[b2].fish[k2] = f1;
-    // 先量便宜的随手点玩家：不更难就不用再量想清楚的玩家
+    // 先量便宜的随手点玩家：尺子是想几步的玩家时，随手点的明显变容易了就不用再量尺子（尺子一局要贵几十倍）
     const c = Players.rate(lv, 'casual', o.casualGames ?? 80, { preview: o.preview }, o.seedBase ?? 0);
+    let r: Players.Rate | null = c;
+    if (!isCasual(o)) {
+      // 随手点的明显往反方向走了（收紧时明显变容易、放松时明显变难）就不量尺子
+      const wrong = up ? hardness(c.win, c.peak) > hardness(cur.casual, cur.peak) + 3 : hardness(c.win, c.peak) < hardness(cur.casual, cur.peak) - 3;
+      r = wrong ? null : Players.rulerRate(lv, o.ruler as Players.Ruler, o.rulerGames ?? 40, o.preview, o.seedBase ?? 0);
+    }
     // 一下子变太多的不要（一步从「大部分能过」跳到「谁都过不去」，就是第一版的毛病），越过目标太多的也不要
-    const h = hardness({ casual: c.win, peak: c.peak });
-    const step = o.maxStep ?? 0.12;
-    const ok: boolean = up
-      ? h <= hardness(cur) && c.win - cur.casual <= step && c.win <= o.casual + 0.1
-      : h >= hardness(cur) && cur.casual - c.win <= step && c.win >= o.casual - 0.1;
-    const m: Measure | null = ok ? measure(lv, o, c, 200000 + (o.seedBase ?? 0) + tries * 131) : null;
+    let ok = r !== null;
+    if (r !== null) {
+      const h = hardness(r.win, c.peak);
+      ok = up
+        ? h <= hardness(cur.level, cur.peak) && r.win - cur.level <= step && r.win <= o.target + 0.1
+        : h >= hardness(cur.level, cur.peak) && cur.level - r.win <= step && r.win >= o.target - 0.1;
+    }
+    const m: Measure | null = ok && r !== null ? measure(lv, o, c, r, 200000 + (o.seedBase ?? 0) + tries * 131) : null;
     if (m !== null) {
       cur = m;
       keep(m);
@@ -128,7 +145,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
       lv.bubbles[b2].fish[k2] = f2;
     }
   }
-  return { byPct, last: byPct.get(bucket(cur.casual)) ?? null, tries };
+  return { byPct, last: byPct.get(bucket(cur.level)) ?? null, tries };
 }
 
 /** 按路线走最长能连几下（中间不进暂存槽；暂存槽里的鱼自动补进新缸也算一下），连击目标按它定（docs/01 9.4） */

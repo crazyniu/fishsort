@@ -33,7 +33,7 @@ describe('海域（docs/01 5.0）', () => {
   it('18 个海域：收藏册按同一顺序，开放关按表', () => {
     assert.deepEqual(Seas.list(ECO).map((s) => s.id), SEAS);
     assert.deepEqual(Album.books(ECO).map((b) => b.sea), SEAS);
-    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [6, 21, 41, 61, 81, 101, 121, 141, 161, 181, 201, 221, 241, 261, 281, 301, 321, 341]);
+    assert.deepEqual(Album.books(ECO).map((b) => b.unlock), [8, 21, 41, 61, 81, 101, 121, 141, 161, 181, 201, 221, 241, 261, 281, 301, 321, 341]);
     assert.equal(Album.books(ECO)[0].unlock, Features.unlockLevel(ECO, 'album'), '第一册随收藏开放');
   });
 
@@ -55,8 +55,8 @@ describe('海域（docs/01 5.0）', () => {
     assert.equal(at(300), 'cloud');
     assert.equal(at(341), 'melody');
     assert.equal(at(360), 'melody');
-    // 收藏册子在进到这片海域的第一关开放（第一册随收藏功能在第 6 关开放）
-    Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 6 : Seas.list(ECO)[i].levelFrom));
+    // 收藏册子在进到这片海域的第一关开放（第一册随收藏功能在第 8 关开放；2026-11-19 从第 6 关挪过来，第 6 关给撤销）
+    Album.books(ECO).forEach((b, i) => assert.equal(b.unlock, i === 0 ? 8 : Seas.list(ECO)[i].levelFrom));
   });
 
   it('每册普通 10、精良 15、稀有 9、史诗 5 共 39 张（海底宫殿多 1 张精良、2 张传说，42 张）；张数都是 3 的倍数；705 张各在一册；局内 142 种，每册 7–9 种', () => {
@@ -319,10 +319,10 @@ describe('经济数字与 docs/01 第 6 节一致', () => {
     assert.equal(ECO.lives.buyOneCoins, 80);
     assert.equal(ECO.lives.refillCoins, 300);
     assert.equal(ECO.lives.adDaily, 5);
-    assert.deepEqual(ECO.toolPrice, { shuffle: 240, blow: 280, net: 360, current: 480 });
+    assert.deepEqual(ECO.toolPrice, { undo: 240, hint: 360, shuffle: 240, blow: 280, net: 360, current: 480 });
     assert.equal(ECO.bowlSlotCoinPrice, 300);
     assert.equal(ECO.skills.freeDaily, 1, '每天免费技能不分种类一共 1 次');
-    assert.equal(ECO.dailyChallenge.retryCoins, 60);
+    assert.equal(ECO.dailyChallenge.retryCoins, 30, '每日挑战是专用难关（不用道具 ≤10%），再试便宜');
     assert.deepEqual(ECO.dupeCoins, { common: 10, uncommon: 25, rare: 60, epic: 150, legend: 500 });
     assert.equal(ECO.wheel.coinCost, 200);
     assert.equal(ECO.wheel.tenCost, 1800);

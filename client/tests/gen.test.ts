@@ -9,6 +9,10 @@ import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
 import * as RouteGen from '../assets/scripts/core/gen/routeGen';
 import * as Players from '../assets/scripts/core/solver/players';
+import * as Prefill from '../assets/scripts/core/gen/prefill';
+import { Rng } from '../assets/scripts/core/rng/rng';
+import { GameState } from '../assets/scripts/core/model/gameState';
+import * as Rules from '../assets/scripts/core/rules/rules';
 import * as Careful from '../assets/scripts/core/solver/careful';
 import * as Route from '../assets/scripts/core/solver/route';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
@@ -260,7 +264,7 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
 });
 
 describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () => {
-  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，最低 1%', () => {
+  it('第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；难关低 15 个点、超难关低 25 个点，曲线低了改按比例（× 0.6、× 0.4），最低 1%', () => {
     const c = loadCurve();
     const t = (id: number) => LevelCurve.routeTarget(c, id) as number;
     assert.equal(LevelCurve.routeTarget(c, 4), null, '新手期前几关不收紧');
@@ -272,7 +276,10 @@ describe('难度曲线的目标（docs/01 9.2，用户 2026-11-19 定）', () =>
     assert.ok(LevelCurve.isBoss(c, 60) && !LevelCurve.isBoss(c, 55));
     assert.ok(Math.abs(t(60) - (0.85 - (54 * 0.84) / 354) + 0.25) < 0.001, '超难关');
     assert.equal(t(360), 0.01, '最低 1%');
-    assert.equal(t(300), 0.01);
+    const line = (id: number) => 0.85 - ((id - 6) * 0.84) / 354;
+    assert.ok(Math.abs(t(300) - line(300) * 0.4) < 0.001, '后期超难关按比例，不压到最低');
+    assert.ok(Math.abs(t(345) - line(345) * 0.6) < 0.001, '后期难关按比例');
+    assert.ok(t(300) < t(305) && t(305) < t(301), '后期三种关照样分得开：超难 < 难 < 普通');
   });
 
   it('普通关最多 66 条鱼，难关多三成（最多 84），超难关再多一种鱼', () => {
@@ -322,16 +329,43 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     assert.deepEqual(Players.play(lv, 'think', 7, { preview: 0 }).taps, Players.play(lv, 'think', 7, { preview: 0 }).taps);
   });
 
+  it('开局占格：拿出后半段才要的鱼放进暂存槽，每种鱼的条数不变；想清楚的玩家照样过得去、提示给的是点得到的鱼', () => {
+    const c = loadCurve();
+    const lv = generate({ ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 }, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    const count = (x: LevelData) => {
+      const m = new Map<number, number>();
+      for (const b of x.bubbles) for (const f of b.fish) m.set(f, (m.get(f) ?? 0) + 1);
+      for (const f of x.prefill) m.set(f, (m.get(f) ?? 0) + 1);
+      return m;
+    };
+    const before = count(lv);
+    assert.ok(Prefill.apply(lv, 2, 0.5, new Rng(5)));
+    assert.equal(lv.prefill.length, 2);
+    assert.deepEqual(count(lv), before);
+    const first = new Map<number, number>();
+    lv.orders.forEach((o, i) => first.has(o.s) || first.set(o.s, i));
+    const t = Players.play(lv, 'think', 1, { preview: 3 });
+    assert.ok(t.won, '想清楚的玩家过得去');
+    lv.ref = t.taps;
+    assert.deepEqual(LevelCheck.errors(lv), []);
+    assert.equal(LevelData.fromJson(lv.toJson())?.prefill.length, 2, '写进文件再读回来');
+    const s = GameState.fromLevel(lv);
+    Rules.start(s);
+    assert.equal(s.buffer.length, 2, '开局就在暂存槽里');
+    const h = Players.hint(s, 3);
+    assert.ok(h !== null && Rules.isOpen(s, h[0]) && s.bubbles[h[0]].canTake(h[1]));
+  });
+
   it('收紧：随手点的过关率每一档存一份，想清楚的玩家都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
     const c = loadCurve();
     const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };
     const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
     const before = new Map<number, number>();
     for (const b of lv.bubbles) for (const f of b.fish) before.set(f, (before.get(f) ?? 0) + 1);
-    const r = RouteGen.tighten(lv, { casual: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
+    const r = RouteGen.tighten(lv, { target: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
     assert.ok(r.last !== null && r.byPct.size > 0);
     for (const [pct, snap] of r.byPct) {
-      assert.equal(RouteGen.bucket(snap.m.casual), pct);
+      assert.equal(RouteGen.bucket(snap.m.level), pct);
       assert.ok(snap.m.think >= 0.9);
       const after = new Map<number, number>();
       for (const b of snap.lv.bubbles) for (const f of b.fish) after.set(f, (after.get(f) ?? 0) + 1);

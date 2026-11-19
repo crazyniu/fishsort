@@ -57,6 +57,8 @@ const WAIT_FISH = new Color(150, 165, 195, 255);
 const FROST = new Color(225, 247, 255, 255);
 /** 泡膜上转动的那层流光的颜色 */
 const SHEEN = new Color(255, 200, 240, 255);
+/** 幸运泡身后的金光 */
+const LUCKY = new Color(255, 214, 90, 255);
 /** 迷雾计数小泡泡的底色 */
 const PIP = new Color(150, 205, 255, 255);
 /** 冰晶连线：一节冰晶的长、宽（图是 120×68），相邻两节的间距（比长度短一点，首尾相接），咬住依赖泡的冰刺的大小 */
@@ -113,7 +115,11 @@ export class Field {
     return `fish/${this.species[sp] ?? this.species[0]}`;
   }
 
-  build(s: GameState): void {
+  /**
+   * restore = 撤销时按存下来的局面重画（docs/ux/route-2026-11-19.md 第 4 节）：每个气泡当时在哪（positions() 存的），
+   * 破掉的不画、在场的直接摆回原位，不播开局落下来的进场
+   */
+  build(s: GameState, restore: ([number, number] | null)[] | null = null): void {
     const fw = Math.min(this.w, this.h / FIELD_H);
     const centers: [number, number][] = [];
     const radii: number[] = [];
@@ -152,7 +158,16 @@ export class Field {
     this.twinkle();
     this.pile = this.newPile();
     this.pile.onLand = (id, speed) => this.landed(id, speed);
-    if (covered) {
+    if (restore) {
+      this.views.forEach((v, i) => {
+        if (v.gone || v.queued) return;
+        const p = restore[i] ?? v.home;
+        at(v.node, p[0], p[1]);
+        this.pile.add(i, p[0], p[1], v.r);
+      });
+      if (covered) this.regroup();
+      this.run();
+    } else if (covered) {
       // 有遮挡：按设计位置摆好，松手让重力接管（互相压着的绑成一组）
       this.views.forEach((v, i) => this.pile.add(i, v.home[0], v.home[1], v.r));
       this.regroup();
@@ -170,6 +185,11 @@ export class Field {
           .start();
       });
     }
+  }
+
+  /** 每个气泡现在在哪（本节点坐标）；破了的、还在候场的是 null。撤销时交回给 build */
+  positions(): ([number, number] | null)[] {
+    return this.views.map((v) => (v.gone || v.queued || !v.node.active ? null : [v.node.position.x, v.node.position.y]));
   }
 
   /** 隔一两秒，随便挑一个在场、能看清的气泡，在左上角的高光上闪一颗小星 */
@@ -494,23 +514,28 @@ export class Field {
       fogPips: [],
       fogMax: Math.max(1, d.fog),
       links: [],
-      gone: false,
+      // 鱼已经取光的气泡（撤销重画时才会有）：不画
+      gone: s.bubbles[i].count() === 0,
       queued: !s.bubbles[i].onField,
     };
     this.drawLinks(v, s.bubbles[i].pairs);
-    if (d.chain > 0) {
+    // 锁链、冰都按局面画（开局和关卡数据一样；撤销重画时锁链可能已经少了几环、冰已经裂了几道）
+    const st = s.bubbles[i];
+    if (st.chain > 0) {
       v.chain = img(body, 'skin/j_chain', r * 2.0, r * 1.7, 'chain');
       const badge = img(v.chain, 'kit/round_red', 64, 64, 'badge');
       at(badge, r * 0.62, -r * 0.62);
-      v.chainLabel = text(badge, String(d.chain), 36);
+      v.chainLabel = text(badge, String(st.chain), 36);
     }
-    if (d.ice.length > 0) {
+    if (d.ice.length > 0 && st.frozen) {
       // 厚冰：全部连着的气泡破了才化，冰更厚（不那么透），按裂了几道换图（art/briefs/ui_skin/thick_ice.txt）
-      v.ice = img(body, v.iceAll ? 'icon/ice_thick0' : 'icon/ice', r * 1.7, r * 1.7, 'ice');
+      const left = v.iceAll ? Rules.iceLeft(s, st) : d.ice.length;
+      const broken = Math.min(2, Math.max(0, d.ice.length - left));
+      v.ice = img(body, v.iceAll ? `icon/ice_thick${broken}` : 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = v.iceAll ? 215 : 170;
       for (const dep of d.ice) v.iceLinks.push({ beads: [], clamp: null, dep });
       if (v.iceAll) {
-        const n = d.ice.length;
+        const n = left;
         for (let k = 0; k < n; k++) {
           const peg = img(body, 'skin/j_ice_bead', 44, 25, 'icePeg');
           at(peg, (k - (n - 1) / 2) * 48, -r * 0.92);
@@ -530,7 +555,7 @@ export class Field {
           .to(t, { scale: new Vec3(0.98, 1.02, 1) }, { easing: 'sineInOut' }),
       )
       .start();
-    node.active = !v.queued;
+    node.active = !v.queued && !v.gone;
     return v;
   }
 
@@ -974,6 +999,53 @@ export class Field {
       .repeatForever(tween(h).to(0.45, { scale: new Vec3(1.15, 1.15, 1) }).to(0.45, { scale: new Vec3(1, 1, 1) }))
       .start();
     return h;
+  }
+
+  /**
+   * 幸运泡（docs/01 9.3）：气泡外面套一圈慢慢转的金圈，带奖励的那条鱼头上一个小礼物。
+   * 返回的节点挂在气泡上，气泡破了跟着没；点到那条鱼时由 GameView 收掉（unlucky）
+   */
+  addLucky(b: number, k: number): Node | null {
+    const v = this.views[b];
+    if (!v || v.gone) return null;
+    const holder = box('lucky', v.body, v.r * 2, v.r * 2);
+    const glow = img(holder, 'kit/fx_glow', v.r * 2.7, v.r * 2.7, 'glow');
+    (glow.getComponent(Sprite) as Sprite).color = LUCKY;
+    opacity(glow).opacity = 120;
+    glow.setSiblingIndex(0);
+    const ringNode = img(holder, 'icon/lucky_ring', v.r * 2.16, v.r * 2.16, 'ring');
+    tween(ringNode)
+      .repeatForever(tween(ringNode).by(14, { angle: -360 }))
+      .start();
+    tween(glow)
+      .repeatForever(tween(glow).to(0.9, { scale: new Vec3(1.08, 1.08, 1) }, { easing: 'sineInOut' }).to(0.9, { scale: new Vec3(0.96, 0.96, 1) }, { easing: 'sineInOut' }))
+      .start();
+    const o = v.offsets[k] ?? [0, 0];
+    const fs = this.fishSize(v.fish.length, v.r);
+    const gs = Math.max(34, fs * 0.5);
+    const gift = img(holder, 'icon/gift', gs, gs, 'gift');
+    at(gift, o[0] + fs * 0.3, o[1] + fs * 0.34);
+    bob(gift, 3, 1.2, 0);
+    // 金圈垫在鱼后面（不挡鱼），礼物在最上面
+    holder.setSiblingIndex(1);
+    gift.removeFromParent();
+    v.body.addChild(gift);
+    gift.name = 'luckyGift';
+    return holder;
+  }
+
+  /** 幸运泡的奖励拿走了：金圈、礼物收掉；返回礼物在本节点坐标系里的位置（奖励从这里飞出去） */
+  unlucky(b: number): [number, number] {
+    const v = this.views[b];
+    const gift = v.body.getChildByName('luckyGift');
+    const holder = v.body.getChildByName('lucky');
+    const x = v.node.position.x + v.body.position.x + (gift ? gift.position.x : 0);
+    const y = v.node.position.y + v.body.position.y + (gift ? gift.position.y : 0);
+    gift?.destroy();
+    if (holder) {
+      tween(opacity(holder)).to(0.25, { opacity: 0 }).call(() => holder.destroy()).start();
+    }
+    return [x, y];
   }
 
   shakeBubble(b: number): void {

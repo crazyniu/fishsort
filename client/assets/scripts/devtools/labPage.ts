@@ -127,15 +127,18 @@ export class LabPage extends Page {
         const row = slice(c, 'kit/row_blue', 690, ROW_H, `p${ver}`);
         at(row, 0, y);
         const tag = ver === info.base ? '（包里）' : '';
-        at(text(row, `正常打法能过 ${m.natural}%${tag}`, 30, { align: 'left', color: ver === using ? COLOR.yellow : undefined }).node, -320, 14);
-        at(text(row, `想清楚能过 ${m.think}% · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
+        // 第三版尺子（2026-11-19）是想几步的玩家：标「认真玩」；第二版的档（没有 casual）是随手点的玩家量的，照旧标「正常打法」
+        const main = m.casual === undefined ? '正常打法' : '认真玩';
+        at(text(row, `${main}能过 ${m.natural}%${tag}`, 30, { align: 'left', color: ver === using ? COLOR.yellow : undefined }).node, -320, 14);
+        const rand = m.casual === undefined ? '' : `随手点 ${m.casual}% · `;
+        at(text(row, `${rand}想清楚 ${m.think}% · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
         const b = button(row, { color: ver === using ? 'green' : 'blue', w: 150, h: 64, label: ver === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(ver) });
         at(b.node, 255, 0);
         y -= ROW_STEP;
       }
     }
 
-    const note = text(c, this.note || (info ? `这关目标：正常打法 ${info.target}% 能过。挑一档马上试，或先看电脑打一遍` : ''), 26, { width: 680 });
+    const note = text(c, this.note || (info ? `这关目标：认真玩 ${info.target}% 能过。挑一档马上试，或先看电脑打一遍` : ''), 26, { width: 680 });
     at(note.node, 0, y - 6);
     y -= 84;
 
@@ -188,7 +191,7 @@ export class LabPage extends Page {
     try {
       await lab.pick(this.level, ver);
       const m = lab.index[String(this.level)]?.versions[String(ver)];
-      this.note = `第 ${this.level} 关换成「正常打法能过 ${m ? m.natural : ver}%」的版本`;
+      this.note = `第 ${this.level} 关换成「能过 ${m ? m.natural : ver}%」的版本`;
     } catch (e) {
       console.warn('读不出这一档', e);
       this.note = '这一档读不出来';

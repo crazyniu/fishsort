@@ -4,6 +4,8 @@ import { Color, Label, Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc'
 import { Combo } from '../core/meta/combo';
 import * as Daily from '../core/meta/daily';
 import * as LevelChest from '../core/meta/levelChest';
+import * as Lucky from '../core/meta/lucky';
+import * as Stars from '../core/meta/stars';
 import * as Features from '../core/meta/features';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
@@ -73,8 +75,16 @@ interface BowlView {
   leaving: boolean;
 }
 
-const SKILLS = ['shuffle', 'blow', 'net', 'current'] as const;
+/** 技能栏从左到右（docs/ux/route-2026-11-19.md 第 4 节）：撤销、提示在最左，后面四个是原来的 */
+const SKILLS = ['undo', 'hint', 'shuffle', 'blow', 'net', 'current'] as const;
 type SkillId = (typeof SKILLS)[number];
+
+/** 撤销用的存档：点之前的局面、每个气泡当时在哪、开局占格还剩几条在暂存槽里 */
+interface UndoSnap {
+  s: GameState;
+  pos: ([number, number] | null)[];
+  prefill: number;
+}
 
 /** 连击四档的颜色（docs/01 3.2：蓝、金、红、紫） */
 const COMBO_COLORS = [new Color(110, 215, 255), new Color(255, 214, 64), new Color(255, 110, 80), new Color(214, 130, 255)];
@@ -104,11 +114,17 @@ const BOWL_SINK = 5;
 const AMBIENT_TAG = 9201;
 /** 夸奖字出现时让连击计让开的 tween 标签 */
 const PRAISE_TAG = 9202;
-/** 技能键（半透明格子）多大 */
-const SKILL_S = 128;
+/** 技能键（半透明格子）多大、两个键之间隔多少：6 个键一行（6 × 104 + 5 × 16 = 704） */
+const SKILL_S = 104;
+const SKILL_GAP = 16;
+/** 开局占格的那几条鱼所在的暂存格：底色压深一点（「这是关卡给的」） */
+const PREFILL_SLOT = new Color(55, 85, 160, 255);
+/** 「接下来」预告：小牌多大、两个之间隔多少 */
+const NEXT_S = 46;
+const NEXT_STEP = 50;
 /** 技能数量角标的最小宽、高 */
-const BADGE_W = 48;
-const BADGE_H = 40;
+const BADGE_W = 42;
+const BADGE_H = 36;
 /** 鱼缸的目标卡（钉在木架下面）多大；顶上的图钉往上压进木架多少 */
 const GOAL_W = 140;
 const GOAL_H = 122;
@@ -140,6 +156,35 @@ export class GamePage extends Page {
   ended = false;
   paused = false;
   used: Record<string, number> = {};
+  /** 强制教学用掉的那几次（不算进星级的道具数，docs/01 9.5） */
+  freebies = 0;
+  /** 技能以外算「用了道具」的：加开鱼缸、复活，各算一次 */
+  extras = 0;
+  /** 这一关的关卡文件号 */
+  private file = 0;
+  /** 撤销：上一步点之前的局面（null = 没得撤销：还没点，或上一步是用道具） */
+  private undoSnap: UndoSnap | null = null;
+  /** 每次整个重画加一：重画之前还在路上的鱼到了以后不再结算 */
+  private epoch = 0;
+  /** 开局占格的鱼还有几条在暂存槽里（它们总在最前面几格） */
+  private prefillLeft = 0;
+  /** 「接下来」预告：底板、每张订单的小牌（键 = 订单号） */
+  private nextRow: Node | null = null;
+  private nextChips = new Map<number, Node>();
+  /** 幸运泡（docs/01 9.3）：这一局抽到的、奖励拿了没有 */
+  private lucky: { plan: Lucky.LuckyPlan; done: boolean } | null = null;
+  /** 掉落关「下一个落下」预告 */
+  private dropNext: Node | null = null;
+  private dropShown = -2;
+
+  /** 星级按它算：这一关用了几样道具（技能 + 加开鱼缸 + 复活，强制教学那几次不算） */
+  get items(): number {
+    return Math.max(0, this.usedAll - this.freebies) + this.extras;
+  }
+
+  get canUndo(): boolean {
+    return this.undoSnap !== null;
+  }
 
   /** 本关各种技能合计已用几次 */
   get usedAll(): number {
@@ -274,7 +319,7 @@ export class GamePage extends Page {
     // 关卡文件和这关的鱼：微信版放在网上，用到时才下（docs/04 第 8 节）。下不下来就提示、回主页（不扣命）
     let species: string[];
     try {
-      this.lv = await config.loadLevel(file, ease);
+      this.lv = await config.loadLevel(file, ease, !!this.arg.daily);
       const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
       species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
       await loadFrames(species.map((sp) => `fish/${sp}`));
@@ -320,10 +365,17 @@ export class GamePage extends Page {
     this.paused = false;
     this.netMode = false;
     this.used = {};
+    this.freebies = 0;
+    this.extras = 0;
+    this.undoSnap = null;
+    this.lucky = null;
+    this.file = file;
+    this.prefillLeft = this.s.buffer.length;
     this.idle = 0;
     this.total = this.s.fishLeft();
     this.layout(file);
     this.planChest();
+    this.planLucky();
     const ev = Rules.start(this.s);
     this.play(ev, true);
     Flow.onLevelStart(this);
@@ -331,7 +383,15 @@ export class GamePage extends Page {
 
   // ---------------------------------------------------------------- 版式
 
-  private layout(file: number): void {
+  /** snap = 撤销：按存下来的局面整个重画，不播开局的进场 */
+  private layout(file: number, snap: UndoSnap | null = null): void {
+    this.epoch++;
+    this.nextRow = null;
+    this.nextChips.clear();
+    this.dropNext = null;
+    this.dropShown = -2;
+    this.kindBannerNode = null;
+    this.praiseNode = null;
     this.bg.destroyAllChildren();
     this.under.destroyAllChildren();
     this.stage.destroyAllChildren();
@@ -465,7 +525,8 @@ export class GamePage extends Page {
       at(pill.node, this.bowlX[MAX_SLOTS - 1], this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H / 2);
       const cap = text(pill.node, tr('UI_COMBO_WORD'), 20, { color: COLOR.yellow });
       at(cap.node, 0, 44);
-      pill.set(`0/${this.comboGoal}`);
+      pill.set(`${Math.min(this.combo.best, this.comboGoal)}/${this.comboGoal}`);
+      if (this.goalReached) pill.label.color = COLOR.yellow;
       pill.node.active = this.s.openSlots < MAX_SLOTS;
       this.goalPill = pill;
     }
@@ -484,7 +545,7 @@ export class GamePage extends Page {
     // 技能栏
     // 离底：在安全区里。有手势条时安全区本身已经让出了手势条那一截，只再留 10；没有时离底 26（用户 2026-11-19：按安全区来）
     const skillY = Screen.bottom + (Screen.safeBottom > 0 ? 10 : 26) + SKILL_S / 2;
-    SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + 36), skillY));
+    SKILLS.forEach((id, i) => this.buildSkill(id, (i - (SKILLS.length - 1) / 2) * (SKILL_S + SKILL_GAP), skillY));
 
     // 场地：暂存槽和技能栏之间全部高度（用户 2026-11-16：场地尽量大）
     this.fieldTop = this.bufferY - SLOT_H / 2 - SLOT_GAP;
@@ -503,9 +564,26 @@ export class GamePage extends Page {
       (b, k) => this.tapFish(b, k),
       (b) => this.blocked(b),
     );
-    this.field.build(this.s);
+    this.field.build(this.s, snap ? snap.pos : null);
     // 进场：没遮挡的关卡气泡从上面一个接一个落下来（Field.build 里）；有遮挡的关卡先依次弹出，再由重力压实
-    if (this.field.isLayered) this.field.views.forEach((v, i) => v.node.active && fx.popIn(v.node, 0.15 + Math.floor(i / 4) * 0.12, 0.3));
+    if (!snap && this.field.isLayered) this.field.views.forEach((v, i) => v.node.active && fx.popIn(v.node, 0.15 + Math.floor(i / 4) * 0.12, 0.3));
+    // 暂存槽里已经有的鱼：开局占格的那几条从屏幕左边滑进来（docs/ux/route-2026-11-19.md 第 5 节）；撤销重画时直接摆好
+    this.bufferNodes = this.s.buffer.map((sp, i) => {
+      const f = img(this.fly, this.field.spriteFor(sp), 64, 64, 'fish');
+      at(f, this.slotX(i), this.bufferY);
+      if (!snap) {
+        at(f, -Screen.W / 2 - 60 - i * 40, this.bufferY);
+        tween(f)
+          .delay(App.config.ui.intro.startDelay + 0.25 + i * 0.14)
+          .to(0.38, { position: new Vec3(this.slotX(i), this.bufferY, 0) }, { easing: 'backOut' })
+          .call(() => sfx('buffer'))
+          .start();
+      }
+      return f;
+    });
+    this.buildNext();
+    this.syncDrop(false);
+    if (snap) this.restoreShelf();
     this.refreshHud();
     this.refreshSkills();
   }
@@ -524,22 +602,22 @@ export class GamePage extends Page {
     const S = SKILL_S;
     const node = img(this.stage, 'skin/f_skill', S, S, id);
     at(node, x, y);
-    const icon = img(node, `icon/skill_${id}`, 96, 96, 'icon');
-    at(icon, 0, 12);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 24);
-    at(name.node, 0, -46);
-    fit(name, S - 12, 24, 16);
+    const icon = img(node, `icon/skill_${id}`, 76, 76, 'icon');
+    at(icon, 0, 11);
+    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 22);
+    at(name.node, 0, -37);
+    fit(name, S - 8, 22, 15);
     const badge = slice(node, 'kit/tag_red', BADGE_W, BADGE_H, 'badge');
     at(badge, S / 2 - BADGE_W / 2 + 8, S / 2 - 10);
-    const count = text(badge, '', 26);
+    const count = text(badge, '', 24);
     at(count.node, 0, 2);
-    const plus = keyButton(node, 'green', 'kit/ic_plus', 46, null, 0.56);
-    at(plus, S / 2 - 14, S / 2 - 12);
+    const plus = keyButton(node, 'green', 'kit/ic_plus', 42, null, 0.56);
+    at(plus, S / 2 - 12, S / 2 - 10);
     const lock = box('lock', node, S, S);
-    const lockIcon = img(lock, 'kit/ic_lock', 44, 44, 'icon');
-    at(lockIcon, 0, 14);
-    const lockLabel = text(lock, '', 22);
-    at(lockLabel.node, 0, -46);
+    const lockIcon = img(lock, 'kit/ic_lock', 38, 38, 'icon');
+    at(lockIcon, 0, 12);
+    const lockLabel = text(lock, '', 20);
+    at(lockLabel.node, 0, -37);
     // 技能格子窄，「第 N 关解锁」放不下；和主页入口一样写「等级 N」，字号不缩（用户 2026-11-18：放不下就精简文字）
     lockLabel.string = tr('H_ENTRY_LOCKED', Skills.unlockLevel(App.config.eco, id));
     fit(lockLabel, S - 8, 22, 14);
@@ -563,9 +641,140 @@ export class GamePage extends Page {
       v.plus.active = unlocked && n <= 0 && !free;
       v.count.string = free ? tr('UI_SKILL_FREE') : String(Math.min(n, App.config.ui.badgeCap));
       // 标签跟着字宽走：FREE 比数字宽
-      const bw = Math.max(BADGE_W, Math.round(textWidth(v.count) + 24));
+      // 6 个键挨得近：「免费」在有的语言里很长（GRATUIT），角标不宽过键本身，字跟着收一点
+      fit(v.count, SKILL_S - 26, 24, 16);
+      const bw = Math.max(BADGE_W, Math.round(textWidth(v.count) + 20));
       resizeSlice(v.badge, bw, BADGE_H);
       at(v.badge, SKILL_S / 2 - bw / 2 + 8, SKILL_S / 2 - 10);
+    }
+    this.dimUndo();
+  }
+
+  /** 撤销键：没得撤销（还没点、上一步是用道具）或本关的次数用完了就变灰 */
+  private dimUndo(): void {
+    const v = this.skillNodes.get('undo');
+    if (!v || v.lock.active) return;
+    const eco = App.config.eco;
+    const off = !this.undoSnap || (this.used.undo ?? 0) >= Skills.maxPerLevel(eco, this.freeLevelId, 'undo');
+    (v.icon.getComponent(Sprite) as Sprite).grayscale = off;
+    opacity(v.icon).opacity = off ? 120 : 255;
+  }
+
+  private setUndo(snap: UndoSnap | null): void {
+    if (this.undoSnap === snap) return;
+    this.undoSnap = snap;
+    this.dimUndo();
+  }
+
+  private snapshot(): UndoSnap {
+    return { s: this.s.clone(), pos: this.field.positions(), prefill: this.prefillLeft };
+  }
+
+  /**
+   * 撤销（docs/ux/route-2026-11-19.md 第 4 节）：退回上一步点之前的局面，整个版面按它重画。
+   * 连击不恢复（当场断掉）；倒计时不往回走（整关的、限时缸的都照现在的）
+   */
+  undo(): boolean {
+    const snap = this.undoSnap;
+    if (!snap) return false;
+    snap.s.clock = this.s.clock;
+    for (let i = 0; i < MAX_SLOTS; i++) {
+      const was = snap.s.slots[i];
+      const now = this.s.slots[i];
+      if (was && now && was.order === now.order && was.timer !== NO_TIMER) was.timer = Math.min(was.timer, now.timer);
+    }
+    this.s = snap.s;
+    this.undoSnap = null;
+    this.prefillLeft = snap.prefill;
+    this.autoTaps = null;
+    this.netMode = false;
+    this.combo.miss();
+    this.comboTier = -1;
+    this.comboBreaking = false;
+    this.frameHi = 0;
+    this.layout(this.file, snap);
+    // 稀客、幸运泡还没拿走的，挂回原来的气泡上
+    const g = this.guest;
+    if (g && !g.saved) {
+      const rar = App.config.speciesById.get(g.id)?.rarity ?? 'common';
+      g.node = this.field.addGuest(g.bubble, g.id, rar, RARITY_GLOW[rar] ?? COLOR.white);
+    }
+    if (this.lucky && !this.lucky.done) this.field.addLucky(this.lucky.plan.bubble, this.lucky.plan.fish);
+    this.layoutReturn(0);
+    this.syncClock();
+    fx.flash(this.fly, Screen.W, Screen.H, 60);
+    return true;
+  }
+
+  /** 撤销重画：架上的缸按局面摆好（不播落下来），缸里已经进了几条照样画出来 */
+  private restoreShelf(): void {
+    for (let i = 0; i < MAX_SLOTS; i++) {
+      const b = this.s.slots[i];
+      const plus = this.plusNodes[i];
+      if (!b) {
+        if (plus) plus.active = this.s.nextOrder < this.s.orders.length;
+        continue;
+      }
+      this.bowlIn(i, b.species, b.cap, b.timer, 0, true);
+      const view = this.bowls[i];
+      if (!view) continue;
+      view.got = b.count;
+      view.tagLabel.string = `${b.count}/${b.cap}`;
+      fit(view.tagLabel, GOAL_W * 0.56, 38, 26);
+      for (let k = 0; k < b.count; k++) {
+        view.shown = k + 1;
+        this.settleInside(view);
+      }
+    }
+  }
+
+  /**
+   * 「接下来」预告（docs/ux/route-2026-11-19.md 第 1 节）：第 3 个缸位下面的目标卡位置（平时只开 2 个缸，这里空着），
+   * 上面一行小字「接下来」，下面一块半透明深蓝小条里排后面几缸要的鱼；大缸右下角写要几条。
+   * 开到第 3 个缸、或后面没有了就收起来。前几关（game_ui.json 的 nextBowls.from 之前）不出：新手先学会点鱼
+   */
+  private buildNext(): void {
+    const n = App.config.curve.route?.preview ?? 0;
+    const from = App.config.ui.nextBowls?.from ?? 1;
+    if (n <= 0 || (!this.arg.daily && this.arg.level < from)) return;
+    const row = plate(this.stage, 'skin/f_hud', NEXT_STEP * n + 14, 56, 'next');
+    at(row, this.bowlX[2], this.shelfTop - SHELF_H + GOAL_PIN - GOAL_H / 2);
+    const cap = text(row, tr('UI_NEXT_TANKS'), 20, { color: COLOR.yellow });
+    at(cap.node, 0, 44);
+    fit(cap, NEXT_STEP * n + 20, 20, 14);
+    this.nextRow = row;
+    this.syncNext(false);
+  }
+
+  /** 预告跟着订单走：送走一缸，小牌往左挪一格、最右边进一个新的 */
+  private syncNext(animate: boolean): void {
+    const row = this.nextRow;
+    if (!row || !row.isValid) return;
+    const n = App.config.curve.route?.preview ?? 0;
+    const from = this.s.nextOrder;
+    const to = Math.min(this.s.orders.length, from + n);
+    row.active = this.s.openSlots < 3 && to > from;
+    for (const [oi, chip] of this.nextChips) {
+      if (oi >= from && oi < to) continue;
+      this.nextChips.delete(oi);
+      Tween.stopAllByTarget(chip);
+      if (animate) tween(chip).to(0.15, { scale: new Vec3(0.2, 0.2, 1) }).call(() => chip.destroy()).start();
+      else chip.destroy();
+    }
+    for (let oi = from; oi < to; oi++) {
+      const x = (oi - from - (n - 1) / 2) * NEXT_STEP;
+      const old = this.nextChips.get(oi);
+      if (old) {
+        if (animate) tween(old).to(0.22, { position: new Vec3(x, 0, 0) }, { easing: 'quadOut' }).start();
+        else at(old, x, 0);
+        continue;
+      }
+      const o = this.s.orders[oi];
+      const chip = img(row, this.field.spriteFor(o.s), NEXT_S, NEXT_S, `next${oi}`);
+      at(chip, x, 0);
+      if (o.cap > 3) at(text(chip, `×${o.cap}`, 18, { outline: COLOR.navy, outlineWidth: 4 }).node, NEXT_S * 0.3, -NEXT_S * 0.32);
+      if (animate) fx.popIn(chip, 0.12, 0.22);
+      this.nextChips.set(oi, chip);
     }
   }
 
@@ -577,6 +786,11 @@ export class GamePage extends Page {
     }
     const free = this.s.bufferCap - this.bufferNodes.length;
     const warn = free <= App.config.ui.buffer.warnFree && this.s.status === Status.PLAYING;
+    // 开局占格的鱼还在的那几格：底色压深
+    this.bufferSlots.forEach((sl, i) => {
+      const sp = sl.getChildByName('skin')?.getComponent(Sprite);
+      if (sp) sp.color = i < this.prefillLeft ? PREFILL_SLOT : COLOR.white;
+    });
     this.bufferSlots.forEach((sl, i) => {
       const on = warn && i >= this.bufferNodes.length;
       if (this.warned.has(sl) === on) return;
@@ -664,7 +878,9 @@ export class GamePage extends Page {
     // 点下去的位置：一圈水波 + 短促的「啵」（同 Godot 版）
     const [fx0, fy0] = this.field.fishPos(b, k);
     const holder = this.field.node.parent as Node;
+    const snap = this.snapshot();
     if (!this.act(() => Rules.tap(this.s, b, k)).length) return;
+    if (this.s.status === Status.PLAYING) this.setUndo(snap);
     this.field.wobble(b);
     const px = fx0 + holder.position.x;
     const py = fy0 + holder.position.y;
@@ -675,7 +891,10 @@ export class GamePage extends Page {
 
   tapReturn(k: number): void {
     if (this.ended || this.paused || this.s.status !== Status.PLAYING || this.finishing) return;
-    if (this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k)).length) sfx('bo');
+    const snap = this.snapshot();
+    if (!this.act(() => Rules.tap(this.s, RETURN_BUBBLE, k)).length) return;
+    if (this.s.status === Status.PLAYING) this.setUndo(snap);
+    sfx('bo');
   }
 
   private blocked(b: number): void {
@@ -692,6 +911,8 @@ export class GamePage extends Page {
       Flow.onFirstMove(this);
     }
     this.clearHint();
+    // 这一步之后「上一步」就不是原来那一步了：点鱼的由 tapFish 接着存新的，用道具、开缸的没得撤销
+    this.setUndo(null);
     this.play(ev, false);
     return ev;
   }
@@ -742,6 +963,7 @@ export class GamePage extends Page {
         case 'fish_to_bowl':
         case 'net_fish': {
           const sp = e.species as number;
+          this.luckyTaken(e.b as number, e.k as number);
           const src = this.takeSource(e.b as number, e.k as number, sp);
           const view = this.bowls[e.slot as number];
           const delay = t + flyIdx * cfg.fly.stagger;
@@ -753,6 +975,7 @@ export class GamePage extends Page {
         }
         case 'fish_to_buffer': {
           const sp = e.species as number;
+          this.luckyTaken(e.b as number, e.k as number);
           const src = this.takeSource(e.b as number, e.k as number, sp);
           const idx = this.bufferNodes.length;
           this.bufferNodes.push(src);
@@ -763,6 +986,7 @@ export class GamePage extends Page {
         }
         case 'buffer_to_bowl': {
           const idx = e.index as number;
+          if (idx < this.prefillLeft) this.prefillLeft--;
           const n = this.bufferNodes.splice(idx, 1)[0];
           const view = this.bowls[e.slot as number];
           const delay = t + flyIdx * cfg.fly.stagger + 0.25;
@@ -826,6 +1050,7 @@ export class GamePage extends Page {
           this.field.crackIce(e.b as number, t, e.left ?? 0);
           break;
         case 'blow': {
+          this.prefillLeft = 0;
           this.blowBuffer(t);
           break;
         }
@@ -851,6 +1076,8 @@ export class GamePage extends Page {
     for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.tapPop + cfg.fly.seconds, () => this.hitCombo(x));
     this.field.sync(this.s);
     this.layoutReturn(t + 0.2);
+    this.syncNext(true);
+    this.syncDrop(true);
     if (!App.flags.autoplay && this.moved && !this.finishing && this.s.status === Status.PLAYING) {
       this.autoTaps = AutoFinish.plan(this.s, cfg.autoFinish.maxLeft);
       if (this.autoTaps) {
@@ -901,6 +1128,7 @@ export class GamePage extends Page {
     const s0 = Math.abs(n.scale.x) || 1;
     const p = { t: 0 };
     let last = 0;
+    const epoch = this.epoch;
     tween(n)
       .delay(delay)
       .call(() => {
@@ -940,6 +1168,8 @@ export class GamePage extends Page {
                   if (keep) n.setScale(s0 * scale, s0 * scale, 1);
                   else n.destroy();
                 }
+                // 路上整个版面重画过了（撤销、换关）：这条鱼要进的缸已经不在了，不结算
+                if (epoch !== this.epoch) return;
                 done();
               })
               .start();
@@ -988,7 +1218,7 @@ export class GamePage extends Page {
     if (view.done && view.incoming <= 0) this.bowlLeave(view);
   }
 
-  private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number): void {
+  private bowlIn(slot: number, sp: number, cap: number, timer: number, delay: number, instant = false): void {
     const big = cap > 3;
     const s = big ? BOWL_BIG : BOWL_W;
     const h = s * 0.925;
@@ -1024,15 +1254,17 @@ export class GamePage extends Page {
     onTap(node, () => {
       if (this.bowls[slot] === view) this.tapBowl(slot);
     }, { press: 0 });
-    // 新缸从上方落下
-    node.setPosition(this.bowlX[slot], restY + 260, 0);
-    opacity(node).opacity = 0;
-    tween(node)
-      .delay(delay)
-      .call(() => (opacity(node).opacity = 255))
-      .to(App.config.ui.bowlDone.dropSeconds, { position: new Vec3(this.bowlX[slot], restY, 0) }, { easing: 'bounceOut' })
-      .call(() => sfx('land'))
-      .start();
+    // 新缸从上方落下（撤销重画时直接坐在架上）
+    if (!instant) {
+      node.setPosition(this.bowlX[slot], restY + 260, 0);
+      opacity(node).opacity = 0;
+      tween(node)
+        .delay(delay)
+        .call(() => (opacity(node).opacity = 255))
+        .to(App.config.ui.bowlDone.dropSeconds, { position: new Vec3(this.bowlX[slot], restY, 0) }, { easing: 'bounceOut' })
+        .call(() => sfx('land'))
+        .start();
+    }
     const plus = this.plusNodes[slot];
     if (plus) plus.active = false;
   }
@@ -1687,25 +1919,44 @@ export class GamePage extends Page {
    */
   private showGoalCard(): void {
     const pill = this.goalPill;
-    if (this.comboGoal <= 0 || this.ended || !pill) return;
-    const card = plate(this.fly, 'skin/f_hud', 520, 150, 'goalCard');
-    const title = text(card, tr('UI_COMBO_GOAL', this.comboGoal), 44, { align: 'left' });
-    const tw = textWidth(title);
-    const row = tw + 24 + 30 + 24 + 72;
-    at(title.node, -row / 2, 22);
-    const arrow = text(card, '→', 40);
-    at(arrow.node, -row / 2 + tw + 24 + 15, 22);
-    at(img(card, this.goalIcon(), 72, 72, 'reward'), row / 2 - 36, 22);
-    at(text(card, tr('UI_COMBO_GOAL_HINT'), 24, { color: COLOR.yellow }).node, 0, -40);
+    if (this.ended || this.arg.daily || this.arg.demo) return;
+    const goal = this.comboGoal > 0 && pill !== null;
+    // 没有连击目标的关（重打的、参考解太短的）只剩星级那一行；前几关（教学关）不出卡
+    const replay = this.arg.level < App.save.data.level;
+    if (!goal && !replay && this.arg.level < (App.config.eco.comboGoal?.from ?? 1)) return;
+    const h = goal ? 206 : 84;
+    const card = plate(this.fly, 'skin/f_hud', 520, h, 'goalCard');
+    if (goal) {
+      const title = text(card, tr('UI_COMBO_GOAL', this.comboGoal), 44, { align: 'left' });
+      const tw = textWidth(title);
+      const row = tw + 24 + 30 + 24 + 72;
+      at(title.node, -row / 2, 50);
+      const arrow = text(card, '→', 40);
+      at(arrow.node, -row / 2 + tw + 24 + 15, 50);
+      at(img(card, this.goalIcon(), 72, 72, 'reward'), row / 2 - 36, 50);
+      const hint = text(card, tr('UI_COMBO_GOAL_HINT'), 24, { color: COLOR.yellow });
+      at(hint.node, 0, -8);
+      fit(hint, 480, 24, 18);
+    }
+    // 星级（docs/01 9.5）：三颗星 +「不用道具」；这一关已经拿过三星的写「已三星」
+    const done = Stars.best(App.save.data, this.arg.level) >= 3;
+    const line = text(card, tr(done ? 'UI_STARS_DONE' : 'UI_STARS_NOITEM'), 28, { align: 'left' });
+    fit(line, 330, 28, 20);
+    const lw = textWidth(line);
+    const sw = 3 * 34 + 12 + lw;
+    const sy = goal ? -64 : 0;
+    for (let i = 0; i < 3; i++) at(img(card, 'icon/star', 32, 32, `star${i}`), -sw / 2 + 16 + i * 34, sy);
+    at(line.node, -sw / 2 + 3 * 34 + 12, sy);
     at(card, 0, Screen.H * 0.1);
     fx.popIn(card, 0, 0.25);
     const g = App.config.ui.goalCard;
+    const to = pill && pill.node.active ? pill.node.position.clone() : new Vec3(0, Screen.top + 80, 0);
     tween(card)
       .delay(g.hold)
-      .to(g.fly, { position: pill.node.position.clone(), scale: new Vec3(0.25, 0.25, 1) }, { easing: 'quadIn' })
+      .to(g.fly, { position: to, scale: new Vec3(0.25, 0.25, 1) }, { easing: 'quadIn' })
       .call(() => {
         card.destroy();
-        if (pill.node.isValid) fx.squash(pill.node, 1.2);
+        if (pill && pill.node.isValid) fx.squash(pill.node, 1.2);
       })
       .start();
   }
@@ -1897,10 +2148,8 @@ export class GamePage extends Page {
     return (this.combo as unknown as { last: number }).last;
   }
 
-  private showHint(): void {
-    this.idle = 0;
-    const t = Bots.hintTap(this.s, this.rng);
-    if (!t) return;
+  /** 给一步套光圈（回流位上的鱼套在小气泡上） */
+  private ringAt(t: Tap): void {
     if (t[0] === RETURN_BUBBLE) {
       const b = this.returnNodes[t[1]];
       if (b) {
@@ -1908,6 +2157,136 @@ export class GamePage extends Page {
         fx.breathe(this.hintNode, 0.12, 0.9);
       }
     } else this.hintNode = this.field.hint(t[0], t[1]);
+  }
+
+  /** 提示技能要亮的那一步：想清楚的玩家会点哪条（只看屏幕上看得到的：架上的缸、预告的后面几缸、场上的鱼）；null = 没得提示 */
+  skillHintTap(): Tap | null {
+    return Players.hint(this.s, App.config.curve.route?.preview ?? 0, (this.rng.nextU32() % 1e6) + 1);
+  }
+
+  /** 提示技能：那条鱼套金圈，被点（任何一步）或过 game_ui.json 的 hint.skillSeconds 秒后消失 */
+  showSkillHint(t: Tap): void {
+    this.clearHint();
+    this.ringAt(t);
+    const ring = this.hintNode;
+    if (!ring) return;
+    const [x, y] = t[0] === RETURN_BUBBLE ? [this.returnNodes[t[1]]?.position.x ?? 0, this.returnY] : this.fieldToFly(this.field.fishPos(t[0], t[1]));
+    fx.ring(this.fly, x, y, 60, 240, COLOR.yellow);
+    fx.sparkle(this.fly, x, y, 8, 90, COLOR.yellow, 30);
+    fx.delay(ring, App.config.ui.hint.skillSeconds ?? 5, () => {
+      if (this.hintNode === ring) this.clearHint();
+    });
+  }
+
+  /** 场地里的坐标换成特效层的坐标 */
+  private fieldToFly(p: [number, number]): [number, number] {
+    const holder = this.field.node.parent as Node;
+    return [p[0] + holder.position.x, p[1] + holder.position.y];
+  }
+
+  // ---------------------------------------------------------------- 幸运泡、掉落预告
+
+  /**
+   * 幸运泡（docs/01 9.3）：每次进关重新抽（界面层的随机数，不进规则）；抽到的话那个气泡套金圈、带奖励的那条鱼头上一个小礼物。
+   * 每日挑战、演示没有
+   */
+  private planLucky(): void {
+    this.lucky = null;
+    if (this.arg.daily || this.arg.demo) return;
+    const eco = App.config.eco;
+    const plan = Lucky.plan(this.s, eco, this.arg.level, this.rng, Features.isUnlocked(eco, 'album', App.save.data.level));
+    // 不和稀客挤在同一个气泡上
+    if (!plan || (this.guest && this.guest.bubble === plan.bubble)) return;
+    this.lucky = { plan, done: false };
+    this.field.addLucky(plan.bubble, plan.fish);
+  }
+
+  /** 带奖励的那条鱼被取走了（点的、渔网捞的、洋流带的都算）：当场入账，奖励从礼物那里飞出去——技能飞到技能键上，金币、卡往顶上飞 */
+  private luckyTaken(b: number, k: number): void {
+    const l = this.lucky;
+    if (!l || l.done || l.plan.bubble !== b || l.plan.fish !== k) return;
+    l.done = true;
+    const gain = Flow.luckyGain(l.plan);
+    const [x, y] = this.fieldToFly(this.field.unlucky(b));
+    const card = gain.card !== null;
+    const n = img(this.fly, card ? 'icon/card_back' : gain.skill ? `icon/skill_${gain.skill}` : 'icon/coin', card ? 54 : 68, card ? 72 : 68, 'luckyPrize');
+    at(n, x, y);
+    fx.sparkle(this.fly, x, y, 12, 110, COLOR.yellow, 32);
+    fx.ring(this.fly, x, y, 50, 220, COLOR.yellow);
+    sfx(card ? 'card' : gain.skill ? 'unlock' : 'coin');
+    buzz('light');
+    if (gain.coins > 0) {
+      const l2 = text(null, `+${gain.coins}`, 34, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
+      fx.floatUp(this.fly, l2.node, x + 56, y + 6, 50, 0.9);
+    }
+    const key = gain.skill ? this.skillNodes.get(gain.skill as SkillId) : undefined;
+    const tx = key ? key.node.position.x : 0;
+    const ty = key ? key.node.position.y : Screen.top + 60;
+    n.setScale(0.4, 0.4, 1);
+    tween(n)
+      .to(0.2, { scale: new Vec3(1.25, 1.25, 1) }, { easing: 'backOut' })
+      .delay(0.35)
+      .call(() =>
+        fx.flyArc(n, tx, ty, 0.5, 120, 'quadIn', () => {
+          n.destroy();
+          if (key && key.node.isValid) {
+            fx.squash(key.node, 1.2);
+            this.refreshSkills();
+          }
+        }, 0.6),
+      )
+      .start();
+  }
+
+  /**
+   * 掉落关「下一个落下」预告（docs/01 9.3「看得到才公平」）：暂存槽右边（4 格时）一个小气泡，里面是候场队头那个气泡装的鱼
+   * （迷雾泡画问号），上面一行小字「接下来」。队头换了就换一个；候场的落完了收起来
+   */
+  private syncDrop(animate: boolean): void {
+    const s = this.s;
+    const idx = s.nextDrop < s.bubbles.length && s.bubbles[s.nextDrop].count() > 0 && !s.bubbles[s.nextDrop].onField ? s.nextDrop : -1;
+    if (idx === this.dropShown) return;
+    this.dropShown = idx;
+    if (this.dropNext && this.dropNext.isValid) {
+      const old = this.dropNext;
+      Tween.stopAllByTarget(old);
+      if (animate) tween(old).to(0.2, { position: new Vec3(old.position.x, old.position.y - 60, 0), scale: new Vec3(0.5, 0.5, 1) }).call(() => old.destroy()).start();
+      else old.destroy();
+    }
+    this.dropNext = null;
+    if (idx < 0) return;
+    // 掉落关暂存槽是 4 格，槽右边空着一块：放在那里，不压气泡场（短屏上气泡堆到场地顶，放场地角上会盖住气泡）。
+    // 暂存槽 5 格时（调试页的简单档）那里放不下，退到场地右上角
+    const beside = this.s.bufferCap <= 4;
+    const S = beside ? 88 : 104;
+    const node = img(this.stage, 'kit/bubble_small', S, S, 'dropNext');
+    if (beside) at(node, Screen.W / 2 - 14 - S / 2, this.bufferY - 8);
+    else at(node, Screen.W / 2 - 24 - S / 2, this.fieldTop - S / 2 - 26);
+    const cap = text(node, tr('UI_NEXT_TANKS'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
+    at(cap.node, 0, S / 2 + 10);
+    fit(cap, S + 30, 20, 14);
+    const b = s.bubbles[idx];
+    const fish = b.fish.filter((f) => f >= 0);
+    const fs = (fish.length <= 1 ? 0.6 : fish.length <= 3 ? 0.4 : 0.35) * S;
+    const d = fish.length <= 1 ? 0 : S * 0.21;
+    fish.forEach((sp, k) => {
+      const a = (Math.PI * 2 * k) / fish.length + Math.PI / 2;
+      const f = img(node, b.fog > 0 ? 'skin/j_mystery' : this.field.spriteFor(sp), fs, fs, `f${k}`);
+      // 两条左右并排，三条以上围一圈
+      if (fish.length === 2) at(f, (k === 0 ? -1 : 1) * d, 0);
+      else at(f, Math.cos(a) * d, Math.sin(a) * d);
+    });
+    opacity(node).opacity = 235;
+    if (animate) fx.popIn(node, 0.25, 0.25);
+    fx.bob(node, 3, 2.2, 0);
+    this.dropNext = node;
+  }
+
+  private showHint(): void {
+    this.idle = 0;
+    const t = Bots.hintTap(this.s, this.rng);
+    if (!t) return;
+    this.ringAt(t);
     // 教学关：再加一只手指点着它（docs/01 第 8 节：手指指向目标鱼）
     if (this.hintNode && this.arg.level <= App.config.ui.hint.tutorialLevels) addFinger(this.hintNode);
   }
@@ -1957,6 +2336,8 @@ export class GamePage extends Page {
 
   /** 复活后：暂存槽、回流位、缸的倒计时都按状态重画 */
   resync(): void {
+    this.setUndo(null);
+    this.prefillLeft = Math.min(this.prefillLeft, this.s.buffer.length);
     for (const n of this.bufferNodes) n.destroy();
     this.bufferNodes = this.s.buffer.map((sp, i) => {
       const f = img(this.fly, this.field.spriteFor(sp), 64, 64, 'fish');

@@ -7,6 +7,8 @@
   - icon/ice_thick0/1/2：厚冰（docs/01 9.3，连着的气泡全部破了才化）的冰面：完整、裂一道、裂两道，同一块冰换图。
     thick_ice.png 从左到右三块（2026-11-19，参照现有的 icon/ice 出的）。
   - icon/kind_hard、icon/kind_boss：难关的火苗、超难关的鲨鱼鳍（art/raw/ui_icons/level_kind.png，art/briefs/ui_icons/level_kind.txt）。
+  - icon/skill_undo、icon/skill_hint、icon/lucky_ring、icon/first3：撤销、提示两个技能键，幸运泡的金圈，首次三星的奖章
+    （art/raw/ui_icons/{skill_undo,skill_hint,lucky_ring,first_3star}.png，各一张图一个物件，需求在 art/briefs/ui_icons/）。
   - j_goal：木架下面钉着的目标卡（一叠两张白边相片，里面是空的水下小景；游戏在上面画要的那种鱼和「0/3」）。goal_card.png。
 出图需求在 art/briefs/ui_skin/{fog,obstacle_parts,thick_ice}.txt、art/briefs/redesign/goal_card.txt。
 用法：python3 tools/art/obstacles.py [art/raw/ui_skin]   之后跑 ./run.sh meta 和 ./run.sh art-compress
@@ -18,6 +20,29 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from skin import OUT, REPO, key_magenta, light_on_black, scaled  # noqa: E402
+
+
+def key_flood(path) -> Image.Image:
+    """紫色、粉色的物件不能用 key_magenta（按「品红度」算透明度，紫色会被抠成半透明、变蓝）：
+    改成从四角往里泛洪——和背景色差得不多、又和图边连着的才算背景；物件内部一律不透明，只有贴着背景的 2 像素按色差做软边、减掉混进去的品红。
+    物件要是一整块、中间没有镂空（镂空处泛洪够不着）"""
+    import numpy as np
+    from PIL import ImageDraw, ImageFilter
+
+    src = Image.open(path).convert('RGB')
+    a = np.asarray(src).astype(np.float32) / 255.0
+    bg = np.median(np.concatenate([a[:8, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)]), axis=0)
+    dist = np.sqrt(((a - bg) ** 2).sum(axis=2))
+    near = Image.fromarray(((dist < 0.3) * 255).astype(np.uint8), 'L').copy()
+    for xy in ((0, 0), (src.width - 1, 0), (0, src.height - 1), (src.width - 1, src.height - 1)):
+        ImageDraw.floodfill(near, xy, 128)
+    back = np.asarray(near) == 128
+    band = np.asarray(Image.fromarray((back * 255).astype(np.uint8), 'L').filter(ImageFilter.MaxFilter(5))) > 0
+    alpha = np.where(back, 0.0, np.where(band, np.clip(dist / 0.45, 0.0, 1.0), 1.0))
+    a3 = np.clip(alpha, 0.05, 1.0)[..., None]
+    col = np.clip((a - (1.0 - a3) * bg) / a3, 0.0, 1.0)
+    out = Image.fromarray(np.clip(np.dstack([col, alpha]) * 255 + 0.5, 0, 255).astype(np.uint8), 'RGBA')
+    return out.crop(out.getbbox())
 
 
 def save(name: str, im: Image.Image) -> None:
@@ -64,6 +89,26 @@ def main() -> None:
             canvas.alpha_composite(c, ((192 - c.width) // 2, (192 - c.height) // 2))
             canvas.save(icon / f'{name}.png')
             print(f'  icon/{name}', canvas.size)
+    # 撤销、提示、幸运泡金圈、首次三星奖章（docs/ux/route-2026-11-19.md，2026-11-19 Codex 出图）：一张图一个物件，
+    # 抠掉品红底、裁边、等比放进透明方画布（技能图标和现有的 skill_* 一样 384 见方）
+    icon = REPO / 'client/assets/resources/ui/icon'
+    for src, name, side, inner in (
+        ('skill_undo', 'skill_undo', 384, 356),
+        ('skill_hint', 'skill_hint', 384, 356),
+        ('lucky_ring', 'lucky_ring', 384, 380),
+        ('first_3star', 'first3', 240, 232),
+    ):
+        f = REPO / 'art/raw/ui_icons' / f'{src}.png'
+        if not f.exists():
+            continue
+        # 撤销的箭头是紫色的，按品红度抠会变蓝、半透明，用泛洪抠
+        c = key_flood(f) if name == 'skill_undo' else key_magenta(f)
+        c = c.crop(c.getbbox())
+        c = scaled(c, inner / max(c.width, c.height))
+        canvas = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+        canvas.alpha_composite(c, ((side - c.width) // 2, (side - c.height) // 2))
+        canvas.save(icon / f'{name}.png')
+        print(f'  icon/{name}', canvas.size)
     if (raw / 'goal_card.png').exists():
         card = key_magenta(raw / 'goal_card.png')
         card = card.crop(card.getbbox())

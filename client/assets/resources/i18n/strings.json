@@ -938,7 +938,17 @@
   "UI_BANNER_COINS": "过关得 %d 金币",
   "UI_COMBO_GOAL": "连击 ×%d",
   "UI_COMBO_GOAL_HINT": "第一次过关时达到就送",
-  "UI_COMBO_GOAL_DONE": "连击目标达成！"
+  "UI_COMBO_GOAL_DONE": "连击目标达成！",
+  "UI_NEXT_TANKS": "接下来",
+  "UI_STARS_NOITEM": "不用道具",
+  "UI_STARS_DONE": "已三星",
+  "H_SKILL_UNDO": "撤销",
+  "H_SKILL_HINT": "提示",
+  "UI_UNDO_EMPTY": "没有能撤销的一步",
+  "UI_HINT_EMPTY": "现在没有能点的鱼",
+  "RESULT_PERFECT": "完美！一个道具都没用",
+  "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
+  "RESULT_FIRST_3STAR": "首次三星"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -1879,7 +1889,17 @@
   "UI_BANNER_COINS": "Clear it for %d coins",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "Reach it on your first clear",
-  "UI_COMBO_GOAL_DONE": "Combo goal reached!"
+  "UI_COMBO_GOAL_DONE": "Combo goal reached!",
+  "UI_NEXT_TANKS": "Next",
+  "UI_STARS_NOITEM": "No boosters",
+  "UI_STARS_DONE": "3 stars done",
+  "H_SKILL_UNDO": "Undo",
+  "H_SKILL_HINT": "Hint",
+  "UI_UNDO_EMPTY": "Nothing to undo",
+  "UI_HINT_EMPTY": "No move to show",
+  "RESULT_PERFECT": "Perfect! No boosters used",
+  "RESULT_TRY_3STAR": "Win without boosters for 3 stars",
+  "RESULT_FIRST_3STAR": "First 3 stars"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -2820,7 +2840,17 @@
   "UI_BANNER_COINS": "過關得 %d 金幣",
   "UI_COMBO_GOAL": "連擊 ×%d",
   "UI_COMBO_GOAL_HINT": "第一次過關時達到就送",
-  "UI_COMBO_GOAL_DONE": "連擊目標達成！"
+  "UI_COMBO_GOAL_DONE": "連擊目標達成！",
+  "UI_NEXT_TANKS": "接下來",
+  "UI_STARS_NOITEM": "不用道具",
+  "UI_STARS_DONE": "已三星",
+  "H_SKILL_UNDO": "復原",
+  "H_SKILL_HINT": "提示",
+  "UI_UNDO_EMPTY": "沒有能復原的一步",
+  "UI_HINT_EMPTY": "現在沒有能點的魚",
+  "RESULT_PERFECT": "完美！一個道具都沒用",
+  "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
+  "RESULT_FIRST_3STAR": "首次三星"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -3761,7 +3791,17 @@
   "UI_BANNER_COINS": "クリアで %d コイン",
   "UI_COMBO_GOAL": "コンボ ×%d",
   "UI_COMBO_GOAL_HINT": "初クリアで達成するともらえる",
-  "UI_COMBO_GOAL_DONE": "コンボ目標達成！"
+  "UI_COMBO_GOAL_DONE": "コンボ目標達成！",
+  "UI_NEXT_TANKS": "つぎ",
+  "UI_STARS_NOITEM": "アイテムなし",
+  "UI_STARS_DONE": "星3つ達成",
+  "H_SKILL_UNDO": "もどす",
+  "H_SKILL_HINT": "ヒント",
+  "UI_UNDO_EMPTY": "もどせる手がない",
+  "UI_HINT_EMPTY": "今は取れる魚がいない",
+  "RESULT_PERFECT": "パーフェクト！アイテムなし",
+  "RESULT_TRY_3STAR": "アイテムなしで星3つ",
+  "RESULT_FIRST_3STAR": "初の星3つ"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -4702,7 +4742,17 @@
   "UI_BANNER_COINS": "클리어 보상 %d 코인",
   "UI_COMBO_GOAL": "콤보 ×%d",
   "UI_COMBO_GOAL_HINT": "첫 클리어 때 달성하면 받아요",
-  "UI_COMBO_GOAL_DONE": "콤보 목표 달성!"
+  "UI_COMBO_GOAL_DONE": "콤보 목표 달성!",
+  "UI_NEXT_TANKS": "다음",
+  "UI_STARS_NOITEM": "아이템 없이",
+  "UI_STARS_DONE": "별 3개 달성",
+  "H_SKILL_UNDO": "되돌리기",
+  "H_SKILL_HINT": "힌트",
+  "UI_UNDO_EMPTY": "되돌릴 수가 없어요",
+  "UI_HINT_EMPTY": "지금은 누를 물고기가 없어요",
+  "RESULT_PERFECT": "퍼펙트! 아이템 없이 클리어",
+  "RESULT_TRY_3STAR": "아이템 없이 깨면 별 3개",
+  "RESULT_FIRST_3STAR": "첫 별 3개"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -5643,7 +5693,17 @@
   "UI_BANNER_COINS": "Belohnung: %d Münzen",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "Beim ersten Sieg schaffen und kassieren",
-  "UI_COMBO_GOAL_DONE": "Combo-Ziel geschafft!"
+  "UI_COMBO_GOAL_DONE": "Combo-Ziel geschafft!",
+  "UI_NEXT_TANKS": "Danach",
+  "UI_STARS_NOITEM": "Ohne Extras",
+  "UI_STARS_DONE": "3 Sterne geholt",
+  "H_SKILL_UNDO": "Zurück",
+  "H_SKILL_HINT": "Tipp",
+  "UI_UNDO_EMPTY": "Nichts zum Zurücknehmen",
+  "UI_HINT_EMPTY": "Gerade kein Zug möglich",
+  "RESULT_PERFECT": "Perfekt! Ganz ohne Extras",
+  "RESULT_TRY_3STAR": "Ohne Extras gibt es 3 Sterne",
+  "RESULT_FIRST_3STAR": "Erste 3 Sterne"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -6584,7 +6644,17 @@
   "UI_BANNER_COINS": "Récompense : %d pièces",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "À atteindre dès ta première victoire",
-  "UI_COMBO_GOAL_DONE": "Objectif combo atteint !"
+  "UI_COMBO_GOAL_DONE": "Objectif combo atteint !",
+  "UI_NEXT_TANKS": "Ensuite",
+  "UI_STARS_NOITEM": "Sans bonus",
+  "UI_STARS_DONE": "3 étoiles obtenues",
+  "H_SKILL_UNDO": "Annuler",
+  "H_SKILL_HINT": "Indice",
+  "UI_UNDO_EMPTY": "Rien à annuler",
+  "UI_HINT_EMPTY": "Aucun coup possible",
+  "RESULT_PERFECT": "Parfait ! Sans aucun bonus",
+  "RESULT_TRY_3STAR": "Gagne sans bonus pour 3 étoiles",
+  "RESULT_FIRST_3STAR": "1res 3 étoiles"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -7525,7 +7595,17 @@
   "UI_BANNER_COINS": "Premio: %d monedas",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "Lógralo en tu primera victoria",
-  "UI_COMBO_GOAL_DONE": "¡Meta de combo lograda!"
+  "UI_COMBO_GOAL_DONE": "¡Meta de combo lograda!",
+  "UI_NEXT_TANKS": "Luego",
+  "UI_STARS_NOITEM": "Sin potenciadores",
+  "UI_STARS_DONE": "3 estrellas logradas",
+  "H_SKILL_UNDO": "Deshacer",
+  "H_SKILL_HINT": "Pista",
+  "UI_UNDO_EMPTY": "Nada que deshacer",
+  "UI_HINT_EMPTY": "No hay jugada posible",
+  "RESULT_PERFECT": "¡Perfecto! Sin potenciadores",
+  "RESULT_TRY_3STAR": "Gana sin potenciadores: 3 estrellas",
+  "RESULT_FIRST_3STAR": "Primeras 3★"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -8466,7 +8546,17 @@
   "UI_BANNER_COINS": "Prêmio: %d moedas",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "Alcance na primeira vitória",
-  "UI_COMBO_GOAL_DONE": "Meta de combo batida!"
+  "UI_COMBO_GOAL_DONE": "Meta de combo batida!",
+  "UI_NEXT_TANKS": "Depois",
+  "UI_STARS_NOITEM": "Sem reforços",
+  "UI_STARS_DONE": "3 estrelas feitas",
+  "H_SKILL_UNDO": "Desfazer",
+  "H_SKILL_HINT": "Dica",
+  "UI_UNDO_EMPTY": "Nada para desfazer",
+  "UI_HINT_EMPTY": "Sem jogada possível",
+  "RESULT_PERFECT": "Perfeito! Sem reforços",
+  "RESULT_TRY_3STAR": "Vença sem reforços: 3 estrelas",
+  "RESULT_FIRST_3STAR": "Primeiras 3★"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -9407,7 +9497,17 @@
   "UI_BANNER_COINS": "Premio: %d monete",
   "UI_COMBO_GOAL": "Combo ×%d",
   "UI_COMBO_GOAL_HINT": "Raggiungila alla prima vittoria",
-  "UI_COMBO_GOAL_DONE": "Obiettivo combo raggiunto!"
+  "UI_COMBO_GOAL_DONE": "Obiettivo combo raggiunto!",
+  "UI_NEXT_TANKS": "Dopo",
+  "UI_STARS_NOITEM": "Senza aiuti",
+  "UI_STARS_DONE": "3 stelle prese",
+  "H_SKILL_UNDO": "Annulla",
+  "H_SKILL_HINT": "Aiuto",
+  "UI_UNDO_EMPTY": "Niente da annullare",
+  "UI_HINT_EMPTY": "Nessuna mossa possibile",
+  "RESULT_PERFECT": "Perfetto! Senza aiuti",
+  "RESULT_TRY_3STAR": "Vinci senza aiuti: 3 stelle",
+  "RESULT_FIRST_3STAR": "Prime 3★"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -10348,7 +10448,17 @@
   "UI_BANNER_COINS": "Награда: %d монет",
   "UI_COMBO_GOAL": "Комбо ×%d",
   "UI_COMBO_GOAL_HINT": "Достигни при первом прохождении",
-  "UI_COMBO_GOAL_DONE": "Цель по комбо выполнена!"
+  "UI_COMBO_GOAL_DONE": "Цель по комбо выполнена!",
+  "UI_NEXT_TANKS": "Далее",
+  "UI_STARS_NOITEM": "Без бонусов",
+  "UI_STARS_DONE": "3 звезды есть",
+  "H_SKILL_UNDO": "Назад",
+  "H_SKILL_HINT": "Совет",
+  "UI_UNDO_EMPTY": "Нечего отменять",
+  "UI_HINT_EMPTY": "Сейчас нет хода",
+  "RESULT_PERFECT": "Идеально! Без бонусов",
+  "RESULT_TRY_3STAR": "Без бонусов — 3 звезды",
+  "RESULT_FIRST_3STAR": "Первые 3★"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -11289,6 +11399,16 @@
   "UI_BANNER_COINS": "Ödül: %d altın",
   "UI_COMBO_GOAL": "Kombo ×%d",
   "UI_COMBO_GOAL_HINT": "İlk geçişte ulaş ve kazan",
-  "UI_COMBO_GOAL_DONE": "Kombo hedefi tamam!"
+  "UI_COMBO_GOAL_DONE": "Kombo hedefi tamam!",
+  "UI_NEXT_TANKS": "Sırada",
+  "UI_STARS_NOITEM": "Güçlendiricisiz",
+  "UI_STARS_DONE": "3 yıldız tamam",
+  "H_SKILL_UNDO": "Geri al",
+  "H_SKILL_HINT": "İpucu",
+  "UI_UNDO_EMPTY": "Geri alınacak hamle yok",
+  "UI_HINT_EMPTY": "Şu an hamle yok",
+  "RESULT_PERFECT": "Mükemmel! Güçlendiricisiz",
+  "RESULT_TRY_3STAR": "Güçlendiricisiz kazan: 3 yıldız",
+  "RESULT_FIRST_3STAR": "İlk 3 yıldız"
  }
 }

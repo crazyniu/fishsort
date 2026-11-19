@@ -96,7 +96,9 @@ for (const path of files) {
   if (route && target !== null && kind !== null) {
     // 规定路线关卡（第 6 关起）：随手点的玩家过关率离目标多远、想清楚的玩家过不过得去；变体要比本体容易
     const o = { preview: route.preview };
-    const casual = Players.rate(lv, 'casual', route.checkCasual, o, VERIFY_SEED).win;
+    // 尺子（route.ruler，不给 = 随手点的玩家）量难度，想清楚的玩家的保底按关定（LevelCurve.thinkFloorFor）
+    const ruler: Players.Ruler = route.ruler ? { kind: route.ruler.kind, budget: route.ruler.budget, slip: route.ruler.slip } : { kind: 'casual' };
+    const casual = Players.rulerRate(lv, ruler, route.ruler?.checkGames ?? route.checkCasual, route.preview, VERIFY_SEED).win;
     // 想清楚的玩家打 route.checkThink 局（60）：20 局一局就差 5 个点，太粗
     const think = isVariant ? -1 : Players.rate(lv, 'think', route.checkThink, o, VERIFY_SEED).win;
     const flags: string[] = [];
@@ -106,7 +108,7 @@ for (const path of files) {
     } else {
       baseRate.set(lv.id, casual * 100);
       if (Math.abs(casual - target) > 0.1) flags.push(casual < target ? '偏难' : '偏易');
-      if (think < route.thinkFloor - 0.1) flags.push('想清楚过不去');
+      if (think < LevelCurve.thinkFloorFor(curve, lv.id) - 0.1) flags.push('想清楚过不去');
     }
     if (flags.length > 0) off++;
     const fish = lv.bubbles.reduce((n, b) => n + b.fish.length, 0);

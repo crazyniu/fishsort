@@ -5,12 +5,16 @@
   "comboGoal": {"from": 6, "share": 0.75, "min": 6, "max": 30, "reward": {"normal": {"card": "common", "coins": 20}, "hard": {"card": "uncommon", "coins": 40}, "boss": {"card": "rare", "coins": 60}}},
   "adCoinMultiplier": 2,
   "toolStart": {
+    "undo": 0,
+    "hint": 0,
     "shuffle": 0,
     "blow": 0,
     "net": 0,
     "current": 0
   },
   "toolPrice": {
+    "undo": 240,
+    "hint": 360,
     "shuffle": 240,
     "blow": 280,
     "net": 360,
@@ -21,6 +25,9 @@
     "from": 121,
     "max": 3
   },
+  "toolMaxPerLevelById": {"undo": 3},
+  "stars": {"twoStarLine": {"normal": 1, "hard": 2, "boss": 3}, "first3": {"normal": {"coins": 30}, "hard": {"coins": 60, "card": "uncommon"}, "boss": {"coins": 60, "skill": 1}}, "earlyUntil": 20, "earlyCoins": 30},
+  "lucky": {"from": 18, "chance": 0.35, "rewards": [{"kind": "coins", "w": 60, "coins": 10}, {"kind": "skill", "w": 30}, {"kind": "card", "w": 10, "rarity": "common"}]},
   "bowlSlotCoinPrice": 300,
   "bowlSlotOnce": false,
   "freeBowlSlotAfterFails": 4,
@@ -104,6 +111,8 @@
   },
   "skills": {
     "order": [
+      "undo",
+      "hint",
       "shuffle",
       "blow",
       "net",
@@ -198,7 +207,7 @@
       {
         "id": 1,
         "sea": "shore",
-        "unlock": 6,
+        "unlock": 8,
         "cards": [
           "c03",
           "c05",
@@ -1119,13 +1128,13 @@
   },
   "dailyChallenge": {
     "levelStep": 5,
-    "retryCoins": 60,
+    "retryCoins": 30,
     "reward": {
-      "coins": 40
+      "coins": 200
     },
     "streakDays": 7,
     "streakReward": {
-      "coins": 300,
+      "coins": 1000,
       "skills": 1,
       "unlimited": 3600
     }
@@ -1250,14 +1259,16 @@
   },
   "features": {
     "signin": 3,
+    "skill_undo": 6,
     "skill_shuffle": 4,
     "levelSelect": 5,
-    "album": 6,
+    "album": 8,
     "skill_blow": 7,
     "skill_net": 9,
     "wheel": 10,
     "tasks": 11,
     "skill_current": 12,
+    "skill_hint": 14,
     "daily": 20
   },
   "chest": {

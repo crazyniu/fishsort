@@ -120,6 +120,20 @@ export interface EconomyConfig {
   challengeCoins: number;
   /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
   bossCoins?: number;
+  /** 某几个技能单独的每关次数上限（撤销 3 次，docs/01 9.6） */
+  toolMaxPerLevelById?: Record<string, number>;
+  /**
+   * 星级和首次三星（docs/01 9.5）：twoStarLine 用了几个道具以内两星；first3 第一次拿三星多送的（coins 金币、card 卡的稀有度、skill 几个随机技能），
+   * 第 earlyUntil 关以前金币只给 earlyCoins
+   */
+  stars?: {
+    twoStarLine: Record<'normal' | 'hard' | 'boss', number>;
+    first3: Record<'normal' | 'hard' | 'boss', { coins: number; card?: string; skill?: number }>;
+    earlyUntil: number;
+    earlyCoins: number;
+  };
+  /** 幸运泡（docs/01 9.3）：第 from 关起每次进关有 chance 的概率出一个；奖励按权重抽 */
+  lucky?: { from: number; chance: number; rewards: { kind: 'coins' | 'skill' | 'card'; w: number; coins?: number; rarity?: string }[] };
   /**
    * 连击目标（docs/01 9.4）：第 from 关起；N = 参考解最长连击 × share，夹在 [min, max]，不到 min 不出目标。
    * reward：三种关各给哪一档的卡（收藏开放后）或多少金币（还没开放时）
@@ -256,6 +270,8 @@ export interface CurveConfig {
   };
   /** 普通关最多几条鱼（难关多三成，到 challenge.fishMax 为止；docs/01 9.2：难关一眼看得出鱼更多） */
   normalFishMax?: number;
+  /** 开局占格（docs/01 9.3）：第 from 关起的难关、超难关，开局暂存槽先放 count 表里的条数；只挑订单 after 比例之后才要的鱼种 */
+  prefill?: { from: number; count: [number, number][]; after: number };
   ease: { species: number; fish: number; cap: number; slack: number };
   targets: {
     start: number;
@@ -321,10 +337,19 @@ export interface CurveConfig {
     checkCasual: number;
     checkThink: number;
     /**
-     * 随手点的玩家不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
-     * 难关在 line 上加 hard、超难关加 boss（负数），都不低于 min
+     * 尺子量的不用道具的过关率目标（docs/01 9.2，用户 2026-11-19 定）：tutorial、line 是 [关卡号, 比例] 的折点；
+     * 难关在 line 上加 hard、超难关加 boss（负数）；给了 hardRatio、bossRatio 时取「加几个点」和「乘比例」里容易的那个（后期三种关拉得开），都不低于 min；overrides 单独指定某几关（关卡号 → 比例，优先）
      */
-    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; min: number };
+    targets: { tutorial: [number, number][]; line: [number, number][]; hard: number; boss: number; hardRatio?: number; bossRatio?: number; min: number; overrides?: Record<string, number> };
+    /** 量难度用哪个玩家（docs/02 0.2）：casual 随手点，think 想几步（budget 每步推几个局面）；games 收紧时每次打几局、checkGames 复量打几局 */
+    ruler?: { kind: 'casual' | 'think'; budget?: number; slip?: number; games: number; checkGames: number };
+    /** 想清楚的玩家的保底（docs/02 0.3）：不低于 min(max, 这一关的目标 + gap)；不给就一律 thinkFloor */
+    floor?: { max: number; gap: number };
+    /**
+     * 每日挑战的专用难关（docs/01 5.11，用户 2026-11-19）：第 from 关起每 step 关一份（和挑战关同一套生成参数），
+     * 尺子不用道具能过 target（不超过 max），想清楚的不低于 floor；存在 config/levels_daily/
+     */
+    daily?: { from: number; step: number; target: number; max: number; floor: number };
   };
   /** 限时缸的秒数 = 参考解步数 × bot.tapSec × loose + 途中满缸数 × bot.bowlSec，夹在 [min, max]、取整到 step；参考解里超过 maxSteps 步的缸不限时 */
   timer: { loose: number; min: number; max: number; step: number; maxSteps: number };
@@ -346,7 +371,10 @@ export interface GameUiConfig {
    * 堆的高度最多占场地高度的多少（放不下就把气泡缩小）
    */
   pile: { gravity: number; damping: number; substeps: number; iterations: number; sleepSpeed: number; sleepTime: number; landSpeed: number; separate: number; linkMin: number; maxAwake?: number; stagger: number; maxHeight: number };
-  hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number };
+  /** 闲着不点时自动亮的提示（seconds 秒后）；skillSeconds = 提示技能的金圈亮几秒 */
+  hint: { tutorialLevels: number; tutorialSeconds: number; seconds: number; skillSeconds?: number };
+  /** 局内「接下来」预告（后面几缸要什么，docs/ux/route-2026-11-19.md 第 1 节）：从第几关起出 */
+  nextBowls?: { from: number };
   /** 难关、超难关的开局横幅（docs/ux/level-types.md）：滑进来几秒、停几秒、缩成小牌子飞过去几秒 */
   kindBanner: { slideIn: number; hold: number; fly: number };
   /** 连击目标的开局小卡（docs/01 9.4）：停几秒、飞到常驻小标上几秒 */

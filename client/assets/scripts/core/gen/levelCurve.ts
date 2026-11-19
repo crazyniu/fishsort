@@ -76,6 +76,15 @@ export function params(curve: CurveConfig, id: number, ease: number): GenParams 
   return p;
 }
 
+/** 第 id 关开局暂存槽里先放几条鱼（docs/01 9.3：第 41 关起的难关、超难关）；普通关、没配返回 0 */
+export function prefillFor(curve: CurveConfig, id: number): number {
+  const p = curve.prefill;
+  if (!p || id < p.from || !isChallenge(curve, id)) return 0;
+  let n = 0;
+  for (const [from, k] of p.count) if (id >= from) n = k;
+  return n;
+}
+
 /** 超难关（每 jam.bigEvery 关一个，海域最后一关，原来叫「守关」；docs/01 9.2） */
 export function isBoss(curve: CurveConfig, id: number): boolean {
   return jamKind(curve, id) === 'big';
@@ -83,16 +92,28 @@ export function isBoss(curve: CurveConfig, id: number): boolean {
 
 /**
  * 这一关随手点的玩家不用道具的过关率目标（0–1，docs/01 9.2）：第 5 关 95%，第 6 关 85% 均匀降到第 360 关 1%；
- * 难关、超难关在这条线上再低几个点，都不低于 min。没配 route.targets、或是新手期前几关返回 null
+ * 难关、超难关在这条线上再低几个点（hard、boss）；曲线低了以后改成按比例（hardRatio、bossRatio），都不低于 min。没配 route.targets、或是新手期前几关返回 null
  */
 export function routeTarget(curve: CurveConfig, id: number): number | null {
   const t = curve.route?.targets;
   if (!t) return null;
+  const own = t.overrides?.[String(id)];
+  if (own !== undefined) return own;
   if (id < t.line[0][0]) return id >= t.tutorial[0][0] ? knot(t.tutorial, id) : null;
   let v = knot(t.line, id);
-  if (isBoss(curve, id)) v += t.boss;
-  else if (isChallenge(curve, id)) v += t.hard;
+  // 难关、超难关：前期低固定几个点；曲线低了以后改按比例（不然后期全压到 min，三种关一样难，docs/02 0.1）。两种取容易的那个，接得上
+  if (isBoss(curve, id)) v = Math.max(v + t.boss, t.bossRatio !== undefined ? v * t.bossRatio : -1);
+  else if (isChallenge(curve, id)) v = Math.max(v + t.hard, t.hardRatio !== undefined ? v * t.hardRatio : -1);
   return Math.max(t.min, Math.round(v * 1000) / 1000);
+}
+
+/** 这一关想清楚的玩家不能低于多少（docs/02 0.3）：min(floor.max, 目标 + floor.gap)；没配 floor 用 route.thinkFloor */
+export function thinkFloorFor(curve: CurveConfig, id: number): number {
+  const r = curve.route;
+  if (!r) return 0.9;
+  const t = routeTarget(curve, id);
+  if (!r.floor || t === null) return r.thinkFloor;
+  return Math.min(r.floor.max, Math.round((t + r.floor.gap) * 100) / 100);
 }
 
 /** 排队泡关卡：这一关是哪一档；不是排队泡关卡（jam 没配或还没到 jam.from）返回 null */
