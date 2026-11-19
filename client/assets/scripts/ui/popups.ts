@@ -403,7 +403,8 @@ function languagePopup(): void {
   const bw = 262;
   const bh = 84;
   const gap = 16;
-  const h = 150 + rows * (bh + gap);
+  // 上留 76（标题牌压着弹窗上沿那一截）、下留 48
+  const h = rows * (bh + gap) - gap + 76 + 48;
   const p = openPopup({ w: 620, h, title: tr('H_LANGUAGE') });
   langs.forEach((c, i) => {
     const col = i % 2;
@@ -419,7 +420,7 @@ function languagePopup(): void {
         void switchLanguage(c);
       },
     });
-    at(b.node, (col - 0.5) * (bw + gap), h / 2 - 110 - r * (bh + gap) - bh / 2 + 20);
+    at(b.node, (col - 0.5) * (bw + gap), h / 2 - 76 - r * (bh + gap) - bh / 2);
   });
 }
 
