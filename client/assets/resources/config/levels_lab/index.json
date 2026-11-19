@@ -1,4 +1,15 @@
 {
+ "5": {
+  "base": 90,
+  "target": 95,
+  "versions": {
+   "90": {
+    "natural": 96,
+    "think": 100,
+    "run": 42
+   }
+  }
+ },
  "6": {
   "base": 80,
   "target": 85,
