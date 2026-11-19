@@ -109,7 +109,8 @@ web_serve() {
     if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then ip="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"; fi
     [ -n "$ip" ] || ip="<本机内网 IP>"
     echo "→ 内网地址：${url/localhost/${ip}}（同一个网络里的手机、电脑都能开；Ctrl+C 停止）"
-    exec python3 -m http.server "$WEB_PORT" --bind 0.0.0.0 --directory "$dir"
+    # 不用 python 的 http.server：它排队只有 5 个，别的设备一次要几十个文件会被重置连接、缺图
+    exec node tools/web/serve.mjs "$dir" "$WEB_PORT" 0.0.0.0
   fi
   echo "→ ${url}（Ctrl+C 停止）"
   # macOS：用独立的临时 Chrome 配置开一个手机大小的应用窗口，不打扰平时用的浏览器，截图也只截到游戏。
