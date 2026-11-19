@@ -77,7 +77,7 @@ export class Config {
    * 每关收紧时存下的各档容错（tools/level/route.ts --lab，config/levels_lab/index.json）：
    * 关卡号 → { base: 包里用的是哪一档, 档: { keys 关键步, forced 只有一种点法的, minBuffer 最少要几格, run 路线最长连击 } }
    */
-  labIndex: Record<string, { base: number; versions: Record<string, { keys: number; forced: number; minBuffer: number; run: number }> }> = {};
+  labIndex: Record<string, { base: number; versions: Record<string, { keys: number; forced: number; minBuffer: number; run: number; natural?: number }> }> = {};
 
   async loadLabIndex(): Promise<void> {
     this.labIndex = await loadJson<typeof this.labIndex>('config/levels_lab/index').catch(() => ({}));

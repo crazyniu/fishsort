@@ -93,7 +93,8 @@ export class LabPage extends Page {
         at(row, 0, y);
         const tag = `${sl === info.base ? '（包里）' : ''}`;
         at(text(row, `容错 ${sl}${tag}`, 30, { align: 'left', color: sl === using ? COLOR.yellow : undefined }).node, -320, 14);
-        at(text(row, `关键步 ${m.keys} · 最少 ${m.minBuffer} 格 · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
+        const nat = m.natural !== undefined ? `正常打法能过 ${m.natural}% · ` : '';
+        at(text(row, `${nat}关键步 ${m.keys} · 连击最多 ${m.run}`, 22, { align: 'left' }).node, -320, -20);
         const b = button(row, { color: sl === using ? 'green' : 'blue', w: 150, h: 64, label: sl === using ? '在用' : '用这档', fontSize: 28, onTap: () => void this.use(sl) });
         at(b.node, 255, 0);
         y -= 92;

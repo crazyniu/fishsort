@@ -1,36 +1,41 @@
 {
  "6": {
-  "base": 3,
+  "base": 4,
   "versions": {
    "0": {
     "keys": 13,
     "forced": 10,
     "minBuffer": 5,
-    "run": 14
+    "run": 14,
+    "natural": 0
    },
    "1": {
     "keys": 13,
     "forced": 11,
     "minBuffer": 4,
-    "run": 14
+    "run": 14,
+    "natural": 0
    },
    "2": {
     "keys": 14,
     "forced": 11,
     "minBuffer": 3,
-    "run": 14
+    "run": 14,
+    "natural": 0
    },
    "3": {
     "keys": 11,
     "forced": 9,
     "minBuffer": 2,
-    "run": 15
+    "run": 15,
+    "natural": 0
    },
    "4": {
     "keys": 12,
     "forced": 6,
     "minBuffer": 1,
-    "run": 39
+    "run": 39,
+    "natural": 97
    }
   }
  },
@@ -41,65 +46,74 @@
     "keys": 8,
     "forced": 4,
     "minBuffer": 5,
-    "run": 36
+    "run": 36,
+    "natural": 0
    },
    "1": {
     "keys": 10,
     "forced": 7,
     "minBuffer": 4,
-    "run": 37
+    "run": 37,
+    "natural": 13
    },
    "2": {
     "keys": 16,
     "forced": 8,
     "minBuffer": 3,
-    "run": 30
+    "run": 30,
+    "natural": 50
    }
   }
  },
  "15": {
-  "base": 1,
+  "base": 2,
   "versions": {
    "0": {
     "keys": 19,
     "forced": 13,
     "minBuffer": 5,
-    "run": 24
+    "run": 24,
+    "natural": 0
    },
    "1": {
     "keys": 14,
     "forced": 8,
     "minBuffer": 4,
-    "run": 26
+    "run": 26,
+    "natural": 0
    },
    "2": {
     "keys": 4,
     "forced": 3,
     "minBuffer": 3,
-    "run": 30
+    "run": 30,
+    "natural": 23
    }
   }
  },
  "20": {
-  "base": 1,
+  "base": 3,
   "versions": {
    "0": {
     "keys": 34,
     "forced": 21,
     "minBuffer": 5,
-    "run": 21
+    "run": 21,
+    "natural": 0
    },
    "1": {
     "keys": 14,
     "forced": 7,
     "minBuffer": 4,
-    "run": 24
+    "run": 24,
+    "natural": 3
    },
    "3": {
     "keys": 11,
     "forced": 8,
     "minBuffer": 2,
-    "run": 45
+    "run": 45,
+    "natural": 77
    }
   }
  }
