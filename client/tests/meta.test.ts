@@ -202,16 +202,18 @@ describe('连击（docs/01 3.2）', () => {
 });
 
 describe('技能与功能开放（docs/01 5.2、5.3）', () => {
-  it('解锁送 2 个、每天免费 1 次（不分种类）、每关最多 2 次', () => {
+  it('解锁时：道具全免费的前 10 关里解锁的不送，之后解锁的送 1 个；每天免费 1 次（不分种类）、每关最多 2 次', () => {
     const [save, eco] = setup(1);
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 0, 5).reason, 'locked');
     save.level = 4;
     assert.deepEqual(Skills.syncUnlocks(save, eco), ['shuffle']);
-    assert.equal(Skills.count(save, 'shuffle'), 2);
+    assert.equal(Skills.count(save, 'shuffle'), 0, '第 4 关解锁，前 10 关反正免费，不送');
     assert.deepEqual(Skills.syncUnlocks(save, eco), []);
     save.level = 12;
     assert.equal(Skills.syncUnlocks(save, eco).length, 3);
-    assert.equal(Skills.count(save, 'current'), 2);
+    assert.equal(Skills.count(save, 'net'), 0);
+    assert.equal(Skills.count(save, 'current'), 1, '第 12 关解锁的洋流送 1 个（强制教学那一次有得用）');
+    save.tools.shuffle = 2;
     let r = Skills.tryUse(save, eco, 'shuffle', 0, 5);
     assert.ok(r.ok && r.free);
     assert.equal(Skills.count(save, 'shuffle'), 2);
