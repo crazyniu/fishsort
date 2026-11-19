@@ -7,7 +7,9 @@ import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
 import type { GenParams } from '../assets/scripts/core/gen/levelCurve';
 import { generate } from '../assets/scripts/core/gen/levelGen';
 import { LevelData } from '../assets/scripts/core/model/levelData';
+import * as RouteGen from '../assets/scripts/core/gen/routeGen';
 import * as Careful from '../assets/scripts/core/solver/careful';
+import * as Route from '../assets/scripts/core/solver/route';
 import * as LevelCheck from '../assets/scripts/core/solver/levelCheck';
 import { CONFIG, curve as loadCurve, level, levelFile, play } from './helpers';
 
@@ -252,6 +254,43 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
     for (const n of names) {
       const text = readFileSync(join(CONFIG, 'levels', `${n}.json`), 'utf8').trim();
       assert.equal((LevelData.fromJson(text) as LevelData).toJson(), text, n);
+    }
+  });
+});
+
+describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
+  it('判断得出「不用道具还能不能过」，量得出容错和关键步', () => {
+    // 两个缸位：先要 0、再要 1。泡 0 压着泡 1（只有点空泡 0 才露出泡 1）
+    const ok = level([0, 1, 2], [{ fish: [0, 0, 0], layer: 1, under: [1] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
+    const r = Route.solve(ok);
+    assert.equal(r.ok, true);
+    assert.equal(LevelCheck.replay(ok, r.taps).won, true, '求出来的走法回放能赢');
+    // 暂存槽 1 格：中途放不下任何一条鱼，也能过（每一步都直接进缸）
+    assert.equal(Route.solve(ok, 10000, 1).ok, true);
+    const m = Route.measure(ok);
+    assert.ok(m !== null && m.minBuffer === 1 && m.slack === ok.buffer - 1, JSON.stringify(m));
+    // 架上的两个缸要 2 和 1，最上面却是 0：三条 0 只能先进暂存槽。暂存槽 3 格放到第 3 条就满（输），4 格才过得去
+    const hard = level([2, 1, 0], [{ fish: [0, 0, 0], layer: 2, under: [1] }, { fish: [1, 1, 1], layer: 1, under: [2] }, { fish: [2, 2, 2] }], 3);
+    assert.equal(Route.solve(hard).ok, false);
+    assert.equal(Route.solve(hard, 10000, 4).ok, true, '暂存槽多一格就过得去');
+    hard.buffer = 6;
+    assert.equal(Route.measure(hard)?.minBuffer, 4);
+    assert.equal(Route.measure(hard)?.slack, 2);
+  });
+
+  it('收紧：每一档容错存一份，都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
+    const c = loadCurve();
+    const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };
+    const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    const before = new Map<number, number>();
+    for (const b of lv.bubbles) for (const f of b.fish) before.set(f, (before.get(f) ?? 0) + 1);
+    const r = RouteGen.tighten(lv, { slack: 0, iterations: 12, seed: 3, budget: 5000, stepBudget: 2000 });
+    assert.ok(r.best !== null && r.bySlack.size > 0);
+    for (const snap of r.bySlack.values()) {
+      const after = new Map<number, number>();
+      for (const b of snap.lv.bubbles) for (const f of b.fish) after.set(f, (after.get(f) ?? 0) + 1);
+      assert.deepEqual(after, before);
+      assert.equal(Route.solve(snap.lv).ok, true, '每一份都过得去');
     }
   });
 });

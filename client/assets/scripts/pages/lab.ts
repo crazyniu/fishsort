@@ -63,6 +63,21 @@ export class LabPage extends Page {
     const s = App.save.data;
     let y = top - 190;
 
+    // 整体难度：所有关立刻生效，不用重新生成（暂存槽 ±1 格、连击窗口）
+    const tierRow = slice(v, 'kit/row_blue', 690, 96, 'tier');
+    at(tierRow, 0, y);
+    at(text(tierRow, '整体', 30, { align: 'left' }).node, -320, 0);
+    ([[1, '简单'], [0, '标准'], [-1, '困难']] as const).forEach(([t, name], i) => {
+      const on = App.config.labTier === t;
+      const b = button(tierRow, { color: on ? 'green' : 'blue', w: 150, h: 68, label: name, fontSize: 30, onTap: () => {
+        App.config.setLabTier(t, App.platform);
+        this.note = `整体难度：${name}（暂存槽 ${t > 0 ? '+1 格' : t < 0 ? '−1 格' : '照设计'}，连击窗口 ${App.config.eco.combo.windowSeconds} 秒）`;
+        this.render();
+      } });
+      at(b.node, -60 + i * 160, 0);
+    });
+    y -= 104;
+
     // 第几关：±1、±5
     const row0 = slice(v, 'kit/row_blue', 690, 96, 'level');
     at(row0, 0, y);

@@ -5,8 +5,15 @@ import { LevelData } from '../core/model/levelData';
 import type { PlatformBase } from '../platform/platformBase';
 import type { Eye } from '../ui/alive';
 
-/** 难度调试页生成的关卡存在本机的哪个键下 */
+/** 难度调试页生成的关卡、整体难度档存在本机的哪个键下 */
 const LAB_KEY = 'lab_levels';
+const LAB_TIER_KEY = 'lab_tier';
+/** 整体难度档（docs/01 9.7）：暂存槽多几格、连击窗口几秒；下标 = 档 + 1（-1 困难、0 标准、1 简单） */
+const LAB_TIERS = [
+  { buffer: -1, window: 1.5 },
+  { buffer: 0, window: 0 },
+  { buffer: 1, window: 2.5 },
+];
 
 function describe(v: unknown): string {
   if (typeof v !== 'object' || v === null) return String(v);
@@ -66,7 +73,26 @@ export class Config {
    */
   readonly lab = new Map<number, LevelData>();
 
+  /** 整体难度档：-1 困难、0 标准、1 简单（调试页设，存在本机） */
+  labTier = 0;
+  private comboWindow = 0;
+
+  /** 暂存槽按整体难度档多几格（局内建 GameState 后、摆版面前调） */
+  labBuffer(cap: number): number {
+    return Math.max(1, Math.min(7, cap + LAB_TIERS[this.labTier + 1].buffer));
+  }
+
+  setLabTier(tier: number, platform: PlatformBase): void {
+    this.labTier = Math.max(-1, Math.min(1, Math.round(tier)));
+    if (this.comboWindow === 0) this.comboWindow = this.eco.combo.windowSeconds;
+    const w = LAB_TIERS[this.labTier + 1].window;
+    this.eco.combo.windowSeconds = w > 0 ? w : this.comboWindow;
+    platform.saveData(LAB_TIER_KEY, String(this.labTier));
+  }
+
   loadLab(platform: PlatformBase): void {
+    const t = Number(platform.loadData(LAB_TIER_KEY) || '0');
+    this.setLabTier(Number.isFinite(t) ? t : 0, platform);
     try {
       const raw = JSON.parse(platform.loadData(LAB_KEY) || '{}') as Record<string, Record<string, unknown>>;
       for (const id of Object.keys(raw)) this.lab.set(Number(id), LevelData.fromDict(raw[id]));

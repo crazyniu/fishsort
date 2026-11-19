@@ -260,6 +260,8 @@ export class GamePage extends Page {
       ui.busy(false);
     }
     this.s = GameState.fromLevel(this.lv);
+    // 测试包的整体难度档（设置 → 难度调试，docs/01 9.7）：暂存槽多一格 / 少一格
+    if (App.levelLab) this.s.bufferCap = config.labBuffer(this.s.bufferCap);
     // 限时关（docs/01 第 4 节）：整关倒计时，走第一步才开始走（规则在 tick 里倒数）；每日挑战不限时
     this.s.clock = this.arg.daily ? NO_TIMER : LevelCurve.clockFor(config.curve, file, this.lv);
     if (!this.arg.daily) this.s.openSlots = Meta.openSlotsFor(save.data, eco, id, this.lv.bowlSlots);
