@@ -136,6 +136,27 @@ ios_build() {
         || { grep -E "error:|BUILD FAILED" "$CLIENT/build/ios/dev.log" | sort -u | head -30; die "真机版编译失败（全文 client/build/ios/dev.log）"; }
       echo "✓ 真机版（Release、不签名）编译通过"
       ;;
+    phone)
+      # 签名后装到和这台 Mac 配对的 iPhone 上（USB 或同一网络都行），装完启动；广告用 Google 的测试广告位
+      [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
+      local log="$CLIENT/build/ios/phone.log" app udid
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphoneos -configuration Release \
+        -derivedDataPath "$CLIENT/build/ios/derived-phone" DEVELOPMENT_TEAM="$team" CODE_SIGN_STYLE=Automatic \
+        -allowProvisioningUpdates build > "$log" 2>&1 \
+        || { grep -E "error:|BUILD FAILED" "$log" | sort -u | head -30; die "签名版编译失败（全文 client/build/ios/phone.log）"; }
+      app="$(ls -d "$CLIENT"/build/ios/derived-phone/Build/Products/Release-iphoneos/*.app | head -1)"
+      # 配对过、现在连得上的 iPhone（第一部）
+      xcrun devicectl list devices --json-output "$CLIENT/build/ios/devices.json" >/dev/null 2>&1 || true
+      udid="$(node -e '
+        const d = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).result.devices;
+        const ok = d.filter((x) => x.hardwareProperties?.deviceType === "iPhone" && x.connectionProperties?.pairingState === "paired" && x.connectionProperties?.tunnelState !== "unavailable");
+        console.log(ok[0]?.hardwareProperties?.udid ?? "");
+      ' "$CLIENT/build/ios/devices.json" 2>/dev/null)"
+      [ -n "$udid" ] || die "没找到连着的 iPhone（手机解锁、和这台 Mac 在同一网络或插上线；第一次要在 Xcode → Devices 里配对，手机上打开「开发者模式」）。App 在 ${app}"
+      xcrun devicectl device install app --device "$udid" "$app" >> "$log" 2>&1 || { tail -15 "$log"; die "装到手机失败"; }
+      xcrun devicectl device process launch --device "$udid" "$(node -p 'require("./game.json").ios.bundleId')" >> "$log" 2>&1 \
+        && echo "✓ 已装到手机并打开（测试广告位）" || echo "✓ 已装到手机（没能自动打开：手机锁着的话解锁后点图标）"
+      ;;
     ipa)
       [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
       local out="$CLIENT/build/ios/release"
@@ -214,15 +235,16 @@ while :; do
     1) wechat_build; break ;;
     2)
       while :; do
-        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '0 返回'
+        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '5 装到手机' '0 返回'
         read_choice
         case "$choice" in
           1) ios_build; exit ;;
           2) ios_build sim; exit ;;
           3) ios_build dev; exit ;;
           4) ios_build ipa; exit ;;
+          5) ios_build phone; exit ;;
           0) break ;;
-          *) echo '请输入 0 至 4。' ;;
+          *) echo '请输入 0 至 5。' ;;
         esac
       done ;;
     3)
