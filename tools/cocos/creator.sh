@@ -25,7 +25,8 @@ cocos_build_once() {
   # Cocos 3.8.8 命令行构建在已有缓存上增量导入时，资源会全被标成 importer "*"、运行黑屏（Mac 上反复遇到）；
   # 每次从空缓存导入最稳。COCOS_KEEP_CACHE=1 可以跳过
   [ "${COCOS_KEEP_CACHE:-}" = "1" ] || rm -rf "$CLIENT/library" "$CLIENT/temp"
-  "$COCOS" --project "$CLIENT" --build "configPath=$CLIENT/build-config/$platform.json" || code=$?
+  # COCOS_BUILD_CONFIG：换一份构建参数（安卓要带本机的 SDK、NDK 路径，package.sh 生成一份不进仓库的）
+  "$COCOS" --project "$CLIENT" --build "configPath=${COCOS_BUILD_CONFIG:-$CLIENT/build-config/$platform.json}" || code=$?
   return "$code"
 }
 

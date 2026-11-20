@@ -136,6 +136,30 @@ ios_build() {
         || { grep -E "error:|BUILD FAILED" "$CLIENT/build/ios/dev.log" | sort -u | head -30; die "真机版编译失败（全文 client/build/ios/dev.log）"; }
       echo "✓ 真机版（Release、不签名）编译通过"
       ;;
+    phone)
+      # 签名后装到和这台 Mac 配对的 iPhone 上（USB 或同一网络都行），装完启动；广告用 Google 的测试广告位
+      [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
+      local log="$CLIENT/build/ios/phone.log" app udid
+      xcodebuild -project "$proj" -scheme "$scheme" -sdk iphoneos -configuration Release \
+        -derivedDataPath "$CLIENT/build/ios/derived-phone" DEVELOPMENT_TEAM="$team" CODE_SIGN_STYLE=Automatic \
+        -allowProvisioningUpdates build > "$log" 2>&1 \
+        || { grep -E "error:|BUILD FAILED" "$log" | sort -u | head -30; die "签名版编译失败（全文 client/build/ios/phone.log）"; }
+      # Cocos 生成的工程把产物放在 proj/Release-iphoneos/（不在 derivedData 里）；两处都找，取最新的
+      app="$(ls -td "$CLIENT"/build/ios/proj/Release-iphoneos/*.app "$CLIENT"/build/ios/derived-phone/Build/Products/Release-iphoneos/*.app 2>/dev/null | head -1 || true)"
+      [ -n "$app" ] || die "编译通过了，但没找到打好的 App（client/build/ios/proj/Release-iphoneos/）"
+      codesign -dv "$app" 2>&1 | grep "TeamIdentifier=$team" >/dev/null || die "${app} 没有用 ${team} 签名（全文 client/build/ios/phone.log）"
+      # 配对过、现在连得上的 iPhone（第一部）
+      xcrun devicectl list devices --json-output "$CLIENT/build/ios/devices.json" >/dev/null 2>&1 || true
+      udid="$(node -e '
+        const d = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).result.devices;
+        const ok = d.filter((x) => x.hardwareProperties?.deviceType === "iPhone" && x.connectionProperties?.pairingState === "paired" && x.connectionProperties?.tunnelState !== "unavailable");
+        console.log(ok[0]?.hardwareProperties?.udid ?? "");
+      ' "$CLIENT/build/ios/devices.json" 2>/dev/null)"
+      [ -n "$udid" ] || die "没找到连着的 iPhone（手机解锁、和这台 Mac 在同一网络或插上线；第一次要在 Xcode → Devices 里配对，手机上打开「开发者模式」）。App 在 ${app}"
+      xcrun devicectl device install app --device "$udid" "$app" >> "$log" 2>&1 || { tail -15 "$log"; die "装到手机失败"; }
+      xcrun devicectl device process launch --device "$udid" "$(node -p 'require("./game.json").ios.bundleId')" >> "$log" 2>&1 \
+        && echo "✓ 已装到手机并打开（测试广告位）" || echo "✓ 已装到手机（没能自动打开：手机锁着的话解锁后点图标）"
+      ;;
     ipa)
       [ -n "$team" ] || die "game.json 的 ios.team 还没填（Apple 开发者账号的 Team ID）"
       local out="$CLIENT/build/ios/release"
@@ -165,8 +189,31 @@ android_build() {
   local mode="${1:-apk}" proj
   # 只有 AAB（传 Google Play）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
   FS_RELEASE="$([ "$mode" = aab ] && echo 1 || echo 0)" node tools/native/apply.mjs
-  [ -n "${ANDROID_HOME:-}" ] || [ -d "$HOME/Library/Android/sdk" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
-  cocos_build android
+  local sdk ndk cfg cand
+  # SDK：ANDROID_HOME，或者 Android Studio 的默认位置，或者外接盘上的 /Volumes/*/Android/sdk（用户 2026-11-20：Mac 上的 SDK 装在外接盘 /Volumes/Lexar/Android/sdk）
+  sdk="${ANDROID_HOME:-}"
+  if [ -z "$sdk" ]; then
+    for cand in "$HOME/Library/Android/sdk" /Volumes/*/Android/sdk; do
+      if [ -d "$cand/platforms" ] && [ -d "$cand/ndk" ]; then sdk="$cand"; break; fi
+    done
+  fi
+  [ -n "$sdk" ] && [ -d "$sdk/platforms" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME；也会找外接盘上的 /Volumes/*/Android/sdk）"
+  # NDK：ANDROID_NDK_HOME，或者 SDK 里 ndk/ 下版本最新的那个（版本号都是两位数起，按字面排序就行）
+  ndk="${ANDROID_NDK_HOME:-$(ls -d "$sdk"/ndk/*/ 2>/dev/null | sort | tail -1)}"
+  ndk="${ndk%/}"
+  [ -d "$ndk" ] || die "没找到 Android NDK（Android Studio → SDK Manager → SDK Tools 装 NDK，或设 ANDROID_NDK_HOME）"
+  echo "· Android SDK：$sdk"
+  echo "· Android NDK：$ndk"
+  # SDK、NDK 路径不用去 Cocos 偏好设置里填：带进这次的构建参数（sdkPath、ndkPath，Cocos 3.8 命令行构建支持），文件不进仓库
+  cfg="$CLIENT/build-config/.android.local.json"
+  SDK="$sdk" NDK="$ndk" node -e '
+    const fs = require("fs");
+    const [src, dst] = process.argv.slice(1);
+    const c = JSON.parse(fs.readFileSync(src, "utf8"));
+    c.packages.android = { ...c.packages.android, sdkPath: process.env.SDK, ndkPath: process.env.NDK };
+    fs.writeFileSync(dst, JSON.stringify(c, null, 2) + "\n");
+  ' "$CLIENT/build-config/android.json" "$cfg"
+  NDK_ROOT="$ndk" ANDROID_SDK_ROOT="$sdk" ANDROID_HOME="$sdk" COCOS_BUILD_CONFIG="$cfg" cocos_build android
   proj="$CLIENT/build/android/proj"
   [ -x "$proj/gradlew" ] || die "没找到 Gradle 工程：$proj"
   case "$mode" in
@@ -191,15 +238,16 @@ while :; do
     1) wechat_build; break ;;
     2)
       while :; do
-        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '0 返回'
+        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '5 装到手机' '0 返回'
         read_choice
         case "$choice" in
           1) ios_build; exit ;;
           2) ios_build sim; exit ;;
           3) ios_build dev; exit ;;
           4) ios_build ipa; exit ;;
+          5) ios_build phone; exit ;;
           0) break ;;
-          *) echo '请输入 0 至 4。' ;;
+          *) echo '请输入 0 至 5。' ;;
         esac
       done ;;
     3)
