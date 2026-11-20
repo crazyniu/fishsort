@@ -1,5 +1,7 @@
 # 构建产物与签名
 /build/
+# package.sh 构建时临时挪出的难度调试数据（构建完挪回去）
+client/.levels_lab_stash/
 *.apk
 *.aab
 *.keystore

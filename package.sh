@@ -4,10 +4,30 @@ cd "$(dirname "$0")"
 source tools/cocos/creator.sh
 if [ "$#" -gt 0 ]; then die "请运行 ./package.sh，然后输入菜单编号。"; fi
 
+# 难度调试的各档关卡（约 20 MB）只给开发版用，打的包里不要（docs/10 第 9 节）：构建前挪出 assets，构建完挪回来。
+# 构建前本来就清空导入缓存（cocos_build_once），挪走的文件不会残留在包里。中途被打断没挪回来的，下次运行开头先挪回来
+LAB_DIR="$CLIENT/assets/resources/config/levels_lab"
+LAB_STASH="$CLIENT/.levels_lab_stash"
+lab_restore() {
+  [ -d "$LAB_STASH" ] || return 0
+  [ -e "$LAB_DIR" ] && die "${LAB_STASH} 和 ${LAB_DIR} 都在，手动看一下留哪个（levels_lab 在 git 里，可以 git checkout 恢复）"
+  mv "$LAB_STASH/levels_lab" "$LAB_DIR"
+  [ ! -f "$LAB_STASH/levels_lab.meta" ] || mv "$LAB_STASH/levels_lab.meta" "$LAB_DIR.meta"
+  rmdir "$LAB_STASH"
+}
+lab_restore
+
 cocos_build() {
   local platform="$1" code=0
   need_cocos
+  if [ -d "$LAB_DIR" ]; then
+    mkdir -p "$LAB_STASH"
+    mv "$LAB_DIR" "$LAB_STASH/levels_lab"
+    [ ! -f "$LAB_DIR.meta" ] || mv "$LAB_DIR.meta" "$LAB_STASH/levels_lab.meta"
+    echo "· 难度调试的数据不进包（构建完挪回来）"
+  fi
   cocos_build_once "$platform" || code=$?
+  lab_restore
   [ "$code" -eq 36 ] || die "Cocos 构建 ${platform} 失败（退出码 ${code}）"
   if import_broken; then die 'Cocos 资源导入失败，请检查编辑器生成的 .meta 后重试。'; fi
   echo "构建完成：client/build/$platform"
