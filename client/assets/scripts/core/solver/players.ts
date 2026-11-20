@@ -9,7 +9,7 @@
 // - 随手点的玩家（casual）：点得到的鱼里有缸要的就点（同种的随便挑一条），没有就把已知的缸里最快要用的那种放进暂存槽，
 //   都不要就随便点。slip 的概率不看、随手点一条（真人手快点错）。
 // 纯逻辑：同样的关卡、种子、参数出同样的结果。
-import { GameState, REMOVED, Status } from '../model/gameState';
+import { GameState, REMOVED, RETURN_BUBBLE, Status } from '../model/gameState';
 import type { LevelData, Tap } from '../model/levelData';
 import { Rng } from '../rng/rng';
 import { findSlot, openBubbles, start, tap } from '../rules/rules';
@@ -204,14 +204,72 @@ function thinkPick(s: GameState, rng: Rng, preview: number, budget: number, slip
   return { tap: casualPick(s, rng, preview, slip), planned: false };
 }
 
+/** 点这一步会不会当场输（把暂存槽的最后一格放满） */
+function losesNow(s: GameState, t: Tap): boolean {
+  const c = s.clone();
+  tap(c, t[0], t[1]);
+  return c.status === Status.LOST;
+}
+
+/** 提示能挑的走法：场上看得见的 + 回流位的鱼（用过吹泡才有）；都没有时才算迷雾里的 */
+function hintMoves(s: GameState): Tap[] {
+  const ms = visibleMoves(s);
+  for (let k = 0; k < s.returnFish.length; k++) ms.push([RETURN_BUBBLE, k]);
+  return ms.length > 0 ? ms : anyMove(s);
+}
+
+/** 排不出计划时给一步打分：照着随手点的打法往下打几局，赢的越多、剩的鱼越少越好 */
+function rolloutScore(s: GameState, m: Tap, rng: Rng, preview: number, games: number): number {
+  let score = 0;
+  for (let g = 0; g < games; g++) {
+    const c = s.clone();
+    tap(c, m[0], m[1]);
+    for (let i = 0; i < MAX_STEPS && c.status === Status.PLAYING; i++) {
+      const t = casualPick(c, rng, preview, 0);
+      if (t === null) break;
+      tap(c, t[0], t[1]);
+    }
+    score += c.status === Status.WON ? 1000 : -c.fishLeft();
+  }
+  return score;
+}
+
 /**
- * 提示道具（docs/01 9.3）：从现在这个局面算下一步该点哪条——就是想清楚的玩家此刻会点的那条（只看屏幕上的信息）。
- * 一条都点不了返回 null
+ * 提示道具（docs/01 9.3）：从现在这个局面算下一步该点哪条——想清楚的玩家此刻会点的那条（只看屏幕上的信息）。
+ * **点了就当场输的那一步（把暂存槽最后一格放满）永远不提示**（用户 2026-11-20：槽位剩一格时提示点大龙虾，点完就输了）：
+ * 想清楚的玩家排得出计划就照计划；排不出来就在不会当场输的走法里，用几局推演挑最好的。
+ * 每一步都会当场输、或者一条都点不了，返回 null（不扣提示，界面让玩家先用道具，见 hintBlocked）
  */
 export function hint(s: GameState, preview: number, seed = 1): Tap | null {
   if (s.status !== Status.PLAYING) return null;
-  return thinkPick(s, new Rng(seed), preview, THINK_BUDGET, 0).tap;
+  const safe = hintMoves(s).filter((t) => !losesNow(s, t));
+  if (safe.length === 0) return null;
+  const rng = new Rng(seed);
+  const r = thinkPick(s, rng, preview, THINK_BUDGET, 0);
+  const t = r.tap;
+  if (r.planned && t !== null && safe.some((m) => m[0] === t[0] && m[1] === t[1])) return t;
+  if (safe.length === 1) return safe[0];
+  let best = safe[0];
+  let bestScore = -Infinity;
+  for (const m of safe) {
+    const sc = rolloutScore(s, m, rng, preview, HINT_ROLLOUTS);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best = m;
+    }
+  }
+  return best;
 }
+
+/** 有鱼能点、但每一条点了都会当场输（暂存槽只剩最后一格、没有一条能直接进缸）：提示帮不了，该用吹泡、洗牌、开缸 */
+export function hintBlocked(s: GameState): boolean {
+  if (s.status !== Status.PLAYING) return false;
+  const ms = hintMoves(s);
+  return ms.length > 0 && ms.every((t) => losesNow(s, t));
+}
+
+/** 提示排不出计划时，每个候选推演几局 */
+const HINT_ROLLOUTS = 8;
 
 /** 打一局（不用道具、不开缸，只开关卡给的缸） */
 export function play(lv: LevelData, kind: Kind, seed: number, o: PlayOptions): PlayResult {

@@ -99,11 +99,6 @@
   130,
   "png"
  ],
- "ui/icon/skill_current": [
-  "art/source/ui/tool_current.png",
-  130,
-  "png"
- ],
  "ui/icon/chest_daily": [
   "raw:cocos1/chest_daily.png",
   220,

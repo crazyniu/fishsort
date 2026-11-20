@@ -19,7 +19,6 @@ const MAP: Record<string, string> = {
   blow: 'blow',
   shuffle: 'shuffle',
   net: 'net',
-  current: 'current',
   tier: 'tier_1',
   charge: 'wheel_charge',
   win: 'win',

@@ -143,10 +143,6 @@ def sfx() -> None:
     save("undo", mix(0.2, (0, sweep(900, 430, 0.09, 5), 1.0), (0.085, sweep(680, 320, 0.085, 5), 0.7)), 0.45)
     # 提示：两个往上的轻铃音加一粒高音闪光，「叮—叮」，比倒计时告警（tick）柔、音高也不同
     save("hint", mix(0.55, (0, bell(hz("G6"), 0.22), 0.8), (0.11, bell(hz("C7"), 0.4), 1.0), (0.2, bell(hz("G7"), 0.2), 0.22)), 0.45)
-    # 洋流：一阵由低到高再落下的水流声，带几粒气泡音
-    flow = np.convolve(rng.standard_normal(int(SR * 0.9)), np.ones(22) / 22, mode="same") * np.sin(np.pi * t(0.9) / 0.9) ** 1.5
-    drops = [(0.15 + i * 0.09, sweep(500 + i * 90, 1300 + i * 160, 0.07, 5), 0.35) for i in range(7)]
-    save("current", mix(0.95, (0, flow, 1.0), (0, sweep(140, 420, 0.9, 1.0) * np.sin(np.pi * t(0.9) / 0.9), 0.5), *drops), 0.5)
     # 宝箱弹开：低频「咚」加一串上行的亮音
     chest = [(0, sweep(220, 70, 0.18, 3), 1.0)] + [(0.03 + i * 0.045, bell(hz(n), 0.4), 0.6) for i, n in enumerate(["C6", "E6", "G6", "C7", "E7"])]
     save("chest", mix(0.8, *chest), 0.65)

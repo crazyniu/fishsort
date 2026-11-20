@@ -26,7 +26,6 @@ PICK = {
     "swell": ("maximize_009.ogg", 0.7),
     "blow": ("maximize_005.ogg", 0.8),
     "net": ("maximize_004.ogg", 0.7),
-    "current": ("maximize_002.ogg", 0.7),
 }
 def load(root: Path, name: str) -> np.ndarray:
     hits = list(root.rglob(name))

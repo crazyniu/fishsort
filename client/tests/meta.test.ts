@@ -214,10 +214,10 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.count(save, 'shuffle'), 0, '第 4 关解锁，前 10 关反正免费，不送');
     assert.deepEqual(Skills.syncUnlocks(save, eco), []);
     save.level = 12;
-    assert.equal(Skills.syncUnlocks(save, eco).length, 4, '撤销（第 6 关）、吹泡、渔网、洋流');
+    assert.equal(Skills.syncUnlocks(save, eco).length, 4, '撤销（第 6 关）、吹泡、渔网、提示（第 12 关）');
     assert.equal(Skills.count(save, 'undo'), 0, '第 6 关解锁的撤销也在全免费的前 10 关里，不送');
     assert.equal(Skills.count(save, 'net'), 0);
-    assert.equal(Skills.count(save, 'current'), 1, '第 12 关解锁的洋流送 1 个（强制教学那一次有得用）');
+    assert.equal(Skills.count(save, 'hint'), 1, '第 12 关解锁的提示送 1 个（强制教学那一次有得用）');
     save.tools.shuffle = 2;
     let r = Skills.tryUse(save, eco, 'shuffle', 0, 5);
     assert.ok(r.ok && r.free);
@@ -232,10 +232,11 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 6).reason, 'empty');
     assert.ok(!Skills.freeAvailable(save, 'net', eco));
     assert.ok(Skills.freeAvailable(save, 'net', eco) === false && Skills.tryUse(save, eco, 'blow', 0, 7).free, '第三天又有一次');
-    save.coins = 480;
-    assert.ok(Skills.buy(save, eco, 'current'));
+    save.coins = 360;
+    assert.ok(Skills.buy(save, eco, 'net'));
     assert.equal(save.coins, 0);
-    for (const [id, p] of [['undo', 240], ['hint', 360], ['shuffle', 240], ['blow', 280], ['net', 360], ['current', 480]] as const) {
+    assert.deepEqual(Skills.ids(eco), ['undo', 'hint', 'shuffle', 'blow', 'net'], '洋流 2026-11-20 删了');
+    for (const [id, p] of [['undo', 240], ['hint', 360], ['shuffle', 240], ['blow', 280], ['net', 360]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
@@ -251,8 +252,7 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
       skill_net: 9,
       wheel: 10,
       tasks: 11,
-      skill_current: 12,
-      skill_hint: 14,
+      skill_hint: 12,
       daily: 20,
     };
     assert.deepEqual(ECO.features, want);
@@ -744,7 +744,7 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     Skills.syncUnlocks(p14, e14); // 解锁送的 2 个先发掉
     for (const id of Object.keys(p14.tools)) p14.tools[id] = 0;
     const r = Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW });
-    assert.deepEqual(r.gift, ['undo', 'hint', 'shuffle', 'blow', 'net', 'current']);
+    assert.deepEqual(r.gift, ['undo', 'hint', 'shuffle', 'blow', 'net']);
     for (const id of r.gift ?? []) assert.equal(p14.tools[id], 1);
     assert.equal(Settle.win(p14, e14, { level: 14, challenge: false, day: 7, now: NOW }).gift, undefined, '重玩不再送');
     assert.equal(Settle.win(p14, e14, { level: 15, challenge: false, day: 7, now: NOW }).gift, undefined);

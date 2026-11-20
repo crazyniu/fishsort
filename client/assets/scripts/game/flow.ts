@@ -29,7 +29,7 @@ import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, fit, fmt, img, lazyImg, slice, text } from '../ui/kit';
 import * as Alive from '../ui/alive';
 import { closeAllPopups, openPopup, popupCount } from '../ui/popup';
-import { confirmLeave, giftPopup, livesPopup, revealCards, settingsPopup, spend, watchAd } from '../ui/popups';
+import { confirmLeave, giftPopup, livesPopup, revealCards, settingsPopup, skillName, spend, watchAd } from '../ui/popups';
 import { ui } from '../ui/shell';
 import type { GamePage } from './gameView';
 import * as ComboGoal from '../core/meta/comboGoal';
@@ -176,7 +176,7 @@ function tipPopup(key: string, done: () => void): void {
   } else {
     at(tipArt(p.body, key), 0, 110);
   }
-  const msg = isSkill ? tr('UI_SKILL_TRY', tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`)) : tr(key);
+  const msg = isSkill ? tr('UI_SKILL_TRY', skillName(id)) : tr(key);
   const l = text(p.body, msg, 32, { width: 520 });
   at(l.node, 0, -72);
   const ok = button(p.body, { color: 'green', w: 340, h: 96, label: tr('GOT_IT'), onTap: () => p.close() });
@@ -223,7 +223,6 @@ export function hasEffect(g: GamePage, id: string): string | null {
   if (id === 'undo') return g.canUndo ? null : 'UI_UNDO_EMPTY';
   if (id === 'hint') return null;
   if (id === 'blow' && s.buffer.length === 0) return 'UI_BLOW_EMPTY';
-  if (id === 'current' && Rules.useCurrent(s.clone()).length === 0) return 'UI_CURRENT_EMPTY';
   if (id === 'shuffle' && Rules.useShuffle(s.clone(), 1).length === 0) return 'UI_SHUFFLE_EMPTY';
   if (id === 'net' && !s.slots.some((b, i) => b !== null && i < s.openSlots)) return 'UI_CURRENT_EMPTY';
   return null;
@@ -252,7 +251,8 @@ export function useSkill(g: GamePage, id: string): void {
   // 提示：先算出要亮哪一步，算不出来（没有能点的）不扣
   const hintTap = id === 'hint' ? g.skillHintTap() : null;
   if (id === 'hint' && !hintTap) {
-    ui.toast(tr('UI_HINT_EMPTY'));
+    // 点哪条都会把暂存槽塞满：提示帮不了，让玩家先用吹泡、洗牌（不扣提示）
+    ui.toast(tr(g.skillHintBlocked() ? 'UI_HINT_STUCK' : 'UI_HINT_EMPTY'));
     return;
   }
   const used = g.used[id] ?? 0;
@@ -273,7 +273,6 @@ export function useSkill(g: GamePage, id: string): void {
   } else if (id === 'hint' && hintTap) g.showSkillHint(hintTap);
   else if (id === 'shuffle') g.act(() => Rules.useShuffle(g.s, rng.nextU32()));
   else if (id === 'blow') g.act(() => Rules.useBlow(g.s));
-  else if (id === 'current') g.act(() => Rules.useCurrent(g.s));
   else if (id === 'net') g.enterNetMode();
 }
 
@@ -286,7 +285,7 @@ function buySkill(g: GamePage, id: string): void {
   const eco = App.config.eco;
   const hasAds = App.platform.hasCapability('ads');
   const dy = hasAds ? 0 : -55;
-  const name = tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`);
+  const name = skillName(id);
   const p = openPopup({ w: 600, h: hasAds ? 560 : 450, title: tr('SKILL_BUY_TITLE', name), mascot: null });
   const icon = img(p.body, `icon/skill_${id}`, 180, 180, 'icon');
   at(icon, 0, 100 + dy);

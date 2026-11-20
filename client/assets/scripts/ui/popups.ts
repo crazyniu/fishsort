@@ -60,7 +60,7 @@ export function speciesName(id: string): string {
 }
 
 export function skillName(id: string): string {
-  return tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`);
+  return tr(`H_SKILL_${id.toUpperCase()}`);
 }
 
 export function skillIcon(id: string): string {

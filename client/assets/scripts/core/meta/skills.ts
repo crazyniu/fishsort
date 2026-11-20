@@ -1,4 +1,5 @@
-// 技能：撤销 undo、提示 hint（docs/01 9.3，2026-11-19 加）、洗牌 shuffle、吹泡 blow、渔网 net、洋流 current。见 docs/01 第 5.2 节。
+// 技能：撤销 undo、提示 hint（docs/01 9.3，2026-11-19 加）、洗牌 shuffle、吹泡 blow、渔网 net。见 docs/01 第 5.2 节。
+// 洋流 current 2026-11-20 删掉了（用户：没用——卡住时它一条都送不了，能送的玩家自己点也一样）；规则 Rules.useCurrent 还在（黄金数据测试用），游戏里不再出现。
 // 存档：save.tools[id] 库存；save.skillsGranted[id] 是否已发过解锁礼；save.daily.toolFree[id] 今天是否已用过免费次。
 import type { EconomyConfig } from '../config';
 import type { Rng } from '../rng/rng';

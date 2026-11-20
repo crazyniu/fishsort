@@ -82,7 +82,6 @@
   "H_SKILL_SHUFFLE": "洗牌",
   "H_SKILL_BLOW": "吹泡",
   "H_SKILL_NET": "渔网",
-  "H_SKILL_FLOW": "洋流",
   "H_NEED_COINS": "金币不足",
   "H_NEED_COINS_LINE": "还差 %d 金币",
   "H_MUSIC": "音乐",
@@ -949,7 +948,8 @@
   "RESULT_PERFECT": "完美！一个道具都没用",
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
   "RESULT_FIRST_3STAR": "首次三星",
-  "UI_NEXT_DROP": "下一泡"
+  "UI_NEXT_DROP": "下一泡",
+  "UI_HINT_STUCK": "点哪条都会塞满槽位，先用吹泡或洗牌"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -1034,7 +1034,6 @@
   "H_SKILL_SHUFFLE": "Shuffle",
   "H_SKILL_BLOW": "Blow",
   "H_SKILL_NET": "Net",
-  "H_SKILL_FLOW": "Current",
   "H_NEED_COINS": "Out of Coins",
   "H_NEED_COINS_LINE": "Need %d more coins",
   "H_MUSIC": "Music",
@@ -1901,7 +1900,8 @@
   "RESULT_PERFECT": "Perfect! No boosters used",
   "RESULT_TRY_3STAR": "Win without boosters for 3 stars",
   "RESULT_FIRST_3STAR": "First 3 stars",
-  "UI_NEXT_DROP": "Drop"
+  "UI_NEXT_DROP": "Drop",
+  "UI_HINT_STUCK": "Any move fills the slots. Try Blow or Shuffle"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -1986,7 +1986,6 @@
   "H_SKILL_SHUFFLE": "洗牌",
   "H_SKILL_BLOW": "吹泡",
   "H_SKILL_NET": "漁網",
-  "H_SKILL_FLOW": "洋流",
   "H_NEED_COINS": "金幣不足",
   "H_NEED_COINS_LINE": "還差 %d 金幣",
   "H_MUSIC": "音樂",
@@ -2853,7 +2852,8 @@
   "RESULT_PERFECT": "完美！一個道具都沒用",
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
   "RESULT_FIRST_3STAR": "首次三星",
-  "UI_NEXT_DROP": "下一泡"
+  "UI_NEXT_DROP": "下一泡",
+  "UI_HINT_STUCK": "點哪條都會塞滿槽位，先用吹泡或洗牌"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -2938,7 +2938,6 @@
   "H_SKILL_SHUFFLE": "まぜまぜ",
   "H_SKILL_BLOW": "突風",
   "H_SKILL_NET": "あみ",
-  "H_SKILL_FLOW": "うず潮",
   "H_NEED_COINS": "コイン不足",
   "H_NEED_COINS_LINE": "あと %d コイン必要",
   "H_MUSIC": "BGM",
@@ -3805,7 +3804,8 @@
   "RESULT_PERFECT": "パーフェクト！アイテムなし",
   "RESULT_TRY_3STAR": "アイテムなしで星3つ",
   "RESULT_FIRST_3STAR": "初の星3つ",
-  "UI_NEXT_DROP": "つぎの泡"
+  "UI_NEXT_DROP": "つぎの泡",
+  "UI_HINT_STUCK": "どれを取っても枠が埋まる。突風かまぜまぜを使おう"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -3890,7 +3890,6 @@
   "H_SKILL_SHUFFLE": "섞기",
   "H_SKILL_BLOW": "불기",
   "H_SKILL_NET": "그물",
-  "H_SKILL_FLOW": "해류",
   "H_NEED_COINS": "코인 부족",
   "H_NEED_COINS_LINE": "%d 코인이 더 필요해요",
   "H_MUSIC": "음악",
@@ -4757,7 +4756,8 @@
   "RESULT_PERFECT": "퍼펙트! 아이템 없이 클리어",
   "RESULT_TRY_3STAR": "아이템 없이 깨면 별 3개",
   "RESULT_FIRST_3STAR": "첫 별 3개",
-  "UI_NEXT_DROP": "다음 방울"
+  "UI_NEXT_DROP": "다음 방울",
+  "UI_HINT_STUCK": "뭘 눌러도 칸이 꽉 차요. 불기나 섞기를 써 보세요"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -4842,7 +4842,6 @@
   "H_SKILL_SHUFFLE": "Mischen",
   "H_SKILL_BLOW": "Pusten",
   "H_SKILL_NET": "Netz",
-  "H_SKILL_FLOW": "Strömung",
   "H_NEED_COINS": "Zu wenig Münzen",
   "H_NEED_COINS_LINE": "Dir fehlen %d Münzen",
   "H_MUSIC": "Musik",
@@ -5709,7 +5708,8 @@
   "RESULT_PERFECT": "Perfekt! Ganz ohne Extras",
   "RESULT_TRY_3STAR": "Ohne Extras gibt es 3 Sterne",
   "RESULT_FIRST_3STAR": "Erste 3 Sterne",
-  "UI_NEXT_DROP": "Blase"
+  "UI_NEXT_DROP": "Blase",
+  "UI_HINT_STUCK": "Jeder Zug füllt die Ablage. Nimm Pusten oder Mischen"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -5794,7 +5794,6 @@
   "H_SKILL_SHUFFLE": "Mélange",
   "H_SKILL_BLOW": "Souffle",
   "H_SKILL_NET": "Filet",
-  "H_SKILL_FLOW": "Courant",
   "H_NEED_COINS": "Plus de pièces",
   "H_NEED_COINS_LINE": "Il te manque %d pièces",
   "H_MUSIC": "Musique",
@@ -6661,7 +6660,8 @@
   "RESULT_PERFECT": "Parfait ! Sans aucun bonus",
   "RESULT_TRY_3STAR": "Gagne sans bonus pour 3 étoiles",
   "RESULT_FIRST_3STAR": "1res 3 étoiles",
-  "UI_NEXT_DROP": "Bulle"
+  "UI_NEXT_DROP": "Bulle",
+  "UI_HINT_STUCK": "Chaque coup remplit les cases. Essaie Souffle ou Mélange"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -6746,7 +6746,6 @@
   "H_SKILL_SHUFFLE": "Mezclar",
   "H_SKILL_BLOW": "Soplar",
   "H_SKILL_NET": "Red",
-  "H_SKILL_FLOW": "Marea",
   "H_NEED_COINS": "Faltan monedas",
   "H_NEED_COINS_LINE": "Te faltan %d monedas",
   "H_MUSIC": "Música",
@@ -7613,7 +7612,8 @@
   "RESULT_PERFECT": "¡Perfecto! Sin potenciadores",
   "RESULT_TRY_3STAR": "Gana sin potenciadores: 3 estrellas",
   "RESULT_FIRST_3STAR": "Primeras 3★",
-  "UI_NEXT_DROP": "Burbuja"
+  "UI_NEXT_DROP": "Burbuja",
+  "UI_HINT_STUCK": "Cualquier jugada llena las casillas. Usa Soplar o Mezclar"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -7698,7 +7698,6 @@
   "H_SKILL_SHUFFLE": "Mexer",
   "H_SKILL_BLOW": "Soprar",
   "H_SKILL_NET": "Rede",
-  "H_SKILL_FLOW": "Maré",
   "H_NEED_COINS": "Sem moedas",
   "H_NEED_COINS_LINE": "Faltam %d moedas",
   "H_MUSIC": "Música",
@@ -8565,7 +8564,8 @@
   "RESULT_PERFECT": "Perfeito! Sem reforços",
   "RESULT_TRY_3STAR": "Vença sem reforços: 3 estrelas",
   "RESULT_FIRST_3STAR": "Primeiras 3★",
-  "UI_NEXT_DROP": "Bolha"
+  "UI_NEXT_DROP": "Bolha",
+  "UI_HINT_STUCK": "Qualquer jogada enche os espaços. Use Soprar ou Mexer"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -8650,7 +8650,6 @@
   "H_SKILL_SHUFFLE": "Mescola",
   "H_SKILL_BLOW": "Soffia",
   "H_SKILL_NET": "Rete",
-  "H_SKILL_FLOW": "Corrente",
   "H_NEED_COINS": "Niente monete",
   "H_NEED_COINS_LINE": "Ti mancano %d monete",
   "H_MUSIC": "Musica",
@@ -9517,7 +9516,8 @@
   "RESULT_PERFECT": "Perfetto! Senza aiuti",
   "RESULT_TRY_3STAR": "Vinci senza aiuti: 3 stelle",
   "RESULT_FIRST_3STAR": "Prime 3★",
-  "UI_NEXT_DROP": "Bolla"
+  "UI_NEXT_DROP": "Bolla",
+  "UI_HINT_STUCK": "Ogni mossa riempie le caselle. Usa Soffia o Mescola"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -9602,7 +9602,6 @@
   "H_SKILL_SHUFFLE": "Микс",
   "H_SKILL_BLOW": "Сдуть",
   "H_SKILL_NET": "Сеть",
-  "H_SKILL_FLOW": "Течение",
   "H_NEED_COINS": "Мало монет",
   "H_NEED_COINS_LINE": "Не хватает %d монет",
   "H_MUSIC": "Музыка",
@@ -10469,7 +10468,8 @@
   "RESULT_PERFECT": "Идеально! Без бонусов",
   "RESULT_TRY_3STAR": "Без бонусов — 3 звезды",
   "RESULT_FIRST_3STAR": "Первые 3★",
-  "UI_NEXT_DROP": "Пузырь"
+  "UI_NEXT_DROP": "Пузырь",
+  "UI_HINT_STUCK": "Любой ход заполнит ячейки. Попробуй Сдуть или Микс"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -10554,7 +10554,6 @@
   "H_SKILL_SHUFFLE": "Karıştır",
   "H_SKILL_BLOW": "Üfle",
   "H_SKILL_NET": "Ağ",
-  "H_SKILL_FLOW": "Akıntı",
   "H_NEED_COINS": "Altın yetersiz",
   "H_NEED_COINS_LINE": "%d altın daha lazım",
   "H_MUSIC": "Müzik",
@@ -11421,6 +11420,7 @@
   "RESULT_PERFECT": "Mükemmel! Güçlendiricisiz",
   "RESULT_TRY_3STAR": "Güçlendiricisiz kazan: 3 yıldız",
   "RESULT_FIRST_3STAR": "İlk 3 yıldız",
-  "UI_NEXT_DROP": "Balon"
+  "UI_NEXT_DROP": "Balon",
+  "UI_HINT_STUCK": "Her hamle bölmeleri doldurur. Üfle ya da Karıştır kullan"
  }
 }

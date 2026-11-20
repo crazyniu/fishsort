@@ -31,7 +31,7 @@ import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButto
 import { Screen } from '../ui/screen';
 import { loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
-import { CARD_ASPECT, RARITY_GLOW, miniCard, speciesName } from '../ui/popups';
+import { CARD_ASPECT, RARITY_GLOW, miniCard, skillName, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
 import { Field } from './field';
 import * as Flow from './flow';
@@ -76,7 +76,7 @@ interface BowlView {
 }
 
 /** 技能栏从左到右（docs/ux/route-2026-11-19.md 第 4 节）：撤销、提示在最左，后面四个是原来的 */
-const SKILLS = ['undo', 'hint', 'shuffle', 'blow', 'net', 'current'] as const;
+const SKILLS = ['undo', 'hint', 'shuffle', 'blow', 'net'] as const;
 type SkillId = (typeof SKILLS)[number];
 
 /** 撤销用的存档：点之前的局面、每个气泡当时在哪、开局占格还剩几条在暂存槽里 */
@@ -114,9 +114,9 @@ const BOWL_SINK = 5;
 const AMBIENT_TAG = 9201;
 /** 夸奖字出现时让连击计让开的 tween 标签 */
 const PRAISE_TAG = 9202;
-/** 技能键（半透明格子）多大、两个键之间隔多少：6 个键一行（6 × 104 + 5 × 16 = 704） */
+/** 技能键（半透明格子）多大、两个键之间隔多少：5 个键一行（5 × 104 + 4 × 28 = 632；2026-11-20 删了洋流，原来 6 个键间距 16） */
 const SKILL_S = 104;
-const SKILL_GAP = 16;
+const SKILL_GAP = 28;
 /** 开局占格的那几条鱼所在的暂存格：底色压深一点（「这是关卡给的」） */
 const PREFILL_SLOT = new Color(55, 85, 160, 255);
 /** 「接下来」预告：小牌多大、两个之间隔多少 */
@@ -604,7 +604,7 @@ export class GamePage extends Page {
     at(node, x, y);
     const icon = img(node, `icon/skill_${id}`, 76, 76, 'icon');
     at(icon, 0, 11);
-    const name = text(node, tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`), 22);
+    const name = text(node, skillName(id), 22);
     at(name.node, 0, -37);
     fit(name, S - 8, 22, 15);
     const badge = slice(node, 'kit/tag_red', BADGE_W, BADGE_H, 'badge');
@@ -2164,6 +2164,11 @@ export class GamePage extends Page {
     return Players.hint(this.s, App.config.curve.route?.preview ?? 0, (this.rng.nextU32() % 1e6) + 1);
   }
 
+  /** 提示没得给的原因：每一条点了都会把暂存槽塞满（该用道具）→ true；连能点的鱼都没有 → false */
+  skillHintBlocked(): boolean {
+    return Players.hintBlocked(this.s);
+  }
+
   /** 提示技能：那条鱼套金圈，被点（任何一步）或过 game_ui.json 的 hint.skillSeconds 秒后消失 */
   showSkillHint(t: Tap): void {
     this.clearHint();
@@ -2201,7 +2206,7 @@ export class GamePage extends Page {
     this.field.addLucky(plan.bubble, plan.fish);
   }
 
-  /** 带奖励的那条鱼被取走了（点的、渔网捞的、洋流带的都算）：当场入账，奖励从礼物那里飞出去——技能飞到技能键上，金币、卡往顶上飞 */
+  /** 带奖励的那条鱼被取走了（点的、渔网捞的都算）：当场入账，奖励从礼物那里飞出去——技能飞到技能键上，金币、卡往顶上飞 */
   private luckyTaken(b: number, k: number): void {
     const l = this.lucky;
     if (!l || l.done || l.plan.bubble !== b || l.plan.fish !== k) return;
@@ -2314,7 +2319,7 @@ export class GamePage extends Page {
       this.endTutorial();
       onUse();
     });
-    const tip = text(layer, tr('UI_SKILL_TRY', tr(`H_SKILL_${id === 'current' ? 'FLOW' : id.toUpperCase()}`)), 40, { color: COLOR.yellow });
+    const tip = text(layer, tr('UI_SKILL_TRY', skillName(id)), 40, { color: COLOR.yellow });
     at(tip.node, 0, p.y + 190);
     fx.popIn(tip.node, 0.1, 0.25);
     addFinger(copy);
