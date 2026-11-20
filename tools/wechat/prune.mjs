@@ -3,7 +3,8 @@
 // 用户 2026-11-18：网上只放有用的文件。资源文件名带 MD5，改过的文件换了名字，旧文件不清会越攒越多。
 // 做法：列出托管上 remote/ 下的全部文件，本地这次打包出来的 client/build/wechatgame-remote/remote 里没有的就删掉。
 // 用法：node tools/wechat/prune.mjs <云开发环境 ID> [--dry-run]
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import { readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
@@ -45,5 +46,48 @@ if (dry) {
   for (const k of stale.slice(0, 20)) console.log(`  ${k}`);
   process.exit(0);
 }
-for (const k of stale) execFileSync('tcb', ['hosting', 'delete', k, '--yes', '-e', env], { stdio: 'ignore' });
-console.log(`✓ 清掉 ${stale.length} 个旧文件`);
+if (stale.length === 0) process.exit(0);
+
+// 删法：每调一次 tcb 要两三秒（启动 + 网络），上千个文件逐个删要近一小时。
+// 所以整个目录都没用了的按目录删（一次调用），剩下的零散文件并发删，并打印进度。
+const keepDirs = new Set();
+for (const k of keep) for (let i = k.indexOf('/'); i > 0; i = k.indexOf('/', i + 1)) keepDirs.add(k.slice(0, i));
+const jobs = []; // [路径, 是不是目录, 含几个文件]
+const dirCount = new Map();
+for (const k of stale) {
+  // 找这个文件最上层的、整个都没用的目录（remote/ 本身不算）
+  let top = null;
+  for (let i = k.indexOf('/', 'remote/'.length); i > 0; i = k.indexOf('/', i + 1)) {
+    const d = k.slice(0, i);
+    if (!keepDirs.has(d)) { top = d; break; }
+  }
+  if (top) dirCount.set(top, (dirCount.get(top) ?? 0) + 1);
+  else jobs.push([k, false, 1]);
+}
+for (const [d, n] of dirCount) jobs.push([d, true, n]);
+
+const run = promisify(execFile);
+let done = 0, failed = 0, next = 0;
+const CONCURRENCY = 12;
+async function worker() {
+  while (next < jobs.length) {
+    const [path, dir, n] = jobs[next++];
+    // 按目录删是前缀匹配，结尾带 / 免得 remote/ab 连 remote/abc/ 一起删
+    const args = ['hosting', 'delete', dir ? `${path}/` : path, ...(dir ? ['--dir'] : []), '--yes', '-e', env];
+    try {
+      await run('tcb', args, { maxBuffer: 16 << 20 });
+      done += n;
+    } catch {
+      failed += n;
+    }
+    process.stdout.write(`\r  删除中 ${done + failed}/${stale.length}${failed ? `（失败 ${failed}）` : ''}   `);
+  }
+}
+console.log(`  按 ${dirCount.size} 个目录 + ${jobs.length - dirCount.size} 个零散文件删，${CONCURRENCY} 个一起跑`);
+await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+process.stdout.write('\n');
+if (failed) {
+  console.error(`! 清掉 ${done} 个，${failed} 个没删成（资源照常能用，下次打包会再清）`);
+  process.exit(1);
+}
+console.log(`✓ 清掉 ${done} 个旧文件`);
