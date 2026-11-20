@@ -146,7 +146,8 @@ export class WheelPage extends Page {
     const ten = button(v, { color: 'blue', w: BW, h: 108, onTap: () => this.ten() });
     twoLines(ten, tr('H_TEN_PULL'), `${fmt(eco.wheel.tenCost)}`, 'icon/coin');
     row.push(ten.node);
-    if (App.platform.hasCapability('ads')) {
+    // 看广告 +1：拉不到广告时不出现，剩下的居中排（用户 2026-11-20）
+    if (App.platform.hasCapability('ads') && App.platform.adsAvailable()) {
       const adLeft = Wheel.adLeft(s, eco, day);
       const ad = button(v, {
         color: 'yellow',
@@ -163,7 +164,7 @@ export class WheelPage extends Page {
       });
       twoLines(ad, '+1', tr('ADS_LEFT', adLeft), null, 'kit/ic_video');
       row.push(ad.node);
-      ad.setEnabled(adLeft > 0 && App.platform.adsAvailable());
+      ad.setEnabled(adLeft > 0);
     }
     row.forEach((n, i) => at(n, (i - (row.length - 1) / 2) * (BW + 16), y2));
     if (enter) fx.popIn(this.chest, 0, 0.3);

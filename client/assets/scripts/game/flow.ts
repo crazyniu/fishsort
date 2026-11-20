@@ -283,7 +283,8 @@ export function finishNet(g: GamePage, slot: number): void {
 /** 数量为 0：金币买，金币不够则看广告得 1 个（docs/01 5.2）；这一版没有广告时只有金币买，弹窗矮一截 */
 function buySkill(g: GamePage, id: string): void {
   const eco = App.config.eco;
-  const hasAds = App.platform.hasCapability('ads');
+  // 看广告的那一行：这一版有广告、而且现在拉到了才有；拉不到整行不出现、弹窗矮一截（用户 2026-11-20）
+  const hasAds = App.platform.hasCapability('ads') && App.platform.adsAvailable();
   const dy = hasAds ? 0 : -55;
   const name = skillName(id);
   const p = openPopup({ w: 600, h: hasAds ? 560 : 450, title: tr('SKILL_BUY_TITLE', name), mascot: null });
@@ -330,7 +331,8 @@ export function unlockSlot(g: GamePage): void {
   if (g.finishing || Rules.nextBowlSlot(g.s) < 0) return;
   const eco = App.config.eco;
   // 这一版没有广告时只有金币开，弹窗矮一截
-  const hasAds = App.platform.hasCapability('ads');
+  // 看广告的那一行：这一版有广告、而且现在拉到了才有；拉不到整行不出现、弹窗矮一截（用户 2026-11-20）
+  const hasAds = App.platform.hasCapability('ads') && App.platform.adsAvailable();
   const dy = hasAds ? 0 : -55;
   const p = openPopup({ w: 600, h: hasAds ? 620 : 510, title: tr('H_SLOT_TITLE'), mascot: null });
   const bowl = img(p.body, 'skin/j_bowl', 220, 203, 'bowl');
