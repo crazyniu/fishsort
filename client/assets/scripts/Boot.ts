@@ -53,6 +53,11 @@ function startLanguage(): string {
 const DESIGN_WIDTH = 750;
 const DESIGN_HEIGHT = 1334;
 
+/** 加载失败后隔几秒自动再试（第 1、2、3 次……，最后一个一直用）；前 SILENT_RETRIES 次不出失败页。
+ * 启动时还读不到配置（配置就在要下载的资源里），所以写在这里 */
+const RETRY_WAIT = [1, 2, 4, 5];
+const SILENT_RETRIES = 3;
+
 @ccclass('Boot')
 export class Boot extends Component {
   protected override onLoad(): void {
@@ -106,12 +111,27 @@ export class Boot extends Component {
     ];
     let i = 0;
     let base = 0;
+    // 下载失败自动重试（2026-11-20 微信审核驳回「打不开」：审核员的手机刚启动时微信报「offline mode」、
+    // 资源一个都没下下来，停在失败页没人点重试）。前 SILENT_RETRIES 次不出失败页、进度条停着悄悄再试；
+    // 之后出「网络不太好」和「重试」，后台照样隔一会儿自己再试，网络好了直接进游戏
+    let fails = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let waiting = false;
     return new Promise((resolve) => {
+      const retry = (): void => {
+        if (!waiting) return;
+        waiting = false;
+        if (timer) clearTimeout(timer);
+        timer = null;
+        view.hideFail();
+        next();
+      };
       const next = (): void => {
         if (i >= steps.length) return resolve();
         const [w, run] = steps[i];
         run((done, total) => view.setProgress(base + (w * done) / Math.max(1, total)))
           .then(() => {
+            fails = 0;
             base += w;
             view.setProgress(base);
             i++;
@@ -119,7 +139,10 @@ export class Boot extends Component {
           })
           .catch((e: unknown) => {
             console.warn('加载失败', e);
-            view.showFail(next);
+            fails++;
+            waiting = true;
+            if (fails > SILENT_RETRIES) view.showFail(retry);
+            timer = setTimeout(retry, RETRY_WAIT[Math.min(fails, RETRY_WAIT.length) - 1] * 1000);
           });
       };
       next();
