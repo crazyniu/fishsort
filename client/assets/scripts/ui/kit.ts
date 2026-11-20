@@ -272,7 +272,6 @@ const IMG_ALIAS: Record<string, string> = {
   'kit/ic_plus': 'skin/f_g_plus',
   'kit/ic_gear': 'skin/f_g_gear',
   'kit/ic_video': 'skin/f_g_video',
-  'kit/ic_share': 'skin/f_g_share',
   'kit/ic_check': 'skin/f_check',
   'kit/ic_music': 'skin/f_g_music',
   'kit/ic_sound': 'skin/f_g_sound',

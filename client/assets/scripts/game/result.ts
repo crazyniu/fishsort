@@ -2,7 +2,6 @@
 // 「下一关」呼吸；点任意处跳到最终状态；全程 ≤ 3 秒（docs/09 第 6 节）。
 // 三颗星按成绩亮（docs/01 9.5）：一个道具都没用三颗；没拿到的星位留着、是灰的。第一次三星在奖励条里多一格。
 import { Node, Sprite, Tween, UITransform, Vec3, tween } from 'cc';
-import * as Cards from '../core/meta/cards';
 import * as Settle from '../core/meta/settle';
 import { App } from '../services/app';
 import { buzz, sfx } from '../services/audio';
@@ -173,12 +172,9 @@ export class ResultPage extends Page {
     const s = App.save.data;
     const eco = App.config.eco;
     let dbl: Btn | null = null;
-    const bestCard = d.cards.reduce((m, cd) => Math.max(m, Cards.rank(eco, cd.rarity)), -1);
-    // 只是普通分享，不发奖励：微信禁止诱导分享（docs/01 5.8）
-    const showShare = App.platform.hasCapability('share') && bestCard >= Cards.rank(eco, String(cfg.shareFromRarity ?? 'rare'));
-    // 最下面一行：主页（蓝）· 分享（蓝，开出稀有以上的卡时才有）· 翻倍（黄，今天重玩奖励领完时没有），按个数等宽排开
-    const count = 1 + (showShare ? 1 : 0) + (hasDouble ? 1 : 0);
-    const bw = count >= 3 ? 214 : count === 2 ? 290 : 340;
+    // 最下面一行：主页（蓝）· 翻倍（黄，今天重玩奖励领完时没有），按个数等宽排开。
+    // 不放分享键（用户 2026-11-20：游戏里不要分享按钮；只留微信右上角菜单的转发，docs/01 5.8）
+    const bw = hasDouble ? 290 : 340;
     if (hasDouble) {
       dbl = button(c, {
         color: 'yellow',
@@ -197,23 +193,12 @@ export class ResultPage extends Page {
         },
       });
     }
-    let share: Btn | null = null;
-    if (showShare) {
-      share = button(c, {
-        color: 'blue',
-        w: bw,
-        h: 90,
-        icon: 'kit/ic_share',
-        label: tr('UI_SHARE_SHORT'),
-        onTap: () => void App.platform.share({ kind: 'card' }),
-      });
-    }
     const next = button(c, { color: 'green', w: 540, h: 130, label: tr('UI_NEXT_LEVEL'), fontSize: 64, onTap: () => void Flow.afterResult(d, true) });
     at(next.node, 0, nextY);
     const home = button(c, { color: 'blue', w: bw, h: 90, label: tr('RETURN_HOME'), onTap: () => void Flow.afterResult(d, false) });
-    const row = [home, share, dbl].filter((b): b is Btn => b !== null);
+    const row = [home, dbl].filter((b): b is Btn => b !== null);
     row.forEach((b, i) => at(b.node, (i - (row.length - 1) / 2) * (bw + 16), homeY));
-    const buttons = [dbl?.node, share?.node, next.node, home.node].filter((n): n is Node => !!n);
+    const buttons = [dbl?.node, next.node, home.node].filter((n): n is Node => !!n);
     for (const b of buttons) b.active = false;
     const btnHome = buttons.map((b) => b.position.y);
 
