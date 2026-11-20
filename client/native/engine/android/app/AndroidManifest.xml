@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- 广告 ID：game.json 关了广告时 apply.mjs 改成 tools:node="remove" -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <!-- 应用内购买：这一版不做内购（CLAUDE.md 第 9 条）。依赖库（Cocos 的 libservice 等）合并进来的，这里删掉，
+         免得 Google Play 把游戏标成「含应用内购买」，和后台填的不一致 -->
+    <uses-permission android:name="com.android.vending.BILLING" tools:node="remove"/>
 
     <application
         android:allowBackup="true"
