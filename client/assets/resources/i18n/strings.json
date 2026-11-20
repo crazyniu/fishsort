@@ -42,7 +42,7 @@
   "TIP_CHAIN": "锁链泡：每装满一缸减 1，到 0 解开",
   "TIP_TIMER": "限时缸：时间到之前装满它",
   "TIP_FOG": "迷雾泡：点破别的气泡，雾就散开",
-  "TIP_ICE": "冰冻泡：连着的气泡全部点破才解冻",
+  "TIP_ICE": "冰冻泡：把带同色雪花的气泡全部点破，它就解冻",
   "TIP_BIG": "大鱼缸：要装 6 条",
   "TIP_PAIR": "结伴鱼：点一条，两条一起走",
   "UI_PRAISE_1": "不错！",
@@ -949,7 +949,8 @@
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
   "RESULT_FIRST_3STAR": "首次三星",
   "UI_NEXT_DROP": "下一泡",
-  "UI_HINT_STUCK": "点哪条都会塞满槽位，先用吹泡或洗牌"
+  "UI_HINT_STUCK": "点哪条都会塞满槽位，先用吹泡或洗牌",
+  "UI_ICE_HINT": "先点破带同色雪花的气泡"
  },
  "en": {
   "UI_LEVEL": "Level %d",
@@ -994,7 +995,7 @@
   "TIP_CHAIN": "Chains: each full tank counts down",
   "TIP_TIMER": "Timer tank: fill it before time's up",
   "TIP_FOG": "Fog: pop other bubbles to clear it",
-  "TIP_ICE": "Ice: pop all linked bubbles to thaw it",
+  "TIP_ICE": "Ice: pop every bubble with a snowflake of the same color to thaw it",
   "TIP_BIG": "Big tank: holds 6 fish",
   "TIP_PAIR": "Buddies: tap one, both go",
   "UI_PRAISE_1": "Good!",
@@ -1901,7 +1902,8 @@
   "RESULT_TRY_3STAR": "Win without boosters for 3 stars",
   "RESULT_FIRST_3STAR": "First 3 stars",
   "UI_NEXT_DROP": "Drop",
-  "UI_HINT_STUCK": "Any move fills the slots. Try Blow or Shuffle"
+  "UI_HINT_STUCK": "Any move fills the slots. Try Blow or Shuffle",
+  "UI_ICE_HINT": "Pop the bubbles with the same-color snowflake first"
  },
  "zh_TW": {
   "UI_LEVEL": "第 %d 關",
@@ -1946,7 +1948,7 @@
   "TIP_CHAIN": "鎖鏈泡：每裝滿一缸減 1，到 0 解開",
   "TIP_TIMER": "限時缸：時間到之前裝滿它",
   "TIP_FOG": "迷霧泡：點破別的氣泡，霧就散開",
-  "TIP_ICE": "冰凍泡：連著的氣泡全部點破才解凍",
+  "TIP_ICE": "冰凍泡：把帶同色雪花的氣泡全部點破，它就解凍",
   "TIP_BIG": "大魚缸：要裝 6 條",
   "TIP_PAIR": "結伴魚：點一條，兩條一起走",
   "UI_PRAISE_1": "不錯！",
@@ -2853,7 +2855,8 @@
   "RESULT_TRY_3STAR": "不用道具就能拿 3 星",
   "RESULT_FIRST_3STAR": "首次三星",
   "UI_NEXT_DROP": "下一泡",
-  "UI_HINT_STUCK": "點哪條都會塞滿槽位，先用吹泡或洗牌"
+  "UI_HINT_STUCK": "點哪條都會塞滿槽位，先用吹泡或洗牌",
+  "UI_ICE_HINT": "先點破帶同色雪花的氣泡"
  },
  "ja": {
   "UI_LEVEL": "ステージ %d",
@@ -2898,7 +2901,7 @@
   "TIP_CHAIN": "くさり泡：水そうが1つ満タンになるたび-1、0で外れる",
   "TIP_TIMER": "時間制限の水そう：時間内に満タンにしよう",
   "TIP_FOG": "きり泡：ほかの泡を割ると晴れる",
-  "TIP_ICE": "こおり泡：つながった泡をぜんぶ割ると溶ける",
+  "TIP_ICE": "こおり泡：同じ色の雪マークの泡をぜんぶ割ると溶ける",
   "TIP_BIG": "大きな水そう：6匹入るよ",
   "TIP_PAIR": "なかよし魚：1匹タップで2匹いっしょに",
   "UI_PRAISE_1": "いいね！",
@@ -3805,7 +3808,8 @@
   "RESULT_TRY_3STAR": "アイテムなしで星3つ",
   "RESULT_FIRST_3STAR": "初の星3つ",
   "UI_NEXT_DROP": "つぎの泡",
-  "UI_HINT_STUCK": "どれを取っても枠が埋まる。突風かまぜまぜを使おう"
+  "UI_HINT_STUCK": "どれを取っても枠が埋まる。突風かまぜまぜを使おう",
+  "UI_ICE_HINT": "先に同じ色の雪マークの泡を割ろう"
  },
  "ko": {
   "UI_LEVEL": "레벨 %d",
@@ -3850,7 +3854,7 @@
   "TIP_CHAIN": "사슬 방울: 어항을 채울 때마다 1씩 줄고 0이 되면 풀려요",
   "TIP_TIMER": "시간제 어항: 시간 안에 채워요",
   "TIP_FOG": "안개 방울: 다른 방울을 터뜨리면 걷혀요",
-  "TIP_ICE": "얼음 방울: 연결된 방울을 모두 터뜨리면 녹아요",
+  "TIP_ICE": "얼음 방울: 같은 색 눈송이가 붙은 방울을 모두 터뜨리면 녹아요",
   "TIP_BIG": "큰 어항: 6마리가 들어가요",
   "TIP_PAIR": "단짝 물고기: 하나를 탭하면 둘이 같이 가요",
   "UI_PRAISE_1": "좋아요!",
@@ -4757,7 +4761,8 @@
   "RESULT_TRY_3STAR": "아이템 없이 깨면 별 3개",
   "RESULT_FIRST_3STAR": "첫 별 3개",
   "UI_NEXT_DROP": "다음 방울",
-  "UI_HINT_STUCK": "뭘 눌러도 칸이 꽉 차요. 불기나 섞기를 써 보세요"
+  "UI_HINT_STUCK": "뭘 눌러도 칸이 꽉 차요. 불기나 섞기를 써 보세요",
+  "UI_ICE_HINT": "같은 색 눈송이 방울을 먼저 터뜨리세요"
  },
  "de": {
   "UI_LEVEL": "Level %d",
@@ -4802,7 +4807,7 @@
   "TIP_CHAIN": "Ketten: Jedes volle Becken zählt runter",
   "TIP_TIMER": "Zeitbecken: Fülle es, bevor die Zeit abläuft",
   "TIP_FOG": "Nebel: Platze andere Blasen, dann lichtet er sich",
-  "TIP_ICE": "Eis: Platze alle verbundenen Blasen zum Auftauen",
+  "TIP_ICE": "Eis: Platze alle Blasen mit der gleichfarbigen Schneeflocke",
   "TIP_BIG": "Großes Becken: Platz für 6 Fische",
   "TIP_PAIR": "Freunde: Tippe einen an, beide schwimmen",
   "UI_PRAISE_1": "Gut!",
@@ -5709,7 +5714,8 @@
   "RESULT_TRY_3STAR": "Ohne Extras gibt es 3 Sterne",
   "RESULT_FIRST_3STAR": "Erste 3 Sterne",
   "UI_NEXT_DROP": "Blase",
-  "UI_HINT_STUCK": "Jeder Zug füllt die Ablage. Nimm Pusten oder Mischen"
+  "UI_HINT_STUCK": "Jeder Zug füllt die Ablage. Nimm Pusten oder Mischen",
+  "UI_ICE_HINT": "Erst die Blasen mit gleicher Schneeflocke platzen"
  },
  "fr": {
   "UI_LEVEL": "Niveau %d",
@@ -5754,7 +5760,7 @@
   "TIP_CHAIN": "Chaînes : chaque aquarium plein fait −1",
   "TIP_TIMER": "Aquarium chrono : remplis-le à temps",
   "TIP_FOG": "Brume : éclate d’autres bulles pour la dissiper",
-  "TIP_ICE": "Glace : éclate toutes les bulles liées pour la faire fondre",
+  "TIP_ICE": "Glace : éclate toutes les bulles au flocon de même couleur",
   "TIP_BIG": "Grand aquarium : 6 poissons",
   "TIP_PAIR": "Copains : touches-en un, les deux partent",
   "UI_PRAISE_1": "Bien !",
@@ -6661,7 +6667,8 @@
   "RESULT_TRY_3STAR": "Gagne sans bonus pour 3 étoiles",
   "RESULT_FIRST_3STAR": "1res 3 étoiles",
   "UI_NEXT_DROP": "Bulle",
-  "UI_HINT_STUCK": "Chaque coup remplit les cases. Essaie Souffle ou Mélange"
+  "UI_HINT_STUCK": "Chaque coup remplit les cases. Essaie Souffle ou Mélange",
+  "UI_ICE_HINT": "Éclate d’abord les bulles au même flocon"
  },
  "es": {
   "UI_LEVEL": "Nivel %d",
@@ -6706,7 +6713,7 @@
   "TIP_CHAIN": "Cadenas: cada pecera llena resta 1",
   "TIP_TIMER": "Pecera con reloj: llénala a tiempo",
   "TIP_FOG": "Niebla: revienta otras burbujas para despejarla",
-  "TIP_ICE": "Hielo: revienta todas las burbujas unidas para derretirlo",
+  "TIP_ICE": "Hielo: revienta todas las burbujas con el copo del mismo color",
   "TIP_BIG": "Pecera grande: caben 6 peces",
   "TIP_PAIR": "Amigos: toca uno y se van los dos",
   "UI_PRAISE_1": "¡Bien!",
@@ -7613,7 +7620,8 @@
   "RESULT_TRY_3STAR": "Gana sin potenciadores: 3 estrellas",
   "RESULT_FIRST_3STAR": "Primeras 3★",
   "UI_NEXT_DROP": "Burbuja",
-  "UI_HINT_STUCK": "Cualquier jugada llena las casillas. Usa Soplar o Mezclar"
+  "UI_HINT_STUCK": "Cualquier jugada llena las casillas. Usa Soplar o Mezclar",
+  "UI_ICE_HINT": "Primero revienta las burbujas con ese copo"
  },
  "pt": {
   "UI_LEVEL": "Nível %d",
@@ -7658,7 +7666,7 @@
   "TIP_CHAIN": "Correntes: cada aquário cheio tira 1",
   "TIP_TIMER": "Aquário com tempo: encha antes que acabe",
   "TIP_FOG": "Névoa: estoure outras bolhas para ela sumir",
-  "TIP_ICE": "Gelo: estoure todas as bolhas ligadas para derreter",
+  "TIP_ICE": "Gelo: estoure todas as bolhas com o floco da mesma cor",
   "TIP_BIG": "Aquário grande: cabem 6 peixes",
   "TIP_PAIR": "Amigos: toque em um e os dois vão",
   "UI_PRAISE_1": "Boa!",
@@ -8565,7 +8573,8 @@
   "RESULT_TRY_3STAR": "Vença sem reforços: 3 estrelas",
   "RESULT_FIRST_3STAR": "Primeiras 3★",
   "UI_NEXT_DROP": "Bolha",
-  "UI_HINT_STUCK": "Qualquer jogada enche os espaços. Use Soprar ou Mexer"
+  "UI_HINT_STUCK": "Qualquer jogada enche os espaços. Use Soprar ou Mexer",
+  "UI_ICE_HINT": "Estoure antes as bolhas com o mesmo floco"
  },
  "it": {
   "UI_LEVEL": "Livello %d",
@@ -8610,7 +8619,7 @@
   "TIP_CHAIN": "Catene: ogni acquario pieno toglie 1",
   "TIP_TIMER": "Acquario a tempo: riempilo prima dello scadere",
   "TIP_FOG": "Nebbia: scoppia altre bolle per diradarla",
-  "TIP_ICE": "Ghiaccio: scoppia tutte le bolle collegate per scioglierlo",
+  "TIP_ICE": "Ghiaccio: scoppia le bolle col fiocco dello stesso colore",
   "TIP_BIG": "Acquario grande: contiene 6 pesci",
   "TIP_PAIR": "Amici: toccane uno, vanno via in due",
   "UI_PRAISE_1": "Bene!",
@@ -9517,7 +9526,8 @@
   "RESULT_TRY_3STAR": "Vinci senza aiuti: 3 stelle",
   "RESULT_FIRST_3STAR": "Prime 3★",
   "UI_NEXT_DROP": "Bolla",
-  "UI_HINT_STUCK": "Ogni mossa riempie le caselle. Usa Soffia o Mescola"
+  "UI_HINT_STUCK": "Ogni mossa riempie le caselle. Usa Soffia o Mescola",
+  "UI_ICE_HINT": "Prima scoppia le bolle con lo stesso fiocco"
  },
  "ru": {
   "UI_LEVEL": "Уровень %d",
@@ -9562,7 +9572,7 @@
   "TIP_CHAIN": "Цепи: каждый полный аквариум снимает 1",
   "TIP_TIMER": "Аквариум с таймером: заполни, пока есть время",
   "TIP_FOG": "Туман: лопай другие пузыри, и он рассеется",
-  "TIP_ICE": "Лёд: лопни все связанные пузыри, чтобы растопить",
+  "TIP_ICE": "Лёд: лопни все пузыри со снежинкой того же цвета",
   "TIP_BIG": "Большой аквариум: вмещает 6 рыбок",
   "TIP_PAIR": "Друзья: нажми на одного, уплывут оба",
   "UI_PRAISE_1": "Неплохо!",
@@ -10469,7 +10479,8 @@
   "RESULT_TRY_3STAR": "Без бонусов — 3 звезды",
   "RESULT_FIRST_3STAR": "Первые 3★",
   "UI_NEXT_DROP": "Пузырь",
-  "UI_HINT_STUCK": "Любой ход заполнит ячейки. Попробуй Сдуть или Микс"
+  "UI_HINT_STUCK": "Любой ход заполнит ячейки. Попробуй Сдуть или Микс",
+  "UI_ICE_HINT": "Сначала лопни пузыри с такой снежинкой"
  },
  "tr": {
   "UI_LEVEL": "Seviye %d",
@@ -10514,7 +10525,7 @@
   "TIP_CHAIN": "Zincir: Her dolan akvaryum 1 azaltır",
   "TIP_TIMER": "Süreli akvaryum: Süre bitmeden doldur",
   "TIP_FOG": "Sis: Başka baloncukları patlatınca dağılır",
-  "TIP_ICE": "Buz: Bağlı tüm baloncukları patlatınca erir",
+  "TIP_ICE": "Buz: aynı renk kar tanesi olan balonları patlat, erisin",
   "TIP_BIG": "Büyük akvaryum: 6 balık alır",
   "TIP_PAIR": "Kanka balıklar: Birine dokun, ikisi gider",
   "UI_PRAISE_1": "İyi!",
@@ -11421,6 +11432,7 @@
   "RESULT_TRY_3STAR": "Güçlendiricisiz kazan: 3 yıldız",
   "RESULT_FIRST_3STAR": "İlk 3 yıldız",
   "UI_NEXT_DROP": "Balon",
-  "UI_HINT_STUCK": "Her hamle bölmeleri doldurur. Üfle ya da Karıştır kullan"
+  "UI_HINT_STUCK": "Her hamle bölmeleri doldurur. Üfle ya da Karıştır kullan",
+  "UI_ICE_HINT": "Önce aynı kar taneli balonları patlat"
  }
 }

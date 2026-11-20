@@ -121,13 +121,21 @@ export function tipArt(parent: Node, key: string): Node {
       break;
     }
     case 'TIP_ICE': {
-      // 左边冻住的气泡，冰晶连到右边的气泡；右边那个破了它就解冻
+      // 左边冻住的气泡（下沿蓝色计数牌「还要点破 1 个」），右边带同色雪花牌的气泡；点破它，左边就解冻（和局里一样）
+      const blue = new Color(64, 156, 255, 255);
       const a = bubble(n, -105, 0, 160, ['c02', 'c03'], 'frozen');
       const ice = img(a, 'icon/ice', 136, 136, 'ice');
       opacity(ice).opacity = 170;
-      bubble(n, 105, 0, 160, ['c01'], 'key');
-      for (let k = 0; k < 2; k++) at(img(n, 'skin/j_ice_bead', 40, 23, 'bead'), -18 + k * 30, 0);
-      at(img(n, 'skin/j_frost', 44, 47, 'clamp'), 30, 0);
+      const tag = img(a, 'kit/circle_white', 52, 52, 'tag');
+      (tag.getComponent(Sprite) as Sprite).color = blue;
+      at(tag, 0, -68);
+      at(img(tag, 'skin/j_frost', 28, 30, 'flake'), -22, 20);
+      text(tag, '1', 30, { outline: COLOR.navy, outlineWidth: 4 });
+      const key = bubble(n, 105, 0, 160, ['c01'], 'key');
+      const badge = img(key, 'kit/circle_white', 46, 46, 'badge');
+      (badge.getComponent(Sprite) as Sprite).color = blue;
+      at(badge, 52, 50);
+      img(badge, 'skin/j_frost', 33, 35, 'flake');
       break;
     }
     case 'TIP_PAIR': {
