@@ -273,7 +273,8 @@ def cmd_run(args):
         if not picked:
             raise SystemExit('--ids= 后面写关卡号，用逗号隔开，如 --ids=180,190')
         lo, hi = min(picked), max(picked)
-    jobs = 并行数 or max(1, (os.cpu_count() or 4) - 2)
+    # 默认给别的程序留 5 个核（同一台 Mac 上要测游戏：14 路全开时浏览器抢不到 CPU，画面卡死、声音刺耳地重复，2026-11-20）
+    jobs = 并行数 or max(1, (os.cpu_count() or 4) - 5)
     write_config()
     steps = [
         f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else '') + (f' {ids}' if ids else '') + ''.join(f' {a}' for a in args if a.startswith(('--seed=', '--iter='))),
