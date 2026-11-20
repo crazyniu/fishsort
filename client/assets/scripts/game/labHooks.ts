@@ -25,6 +25,7 @@ export function labBuffer(cap: number): number {
 
 export const labHooks: LabHooks = {
   progress: () => App.save.data.level,
+  levelCount: () => App.config.levelCount,
   play: (id) => {
     const s = App.save.data;
     // 还没打到的关先把进度设过去，不然结算不认
