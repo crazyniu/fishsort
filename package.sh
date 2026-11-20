@@ -165,8 +165,24 @@ android_build() {
   local mode="${1:-apk}" proj
   # 只有 AAB（传 Google Play）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
   FS_RELEASE="$([ "$mode" = aab ] && echo 1 || echo 0)" node tools/native/apply.mjs
-  [ -n "${ANDROID_HOME:-}" ] || [ -d "$HOME/Library/Android/sdk" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
-  cocos_build android
+  local sdk="${ANDROID_HOME:-$HOME/Library/Android/sdk}" ndk cfg
+  [ -d "$sdk/platforms" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
+  # NDK：ANDROID_NDK_HOME，或者 SDK 里 ndk/ 下版本最新的那个（版本号都是两位数起，按字面排序就行）
+  ndk="${ANDROID_NDK_HOME:-$(ls -d "$sdk"/ndk/*/ 2>/dev/null | sort | tail -1)}"
+  ndk="${ndk%/}"
+  [ -d "$ndk" ] || die "没找到 Android NDK（Android Studio → SDK Manager → SDK Tools 装 NDK，或设 ANDROID_NDK_HOME）"
+  echo "· Android SDK：$sdk"
+  echo "· Android NDK：$ndk"
+  # SDK、NDK 路径不用去 Cocos 偏好设置里填：带进这次的构建参数（sdkPath、ndkPath，Cocos 3.8 命令行构建支持），文件不进仓库
+  cfg="$CLIENT/build-config/.android.local.json"
+  SDK="$sdk" NDK="$ndk" node -e '
+    const fs = require("fs");
+    const [src, dst] = process.argv.slice(1);
+    const c = JSON.parse(fs.readFileSync(src, "utf8"));
+    c.packages.android = { ...c.packages.android, sdkPath: process.env.SDK, ndkPath: process.env.NDK };
+    fs.writeFileSync(dst, JSON.stringify(c, null, 2) + "\n");
+  ' "$CLIENT/build-config/android.json" "$cfg"
+  NDK_ROOT="$ndk" ANDROID_SDK_ROOT="$sdk" ANDROID_HOME="$sdk" COCOS_BUILD_CONFIG="$cfg" cocos_build android
   proj="$CLIENT/build/android/proj"
   [ -x "$proj/gradlew" ] || die "没找到 Gradle 工程：$proj"
   case "$mode" in

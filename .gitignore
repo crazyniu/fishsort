@@ -35,3 +35,4 @@ difficulty_run.log
 .difficulty_run.pid
 client/tools/level/route_report.csv
 client/tools/level/route_report_daily.csv
+client/build-config/.android.local.json
