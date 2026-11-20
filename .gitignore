@@ -28,6 +28,7 @@ i18n/*.translation
 # 规定路线批量生成的每关日志（汇总在 client/tools/level/route_report.csv）
 client/tools/level/route_logs/
 client/tools/level/route_logs_daily/
+client/tools/level/pool/
 
 # difficulty.py 的后台日志
 difficulty_run.log
