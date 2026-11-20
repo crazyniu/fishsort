@@ -11,7 +11,7 @@
 // 有没有用放松的生成参数、各档、用时。离目标超过 10 个点的关在最后列出来
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { cpus } from 'node:os';
+import { cpus, setPriority } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
@@ -19,7 +19,8 @@ const nums = process.argv.slice(2).filter((a) => !a.startsWith('--')).map(Number
 const from = nums[0] ?? 6;
 const to = nums[1] ?? from;
 const jobsArg = process.argv.find((a) => a.startsWith('--jobs='));
-const jobs = jobsArg ? Number(jobsArg.slice(7)) : Math.max(1, cpus().length - 1);
+// 默认给别的程序留 5 个核（2026-11-20：Mac 上 14 路全开时，用户同时在测游戏，浏览器抢不到 CPU，画面卡死、声音一直刺耳地重复）
+const jobs = jobsArg ? Number(jobsArg.slice(7)) : Math.max(1, cpus().length - 5);
 const daily = process.argv.includes('--daily');
 const lab = !daily && process.argv.includes('--lab');
 const resume = process.argv.includes('--resume');
@@ -81,6 +82,12 @@ function runOne(id: number): Promise<void> {
     if (iterArg) args.push(iterArg);
     if (seedArg) args.push(seedArg);
     const child = spawn('npx', args, { cwd: CLIENT });
+    // 生成的进程优先级降到最低：同一台机器上开着游戏试玩、编辑器时让它们先用 CPU（子进程跟着继承）
+    try {
+      if (child.pid) setPriority(child.pid, 19);
+    } catch {
+      /* 没权限就照常跑 */
+    }
     let out = '';
     child.stdout.on('data', (d: Buffer) => (out += d.toString()));
     child.stderr.on('data', (d: Buffer) => (out += d.toString()));
