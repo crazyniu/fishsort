@@ -152,6 +152,8 @@ for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
   const aim = opts.target >= target ? Math.max(0.01, opts.target - OVERSHOOT - bounce) : opts.target;
   const r = tighten(from, { ...opts, target: aim, seed: opts.seed + attempt * 7777, seedBase: attempt * 10007 });
   tries += r.tries;
+  const st = r.stats;
+  console.log(`  [${attempt + 1}] 交换 ${r.tries}：没量尺子 ${st.skip}，尺子不要 ${st.ruler}，想清楚的不够 ${st.think}，留下 ${st.kept}，${((Date.now() - t0) / 1000).toFixed(0)}s`);
   for (const snap of Array.from(r.byPct.values())) {
     const casual = Players.rulerRate(snap.lv, ruler, rulerCheck, preview, 1000).win;
     const rand = ruler.kind === 'casual' ? casual : Players.rate(snap.lv, 'casual', rc.checkCasual, { preview }, 1000).win;

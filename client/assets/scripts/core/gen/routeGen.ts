@@ -57,6 +57,15 @@ export interface TightenResult {
   /** 最后停在哪 */
   last: Snapshot | null;
   tries: number;
+  /** 每次交换的去向（看生成慢在哪）：随手点明显往反方向走就没量尺子 / 尺子量了不要 / 想清楚的不够 / 留下 */
+  stats: TightenStats;
+}
+
+export interface TightenStats {
+  skip: number;
+  ruler: number;
+  think: number;
+  kept: number;
 }
 
 const copy = (lv: LevelData) => LevelData.fromDict(lv.toDict());
@@ -102,7 +111,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     }
   };
   const first = measure(lv, o);
-  if (first === null) return { byPct, last: null, tries: 0 };
+  if (first === null) return { byPct, last: null, tries: 0, stats: { skip: 0, ruler: 0, think: 0, kept: 0 } };
   let cur: Measure = first;
   keep(cur);
   // 能交换的位置：结伴鱼不动（两条要一起走，换了容易拆散）
@@ -113,6 +122,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     }),
   );
   let tries = 0;
+  const stats: TightenStats = { skip: 0, ruler: 0, think: 0, kept: 0 };
   // 起点已经比目标难（生成参数偏难）就反过来走：只留「更容易」的交换，放松到目标为止。两头都一档一档走、每档存一份
   const up = cur.level < o.target;
   const reached = () => (up ? cur.level >= o.target : cur.level <= o.target);
@@ -147,6 +157,10 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
         : h >= hardness(cur.level, cur.peak) && cur.level - r.win <= step && r.win >= o.target - 0.1;
     }
     const m: Measure | null = ok && r !== null ? measure(lv, o, c, r, 200000 + (o.seedBase ?? 0) + tries * 131) : null;
+    if (r === null) stats.skip++;
+    else if (!ok) stats.ruler++;
+    else if (m === null) stats.think++;
+    else stats.kept++;
     if (m !== null) {
       cur = m;
       keep(m);
@@ -155,7 +169,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
       lv.bubbles[b2].fish[k2] = f2;
     }
   }
-  return { byPct, last: byPct.get(bucket(cur.level)) ?? null, tries };
+  return { byPct, last: byPct.get(bucket(cur.level)) ?? null, tries, stats };
 }
 
 /** 按路线走最长能连几下（中间不进暂存槽；暂存槽里的鱼自动补进新缸也算一下），连击目标按它定（docs/01 9.4） */
