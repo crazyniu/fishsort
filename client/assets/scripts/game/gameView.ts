@@ -900,6 +900,8 @@ export class GamePage extends Page {
   private blocked(b: number): void {
     this.field.shakeBubble(b);
     sfx('blocked');
+    // 点到冰封泡：亮出它依赖的那几个气泡（同色雪花牌跳一下），说一句该先点哪些
+    if (this.s.bubbles[b]?.frozen && this.field.showIceDeps(b)) ui.toast(tr('UI_ICE_HINT'));
   }
 
   /** 执行一步并播放；第一次有效操作记作「走过步」（扣命、每日挑战记次数） */

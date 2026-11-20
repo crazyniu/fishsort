@@ -33,9 +33,13 @@ interface View {
   /** 厚冰（docs/01 9.3）：连着几个气泡；底下一排小冰晶，一颗代表一个还没破的（破一个少一颗） */
   iceAll: boolean;
   iceTotal: number;
-  icePegs: Node[];
+  /** 冰封泡下沿的计数牌：组色圆 + 还要点破几个（2026-11-20 取代原来那排小冰晶） */
+  iceTag: Node | null;
+  iceTagLabel: Label | null;
+  /** 这一组冰的颜色：冰封泡的计数牌、它依赖的那几个气泡右上角的雪花牌都是这个颜色 */
+  iceColor: Color;
   /** 冰晶连线：连到每个依赖的气泡的一串冰晶，咬住依赖泡的那头是一簇冰刺；位置每帧跟着两头走 */
-  iceLinks: { beads: Node[]; clamp: Node | null; dep: number }[];
+  iceLinks: { badge: Node | null; dep: number }[];
   /** 迷雾：雾团、每条鱼位上的问号球、底下一排小泡泡（还要破几个别的气泡，一个小泡泡代表一个） */
   fog: Node | null;
   fogMarks: (Node | null)[];
@@ -62,10 +66,14 @@ const LUCKY = new Color(255, 214, 90, 255);
 /** 迷雾计数小泡泡的底色 */
 const PIP = new Color(150, 205, 255, 255);
 /** 冰晶连线：一节冰晶的长、宽（图是 120×68），相邻两节的间距（比长度短一点，首尾相接），咬住依赖泡的冰刺的大小 */
-const ICE_BEAD = 40;
-const ICE_BEAD_H = (ICE_BEAD * 68) / 120;
-const ICE_GAP = 34;
-const ICE_CLAMP = 44;
+/**
+ * 冰封泡和它依赖的气泡靠同一个颜色配对（2026-11-20 用户：冰晶连线看不懂，而且连得不准——线穿过别的气泡、停在半空）：
+ * 冰封泡下沿一块组色计数牌「❄ 还要点破几个」，依赖的气泡右上角一块同色雪花牌。点冰封泡时它的那几块雪花牌跳一下
+ */
+const ICE_COLORS = [new Color(64, 156, 255, 255), new Color(176, 104, 255, 255), new Color(255, 150, 40, 255), new Color(46, 196, 120, 255), new Color(255, 96, 160, 255)];
+/** 依赖泡上雪花牌的大小、同一个气泡上挂好几块时的间距 */
+const ICE_BADGE = 46;
+const ICE_BADGE_STEP = 40;
 
 export class Field {
   node: Node;
@@ -507,7 +515,9 @@ export class Field {
       ice: null,
       iceAll: d.iceAll === true,
       iceTotal: d.ice.length,
-      icePegs: [],
+      iceTag: null,
+      iceTagLabel: null,
+      iceColor: ICE_COLORS[0],
       iceLinks: [],
       fog: null,
       fogMarks: [],
@@ -533,15 +543,10 @@ export class Field {
       const broken = Math.min(2, Math.max(0, d.ice.length - left));
       v.ice = img(body, v.iceAll ? `icon/ice_thick${broken}` : 'icon/ice', r * 1.7, r * 1.7, 'ice');
       opacity(v.ice).opacity = v.iceAll ? 215 : 170;
-      for (const dep of d.ice) v.iceLinks.push({ beads: [], clamp: null, dep });
-      if (v.iceAll) {
-        const n = left;
-        for (let k = 0; k < n; k++) {
-          const peg = img(body, 'skin/j_ice_bead', 44, 25, 'icePeg');
-          at(peg, (k - (n - 1) / 2) * 48, -r * 0.92);
-          v.icePegs.push(peg);
-        }
-      }
+      for (const dep of d.ice) v.iceLinks.push({ badge: null, dep });
+      // 组色按冰封泡在关卡里的先后定（撤销重画时还是同一个颜色）
+      v.iceColor = ICE_COLORS[this.lv.bubbles.slice(0, i).filter((x) => x.ice.length > 0).length % ICE_COLORS.length];
+      this.makeIceTag(v, left);
     }
     if (s.bubbles[i].fog > 0) this.addFog(v, s.bubbles[i].fog);
     // 气泡互相挨着，漂浮幅度小一点；泡膜像果冻一样慢慢鼓一下、扁一下（每个错开，不齐步）
@@ -633,47 +638,67 @@ export class Field {
     if (v.node.active) sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(235, 240, 255, 255));
   }
 
+  /** 冰封泡下沿的计数牌：组色圆里写还要点破几个，左上角一朵小雪花 */
+  private makeIceTag(v: View, left: number): void {
+    const tag = img(v.body, 'kit/circle_white', 56, 56, 'iceTag');
+    (tag.getComponent(Sprite) as Sprite).color = v.iceColor;
+    at(tag, 0, -v.r * 0.86);
+    const flake = img(tag, 'skin/j_frost', 30, 32, 'flake');
+    at(flake, -24, 22);
+    v.iceTagLabel = text(tag, String(left), 32, { outline: new Color(11, 42, 115, 255), outlineWidth: 4 });
+    v.iceTag = tag;
+  }
+
   /**
-   * 冰晶连线：一串冰晶，从冰封泡的边排到依赖泡的边，咬住依赖泡的那头是一簇冰刺（看得出「这头连的是谁」）；
-   * 两头的气泡动了就跟着动；解冻或任一头不在场就收起
+   * 依赖的气泡右上角挂一块同色雪花牌（画在最上面一层，被压住的气泡也看得见），每帧跟着气泡走；
+   * 冰化了、或者依赖泡破了 / 还没落到场上就收起。一个气泡被好几块冰依赖时并排挂几块
    */
   private placeIceLinks(): void {
+    const onDep = new Map<number, number>();
     for (const v of this.views) {
       if (!v || v.iceLinks.length === 0) continue;
       for (const l of v.iceLinks) {
         const o = this.views[l.dep];
         const on = !v.gone && v.node.active && !!v.ice && !!o && !o.gone && o.node.active;
         if (!on) {
-          for (const b of l.beads) b.active = false;
-          if (l.clamp) l.clamp.active = false;
+          if (l.badge) l.badge.active = false;
           continue;
         }
-        const ax = v.node.position.x;
-        const ay = v.node.position.y;
-        const dx = o.node.position.x - ax;
-        const dy = o.node.position.y - ay;
-        const dist = Math.hypot(dx, dy) || 1;
-        const ux = dx / dist;
-        const uy = dy / dist;
-        const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-        // 冰晶从冰封泡的边排到依赖泡的边，顺着连线方向首尾相接；冰刺骑在依赖泡的边上
-        const from = v.r * 0.9;
-        const to = dist - o.r * 0.92;
-        const len = Math.max(ICE_GAP, to - from - ICE_CLAMP * 0.3);
-        const n = Math.min(16, Math.max(1, Math.round(len / ICE_GAP)));
-        while (l.beads.length < n) l.beads.push(img(this.linkLayer, 'skin/j_ice_bead', ICE_BEAD, ICE_BEAD_H, 'iceBead'));
-        l.beads.forEach((bead, k) => {
-          bead.active = k < n;
-          if (k >= n) return;
-          const t = from + (len * (k + 0.5)) / n;
-          bead.setPosition(ax + ux * t, ay + uy * t, 0);
-          bead.angle = angle;
-        });
-        if (!l.clamp) l.clamp = img(this.linkLayer, 'skin/j_frost', ICE_CLAMP, (ICE_CLAMP * 128) / 120, 'iceClamp');
-        l.clamp.active = true;
-        l.clamp.setPosition(ax + ux * to, ay + uy * to, 0);
+        const k = onDep.get(l.dep) ?? 0;
+        onDep.set(l.dep, k + 1);
+        if (!l.badge) {
+          const b = img(this.linkLayer, 'kit/circle_white', ICE_BADGE, ICE_BADGE, 'iceBadge');
+          (b.getComponent(Sprite) as Sprite).color = v.iceColor;
+          img(b, 'skin/j_frost', ICE_BADGE * 0.72, ICE_BADGE * 0.77, 'flake');
+          l.badge = b;
+        }
+        l.badge.active = true;
+        l.badge.setPosition(o.node.position.x + o.body.position.x + o.r * 0.66 - k * ICE_BADGE_STEP, o.node.position.y + o.body.position.y + o.r * 0.64, 0);
       }
     }
+  }
+
+  /** 点到冰封泡：它依赖的那几块雪花牌跳一下、气泡外一圈光，计数牌也跳一下。返回有没有要提示的 */
+  showIceDeps(b: number): boolean {
+    const v = this.views[b];
+    if (!v || v.gone || !v.ice || v.iceLinks.length === 0) return false;
+    this.placeIceLinks();
+    let any = false;
+    for (const l of v.iceLinks) {
+      const o = this.views[l.dep];
+      if (!l.badge || !l.badge.active || !o) continue;
+      any = true;
+      Tween.stopAllByTarget(l.badge);
+      l.badge.setScale(1, 1, 1);
+      tween(l.badge).to(0.12, { scale: new Vec3(1.6, 1.6, 1) }, { easing: 'quadOut' }).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+      ring(this.node, o.node.position.x, o.node.position.y, o.r, o.r * 1.6, v.iceColor);
+    }
+    if (v.iceTag) {
+      Tween.stopAllByTarget(v.iceTag);
+      v.iceTag.setScale(1, 1, 1);
+      tween(v.iceTag).to(0.1, { scale: new Vec3(1.3, 1.3, 1) }).to(0.2, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
+    }
+    return any;
   }
 
   private drawLinks(v: View, pairs: number[][]): void {
@@ -745,10 +770,7 @@ export class Field {
   }
 
   private dropIceLinks(v: View): void {
-    for (const l of v.iceLinks) {
-      for (const bead of l.beads) bead.destroy();
-      if (l.clamp) l.clamp.destroy();
-    }
+    for (const l of v.iceLinks) l.badge?.destroy();
     v.iceLinks = [];
   }
 
@@ -766,9 +788,10 @@ export class Field {
       .call(() => {
         if (!ice.isValid) return;
         setImg(ice, `icon/ice_thick${broken}`, v.r * 1.7, v.r * 1.7);
-        while (v.icePegs.length > left) {
-          const peg = v.icePegs.pop() as Node;
-          tween(peg).to(0.18, { scale: new Vec3(0.2, 0.2, 1) }).call(() => peg.destroy()).start();
+        if (v.iceTagLabel) v.iceTagLabel.string = String(left);
+        if (v.iceTag) {
+          v.iceTag.setScale(1.35, 1.35, 1);
+          tween(v.iceTag).to(0.22, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }).start();
         }
         sparkle(this.node, v.node.position.x, v.node.position.y, 5, v.r * 0.8, new Color(200, 245, 255, 255));
       })
@@ -781,8 +804,9 @@ export class Field {
     const ice = v.ice;
     if (!ice) return;
     v.ice = null;
-    for (const peg of v.icePegs) peg.destroy();
-    v.icePegs = [];
+    v.iceTag?.destroy();
+    v.iceTag = null;
+    v.iceTagLabel = null;
     tween(opacity(ice)).to(0.35, { opacity: 0 }).call(() => ice.destroy()).start();
     this.dropIceLinks(v);
     sparkle(this.node, v.node.position.x, v.node.position.y, 10, v.r, new Color(180, 240, 255, 255));
