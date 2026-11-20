@@ -11,6 +11,7 @@
     python3 difficulty.py gen [起 止] [--commit] [--no-measure]  生成（--commit = 校验通过后自动提交推送；--no-measure = 生成完只查结构、不再全量复测难度，省时间）
     python3 difficulty.py gen --daily [--commit]  生成每日挑战关
     python3 difficulty.py gen [--daily] --ids=180,190  只重跑这几关（离目标远的、没生成出来的）
+    python3 difficulty.py gen [--daily] --ids=180,190 --seed=2 --iter=3000  换一个开局布局、多试几次交换再跑
     python3 difficulty.py status                 看进度
     python3 difficulty.py stop                   停止
 
@@ -267,7 +268,7 @@ def cmd_run(args):
     jobs = 并行数 or max(1, (os.cpu_count() or 4) - 2)
     write_config()
     steps = [
-        f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else '') + (f' {ids}' if ids else ''),
+        f'./run.sh level-route {lo} {hi} --jobs={jobs} ' + ('--daily' if daily else '--lab') + (' --resume' if resume else '') + (f' {ids}' if ids else '') + ''.join(f' {a}' for a in args if a.startswith(('--seed=', '--iter='))),
         './run.sh meta',
     ] + ([] if daily else ['./run.sh level-fixref', './run.sh level-verify' + ('' if '--no-measure' in args else ' --measure')])
     if commit:
