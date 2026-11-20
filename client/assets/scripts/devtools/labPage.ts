@@ -4,7 +4,7 @@
 // - 单关：每关按「正常打法能过几成」存了好几档，挑一档顶替包里那一关，马上试玩
 // - 演示：电脑按关卡里存的路线打一遍（打得完 = 这一档一定过得去）、按正常打法现场打一局
 // 和具体游戏有关的（怎么开局、怎么演示、加金币之类的作弊按钮）都由 LabHooks 传进来
-import { Node } from 'cc';
+import { EditBox, Label, Node } from 'cc';
 import { COLOR, at, box, button, lazyImg, slice, text } from '../ui/kit';
 import { Scroller } from '../ui/scroll';
 import { Screen } from '../ui/screen';
@@ -14,6 +14,8 @@ import { lab } from './levelLab';
 export interface LabHooks {
   /** 玩家现在打到第几关（进页时默认翻到这一关附近） */
   progress(): number;
+  /** 一共几关（输入关卡号时的上限） */
+  levelCount(): number;
   /** 试玩这一关 */
   play(id: number): void;
   /** 演示：route 按关卡里存的路线打、casual 按正常打法打一局；不给就不出这两个按钮 */
@@ -55,6 +57,42 @@ export class LabPage extends Page {
 
   override refresh(): void {
     this.render(true);
+  }
+
+  /** 关卡号输入框：白底、只能输数字，输完（回车、点别处）跳到那一关；超出范围的夹到 1–总关数 */
+  private levelInput(parent: Node, x: number, y: number): Node {
+    const w = 130;
+    const h = 64;
+    const n = slice(parent, 'kit/capsule', w, h, 'levelInput');
+    at(n, x, y);
+    // 输入框的两个文字节点要在加 EditBox 之前建好、按它认的名字命名，它会直接拿来用（不然它自己建一套系统字体的）
+    const shown = text(n, String(this.level), 36, { color: COLOR.navy });
+    shown.node.name = 'TEXT_LABEL';
+    const hint = text(n, '关卡号', 24, { color: COLOR.navy });
+    hint.node.name = 'PLACEHOLDER_LABEL';
+    const eb = n.addComponent(EditBox);
+    eb.textLabel = shown;
+    eb.placeholderLabel = hint as Label;
+    eb.inputMode = EditBox.InputMode.NUMERIC;
+    eb.maxLength = 3;
+    eb.string = String(this.level);
+    eb.placeholder = '关卡号';
+    n.on(EditBox.EventType.EDITING_DID_ENDED, () => {
+      const v = parseInt(eb.string, 10);
+      if (!Number.isFinite(v)) {
+        eb.string = String(this.level);
+        return;
+      }
+      const id = Math.max(1, Math.min(this.hooks.levelCount(), v));
+      if (id === this.level) {
+        eb.string = String(id);
+        return;
+      }
+      this.level = id;
+      this.note = '';
+      this.render();
+    });
+    return n;
   }
 
   /** keep：重画时保留滚动位置（点了「用这档」之类的不要跳回顶上） */
@@ -101,7 +139,11 @@ export class LabPage extends Page {
     const row0 = slice(c, 'kit/row_blue', 690, 96, 'level');
     at(row0, 0, y);
     const custom = lab.picks.get(this.level);
-    at(text(row0, `第 ${this.level} 关`, 34, { align: 'left' }).node, -320, 0);
+    // 关卡号是一个输入框：点一下直接输入第几关，回车或点别处就跳过去（用户 2026-11-20：想直接测第 60 关）。
+    // 没有各档版本的关也能跳，照样能看路线、试玩
+    at(text(row0, '第', 34).node, -305, 0);
+    at(this.levelInput(row0, -215, 0), -215, 0);
+    at(text(row0, '关', 34).node, -125, 0);
     const step = (d: number) => {
       const i = ids.indexOf(this.level);
       if (ids.length > 0) this.level = ids[Math.max(0, Math.min(ids.length - 1, (i < 0 ? 0 : i) + d))];
