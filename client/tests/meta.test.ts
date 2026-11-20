@@ -206,7 +206,7 @@ describe('连击（docs/01 3.2）', () => {
 });
 
 describe('技能与功能开放（docs/01 5.2、5.3）', () => {
-  it('解锁时：道具全免费的前 10 关里解锁的不送，之后解锁的送 1 个；每天免费 1 次（不分种类）、每关最多 2 次', () => {
+  it('解锁时：道具全免费的前 10 关里解锁的不送，之后解锁的送 1 个；每天免费 1 次（不分种类）、不限次数', () => {
     const [save, eco] = setup(1);
     assert.equal(Skills.tryUse(save, eco, 'shuffle', 0, 5).reason, 'locked');
     save.level = 4;
@@ -225,18 +225,19 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     r = Skills.tryUse(save, eco, 'shuffle', 1, 5);
     assert.ok(r.ok && !r.free);
     assert.equal(Skills.count(save, 'shuffle'), 1);
-    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5).reason, 'limit');
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 2, 5).ok, '不限次数（2026-11-20）');
+    save.tools.shuffle = 1;
     assert.ok(Skills.tryUse(save, eco, 'shuffle', 0, 6).free, '第二天免费次刷新');
     // 今天的免费次已经被洗牌用掉了：别的技能没有库存就用不了（原来每种各免费一次）
     save.tools.blow = 0;
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 6).reason, 'empty');
     assert.ok(!Skills.freeAvailable(save, 'net', eco));
     assert.ok(Skills.freeAvailable(save, 'net', eco) === false && Skills.tryUse(save, eco, 'blow', 0, 7).free, '第三天又有一次');
-    save.coins = 360;
+    save.coins = 140;
     assert.ok(Skills.buy(save, eco, 'net'));
     assert.equal(save.coins, 0);
     assert.deepEqual(Skills.ids(eco), ['undo', 'hint', 'shuffle', 'blow', 'net'], '洋流 2026-11-20 删了');
-    for (const [id, p] of [['undo', 240], ['hint', 360], ['shuffle', 240], ['blow', 280], ['net', 360]] as const) {
+    for (const [id, p] of [['undo', 100], ['hint', 140], ['shuffle', 100], ['blow', 110], ['net', 140]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
@@ -702,15 +703,19 @@ describe('过关宝箱的卡藏在关卡里当稀客（docs/01 3.4）', () => {
   });
 });
 
-describe('限时关起技能能多用（docs/01 5.2）', () => {
-  it('第 121 关起每种技能每关能用 3 次，之前 2 次', () => {
+describe('道具次数（docs/01 5.2）', () => {
+  it('道具不限次数，只有全部免费的那几关每种每关 2 次、撤销 3 次（用户 2026-11-20）', () => {
     const [save, eco] = setup(130);
     save.tools.shuffle = 9;
-    assert.equal(Skills.maxPerLevel(eco, 120), 2);
-    assert.equal(Skills.maxPerLevel(eco, 121), 3);
-    assert.ok(Skills.tryUse(save, eco, 'shuffle', 2, 5, 125).ok, '第 125 关第 3 次能用');
-    assert.equal(Skills.tryUse(save, eco, 'shuffle', 3, 5, 125).reason, 'limit');
-    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 100).reason, 'limit', '第 100 关还是 2 次');
+    save.tools.undo = 9;
+    assert.equal(Skills.maxPerLevel(eco, 5), 2);
+    assert.equal(Skills.maxPerLevel(eco, 5, 'undo'), 3);
+    assert.equal(Skills.maxPerLevel(eco, 11), Infinity);
+    assert.equal(Skills.maxPerLevel(eco, 300, 'undo'), Infinity);
+    assert.equal(Skills.maxPerLevel(eco, 0), Infinity, '每日挑战不限');
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 5, 5, 125).ok, '第 125 关第 6 次照样能用');
+    assert.ok(Skills.tryUse(save, eco, 'undo', 7, 5, 125).ok, '撤销也不限');
+    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 3).reason, 'limit', '免费关第 3 次不行');
   });
 
   it('第 11–14 关每关第一次用技能免费：不扣库存、不占每天的免费次、每日挑战不算（docs/01 9.6）', () => {
@@ -729,7 +734,7 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 15, 0).reason, 'empty', '第 15 关起要用库存或金币（花钱从 15 关开始）');
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 0, 0).reason, 'empty', '每日挑战（关卡号 0）不送');
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 5, 13).reason, 'empty', '不传本关合计次数 = 不算这一条（旧的调用方式）');
-    assert.equal(Skills.tryUse(save, eco, 'shuffle', 2, 5, 13, 0).reason, 'limit', '每关次数上限照旧');
+    assert.ok(Skills.tryUse(save, eco, 'shuffle', 2, 5, 13, 0).ok, '第 13 关不限次数');
   });
 
   it('第 1–10 关道具全部免费（每种每关次数上限照旧）；第一次过第 14 关送礼包（docs/01 9.6）', () => {
@@ -756,7 +761,8 @@ describe('限时关起技能能多用（docs/01 5.2）', () => {
     save.daily.toolFree.blow = true;
     assert.equal(Skills.canUse(save, eco, 'blow', 0, 125), '');
     assert.equal(save.tools.blow, 1, '不扣库存');
-    assert.equal(Skills.canUse(save, eco, 'blow', 3, 125), 'limit');
+    assert.equal(Skills.canUse(save, eco, 'blow', 3, 125), '', '不限次数');
+    assert.equal(Skills.canUse(save, eco, 'blow', 2, 8), 'limit', '全部免费的关每种 2 次');
     save.tools.blow = 0;
     assert.equal(Skills.canUse(save, eco, 'blow', 0, 125), 'empty');
   });

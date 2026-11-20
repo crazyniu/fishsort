@@ -249,6 +249,8 @@ describe('黄金数据：Godot 版与 TS 版逐项一致', { skip }, () => {
         case 'Meta.open_slots_for':
           return Meta.openSlotsFor(save, eco, n(a[0]), n(a[1]));
         case 'Skills.try_use':
+          // 2026-11-20 起道具不限次数（docs/01 5.2）；黄金数据是 Godot 版「每关每种 toolMaxPerLevel 次」时导出的，旧上限在这里照旧补上，其余逻辑照比
+          if (n(a[1]) >= ((eco as unknown as { toolMaxPerLevel?: number }).toolMaxPerLevel ?? Infinity)) return { ok: false, free: false, reason: 'limit' };
           return Skills.tryUse(save, eco, a[0] as string, n(a[1]), n(a[2]));
         case 'Skills.buy':
           return Skills.buy(save, eco, a[0] as string);

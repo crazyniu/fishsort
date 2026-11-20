@@ -12,21 +12,17 @@
     "net": 0
   },
   "toolPrice": {
-    "undo": 240,
-    "hint": 360,
-    "shuffle": 240,
-    "blow": 280,
-    "net": 360
+    "undo": 100,
+    "hint": 140,
+    "shuffle": 100,
+    "blow": 110,
+    "net": 140
   },
-  "toolMaxPerLevel": 2,
-  "toolMaxLate": {
-    "from": 121,
-    "max": 3
-  },
-  "toolMaxPerLevelById": {"undo": 3},
+  "toolMaxFree": 2,
+  "toolMaxFreeById": {"undo": 3},
   "stars": {"twoStarLine": {"normal": 1, "hard": 2, "boss": 3}, "first3": {"normal": {"coins": 30}, "hard": {"coins": 60, "card": "uncommon"}, "boss": {"coins": 60, "skill": 1}}, "earlyUntil": 20, "earlyCoins": 30},
   "lucky": {"from": 18, "chance": 0.35, "rewards": [{"kind": "coins", "w": 60, "coins": 10}, {"kind": "skill", "w": 30}, {"kind": "card", "w": 10, "rarity": "common"}]},
-  "bowlSlotCoinPrice": 300,
+  "bowlSlotCoinPrice": 120,
   "bowlSlotOnce": false,
   "freeBowlSlotAfterFails": 4,
   "dupeCoins": {

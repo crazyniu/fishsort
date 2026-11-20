@@ -194,12 +194,18 @@ export class LoadingView {
     roundRect(g, -130, -48, 260, 96, GREEN);
     label(btn, this.t('BOOT_RETRY'), 40, WHITE, new Color(30, 110, 30, 255));
     btn.on(Node.EventType.TOUCH_END, () => {
-      f.destroy();
-      this.fail = null;
-      this.barNode.active = true;
-      this.tip.node.active = true;
+      this.hideFail();
       retry();
     });
+  }
+
+  /** 收起失败提示，换回进度条（自动重试时调；点「重试」也走这里） */
+  hideFail(): void {
+    if (!this.fail) return;
+    this.fail.destroy();
+    this.fail = null;
+    this.barNode.active = true;
+    this.tip.node.active = true;
   }
 
   /** 进度条走到头、停一下，整页淡出后销毁（主页已经在下面搭好，加载页先挪到最上层盖着它） */
