@@ -185,9 +185,77 @@ PLIST
   esac
 }
 
+# Google Play 的上传密钥（docs/10 第 4 节）：签名配置写在 ~/.gradle/gradle.properties（不进仓库）。
+# 第一次打 AAB 时没有就在这里生成：密码由用户自己输入，密钥文件放在仓库外面，提醒备份（丢了要找 Google 重置）
+GRADLE_PROPS="$HOME/.gradle/gradle.properties"
+find_keytool() {
+  local k
+  for k in "$(command -v keytool 2>/dev/null)" "${JAVA_HOME:-}/bin/keytool" \
+           "/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/keytool" \
+           "$(/usr/libexec/java_home 2>/dev/null)/bin/keytool"; do
+    if [ -n "$k" ] && [ -x "$k" ] && "$k" -help >/dev/null 2>&1; then echo "$k"; return; fi
+  done
+}
+android_upload_key() {
+  local store pw pw2 kt
+  store="$(grep -E '^RELEASE_STORE_FILE=' "$GRADLE_PROPS" 2>/dev/null | tail -1 | cut -d= -f2-)"
+  if [ -n "$store" ]; then
+    [ -f "$store" ] || die "~/.gradle/gradle.properties 里的上传密钥 ${store} 不存在（换了电脑？从备份拷回来）"
+    echo "· 上传密钥：${store}"
+    return 0
+  fi
+  kt="$(find_keytool)"
+  [ -n "$kt" ] || die "没找到 keytool（装 Android Studio 或 JDK）"
+  echo "还没有 Google Play 的上传密钥，现在生成一个（只做一次）。"
+  echo "密码只有你知道；密钥文件和密码都要备份好，丢了就不能更新游戏，要找 Google 重置。"
+  printf '密钥文件放哪（回车 = %s）：' "$HOME/keys/bubblefish-upload.jks"
+  IFS= read -r store || exit 1
+  store="${store:-$HOME/keys/bubblefish-upload.jks}"
+  [ ! -e "$store" ] || die "${store} 已经存在：要用它就手动把四个 RELEASE_ 变量写进 ~/.gradle/gradle.properties（docs/10 第 4 节）"
+  while :; do
+    printf '设一个密码（至少 6 位，输入时不显示）：'; IFS= read -rs pw || exit 1; echo
+    printf '再输一遍：'; IFS= read -rs pw2 || exit 1; echo
+    [ "${#pw}" -ge 6 ] && [ "$pw" = "$pw2" ] && break
+    echo "两次不一样或不到 6 位，重来。"
+  done
+  mkdir -p "$(dirname "$store")"
+  "$kt" -genkeypair -keystore "$store" -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
+    -storepass "$pw" -keypass "$pw" -dname "CN=$(node -p 'require("./game.json").name.en || "Game"' 2>/dev/null)" >/dev/null 2>&1 \
+    || die "生成上传密钥失败"
+  mkdir -p "$(dirname "$GRADLE_PROPS")"
+  {
+    echo ""
+    echo "# Google Play 上传密钥（./package.sh 生成于 $(date +%F)）"
+    echo "RELEASE_STORE_FILE=$store"
+    echo "RELEASE_STORE_PASSWORD=$pw"
+    echo "RELEASE_KEY_ALIAS=upload"
+    echo "RELEASE_KEY_PASSWORD=$pw"
+  } >> "$GRADLE_PROPS"
+  chmod 600 "$GRADLE_PROPS" "$store"
+  echo "✓ 上传密钥：${store}（签名配置写进了 ~/.gradle/gradle.properties）——现在就把这个文件和密码备份到别处"
+}
+
+# 16 KB 内存页（Google Play 要求，targetSdk 35 起）：AAB 里每个 .so 的 LOAD 段要按 16 KB（0x4000）对齐
+android_check_16k() {
+  local aab="$1" ndk="$2" tmp readelf so bad=0
+  readelf="$(ls -d "$ndk"/toolchains/llvm/prebuilt/*/bin/llvm-readelf 2>/dev/null | head -1)"
+  [ -x "$readelf" ] || { echo "! 没找到 llvm-readelf，跳过 16 KB 页检查"; return 0; }
+  tmp="$(mktemp -d)"
+  unzip -q -o "$aab" 'base/lib/*' -d "$tmp" 2>/dev/null || true
+  for so in "$tmp"/base/lib/arm64-v8a/*.so; do
+    [ -f "$so" ] || continue
+    if "$readelf" -lW "$so" | awk '$1=="LOAD"{print $NF}' | grep -qvE '^0x(4000|8000|10000)$'; then
+      echo "✗ $(basename "$so") 没有按 16 KB 对齐"; bad=1
+    fi
+  done
+  rm -rf "$tmp"
+  [ "$bad" = 0 ] && echo "✓ 16 KB 内存页：arm64 的原生库都按 16 KB 对齐" || echo "! 有原生库没按 16 KB 对齐，Google Play 会拒（docs/06）"
+}
+
 android_build() {
   local mode="${1:-apk}" proj
   # 只有 AAB（传 Google Play）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
+  [ "$mode" != aab ] || android_upload_key
   FS_RELEASE="$([ "$mode" = aab ] && echo 1 || echo 0)" node tools/native/apply.mjs
   local sdk ndk cfg cand
   # SDK：ANDROID_HOME，或者 Android Studio 的默认位置，或者外接盘上的 /Volumes/*/Android/sdk（用户 2026-11-20：Mac 上的 SDK 装在外接盘 /Volumes/Lexar/Android/sdk）
@@ -221,7 +289,13 @@ android_build() {
     apk) (cd "$proj" && ./gradlew assembleDebug) && echo "✓ apk：$(find "$proj" -name '*.apk' -path '*debug*' | head -1)" ;;
     aab)
       # 签名：RELEASE_STORE_FILE 等四个变量写在 ~/.gradle/gradle.properties（不进仓库，docs/10）
-      (cd "$proj" && ./gradlew bundleRelease) && echo "✓ aab：$(find "$proj" -name '*.aab' | head -1)（传到 Google Play Console）" ;;
+      local aab
+      (cd "$proj" && ./gradlew bundleRelease) || die "AAB 编译失败"
+      aab="$(find "$proj" -name '*.aab' -path '*release*' | head -1)"
+      [ -n "$aab" ] || die "没找到打好的 AAB"
+      "$(find_keytool)" -printcert -jarfile "$aab" 2>/dev/null | grep -q "Owner:" || die "${aab} 没有签名（检查 ~/.gradle/gradle.properties 的 RELEASE_ 变量）"
+      android_check_16k "$aab" "$ndk"
+      echo "✓ aab：${aab}（已用上传密钥签名、真实广告位；传到 Google Play Console）" ;;
     *) die "未知的 Android 产物" ;;
   esac
 }

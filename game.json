@@ -62,7 +62,7 @@
   "android": {
     "packageName": "dabudian.top.bubblefish",
     "minSdk": 24,
-    "targetSdk": 35,
+    "targetSdk": 36,
     "admobAppId": "ca-app-pub-7415962042674276~1759176823"
   },
   "wechat": {
