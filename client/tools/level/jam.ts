@@ -6,7 +6,7 @@
 // 再量普通玩家机器人；离目标远就调打乱比例再生成，取最接近的。
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import type { CurveConfig, EconomyConfig, JamKind } from '../../assets/scripts/core/config';
+import type { CurveConfig, JamKind } from '../../assets/scripts/core/config';
 import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import { generate } from '../../assets/scripts/core/gen/levelGen';
 import { LevelData, Tap } from '../../assets/scripts/core/model/levelData';
@@ -14,7 +14,6 @@ import * as Careful from '../../assets/scripts/core/solver/careful';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
-const eco = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/economy.json'), 'utf8')) as EconomyConfig;
 
 /** 量普通玩家机器人打几局（它不推演，一局几毫秒） */
 export const NORMAL_GAMES = 200;
@@ -34,11 +33,13 @@ const ROUNDS = 7;
 const SHARE_MIN = 0;
 const SHARE_MAX = 0.6;
 
-/** 这一关一局最多能花的道具：洗牌、吹泡、渔网按每关上限（economy.json 的 toolMaxPerLevel / toolMaxLate），开缸 2 次 */
-export function capsFor(id: number): Careful.ItemCaps {
-  const late = eco.toolMaxLate;
-  const n = late && id >= late.from ? late.max : eco.toolMaxPerLevel;
-  return { shuffle: n, bowl: 2, blow: n, net: n };
+/**
+ * 这一关一局最多能花的道具（旧的「花几样才过」生成法用）：洗牌、吹泡、渔网各 JAM_ITEMS 次，开缸 2 次。
+ * 道具本身 2026-11-20 起不限次数（Skills.maxPerLevel），这里只是给机器人定个花销的上限
+ */
+const JAM_ITEMS = 3;
+export function capsFor(_id: number): Careful.ItemCaps {
+  return { shuffle: JAM_ITEMS, bowl: 2, blow: JAM_ITEMS, net: JAM_ITEMS };
 }
 
 /**
