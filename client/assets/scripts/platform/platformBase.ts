@@ -37,8 +37,9 @@ export abstract class PlatformBase {
   abstract readonly id: string;
 
   /**
-   * 开发版：编辑器预览和调试构建（cc/env 的 DEBUG）；微信再加上开发版、体验版（平台自己补）。
-   * 开发版才有的东西（难度调试页等，devtools/）按它显示，正式版自动不出（用户 2026-11-19：只在开发版里显示，代码保留）
+   * 开发版：编辑器预览和调试构建（cc/env 的 DEBUG），也就是 ./run.sh 打的包。./package.sh 打的包都是正式构建，不算开发版——
+   * 微信上传后的开发版、体验版也不算（用户 2026-11-20：打包的都要隐藏，体验版、审核时不能露出来）。
+   * 开发版才有的东西（难度调试页等，devtools/）按它显示（用户 2026-11-19：只在开发版里显示，代码保留）
    */
   isDevBuild(): boolean {
     return DEBUG;
