@@ -233,11 +233,11 @@ describe('技能与功能开放（docs/01 5.2、5.3）', () => {
     assert.equal(Skills.tryUse(save, eco, 'blow', 0, 6).reason, 'empty');
     assert.ok(!Skills.freeAvailable(save, 'net', eco));
     assert.ok(Skills.freeAvailable(save, 'net', eco) === false && Skills.tryUse(save, eco, 'blow', 0, 7).free, '第三天又有一次');
-    save.coins = 360;
+    save.coins = 140;
     assert.ok(Skills.buy(save, eco, 'net'));
     assert.equal(save.coins, 0);
     assert.deepEqual(Skills.ids(eco), ['undo', 'hint', 'shuffle', 'blow', 'net'], '洋流 2026-11-20 删了');
-    for (const [id, p] of [['undo', 240], ['hint', 360], ['shuffle', 240], ['blow', 280], ['net', 360]] as const) {
+    for (const [id, p] of [['undo', 100], ['hint', 140], ['shuffle', 100], ['blow', 110], ['net', 140]] as const) {
       assert.equal(Skills.price(eco, id), p);
     }
   });
