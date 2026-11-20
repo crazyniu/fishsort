@@ -45,6 +45,12 @@
  "clock": {
    "warn": 15
  },
+ "audio": {
+  "maxVoices": 6,
+  "sameGap": 0.05,
+  "buzzGap": 0.12,
+  "longBuzz": 0.45
+ },
  "autoFinish": {
    "delay": 0.5,
    "interval": 0.2,

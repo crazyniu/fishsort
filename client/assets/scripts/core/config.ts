@@ -394,6 +394,8 @@ export interface GameUiConfig {
   labTiers: { buffer: number; window: number }[];
   /** 收尾自动入缸：最后一步之后等多久开始、每条鱼隔多久（秒） */
   autoFinish: { delay: number; interval: number; maxLeft: number };
+  /** 音效和震动限流（docs/04）：同时最多几个音效、同一个音效最短间隔（秒）、两次震动最短间隔、长震后多久不再震 */
+  audio?: { maxVoices: number; sameGap: number; buzzGap: number; longBuzz: number };
   /** 限时关的倒计时：剩几秒以内变色、跳动 */
   clock: { warn: number };
   /** nudgeWhenStuck：场上没有能进缸的鱼时也提醒用道具；nudgeHand：小手指哪个道具，按顺序挑第一个用得了的（full = 暂存槽快满，stuck = 卡住） */
