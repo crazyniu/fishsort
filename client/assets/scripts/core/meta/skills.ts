@@ -98,12 +98,13 @@ export interface UseResult {
  * 使用前调用。usedThisLevel 是本关已用次数（界面层记）。
  * ok 时已经扣了库存（或记了免费次），界面层随后去调 Rules。
  */
-/** 第 levelId 关每种技能最多用几次；toolMaxPerLevelById 单独配的技能（撤销每关 3 次，docs/01 9.6）按它的 */
+/**
+ * 第 levelId 关每种技能最多用几次。道具不限次数（用户 2026-11-20：道具是靠金币买的），只有全部免费的那几关
+ * （skills.freeAllUntil 以前）限次数，不然能无限白用：每种 toolMaxFree 次，toolMaxFreeById 单独配的按它的（撤销 3 次）
+ */
 export function maxPerLevel(eco: EconomyConfig, levelId: number, id = ''): number {
-  const own = eco.toolMaxPerLevelById?.[id];
-  if (own !== undefined) return own;
-  const late = eco.toolMaxLate;
-  return late && levelId >= late.from ? late.max : eco.toolMaxPerLevel;
+  if (levelId <= 0 || levelId > (eco.skills.freeAllUntil ?? 0)) return Infinity;
+  return eco.toolMaxFreeById?.[id] ?? eco.toolMaxFree;
 }
 
 /** 这个技能现在用得了吗（不扣库存、不记任务，界面层提醒用道具时先问一下）：'' = 能用，其余同 tryUse 的 reason */

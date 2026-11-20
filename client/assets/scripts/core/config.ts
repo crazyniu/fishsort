@@ -120,8 +120,8 @@ export interface EconomyConfig {
   challengeCoins: number;
   /** 超难关的过关金币（docs/01 9.2）；没配按 challengeCoins */
   bossCoins?: number;
-  /** 某几个技能单独的每关次数上限（撤销 3 次，docs/01 9.6） */
-  toolMaxPerLevelById?: Record<string, number>;
+  /** 全部免费的那几关（skills.freeAllUntil 以前）某几个技能单独的每关次数上限（撤销 3 次，docs/01 9.6） */
+  toolMaxFreeById?: Record<string, number>;
   /**
    * 星级和首次三星（docs/01 9.5）：twoStarLine 用了几个道具以内两星；first3 第一次拿三星多送的（coins 金币、card 卡的稀有度、skill 几个随机技能），
    * 第 earlyUntil 关以前金币只给 earlyCoins
@@ -142,9 +142,10 @@ export interface EconomyConfig {
   adCoinMultiplier: number;
   toolStart: Record<string, number>;
   toolPrice: Record<string, number>;
-  toolMaxPerLevel: number;
-  /** 限时关起每关每种技能能多用几次（docs/01 5.2，2026-11-17）：from 关起上限改成 max；没有就一直是 toolMaxPerLevel */
-  toolMaxLate?: { from: number; max: number };
+  /**
+   * 全部免费的那几关（skills.freeAllUntil 以前）每关每种技能最多用几次。别的关不限次数：道具靠库存和金币买（用户 2026-11-20，docs/01 5.2）
+   */
+  toolMaxFree: number;
   bowlSlotCoinPrice: number;
   /** 加开的缸只装一缸就收走（docs/01 2.4）；不配 = 开了整关有效 */
   bowlSlotOnce?: boolean;
