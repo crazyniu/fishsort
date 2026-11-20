@@ -17,7 +17,7 @@ export interface RankEntry {
 }
 
 /** 平台能力名 */
-/** ads：这一版有广告（game.json 的 ads.enabled、配了广告位、包里有广告 SDK）；没有时看广告的入口整个隐藏，有但暂时加载不出来时入口变灰（adsAvailable） */
+/** ads：这一版有广告（game.json 的 ads.enabled、配了广告位、包里有广告 SDK）；没有时看广告的入口整个隐藏；有但暂时拉不到广告（adsAvailable 为假）时入口也不出现（用户 2026-11-20，docs/01 7.1） */
 /** health_notice：加载页显示健康游戏忠告（中国大陆上线的版本，即微信版） */
 export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options';
 

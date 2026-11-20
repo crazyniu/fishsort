@@ -48,6 +48,7 @@ export class ShopPage extends Page {
   private heart!: Node;
   /** 免费金币卡：这一版没有广告时不建 */
   private adBtn: Btn | null = null;
+  private adPanel: Node | null = null;
   private adLeft!: ReturnType<typeof text>;
   private rows: Node[] = [];
   private coins!: Capsule;
@@ -232,6 +233,7 @@ export class ShopPage extends Page {
       onTap: () => void this.freeCoins(),
     });
     at(this.adBtn.node, w / 2 - 24 - 88, -32);
+    this.adPanel = n;
     return n;
   }
 
@@ -265,7 +267,9 @@ export class ShopPage extends Page {
     const left = Meta.freeCoinLeft(s, eco, today());
     this.adLeft.string = tr('SHOP_AD_LEFT', left, eco.freeCoin.daily);
     fitPair(this.adTitle, this.adLeft, this.adRoom, 36, 26);
-    this.adBtn.setEnabled(left > 0 && App.platform.adsAvailable());
+    this.adBtn.setEnabled(left > 0);
+    // 拉不到广告时整块不出现（用户 2026-11-20）；今天次数用完时还在，按钮变灰、写着剩 0 次
+    if (this.adPanel) this.adPanel.active = App.platform.adsAvailable();
   }
 
   private buySkill(id: string): void {

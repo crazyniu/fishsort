@@ -65,7 +65,8 @@ export function signInPopup(changed: () => void): void {
     cells.push(cell);
   });
   // 这一版没有广告时没有「看广告领双倍」
-  const hasAds = App.platform.hasCapability('ads');
+  // 拉不到广告时只有「领取」，不出看广告翻倍（用户 2026-11-20）
+  const hasAds = App.platform.hasCapability('ads') && App.platform.adsAvailable();
   const claim = (doubled: boolean) => {
     const r = SignIn.claim(s, eco, App.config.species, rng, today(), now(), doubled);
     if (!r) return;
