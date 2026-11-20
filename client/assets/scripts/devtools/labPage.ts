@@ -77,6 +77,11 @@ export class LabPage extends Page {
     eb.maxLength = 3;
     eb.string = String(this.level);
     eb.placeholder = '关卡号';
+    // EditBox 会把文字铺满整个框、默认顶在上面（用户 2026-11-20：没居中），两行文字都改成上下左右居中
+    for (const l of [shown, hint as Label]) {
+      l.horizontalAlign = Label.HorizontalAlign.CENTER;
+      l.verticalAlign = Label.VerticalAlign.CENTER;
+    }
     n.on(EditBox.EventType.EDITING_DID_ENDED, () => {
       const v = parseInt(eb.string, 10);
       if (!Number.isFinite(v)) {
