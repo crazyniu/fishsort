@@ -65,6 +65,7 @@ GitHub 仓库 `crazyniu/fishsort`：issue 记任务，milestone 对应 `docs/07`
 ./run.sh native-apply          # 按 game.json 改写各平台的构建配置和原生工程（打包时自动跑）
 ./run.sh editor                # 打开 Cocos Creator
 ./run.sh cdp logs | eval '<表达式>' | shot <文件> | burst <目录> <张数> <间隔毫秒>   # 读控制台、页面里求值、截图、连拍
+./run.sh cdp watch [日志]      # 盯着试玩页面：卡住超过 4 秒就暂停、记下调用栈再放行（查偶尔卡死；默认记到 /tmp/fs_watch.log）
 
 # Linux 上也能跑（Node）
 ./run.sh check                 # 类型检查 + .meta / 图片压缩检查 + 单测，与 CI 相同
