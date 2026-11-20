@@ -34,33 +34,43 @@
 #import "service/SDKWrapper.h"
 #import "game/FsBridge.h"
 
-@implementation AppDelegate
+@implementation AppDelegate {
+    NSDictionary *_launchOptions;
+    BOOL _started;
+}
 @synthesize window;
 @synthesize appDelegateBridge;
 
 #pragma mark -
 #pragma mark Application lifecycle
 
+// 场景生命周期（SceneDelegate.h）：这里只做不依赖窗口的初始化；窗口、视图和引擎在场景连上时建（startInWindowScene:）
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [[SDKWrapper shared] application:application didFinishLaunchingWithOptions:launchOptions];
     appDelegateBridge = [[AppDelegateBridge alloc] init];
-    
-    // Add the view controller's view to the window and display.
-    CGRect bounds = [[UIScreen mainScreen] bounds];
-    self.window   = [[UIWindow alloc] initWithFrame:bounds];
+    _launchOptions = launchOptions;
+    return YES;
+}
+
+- (UIWindow *)startInWindowScene:(UIWindowScene *)scene {
+    if (_started) return self.window;
+    _started = YES;
+    CGRect bounds = scene.coordinateSpace.bounds;
+    self.window = [[UIWindow alloc] initWithWindowScene:scene];
+    self.window.frame = bounds;
 
     // Should create view controller first, cc::Application will use it.
     _viewController                           = [[ViewController alloc] init];
     _viewController.view                      = [[View alloc] initWithFrame:bounds];
-    _viewController.view.contentScaleFactor   = UIScreen.mainScreen.scale;
+    _viewController.view.contentScaleFactor   = scene.screen.scale;
     _viewController.view.multipleTouchEnabled = true;
     [self.window setRootViewController:_viewController];
 
     [self.window makeKeyAndVisible];
-    [appDelegateBridge application:application didFinishLaunchingWithOptions:launchOptions];
+    [appDelegateBridge application:UIApplication.sharedApplication didFinishLaunchingWithOptions:_launchOptions];
     // 脚本和原生之间的桥：广告、震动、分享（game/FsBridge.mm）
     [FsBridge setup];
-    return YES;
+    return self.window;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

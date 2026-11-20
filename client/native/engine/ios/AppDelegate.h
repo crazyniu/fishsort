@@ -38,4 +38,11 @@ you.
 
 @property(nonatomic, readonly) ViewController *viewController;
 @property(nonatomic, readonly) AppDelegateBridge *appDelegateBridge;
+@property(nonatomic, strong) UIWindow *window;
+/** 场景连上时调（SceneDelegate）：建窗口、视图，启动引擎和脚本桥；返回建好的窗口。只做一次 */
+- (UIWindow *)startInWindowScene:(UIWindowScene *)scene;
+- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationDidEnterBackground:(UIApplication *)application;
+- (void)applicationWillEnterForeground:(UIApplication *)application;
 @end
