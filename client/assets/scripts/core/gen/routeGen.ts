@@ -33,6 +33,8 @@ export interface TightenOptions {
   maxStep?: number;
   /** 量的时候用哪一组种子（不给 = 0）。同一组种子一直量，挑出来的交换会偏向坑到这几局；接着收的时候换一组 */
   seedBase?: number;
+  /** 一路上每隔几个百分点存一份（不给 = 10）：存得细，难度库里能挑的版本多（tools/level/pool.ts） */
+  snapStep?: number;
 }
 
 export interface Measure {
@@ -52,7 +54,7 @@ export interface Snapshot {
 }
 
 export interface TightenResult {
-  /** 尺子量的过关率每一档（键 = 百分数，10 一档，向下取整）存的那一份 */
+  /** 尺子量的过关率每一档（键 = 百分数，snapStep 一档，向下取整）存的那一份 */
   byPct: Map<number, Snapshot>;
   /** 最后停在哪 */
   last: Snapshot | null;
@@ -102,11 +104,13 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
   const rng = new Rng(o.seed);
   const lv = copy(start0);
   const byPct = new Map<number, Snapshot>();
+  const step0 = o.snapStep ?? 10;
+  const bk = (rate: number) => Math.floor((rate * 100) / step0 + 1e-9) * step0;
   const keep = (m: Measure) => {
-    const b = bucket(m.level);
+    const b = bk(m.level);
     const old = byPct.get(b);
     // 同一档里想清楚的玩家越稳越好，再看离这一档的中间近不近
-    if (!old || m.think > old.m.think || (m.think === old.m.think && Math.abs(m.level * 100 - b - 5) < Math.abs(old.m.level * 100 - b - 5))) {
+    if (!old || m.think > old.m.think || (m.think === old.m.think && Math.abs(m.level * 100 - b - step0 / 2) < Math.abs(old.m.level * 100 - b - step0 / 2))) {
       byPct.set(b, { lv: copy(lv), m });
     }
   };
@@ -169,7 +173,7 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
       lv.bubbles[b2].fish[k2] = f2;
     }
   }
-  return { byPct, last: byPct.get(bucket(cur.level)) ?? null, tries, stats };
+  return { byPct, last: byPct.get(bk(cur.level)) ?? null, tries, stats };
 }
 
 /** 按路线走最长能连几下（中间不进暂存槽；暂存槽里的鱼自动补进新缸也算一下），连击目标按它定（docs/01 9.4） */
