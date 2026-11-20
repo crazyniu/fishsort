@@ -13,7 +13,9 @@
          免得 Google Play 把游戏标成「含应用内购买」，和后台填的不一致 -->
     <uses-permission android:name="com.android.vending.BILLING" tools:node="remove"/>
 
+    <!-- appCategory="game"：Android 16（API 36）起大屏上会忽略「只能竖屏」，游戏不受这条约束（Google Play 2026-08-31 起要求 target 36） -->
     <application
+        android:appCategory="game"
         android:allowBackup="true"
         android:label="@string/fs_app_name"
         android:usesCleartextTraffic="false"
