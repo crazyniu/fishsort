@@ -67,6 +67,12 @@ const hardness = (level: number, peak: number) => (1 - level) * 100 + peak;
 const isCasual = (o: TightenOptions) => !o.ruler || o.ruler.kind === 'casual';
 
 /**
+ * 难度刻度里暂存槽高峰最多能补多少过关率：hardness = (1 - 过关率) × 100 + 高峰，高峰是平均占几格（不超过暂存槽格数，最多 5），
+ * 所以过关率差出 0.06 以上，高峰再怎么差也追不回来
+ */
+const PEAK_SLACK = 0.06;
+
+/**
  * 量一关；想清楚的玩家明显过不了下限就提前停（返回 null）。thinkSeed：想清楚的玩家这一次用哪组种子——
  * 收紧时每次都换一组：一直用同一组的话，挑出来的交换会偏向「只有这几局想得通」，换种子复量就掉到六七成（2026-11-19 第 273 关）
  */
@@ -126,7 +132,11 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     if (!isCasual(o)) {
       // 随手点的明显往反方向走了（收紧时明显变容易、放松时明显变难）就不量尺子
       const wrong = up ? hardness(c.win, c.peak) > hardness(cur.casual, cur.peak) + 3 : hardness(c.win, c.peak) < hardness(cur.casual, cur.peak) - 3;
-      r = wrong ? null : Players.rulerRate(lv, o.ruler as Players.Ruler, o.rulerGames ?? 40, o.preview, o.seedBase ?? 0);
+      // 提前停（2026-11-20 提速，结果不变）：下面只留尺子量的过关率不比现在更容易（收紧时）/ 不比现在更难（放松时）的交换，
+      // 暂存槽的高峰最多差 PEAK_SLACK 个百分点的难度刻度。打到一半就已经确定超过这条线的，后面的局不用打了——这次交换反正不要
+      const stopAbove = up ? 1 : Math.min(1, cur.level + PEAK_SLACK);
+      const stopBelow = up ? Math.max(0, cur.level - PEAK_SLACK) : 0;
+      r = wrong ? null : Players.rulerRate(lv, o.ruler as Players.Ruler, o.rulerGames ?? 40, o.preview, o.seedBase ?? 0, stopBelow, stopAbove);
     }
     // 一下子变太多的不要（一步从「大部分能过」跳到「谁都过不去」，就是第一版的毛病），越过目标太多的也不要
     let ok = r !== null;
