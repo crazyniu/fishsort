@@ -349,7 +349,7 @@ export interface CurveConfig {
      * （普通关、每 5 关的难关、每 20 关的超难关；海域比表长就用最后一个）；都不低于 min；overrides 单独指定某几关（关卡号 → 比例，优先）。
      * early：刚出新手期的头几关（到第 until 关为止）再缓一档——普通关 normal、难关 hard，不看海域的表
      */
-    targets: { tutorial: [number, number][]; from: number; seaSize: number; normal: number[]; hard: number[]; boss: number[]; early?: { until: number; normal: number; hard: number }; min: number; overrides?: Record<string, number> };
+    targets: { tutorial: [number, number][]; from: number; seaSize: number; normal: number[]; hard: number[]; boss: number[]; early?: { until: number; normal: number; hard: number }; teach?: { levels: number[]; plus: number }; min: number; overrides?: Record<string, number> };
     /** 量难度用哪个玩家（docs/02 0.2）：casual 随手点，think 想几步（budget 每步推几个局面）；games 收紧时每次打几局、checkGames 复量打几局 */
     ruler?: { kind: 'casual' | 'think'; budget?: number; slip?: number; games: number; checkGames: number };
     /** 想清楚的玩家的保底（docs/02 0.3）：不低于 min(max, 这一关的目标 + gap)；不给就一律 thinkFloor */

@@ -107,7 +107,12 @@ const opts = {
   thinkGames: rc.thinkGames,
 };
 // 收紧时一直用同一组种子量，挑出来的交换会偏向「刚好坑到这几局」：换一组种子多打几局复量，调试页和挑本体都用复量的数。
-// 复量下来离目标还差 5 个点以上、而且是相邻两档之间跳过了目标，换一个收紧的随机种子从头再收一次，最多 3 次，所有档放在一起挑
+// 复量一般比收紧时量的松（2026-11-20 第 81–290 关：收到目标就停，复量平均松 5–10 个点，第 114 关 34% → 47%）。所以：
+// - 收紧时往下多压 OVERSHOOT，越过目标一点，最后按复量挑最接近目标的那一版；
+// - 复量下来所有版本都还比目标松：从最接近的那版接着收，收紧的目标再往下压「回弹了多少」，换一组种子量，最多 MAX_ATTEMPTS 轮；
+// - 目标两边都有版本、但都差 5 个点以上（中间跳过了）：从头换个随机种子重收
+const OVERSHOOT = 0.05;
+const MAX_ATTEMPTS = 5;
 interface Ver {
   pct: number;
   lv: LevelData;
@@ -137,12 +142,15 @@ const validRoute = (lv: LevelData, first: readonly [number, number][]): [number,
 };
 const all: Ver[] = [];
 let tries = 0;
-for (let attempt = 0; attempt < 3; attempt++) {
-  // 第一轮从生成出来的关收；之后：所有档都还比目标容易（同一组种子量出来到了、复量又回弹），就从最接近目标的那档接着收，
-  // 换一组种子量；目标两边都有档（中间跳过了），从头换个随机种子重收
+for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  // 第一轮从生成出来的关收；之后见上面
   const above = all.filter((v) => v.casual > target).sort((a, b) => a.casual - b.casual);
-  const from = attempt > 0 && above.length > 0 && !all.some((v) => v.casual < target) ? above[0].lv : lv;
-  const r = tighten(from, { ...opts, seed: opts.seed + attempt * 7777, seedBase: attempt * 10007 });
+  const resume = attempt > 0 && above.length > 0 && !all.some((v) => v.casual < target);
+  const from = resume ? above[0].lv : lv;
+  // 收紧时的目标：比真正的目标低 OVERSHOOT；接着收的那几轮再低「最接近的那版复量回弹了多少」（只对往下收有用；往上放松的不压）
+  const bounce = resume ? above[0].casual - target : 0;
+  const aim = opts.target >= target ? Math.max(0.01, opts.target - OVERSHOOT - bounce) : opts.target;
+  const r = tighten(from, { ...opts, target: aim, seed: opts.seed + attempt * 7777, seedBase: attempt * 10007 });
   tries += r.tries;
   for (const snap of Array.from(r.byPct.values())) {
     const casual = Players.rulerRate(snap.lv, ruler, rulerCheck, preview, 1000).win;
@@ -161,7 +169,7 @@ for (let attempt = 0; attempt < 3; attempt++) {
   if (all.some((v) => Math.abs(v.casual - target) <= 0.05)) break;
   if (!all.some((v) => v.casual > target)) break;
   // 这一轮一档都没比上一轮更接近（压不动了），也停
-  if (attempt > 0 && r.byPct.size <= 1) break;
+  if (attempt > 0 && r.byPct.size <= 1 && r.tries > 0) break;
 }
 console.log(`  目标：${rulerName} ${Math.round(target * 100)}%，想清楚的不低于 ${Math.round(opts.thinkFloor * 100)}%，预告 ${opts.preview} 缸；试了 ${tries} 次交换，${((Date.now() - t0) / 1000).toFixed(0)}s`);
 if (all.length === 0) {
