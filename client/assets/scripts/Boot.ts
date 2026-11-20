@@ -31,6 +31,7 @@ import { livesPopup, settingsPopup, switchLanguage } from './ui/popups';
 import { closeAllPopups } from './ui/popup';
 import { signInPopup } from './pages/signin';
 import * as Flow from './game/flow';
+import { installRemoteFiles } from './platform/wechatRemote';
 import { ensureResources, loadBootBundle, loadFont, loadFrames, startupFrames } from './ui/res';
 import { LoadingView } from './ui/loading';
 import { loadPlatformConfig } from './platform/platformConfig';
@@ -67,6 +68,8 @@ export class Boot extends Component {
     const canvas = this.createCanvas();
     if (DEBUG) this.errorOverlay(canvas);
     const loading = new LoadingView(canvas);
+    // 微信：分包里挪到网上的资源读的时候换成网上的地址（读 resources 之前装好）
+    installRemoteFiles();
     loadBootBundle()
       .then((b) => loading.useBundle(b))
       .catch((e: unknown) => console.warn('boot 包读不出来', e));
