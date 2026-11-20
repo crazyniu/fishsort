@@ -17,6 +17,8 @@ set(EXECUTABLE_NAME ${APP_NAME}-mobile)
 
 # 我们自己的原生代码：脚本和原生之间的桥（docs/04 第 5 节）
 list(APPEND CC_PROJ_SOURCES
+    ${CC_PROJECT_DIR}/SceneDelegate.h
+    ${CC_PROJECT_DIR}/SceneDelegate.mm
     ${CC_PROJECT_DIR}/game/FsBridge.h
     ${CC_PROJECT_DIR}/game/FsBridge.mm
 )
