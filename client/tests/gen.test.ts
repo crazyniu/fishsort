@@ -1,6 +1,6 @@
 // 生成器、难度曲线与关卡校验，见 docs/02。
 import assert from 'node:assert/strict';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import * as LevelCurve from '../assets/scripts/core/gen/levelCurve';
@@ -253,6 +253,13 @@ describe('进包的关卡（CLAUDE.md 硬性约束 7）', () => {
 
   it('全部通过结构校验并且参考解能通关', () => {
     for (const n of names) assert.deepEqual(LevelCheck.errors(levelFile(n)), [], n);
+  });
+
+  it('同一个气泡里同种鱼最多两条（包里本体、变体、每日挑战关；用户 2026-11-20）', () => {
+    for (const n of names) assert.equal(NoTriple.violations(levelFile(n)), 0, n);
+    const daily = join(CONFIG, 'levels_daily');
+    for (const n of readdirSync(daily).filter((x) => x.endsWith('.json')))
+      assert.equal(NoTriple.violations(LevelData.fromJson(readFileSync(join(daily, n), 'utf8')) as LevelData), 0, n);
   });
 
   it('读出再写回与原文件逐字节相同', async () => {
