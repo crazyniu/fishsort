@@ -9,16 +9,14 @@
     "hint": 0,
     "shuffle": 0,
     "blow": 0,
-    "net": 0,
-    "current": 0
+    "net": 0
   },
   "toolPrice": {
     "undo": 240,
     "hint": 360,
     "shuffle": 240,
     "blow": 280,
-    "net": 360,
-    "current": 480
+    "net": 360
   },
   "toolMaxPerLevel": 2,
   "toolMaxLate": {
@@ -115,8 +113,7 @@
       "hint",
       "shuffle",
       "blow",
-      "net",
-      "current"
+      "net"
     ],
     "grantOnUnlock": 1,
     "freePerDay": 1,
@@ -1267,8 +1264,7 @@
     "skill_net": 9,
     "wheel": 10,
     "tasks": 11,
-    "skill_current": 12,
-    "skill_hint": 14,
+    "skill_hint": 12,
     "daily": 20
   },
   "chest": {

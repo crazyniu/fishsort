@@ -73,19 +73,14 @@
   "warnFree": 1,
   "skillNudgeFree": 2,
   "nudgeWhenStuck": true,
-  "nudgeHand": {"full": ["blow", "shuffle", "bowl", "current", "net"], "stuck": ["shuffle", "bowl", "net", "blow"]},
+  "nudgeHand": {"full": ["blow", "shuffle", "bowl", "net"], "stuck": ["shuffle", "bowl", "net", "blow"]},
   "rescueSkills": [
    "blow",
    "shuffle",
-   "net",
-   "current"
+   "net"
   ]
  },
  "combo": {},
- "current": {
-  "lead": 0.45,
-  "stagger": 0.13
- },
  "tips": {
   "6": "TIP_QUEUE,TIP_LIVES",
     "61": "TIP_BUFFER4",

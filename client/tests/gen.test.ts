@@ -366,6 +366,30 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
     assert.ok(h !== null && Rules.isOpen(s, h[0]) && s.bubbles[h[0]].canTake(h[1]));
   });
 
+  it('提示不会让玩家当场输：暂存槽只剩最后一格时，只提示能直接进缸的鱼；每条都会塞满就不给（用户 2026-11-20）', () => {
+    // 架上两个缸要 0、1；暂存槽 4 格、已经放了 3 条（2、3、4）。场上能点的：一条 5（进暂存槽 = 输）、一条 1（进缸）
+    const lv = level([0, 1, 0, 1], [{ fish: [5, 1] }, { fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [0, 0] }, { fish: [1, 1] }, { fish: [2, 3, 4, 5] }], 4);
+    const s = GameState.fromLevel(lv);
+    Rules.start(s);
+    s.buffer = [2, 3, 4];
+    for (let seed = 1; seed <= 5; seed++) {
+      const h = Players.hint(s, 0, seed) as [number, number];
+      assert.ok(h !== null);
+      const c = s.clone();
+      Rules.tap(c, h[0], h[1]);
+      assert.notEqual(c.status, 2, `种子 ${seed}：提示的这一步不能当场输`);
+    }
+    // 只剩会塞满暂存槽的鱼：不给提示，告诉界面是「卡住了」
+    const lv2 = level([0, 1], [{ fish: [5] }, { fish: [6] }, { fish: [0, 0, 0] }, { fish: [1, 1, 1] }], 4);
+    const s2 = GameState.fromLevel(lv2);
+    Rules.start(s2);
+    s2.bubbles[2].fish = [-1, -1, -1];
+    s2.bubbles[3].fish = [-1, -1, -1];
+    s2.buffer = [2, 3, 4];
+    assert.equal(Players.hint(s2, 0), null);
+    assert.ok(Players.hintBlocked(s2));
+  });
+
   it('收紧：随手点的过关率每一档存一份，想清楚的玩家都过得去，鱼的种类数量不变（只试几次，CI 要快）', () => {
     const c = loadCurve();
     const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };

@@ -1,7 +1,7 @@
 // 配置表的类型。数值只在 assets/resources/config/*.json 里，代码不写死（CLAUDE.md 硬性约束 5）。
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legend';
-export type SkillId = 'shuffle' | 'blow' | 'net' | 'current';
+export type SkillId = 'undo' | 'hint' | 'shuffle' | 'blow' | 'net';
 
 export interface Species {
   id: string;
@@ -398,7 +398,6 @@ export interface GameUiConfig {
   clock: { warn: number };
   /** nudgeWhenStuck：场上没有能进缸的鱼时也提醒用道具；nudgeHand：小手指哪个道具，按顺序挑第一个用得了的（full = 暂存槽快满，stuck = 卡住） */
   buffer: { warnFree: number; skillNudgeFree: number; rescueSkills: string[]; nudgeWhenStuck?: boolean; nudgeHand?: { full: string[]; stuck: string[] } };
-  current: { lead: number; stagger: number };
   tips: Record<string, string>;
   tutorial: { delay: number; blowMinBuffer: number; tipGap: number };
   unlockGuide: { delay: number; lockSeconds: number; sparks: number };

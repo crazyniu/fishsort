@@ -81,7 +81,6 @@ H_FEAT_WHEEL,抽奖,Treasure,抽獎,宝箱,보물상자,Schatz,Trésor,Tesoro,Te
 H_SKILL_SHUFFLE,洗牌,Shuffle,洗牌,まぜまぜ,섞기,Mischen,Mélange,Mezclar,Mexer,Mescola,Микс,Karıştır
 H_SKILL_BLOW,吹泡,Blow,吹泡,突風,불기,Pusten,Souffle,Soplar,Soprar,Soffia,Сдуть,Üfle
 H_SKILL_NET,渔网,Net,漁網,あみ,그물,Netz,Filet,Red,Rede,Rete,Сеть,Ağ
-H_SKILL_FLOW,洋流,Current,洋流,うず潮,해류,Strömung,Courant,Marea,Maré,Corrente,Течение,Akıntı
 H_NEED_COINS,金币不足,Out of Coins,金幣不足,コイン不足,코인 부족,Zu wenig Münzen,Plus de pièces,Faltan monedas,Sem moedas,Niente monete,Мало монет,Altın yetersiz
 H_NEED_COINS_LINE,还差 %d 金币,Need %d more coins,還差 %d 金幣,あと %d コイン必要,%d 코인이 더 필요해요,Dir fehlen %d Münzen,Il te manque %d pièces,Te faltan %d monedas,Faltam %d moedas,Ti mancano %d monete,Не хватает %d монет,%d altın daha lazım
 H_MUSIC,音乐,Music,音樂,BGM,음악,Musik,Musique,Música,Música,Musica,Музыка,Müzik
@@ -950,3 +949,4 @@ RESULT_PERFECT,完美！一个道具都没用,Perfect! No boosters used,完美�
 RESULT_TRY_3STAR,不用道具就能拿 3 星,Win without boosters for 3 stars,不用道具就能拿 3 星,アイテムなしで星3つ,아이템 없이 깨면 별 3개,Ohne Extras gibt es 3 Sterne,Gagne sans bonus pour 3 étoiles,Gana sin potenciadores: 3 estrellas,Vença sem reforços: 3 estrelas,Vinci senza aiuti: 3 stelle,Без бонусов — 3 звезды,Güçlendiricisiz kazan: 3 yıldız
 RESULT_FIRST_3STAR,首次三星,First 3 stars,首次三星,初の星3つ,첫 별 3개,Erste 3 Sterne,1res 3 étoiles,Primeras 3★,Primeiras 3★,Prime 3★,Первые 3★,İlk 3 yıldız
 UI_NEXT_DROP,下一泡,Drop,下一泡,つぎの泡,다음 방울,Blase,Bulle,Burbuja,Bolha,Bolla,Пузырь,Balon
+UI_HINT_STUCK,点哪条都会塞满槽位，先用吹泡或洗牌,Any move fills the slots. Try Blow or Shuffle,點哪條都會塞滿槽位，先用吹泡或洗牌,どれを取っても枠が埋まる。突風かまぜまぜを使おう,뭘 눌러도 칸이 꽉 차요. 불기나 섞기를 써 보세요,Jeder Zug füllt die Ablage. Nimm Pusten oder Mischen,Chaque coup remplit les cases. Essaie Souffle ou Mélange,Cualquier jugada llena las casillas. Usa Soplar o Mezclar,Qualquer jogada enche os espaços. Use Soprar ou Mexer,Ogni mossa riempie le caselle. Usa Soffia o Mescola,Любой ход заполнит ячейки. Попробуй Сдуть или Микс,Her hamle bölmeleri doldurur. Üfle ya da Karıştır kullan
