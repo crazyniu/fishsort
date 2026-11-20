@@ -57,7 +57,7 @@ set_target_properties(${EXECUTABLE_NAME} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEV
 # Google Mobile Ads + UMP：./package.sh 选择 iOS 时 下载到 sdk/（不进仓库）。CMake 3.24 不能直接链 xcframework，
 # 按真机 / 模拟器分别指到各自的切片目录。没下载、或 game.json 关了广告（FS_ADS OFF）时不链，桥里按没有广告编译
 # FS_ADS 由 tools/native/apply.mjs 按 game.json 的 ads.enabled 改写
-set(FS_ADS OFF)
+set(FS_ADS ON)
 set(FS_SDK_DIR ${CC_PROJECT_DIR}/sdk)
 if(FS_ADS AND EXISTS ${FS_SDK_DIR}/GoogleMobileAds.xcframework)
     set(FS_DEVICE_PATHS "")

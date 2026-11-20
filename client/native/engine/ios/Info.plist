@@ -54,6 +54,17 @@
 	<array>
 		<string>arm64</string>
 	</array>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-7415962042674276~3044338335</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This lets us show you ads that are more relevant to you.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIRequiresFullScreen</key>

@@ -4,7 +4,7 @@ apply plugin: 'com.android.application'
 
 // 带不带广告 SDK：tools/native/apply.mjs 按 game.json 的 ads.enabled 改写。
 // 关掉时不依赖 AdMob / UMP，FsAds 用 ads/off 里的空实现
-def FS_ADS = false
+def FS_ADS = true
 
 RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")

@@ -1,2 +1,3 @@
 /* 由 tools/native/apply.mjs 按 game.json 生成 */
 "CFBundleDisplayName" = "Bubble Fish";
+"NSUserTrackingUsageDescription" = "This lets us show you ads that are more relevant to you.";

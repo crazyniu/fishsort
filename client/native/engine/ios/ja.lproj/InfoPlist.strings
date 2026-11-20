@@ -1,2 +1,3 @@
 /* 由 tools/native/apply.mjs 按 game.json 生成 */
 "CFBundleDisplayName" = "ぷくぷくレスキュー";
+"NSUserTrackingUsageDescription" = "あなたの興味に合った広告を表示するために使います。";
