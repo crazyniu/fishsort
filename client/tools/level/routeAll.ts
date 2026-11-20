@@ -6,6 +6,7 @@
 //   --resume  接着上次没跑完的：日志里已经有结果的关跳过，汇总和索引把上次跑完的一起算进去
 //   --ids=234,236,…  只跑这几关（重跑离目标远的关用），不看起止
 //   --iter=N  每次收紧最多试几次交换（传给 route.ts，不给用 level_curve.json 的 route.iterations）
+//   --fresh  不用难度库（tools/level/pool.ts），每关都从头生成
 //   --seed=N  生成种子从几起（传给 route.ts，不给 = 1）：重跑离目标远的关时换一个开局布局
 // 每关的输出在 tools/level/route_logs/<关>.log（不进仓库），汇总写 tools/level/route_report.csv：关、类型、目标、包里那档的随手点 / 想清楚、
 // 有没有用放松的生成参数、各档、用时。离目标超过 10 个点的关在最后列出来
@@ -81,6 +82,7 @@ function runOne(id: number): Promise<void> {
     if (lab) args.push('--lab', `--labEntry=${join(ENTRIES, `${id}.json`)}`);
     if (iterArg) args.push(iterArg);
     if (seedArg) args.push(seedArg);
+    if (process.argv.includes('--fresh')) args.push('--fresh');
     const child = spawn('npx', args, { cwd: CLIENT });
     // 生成的进程优先级降到最低：同一台机器上开着游戏试玩、编辑器时让它们先用 CPU（子进程跟着继承）
     try {
