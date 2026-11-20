@@ -4,6 +4,8 @@
 //       node tools/cocos/cdp.mjs eval '<表达式>'   在页面里求值，打印 JSON
 //       node tools/cocos/cdp.mjs shot <输出.jpg> [x,y,w,h]  按 2 倍屏截图（可只截一块，比例 0~1）
 //       node tools/cocos/cdp.mjs burst <目录> <张数> <间隔毫秒> '<JS>'  执行 JS 后连拍（看动画）
+//       node tools/cocos/cdp.mjs watch [日志文件]   盯着页面：每 2 秒问一声，超过 4 秒没回应（卡死）就暂停、记下正在执行的调用栈（连记 3 次），再放行；
+//                                                控制台的异常也记下来。一直跑到 Ctrl+C（2026-11-20：查游戏偶尔卡死、一直响刺耳的声音）
 // 只用 Node 自带的 fetch / WebSocket，不装东西。
 const PORT = Number(process.env.CDP_PORT ?? 9333);
 const [cmd = 'logs', arg = '6'] = process.argv.slice(2);
@@ -38,6 +40,50 @@ ws.onmessage = (m) => {
 };
 await new Promise((r) => (ws.onopen = r));
 await send('Runtime.enable');
+if (cmd === 'watch') {
+  const { appendFileSync } = await import('node:fs');
+  const out = process.argv[3] ?? '/tmp/fs_watch.log';
+  const log = (t) => {
+    const line = `${new Date().toISOString()} ${t}`;
+    console.log(line);
+    appendFileSync(out, line + '\n');
+  };
+  let pausedStack = null;
+  const prev = ws.onmessage;
+  ws.onmessage = (m) => {
+    const d = JSON.parse(m.data);
+    if (d.method === 'Debugger.paused') {
+      pausedStack = d.params.callFrames.slice(0, 25).map((f) => `    ${f.functionName || '(匿名)'}  ${f.url.split('/').slice(-2).join('/')}:${f.location.lineNumber + 1}:${f.location.columnNumber + 1}`).join('\n');
+      return;
+    }
+    if (d.method === 'Runtime.exceptionThrown') {
+      const e = d.params.exceptionDetails;
+      log(`[异常] ${e.exception?.description ?? e.text}`);
+      return;
+    }
+    prev(m);
+  };
+  await send('Debugger.enable');
+  log(`开始盯着页面（${page.url}），日志写到 ${out}`);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ping = () => Promise.race([send('Runtime.evaluate', { expression: 'Date.now()', returnByValue: true }).then(() => true), sleep(4000).then(() => false)]);
+  for (;;) {
+    await sleep(2000);
+    if (await ping()) continue;
+    log('页面 4 秒没有回应，暂停看它卡在哪');
+    for (let k = 1; k <= 3; k++) {
+      pausedStack = null;
+      ws.send(JSON.stringify({ id: ++id, method: 'Debugger.pause' }));
+      for (let w = 0; w < 50 && pausedStack === null; w++) await sleep(100);
+      log(`第 ${k} 次暂停的调用栈：\n${pausedStack ?? '    （没停下来）'}`);
+      ws.send(JSON.stringify({ id: ++id, method: 'Debugger.resume' }));
+      await sleep(1000);
+    }
+    // 卡了好一阵也别刷屏：等它恢复（或者一直等）
+    while (!(await ping())) await sleep(5000);
+    log('页面恢复响应了');
+  }
+}
 if (cmd === 'eval') {
   const r = await send('Runtime.evaluate', { expression: arg, returnByValue: true, awaitPromise: true });
   console.log(JSON.stringify(r.result?.value ?? r.exceptionDetails ?? r, null, 1));
