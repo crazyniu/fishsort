@@ -165,16 +165,6 @@ export function tipArt(parent: Node, key: string): Node {
       img(b, 'kit/bubble', d, d, 'skin');
       break;
     }
-    case 'TIP_TOOLS3': {
-      // 每种道具每关能用 3 次：两个道具图标，角上挂「×3」
-      ['skill_shuffle', 'skill_net'].forEach((id, i) => {
-        const ic = img(n, `icon/${id}`, 150, 150, id);
-        at(ic, (i - 0.5) * 190, 0);
-        badge(ic, 62, 56, 68, '×3');
-        fx.breathe(ic, 0.04, 0.9 + i * 0.2);
-      });
-      break;
-    }
     case 'TIP_BUFFER4': {
       // 暂存槽只有 4 格：和局里一样的一排槽，前三格有鱼，最后一格闪
       const w = 84;

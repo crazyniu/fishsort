@@ -83,8 +83,7 @@
  "combo": {},
  "tips": {
   "6": "TIP_QUEUE,TIP_LIVES",
-    "61": "TIP_BUFFER4",
-    "123": "TIP_TOOLS3"
+    "61": "TIP_BUFFER4"
  },
  "unlockGuide": {
   "delay": 0.5,

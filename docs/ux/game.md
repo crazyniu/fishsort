@@ -92,7 +92,6 @@
 | TIP_BIG | 大鱼缸：要装 6 条 | Big tank: holds 6 fish |
 | TIP_PAIR | 结伴鱼：点一条，两条一起走 | Buddies: tap one, both go |
 | TIP_CLOCK | 从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间 | Challenge levels are timed now… Combos add time |
-| TIP_TOOLS3 | 从这里起关卡更难了，每种道具每关能用 3 次 | Levels get harder from here. Each booster can be used 3 times per level |
 | TIP_BUFFER4 | 从这里起暂存槽只有 4 格，放错更容易满，卡住就用道具 | Only 4 holding slots from here on… |
 
 ## 参考结论
