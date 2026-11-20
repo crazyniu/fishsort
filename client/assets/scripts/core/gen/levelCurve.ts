@@ -109,7 +109,9 @@ export function routeTarget(curve: CurveConfig, id: number): number | null {
   if (t.early && id <= t.early.until) return Math.max(t.min, isChallenge(curve, id) ? t.early.hard : t.early.normal);
   const table = isBoss(curve, id) ? t.boss : isChallenge(curve, id) ? t.hard : t.normal;
   const sea = Math.min(table.length - 1, Math.floor((id - 1) / t.seaSize));
-  return Math.max(t.min, table[sea]);
+  // 教学关（新玩法第一次出现的那一关）：比同海域同类型的关容易 plus（先在输了也不疼的地方教，2026-11-20）
+  const teach = t.teach && t.teach.levels.includes(id) ? t.teach.plus : 0;
+  return Math.max(t.min, Math.min(0.95, Math.round((table[sea] + teach) * 1000) / 1000));
 }
 
 /** 这一关想清楚的玩家不能低于多少（docs/02 0.3）：min(floor.max, 目标 + floor.gap)；没配 floor 用 route.thinkFloor */
