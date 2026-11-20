@@ -3545,26 +3545,32 @@
   }
  },
  "100": {
-  "base": 10,
+  "base": 0,
   "target": 9,
   "versions": {
-   "10": {
-    "natural": 15,
-    "casual": 5,
-    "think": 40,
-    "run": 85
+   "0": {
+    "natural": 5,
+    "casual": 0,
+    "think": 47,
+    "run": 49
    },
    "20": {
-    "natural": 24,
-    "casual": 5,
-    "think": 42,
-    "run": 48
+    "natural": 26,
+    "casual": 0,
+    "think": 58,
+    "run": 84
    },
    "30": {
     "natural": 36,
-    "casual": 7,
+    "casual": 1,
     "think": 63,
-    "run": 84
+    "run": 36
+   },
+   "40": {
+    "natural": 45,
+    "casual": 11,
+    "think": 48,
+    "run": 51
    }
   }
  },
