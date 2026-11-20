@@ -84,48 +84,12 @@ export function sfx(name: string, n = 0, volume = 1): void {
   else if (name === 'tier' && n > 0) file = `tier_${Math.min(4, n)}`;
   else if (VARIANTS[name]) file = `${name}_${Math.floor(Math.random() * VARIANTS[name])}`;
   const c = clips.get(file);
-  if (!c || !admit(file, c)) return;
-  fx.playOneShot(c, volume);
-}
-
-// ---------------------------------------------------------------- 限流（docs/04：微信上一秒几十声、每击一震会把原生层堵住，画面卡住、一直叮、一直震）
-
-/** 正在响的音效估计在什么时候结束（毫秒） */
-const voices: number[] = [];
-/** 每个音效上次响的时间（毫秒） */
-const lastPlay = new Map<string, number>();
-let lastBuzz = -1e9;
-let quietUntil = 0;
-
-function limits(): { maxVoices: number; sameGap: number; buzzGap: number; longBuzz: number } | undefined {
-  return App.config?.ui.audio;
-}
-
-/** 这一声能不能响：同一个音效隔得太近、或同时在响的太多，就不响 */
-function admit(file: string, c: AudioClip): boolean {
-  const lim = limits();
-  if (!lim) return true;
-  const now = Date.now();
-  if (now - (lastPlay.get(file) ?? -1e9) < lim.sameGap * 1000) return false;
-  for (let i = voices.length - 1; i >= 0; i--) if (voices[i] <= now) voices.splice(i, 1);
-  if (voices.length >= lim.maxVoices) return false;
-  lastPlay.set(file, now);
-  // 时长读不到（个别平台）按半秒算；另加 0.1 秒是微信上新建音频对象、读文件的时间
-  const dur = c.getDuration() > 0 ? c.getDuration() : 0.5;
-  voices.push(now + (dur + 0.1) * 1000);
-  return true;
+  if (c) fx.playOneShot(c, volume);
 }
 
 /** 震动（设置里能关）。轻：点一下、连击命中；中：升档、满缸；重：高档升档、过关、开箱 */
 export function buzz(kind: 'light' | 'medium' | 'heavy'): void {
   if (!App.save?.data.settings.vibrate) return;
-  const lim = limits();
-  if (lim) {
-    const now = Date.now();
-    if (now < quietUntil || now - lastBuzz < lim.buzzGap * 1000) return;
-    lastBuzz = now;
-    if (kind === 'heavy') quietUntil = now + lim.longBuzz * 1000;
-  }
   App.platform.vibrate(kind);
 }
 
