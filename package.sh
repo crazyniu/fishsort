@@ -145,9 +145,9 @@ ios_build() {
         -allowProvisioningUpdates build > "$log" 2>&1 \
         || { grep -E "error:|BUILD FAILED" "$log" | sort -u | head -30; die "签名版编译失败（全文 client/build/ios/phone.log）"; }
       # Cocos 生成的工程把产物放在 proj/Release-iphoneos/（不在 derivedData 里）；两处都找，取最新的
-      app="$(ls -td "$CLIENT"/build/ios/proj/Release-iphoneos/*.app "$CLIENT"/build/ios/derived-phone/Build/Products/Release-iphoneos/*.app 2>/dev/null | head -1)"
+      app="$(ls -td "$CLIENT"/build/ios/proj/Release-iphoneos/*.app "$CLIENT"/build/ios/derived-phone/Build/Products/Release-iphoneos/*.app 2>/dev/null | head -1 || true)"
       [ -n "$app" ] || die "编译通过了，但没找到打好的 App（client/build/ios/proj/Release-iphoneos/）"
-      codesign -dv "$app" 2>&1 | grep -q "TeamIdentifier=$team" || die "${app} 没有用 ${team} 签名（全文 client/build/ios/phone.log）"
+      codesign -dv "$app" 2>&1 | grep "TeamIdentifier=$team" >/dev/null || die "${app} 没有用 ${team} 签名（全文 client/build/ios/phone.log）"
       # 配对过、现在连得上的 iPhone（第一部）
       xcrun devicectl list devices --json-output "$CLIENT/build/ios/devices.json" >/dev/null 2>&1 || true
       udid="$(node -e '
