@@ -10,6 +10,7 @@ import { LevelData } from '../assets/scripts/core/model/levelData';
 import * as RouteGen from '../assets/scripts/core/gen/routeGen';
 import * as Players from '../assets/scripts/core/solver/players';
 import * as Prefill from '../assets/scripts/core/gen/prefill';
+import * as NoTriple from '../assets/scripts/core/gen/noTriple';
 import { Rng } from '../assets/scripts/core/rng/rng';
 import { GameState } from '../assets/scripts/core/model/gameState';
 import * as Rules from '../assets/scripts/core/rules/rules';
@@ -410,5 +411,44 @@ describe('精确求解器与规定路线（docs/02 第 0.2 节）', () => {
       assert.deepEqual(after, before);
       assert.equal(LevelCheck.replay(snap.lv, snap.m.route).won, true, '想清楚的玩家赢下来的走法回放能赢');
     }
+  });
+
+  it('同一个气泡里同种鱼最多两条：犯规的泡换开，每种鱼的数量不变，结伴鱼不动', () => {
+    const c = loadCurve();
+    for (const id of [8, 30, 85]) {
+      const p = { ...LevelCurve.params(c, id, 0), scramble: 0, attempts: 8 };
+      const lv = generate(p, 777 + id, (x) => Route.solve(x, 100000).taps) as LevelData;
+      // 故意做一个犯规的泡：第一个没有结伴鱼、至少 3 条鱼的泡全换成同一种
+      const bi = lv.bubbles.findIndex((b) => b.fish.length >= 3 && b.pairs.length === 0);
+      const b = lv.bubbles[bi];
+      const sp = b.fish[0];
+      for (let k = 1; k < b.fish.length; k++) {
+        // 从别的泡里找同种的换过来，保持每种的数量
+        for (const o of lv.bubbles) {
+          if (o === b || o.pairs.length > 0) continue;
+          const j = o.fish.indexOf(sp);
+          if (j >= 0 && b.fish[k] !== sp) [o.fish[j], b.fish[k]] = [b.fish[k], o.fish[j]];
+        }
+      }
+      const before = new Map<number, number>();
+      for (const x of lv.bubbles) for (const f of x.fish) before.set(f, (before.get(f) ?? 0) + 1);
+      const pairsBefore = lv.bubbles.map((x) => x.pairs.map((pr) => pr.map((k) => x.fish[k])));
+      assert.ok(NoTriple.violations(lv) > 0, `第 ${id} 关：先做出犯规的泡`);
+      assert.equal(NoTriple.fix(lv, new Rng(5)), 0);
+      assert.equal(NoTriple.violations(lv), 0);
+      const after = new Map<number, number>();
+      for (const x of lv.bubbles) for (const f of x.fish) after.set(f, (after.get(f) ?? 0) + 1);
+      assert.deepEqual(after, before, '每种鱼的数量不变');
+      assert.deepEqual(lv.bubbles.map((x) => x.pairs.map((pr) => pr.map((k) => x.fish[k]))), pairsBefore, '结伴鱼不动');
+    }
+  });
+
+  it('收紧时不换出三条同种鱼的泡', () => {
+    const c = loadCurve();
+    const p = { ...LevelCurve.params(c, 8, 0), scramble: 0, attempts: 8 };
+    const lv = generate(p, 2020, (x) => Route.solve(x, 100000).taps) as LevelData;
+    NoTriple.fix(lv, new Rng(1));
+    const r = RouteGen.tighten(lv, { target: 0.3, thinkFloor: 0.9, preview: 0, iterations: 12, seed: 3, casualGames: 20, thinkGames: 4 });
+    for (const snap of r.byPct.values()) assert.equal(NoTriple.violations(snap.lv), 0);
   });
 });
