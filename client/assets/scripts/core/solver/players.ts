@@ -304,8 +304,11 @@ export interface Rate {
   route: Tap[] | null;
 }
 
-/** 打 games 局。stopBelow：赢的局数已经不可能到这个比例就提前停（收紧关卡时省时间，返回的过关率是已打的那几局的） */
-export function rate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, seedBase = 0, stopBelow = 0): Rate {
+/**
+ * 打 games 局。stopBelow：赢的局数已经不可能到这个比例就提前停；stopAbove：赢的局数已经超过这个比例（打完也一定在它之上）就提前停。
+ * 都是收紧关卡时省时间用的：提前停的那一次反正不要，返回的过关率是已打的那几局的
+ */
+export function rate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, seedBase = 0, stopBelow = 0, stopAbove = 1): Rate {
   let won = 0;
   let peak = 0;
   let route: Tap[] | null = null;
@@ -318,6 +321,10 @@ export function rate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, s
     }
     peak += r.peak;
     if (stopBelow > 0 && won + (games - g - 1) < stopBelow * games) {
+      g++;
+      break;
+    }
+    if (stopAbove < 1 && won > stopAbove * games) {
       g++;
       break;
     }
@@ -335,8 +342,11 @@ export interface Ruler {
   slip?: number;
 }
 
-export function rulerRate(lv: LevelData, ruler: Ruler, games: number, preview: number, seedBase = 0): Rate {
-  return ruler.kind === 'think' ? rate(lv, 'think', games, { preview, budget: ruler.budget }, seedBase) : rate(lv, 'casual', games, { preview, slip: ruler.slip }, seedBase);
+/** stopBelow / stopAbove 同 rate：结果已经确定在这个比例之下 / 之上就提前停 */
+export function rulerRate(lv: LevelData, ruler: Ruler, games: number, preview: number, seedBase = 0, stopBelow = 0, stopAbove = 1): Rate {
+  return ruler.kind === 'think'
+    ? rate(lv, 'think', games, { preview, budget: ruler.budget }, seedBase, stopBelow, stopAbove)
+    : rate(lv, 'casual', games, { preview, slip: ruler.slip }, seedBase, stopBelow, stopAbove);
 }
 
 export function winRate(lv: LevelData, kind: Kind, games: number, o: PlayOptions, seedBase = 0): number {
