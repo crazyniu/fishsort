@@ -392,6 +392,8 @@ export class GamePage extends Page {
     this.dropShown = -2;
     this.kindBannerNode = null;
     this.praiseNode = null;
+    // 下面会把 fly 层整个销毁重搭（重开、下一关、撤销都走这里），连击目标的「/N」也在里面，引用一起清掉
+    this.goalTail = null;
     this.bg.destroyAllChildren();
     this.under.destroyAllChildren();
     this.stage.destroyAllChildren();
@@ -1881,7 +1883,8 @@ export class GamePage extends Page {
   }
 
   private comboTailLabel(): Label {
-    if (!this.goalTail || !this.goalTail.node.isValid) {
+    // 组件被销毁后 .node 是 null（不是失效的节点），两样都要查（2026-11-20 微信真机：撤销或重开后再连击，这里每帧报错、画面卡住、一直叮）
+    if (!this.goalTail || !this.goalTail.isValid || !this.goalTail.node?.isValid) {
       this.goalTail = text(this.comboBadge, '', 40, { align: 'left', color: COLOR.yellow });
     }
     return this.goalTail;
