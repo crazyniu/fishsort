@@ -94,7 +94,6 @@ H_SPINS_LEFT,剩 %d 次,%d left,剩 %d 次,残り %d 回,%d회 남음,Noch %d,Re
 H_SPIN,开箱,Open,開箱,開ける,열기,Öffnen,Ouvrir,Abrir,Abrir,Apri,Открыть,Aç
 H_TEN_PULL,十连,Open ×10,十連,10回開ける,10회 열기,×10 öffnen,Ouvrir ×10,Abrir ×10,Abrir ×10,Apri ×10,Открыть ×10,×10 aç
 UI_MINUTES,%d 分钟,%d min,%d 分鐘,%d分,%d분,%d Min.,%d min,%d min,%d min,%d min,%d мин,%d dk
-UI_SHARE_SHORT,分享,Share,分享,シェア,공유,Teilen,Partager,Compartir,Compartilhar,Condividi,Поделиться,Paylaş
 TIP_LIVES,从这关起，中途退出会扣 1 条命,"From now on, quitting costs a life",從這關起，中途退出會扣 1 條命,このステージから、途中でやめるとライフが1減ります,이번 레벨부터 중간에 나가면 하트 1개가 줄어요,Ab jetzt kostet Aufhören ein Leben,"Désormais, quitter un niveau coûte une vie","Desde ahora, salir a mitad cuesta una vida","A partir de agora, sair no meio custa uma vida","Da ora, uscire a metà costa una vita",Теперь выход посреди уровня стоит жизнь,Artık seviyeden çıkmak bir cana mal olur
 TIP_DROP,后面还会掉下新气泡,More bubbles will drop in,後面還會掉下新氣泡,あとから新しい泡が落ちてくるよ,새 방울이 계속 떨어져요,Es fallen noch neue Blasen nach,De nouvelles bulles vont tomber,Caerán más burbujas,Mais bolhas vão cair,Cadranno altre bolle,Сверху будут падать новые пузыри,Yeni baloncuklar düşmeye devam edecek
 TIP_CLOCK,从这关起挑战关限时：时间用完前救出所有小鱼，连击能加时间,Challenge levels are timed now: rescue every fish before time runs out. Combos add time,從這關起挑戰關限時：時間用完前救出所有小魚，連擊能加時間,ここからチャレンジステージは時間制限あり。時間内に全員救出しよう。コンボで時間が増えるよ,이제 도전 레벨엔 시간 제한이 있어요. 시간 안에 모두 구출하세요. 콤보로 시간이 늘어나요,Herausforderungen haben jetzt ein Zeitlimit: Rette alle Fische rechtzeitig. Combos geben Extrazeit,Les niveaux défi sont chronométrés : sauve tous les poissons à temps. Les combos donnent du temps,Los niveles de reto tienen tiempo: rescata a todos los peces antes de que se acabe. Los combos suman tiempo,As fases desafio agora têm tempo: salve todos os peixes antes que acabe. Combos dão mais tempo,I livelli sfida ora sono a tempo: salva tutti i pesci prima dello scadere. Le combo danno tempo extra,Теперь на уровнях-испытаниях есть таймер: спаси всех рыбок вовремя. Комбо добавляют время,Meydan okuma seviyeleri artık süreli: Süre bitmeden tüm balıkları kurtar. Kombolar süre kazandırır
@@ -147,7 +146,7 @@ REVIVE_STUCK,解开锁链和冰冻,Break the chains and ice,解開鎖鏈和冰�
 LIFE_MINUS,生命 −1,Life −1,生命 −1,ライフ −1,하트 −1,Leben −1,Vie −1,Vida −1,Vida −1,Vita −1,Жизнь −1,Can −1
 PAUSE_TITLE,暂停,Paused,暫停,ポーズ,일시 정지,Pause,Pause,Pausa,Pausa,Pausa,Пауза,Duraklat
 WIN_TITLE,通关成功,Level Clear!,通關成功,クリア！,클리어!,Geschafft!,Réussi !,¡Superado!,Passou!,Superato!,Пройдено!,Başardın!
-WIN_DOUBLE,翻倍,Double,翻倍,2倍,2배,Doppelt,Doubler,Doblar,Dobrar,Raddoppia,Удвоить,2 katı
+WIN_DOUBLE,领双倍,Get x2,領雙倍,2倍GET,2배 받기,x2 holen,Prendre x2,Cobrar x2,Pegar x2,Prendi x2,Взять x2,2 kat al
 RETURN_HOME,主页,Home,首頁,ホーム,홈,Start,Accueil,Inicio,Início,Home,Меню,Ana sayfa
 SKILL_BUY_TITLE,购买%s,Get %s,購買%s,%sを買う,%s 받기,%s holen,Obtenir : %s,Conseguir %s,Pegar %s,Ottieni %s,Получить: %s,%s al
 SKILL_AD,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1,+1

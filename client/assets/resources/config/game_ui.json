@@ -104,8 +104,7 @@
   "coinsRoll": 0.5,
   "chestAt": 0.75,
   "chestShake": 0.34,
-  "buttonsAt": 1.55,
-  "shareFromRarity": "rare"
+  "buttonsAt": 1.55
  },
  "field": {
   "fill": 0.66,
