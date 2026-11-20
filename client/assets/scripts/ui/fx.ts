@@ -363,5 +363,14 @@ export function floatUp(layer: Node, node: Node, x: number, y: number, dy = 90, 
 }
 
 export function delay(owner: Node, sec: number, fn: () => void): void {
-  tween(box('timer', owner)).delay(sec).call(fn).removeSelf().start();
+  // 回调出错只报一次：tween 的 call 抛错时后面的 removeSelf 不执行，这一步下一帧还会再调，
+  // 变成每帧报错、整帧中断（画面卡住，出错前的音效和震动每帧来一次；2026-11-20 微信真机）
+  const once = (): void => {
+    try {
+      fn();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  tween(box('timer', owner)).delay(sec).call(once).removeSelf().start();
 }
