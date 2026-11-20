@@ -24,6 +24,7 @@ import { Rng } from '../../assets/scripts/core/rng/rng';
 import * as Players from '../../assets/scripts/core/solver/players';
 import * as Route from '../../assets/scripts/core/solver/route';
 import * as Pool from './pool';
+import * as NoTriple from '../../assets/scripts/core/gen/noTriple';
 
 const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
@@ -81,6 +82,8 @@ const pickStart = (fromSeed: number): Start | null => {
       // 难关开局占格（docs/01 9.3）：先从气泡里拿出几条后面才要的鱼放进暂存槽，再量、再收紧
       const pf = LevelCurve.prefillFor(curve, id);
       if (x && pf > 0 && curve.prefill) Prefill.apply(x, pf, curve.prefill.after, new Rng(id * 131 + sd * 17 + ease));
+      // 同一个泡里同种鱼最多两条（noTriple.ts）：生成出来有三条的先换开，换不开就换下一个种子
+      if (x && NoTriple.fix(x, new Rng(id * 977 + sd * 31 + ease)) > 0) continue;
       if (!x || Players.rate(x, 'think', rc.thinkGames, { preview }, 0, floor).win < floor) continue;
       const c = Players.rulerRate(x, ruler, rulerGames, preview).win;
       if (c > easiest) {
@@ -169,7 +172,8 @@ const usePool = !daily && !process.argv.includes('--fresh');
 const okFloor = (v: { think: number }) => v.think >= floor - 0.05;
 const near = (v: { casual: number }) => Math.abs(v.casual - target) <= 0.05;
 const toVer = (c: Pool.Chain, v: Pool.PoolVer): Ver => ({ pct: bucket(v.casual), lv: LevelData.fromDict(v.lv), casual: v.casual, rand: v.rand, think: v.think, run: v.run, chain: c.id });
-const poolVers = (c: Pool.Chain) => c.versions.filter(okFloor).map((v) => toVer(c, v));
+// 库里以前存的、有泡装了三条同种鱼的版本不要（2026-11-20 加这条规则以前存的）
+const poolVers = (c: Pool.Chain) => c.versions.filter(okFloor).map((v) => toVer(c, v)).filter((v) => NoTriple.violations(v.lv) === 0);
 /** 同组里这一关能用的链：没人用的，或者本来就是这一关的 */
 const free = new Map<string, Pool.Chain>();
 if (usePool) {

@@ -12,6 +12,7 @@ import { GameState } from '../model/gameState';
 import { Rng } from '../rng/rng';
 import { start, tap } from '../rules/rules';
 import * as Players from '../solver/players';
+import * as NoTriple from './noTriple';
 
 export interface TightenOptions {
   /** 尺子量出来的过关率压到多少为止（0–1） */
@@ -137,6 +138,8 @@ export function tighten(start0: LevelData, o: TightenOptions): TightenResult {
     const f1 = lv.bubbles[b1].fish[k1];
     const f2 = lv.bubbles[b2].fish[k2];
     if (b1 === b2 || f1 === f2) continue;
+    // 换完哪个泡里同种鱼有三条的不换（noTriple.ts）
+    if (!NoTriple.swapOk(lv, b1, k1, b2, k2)) continue;
     tries++;
     lv.bubbles[b1].fish[k1] = f2;
     lv.bubbles[b2].fish[k2] = f1;

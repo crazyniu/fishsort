@@ -9,6 +9,7 @@ import type { CurveConfig } from '../../assets/scripts/core/config';
 import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
 import * as Bots from '../../assets/scripts/core/solver/bots';
+import * as NoTriple from '../../assets/scripts/core/gen/noTriple';
 import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
 import * as Players from '../../assets/scripts/core/solver/players';
 import * as Jam from './jam';
@@ -65,6 +66,8 @@ for (const path of files) {
     continue;
   }
   const errs = LevelCheck.errors(lv);
+  // 同一个泡里同种鱼最多两条（core/gen/noTriple.ts，用户 2026-11-20）。只查进包的关：生成器原始输出和 Godot 版逐位一致，不在 LevelCheck 里管
+  if (NoTriple.violations(lv) > 0) errs.push(`${NoTriple.violations(lv)} 个气泡里同种鱼超过 ${NoTriple.MAX_SAME} 条`);
   const isVariant = name.includes('_e');
   const obs = obstacles(lv);
   // 新机制首发（docs/02 第 2.2、5 节）：解锁关是挑战关的下一关、只带这一个障碍；没解锁的障碍不能提前出现
