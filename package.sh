@@ -165,8 +165,15 @@ android_build() {
   local mode="${1:-apk}" proj
   # 只有 AAB（传 Google Play）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
   FS_RELEASE="$([ "$mode" = aab ] && echo 1 || echo 0)" node tools/native/apply.mjs
-  local sdk="${ANDROID_HOME:-$HOME/Library/Android/sdk}" ndk cfg
-  [ -d "$sdk/platforms" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
+  local sdk ndk cfg cand
+  # SDK：ANDROID_HOME，或者 Android Studio 的默认位置，或者外接盘上的 /Volumes/*/Android/sdk（用户 2026-11-20：Mac 上的 SDK 装在外接盘 /Volumes/Lexar/Android/sdk）
+  sdk="${ANDROID_HOME:-}"
+  if [ -z "$sdk" ]; then
+    for cand in "$HOME/Library/Android/sdk" /Volumes/*/Android/sdk; do
+      if [ -d "$cand/platforms" ] && [ -d "$cand/ndk" ]; then sdk="$cand"; break; fi
+    done
+  fi
+  [ -n "$sdk" ] && [ -d "$sdk/platforms" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME；也会找外接盘上的 /Volumes/*/Android/sdk）"
   # NDK：ANDROID_NDK_HOME，或者 SDK 里 ndk/ 下版本最新的那个（版本号都是两位数起，按字面排序就行）
   ndk="${ANDROID_NDK_HOME:-$(ls -d "$sdk"/ndk/*/ 2>/dev/null | sort | tail -1)}"
   ndk="${ndk%/}"
