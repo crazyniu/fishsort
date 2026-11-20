@@ -54,7 +54,16 @@ static UIViewController *FsRootViewController(void) {
 @property(nonatomic, strong) GADInterstitialAd *interstitial;
 @property(nonatomic, strong) GADBannerView *banner;
 @property(nonatomic, assign) BOOL earned;
+// 加载失败后隔多久再试（秒）：15 秒起逐次加倍，最长 5 分钟；加载成功就重置。
+// 上架前和刚上架时填充很低、断网时也会失败，不重试的话这一局入口一直是灰的
+@property(nonatomic, assign) NSTimeInterval rewardedRetry;
+@property(nonatomic, assign) NSTimeInterval interstitialRetry;
+@property(nonatomic, assign) BOOL rewardedLoading;
+@property(nonatomic, assign) BOOL interstitialLoading;
 @end
+
+static const NSTimeInterval FS_RETRY_FIRST = 15;
+static const NSTimeInterval FS_RETRY_MAX = 300;
 
 @implementation FsAds
 
@@ -108,23 +117,42 @@ static UIViewController *FsRootViewController(void) {
 }
 
 - (void)loadRewarded {
-    if (self.rewardedUnit.length == 0) return;
+    // 已经有一条或正在加载就不重复请求（点了入口、到点重试可能同时触发）
+    if (self.rewardedUnit.length == 0 || self.rewarded || self.rewardedLoading) return;
+    self.rewardedLoading = YES;
     [GADRewardedAd loadWithAdUnitID:self.rewardedUnit
                             request:[GADRequest request]
                   completionHandler:^(GADRewardedAd *ad, NSError *error) {
+                      self.rewardedLoading = NO;
                       self.rewarded = error ? nil : ad;
                       self.rewarded.fullScreenContentDelegate = self;
                       FsSend(@"fs.ads", @{@"ready" : @(self.rewarded != nil)});
+                      if (self.rewarded) {
+                          self.rewardedRetry = FS_RETRY_FIRST;
+                      } else {
+                          NSTimeInterval wait = MAX(self.rewardedRetry, FS_RETRY_FIRST);
+                          self.rewardedRetry = MIN(FS_RETRY_MAX, wait * 2);
+                          dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(wait * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self loadRewarded]; });
+                      }
                   }];
 }
 
 - (void)loadInterstitial {
-    if (self.interstitialUnit.length == 0) return;
+    if (self.interstitialUnit.length == 0 || self.interstitial || self.interstitialLoading) return;
+    self.interstitialLoading = YES;
     [GADInterstitialAd loadWithAdUnitID:self.interstitialUnit
                                 request:[GADRequest request]
                       completionHandler:^(GADInterstitialAd *ad, NSError *error) {
+                          self.interstitialLoading = NO;
                           self.interstitial = error ? nil : ad;
                           self.interstitial.fullScreenContentDelegate = self;
+                          if (self.interstitial) {
+                              self.interstitialRetry = FS_RETRY_FIRST;
+                          } else {
+                              NSTimeInterval wait = MAX(self.interstitialRetry, FS_RETRY_FIRST);
+                              self.interstitialRetry = MIN(FS_RETRY_MAX, wait * 2);
+                              dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(wait * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self loadInterstitial]; });
+                          }
                       }];
 }
 
@@ -192,6 +220,7 @@ static UIViewController *FsRootViewController(void) {
     if (ad == self.rewarded) {
         FsSend(@"fs.rewarded", @{@"result" : @"unavailable"});
         self.rewarded = nil;
+        FsSend(@"fs.ads", @{@"ready" : @NO});
         [self loadRewarded];
     } else if (ad == self.interstitial) {
         FsSend(@"fs.interstitial", @{});
