@@ -3,6 +3,8 @@
 package com.cocos.game;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -36,6 +38,13 @@ final class FsAds {
     private static InterstitialAd interstitial;
     private static AdView banner;
     private static boolean earned;
+    /** 加载失败后隔多久再试（秒）：15 秒起逐次加倍，最长 5 分钟；加载成功就重置。
+     * 上架前和刚上架时填充很低、断网时也会失败，不重试的话这一局入口一直是灰的 */
+    private static final int RETRY_FIRST = 15;
+    private static final int RETRY_MAX = 300;
+    private static int rewardedRetry = RETRY_FIRST;
+    private static int interstitialRetry = RETRY_FIRST;
+    private static final Handler main = new Handler(Looper.getMainLooper());
 
     private FsAds() {}
 
@@ -83,12 +92,19 @@ final class FsAds {
         });
     }
 
+    private static boolean rewardedLoading;
+    private static boolean interstitialLoading;
+
     private static void loadRewarded() {
-        if (rewardedUnit.isEmpty()) return;
+        // 已经有一条或正在加载就不重复请求（点了入口、到点重试可能同时触发）
+        if (rewardedUnit.isEmpty() || rewarded != null || rewardedLoading) return;
+        rewardedLoading = true;
         RewardedAd.load(activity, rewardedUnit, new AdRequest.Builder().build(), new RewardedAdLoadCallback() {
             @Override
             public void onAdLoaded(@NonNull RewardedAd ad) {
+                rewardedLoading = false;
                 rewarded = ad;
+                rewardedRetry = RETRY_FIRST;
                 rewarded.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
                     public void onAdDismissedFullScreenContent() {
@@ -102,6 +118,7 @@ final class FsAds {
                     public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
                         send("fs.rewarded", "{\"result\":\"unavailable\"}");
                         rewarded = null;
+                        send("fs.ads", "{\"ready\":false}");
                         loadRewarded();
                     }
                 });
@@ -110,18 +127,25 @@ final class FsAds {
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                rewardedLoading = false;
                 rewarded = null;
                 send("fs.ads", "{\"ready\":false}");
+                int wait = rewardedRetry;
+                rewardedRetry = Math.min(RETRY_MAX, rewardedRetry * 2);
+                main.postDelayed(FsAds::loadRewarded, wait * 1000L);
             }
         });
     }
 
     private static void loadInterstitial() {
-        if (interstitialUnit.isEmpty()) return;
+        if (interstitialUnit.isEmpty() || interstitial != null || interstitialLoading) return;
+        interstitialLoading = true;
         InterstitialAd.load(activity, interstitialUnit, new AdRequest.Builder().build(), new InterstitialAdLoadCallback() {
             @Override
             public void onAdLoaded(@NonNull InterstitialAd ad) {
+                interstitialLoading = false;
                 interstitial = ad;
+                interstitialRetry = RETRY_FIRST;
                 interstitial.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
                     public void onAdDismissedFullScreenContent() {
@@ -141,7 +165,11 @@ final class FsAds {
 
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError error) {
+                interstitialLoading = false;
                 interstitial = null;
+                int wait = interstitialRetry;
+                interstitialRetry = Math.min(RETRY_MAX, interstitialRetry * 2);
+                main.postDelayed(FsAds::loadInterstitial, wait * 1000L);
             }
         });
     }
