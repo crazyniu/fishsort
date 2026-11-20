@@ -34,7 +34,7 @@
       "en"
     ]
   },
-  "adsEnabled": false,
+  "adsEnabled": true,
   "levelLab": true,
   "ads": {
     "ios": {

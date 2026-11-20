@@ -48,6 +48,14 @@ const appLangs = game.languages.app;
 for (const l of appLangs) if (!LOCALES[l]) throw new Error(`game.json 的 languages.app 里有 ${l}，apply.mjs 的 LOCALES 里没有`);
 /** 广告总开关（game.json 的 ads.enabled）：关掉时三端都没有广告，原生包里不带广告 SDK */
 const adsOn = game.ads.enabled === true;
+/**
+ * 上架包（package.sh 的 iOS IPA、Android AAB，FS_RELEASE=1）才用 AdMob 后台的真实广告位；其它包（Xcode 工程、模拟器、APK、
+ * run.sh 试玩）用 game.json 的 ads.test 里 Google 官方的测试广告位：测试时点到真广告会被 AdMob 判成无效流量。
+ * AdMob 应用 ID 一直用真的（UMP 的同意弹窗按它在后台的设置出）。微信的广告位只有一套（微信官方的流量主）
+ */
+const release = process.env.FS_RELEASE === '1';
+const units = (platform) => (release || !game.ads.test?.[platform] ? game.ads[platform] : game.ads.test[platform]);
+if (adsOn) console.log(release ? '· 上架包：用 AdMob 的真实广告位' : '· 测试包：用 Google 的测试广告位（上架包才用真实的）');
 
 // 1. 游戏运行时读的平台配置（platform/platformConfig.ts）
 write(
@@ -59,7 +67,7 @@ write(
     adsEnabled: adsOn,
     // 难度调试页（设置里的入口）开不开：测试包开着，上架前关掉
     levelLab: game.levelLab !== false,
-    ads: { ios: game.ads.ios, android: game.ads.android, wechat: game.ads.wechat },
+    ads: { ios: units('ios'), android: units('android'), wechat: game.ads.wechat },
   }),
 );
 

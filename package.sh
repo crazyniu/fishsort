@@ -78,7 +78,8 @@ ios_project() {
 
 ios_build() {
   local mode="${1:-}" proj scheme team
-  node tools/native/apply.mjs
+  # 只有 IPA（传 App Store）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
+  FS_RELEASE="$([ "$mode" = ipa ] && echo 1 || echo 0)" node tools/native/apply.mjs
   ios_sdk
   ios_fix_webp
   # Preserve the working tree's launch artwork while Creator exports its templates.
@@ -142,7 +143,8 @@ PLIST
 
 android_build() {
   local mode="${1:-apk}" proj
-  node tools/native/apply.mjs
+  # 只有 AAB（传 Google Play）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
+  FS_RELEASE="$([ "$mode" = aab ] && echo 1 || echo 0)" node tools/native/apply.mjs
   [ -n "${ANDROID_HOME:-}" ] || [ -d "$HOME/Library/Android/sdk" ] || die "没找到 Android SDK（装 Android Studio，或设 ANDROID_HOME）"
   cocos_build android
   proj="$CLIENT/build/android/proj"

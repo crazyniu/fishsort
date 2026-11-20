@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- 广告 ID：game.json 关了广告时 apply.mjs 改成 tools:node="remove" -->
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 
     <application
         android:allowBackup="true"
@@ -22,7 +22,7 @@
 
         <!-- AdMob 应用 ID（tools/native/apply.mjs 按 game.json 改写；现在是 Google 的测试 ID） -->
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-7415962042674276~1759176823" />
 
         <activity
             android:name="com.cocos.game.AppActivity"

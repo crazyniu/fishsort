@@ -43,7 +43,7 @@
     "build": 2,
     "team": "",
     "minVersion": "15.0",
-    "admobAppId": "ca-app-pub-3940256099942544~1458002511",
+    "admobAppId": "ca-app-pub-7415962042674276~3044338335",
     "trackingText": {
       "en": "This lets us show you ads that are more relevant to you.",
       "zh_CN": "用来给你推荐更相关的广告。",
@@ -63,7 +63,7 @@
     "packageName": "dabudian.top.bubblefish",
     "minSdk": 24,
     "targetSdk": 35,
-    "admobAppId": "ca-app-pub-3940256099942544~3347511713"
+    "admobAppId": "ca-app-pub-7415962042674276~1759176823"
   },
   "wechat": {
     "_comment": "remoteUrl：资源的下载地址（云开发的静态网站托管域名，后面跟 remote/resources/...）；cloudEnv：云开发环境 ID，打包时用 tcb 自动上传到静态托管。remoteUrl 空着时资源留在包里，只能在模拟器里跑（docs/10 第 4 节）",
@@ -74,17 +74,29 @@
   "levelLab": true,
   "_levelLabComment": "难度调试页（设置里的「难度调试」，docs/01 第 9.7 节、docs/10 第 9 节）：只在开发版出现（编辑器预览、调试构建、微信开发版和体验版），正式版自动不出，不用上架前改；写 false 连开发版也不出",
   "ads": {
-    "_comment": "enabled：总开关。false = 三端都没有广告：看广告的入口全部隐藏，iOS / Android 不把广告 SDK 打进包、不弹广告同意和跟踪授权（用户 2026-11-18：第一版上架不接广告和内购）。下面是广告位 ID：iOS / Android 现在是 Google 官方的测试广告位；微信要开通流量主后在后台建广告位填进来，空着就当没有广告",
-    "enabled": false,
+    "_comment": "enabled：总开关（用户 2026-11-20：上架的版本都有广告，打开）。false = 三端都没有广告：看广告的入口全部隐藏，iOS / Android 不把广告 SDK 打进包、不弹广告同意和跟踪授权。ios / android 是 AdMob 后台建的真实广告位（发布商 pub-7415962042674276，2026-11-20 建，两端都以未上架方式创建，正式投放前要关联商店页面并过 AdMob 审核；激励广告两端都是默认的 1 Reward），只有上架包（iOS 的 IPA、Android 的 AAB）用；其它测试包用 test 里 Google 官方的测试广告位，测试时点到真广告会被 AdMob 判成无效流量。微信只用微信官方的广告：要开通流量主后在后台建广告位填进 wechat，空着就当没有广告（不用 AdMob 的 ID）",
+    "enabled": true,
     "ios": {
-      "rewarded": "ca-app-pub-3940256099942544/1712485313",
-      "interstitial": "ca-app-pub-3940256099942544/4411468910",
-      "banner": "ca-app-pub-3940256099942544/2934735716"
+      "rewarded": "ca-app-pub-7415962042674276/8485909264",
+      "interstitial": "ca-app-pub-7415962042674276/9783513212",
+      "banner": "ca-app-pub-7415962042674276/5844268205"
     },
     "android": {
-      "rewarded": "ca-app-pub-3940256099942544/5224354917",
-      "interstitial": "ca-app-pub-3940256099942544/1033173712",
-      "banner": "ca-app-pub-3940256099942544/6300978111"
+      "rewarded": "ca-app-pub-7415962042674276/9062951775",
+      "interstitial": "ca-app-pub-7415962042674276/8332324031",
+      "banner": "ca-app-pub-7415962042674276/1323615444"
+    },
+    "test": {
+      "ios": {
+        "rewarded": "ca-app-pub-3940256099942544/1712485313",
+        "interstitial": "ca-app-pub-3940256099942544/4411468910",
+        "banner": "ca-app-pub-3940256099942544/2934735716"
+      },
+      "android": {
+        "rewarded": "ca-app-pub-3940256099942544/5224354917",
+        "interstitial": "ca-app-pub-3940256099942544/1033173712",
+        "banner": "ca-app-pub-3940256099942544/6300978111"
+      }
     },
     "wechat": {
       "rewarded": "",
