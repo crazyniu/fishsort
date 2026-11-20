@@ -214,5 +214,9 @@
       }
     },
     "globalConfigKey": "defaultConfig"
+  },
+  "macroConfig": {
+    "ENABLE_WEBGL_ANTIALIAS": false,
+    "CLEANUP_IMAGE_CACHE": true
   }
 }
