@@ -823,7 +823,11 @@ export function takeUnlocks(): string[] {
   return pendingUnlocks.splice(0);
 }
 
+/** 正在离开的那一页结算（等插屏的时候）：再点「下一关」「回主页」、按返回键都不再走第二遍 */
+let leaving: WinData | null = null;
+
 export async function afterResult(d: WinData, next: boolean): Promise<void> {
+  if (leaving === d) return;
   const s = App.save.data;
   // 道具礼包（第一次过了礼包关）：先弹出来说清楚，关掉再往下走（docs/01 9.6）
   const gift = d.result.gift;
@@ -832,14 +836,33 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
     giftPopup(gift, App.config.eco.skills.gift?.count ?? 1, () => void afterResult(d, next));
     return;
   }
-  // 真播出来了才记频控（没拉到广告不算一次，#170）
-  if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, adNow(s.ads)) && (await App.platform.showInterstitial('int_level_end'))) {
-    Meta.markInterstitial(s, d.level, adNow());
-    App.save.write();
+  // 这一次走完之前不再走第二遍：原来等插屏时连点两个键，两次都会跳转，广告关掉后又被带去先点的那页
+  leaving = d;
+  try {
+    // 真播出来了才记频控（没拉到广告不算一次，#170）
+    if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, adNow(s.ads))) {
+      let shown = false;
+      ui.busy(true);
+      try {
+        shown = await App.platform.showInterstitial('int_level_end');
+      } catch (e) {
+        // 广告出错按没播处理，照常往下走（不能卡在结算页）
+        console.warn('插屏出错', e);
+      } finally {
+        ui.busy(false);
+      }
+      if (shown) {
+        Meta.markInterstitial(s, d.level, adNow());
+        App.save.write();
+      }
+    }
+    for (const f of d.result.new_features) if (!pendingUnlocks.includes(f)) pendingUnlocks.push(f);
+    if (next) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));
+    else ui.go('home');
+  } finally {
+    // 没离开结算页（没体力时「下一关」只弹生命窗）：放开，关掉弹窗还能再点「下一关」「回主页」
+    if (ui.currentName === 'result') leaving = null;
   }
-  for (const f of d.result.new_features) if (!pendingUnlocks.includes(f)) pendingUnlocks.push(f);
-  if (next) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));
-  else ui.go('home');
 }
 
 export function revealPending(cards: CardResult[], done: () => void): void {

@@ -96,7 +96,7 @@ export class Boot extends Component {
             view.setVersion(c.version);
             // 难度调试页：开发版才有（正式版自动不出，代码留着），game.json 的 levelLab 写 false 可以连开发版也关掉
             if (c.levelLab !== false && App.platform.isDevBuild()) lab.init(App.platform, applyTier);
-          });
+          }).catch(() => undefined);
         },
       ],
       [0.02, () => loadStrings(lang)],
