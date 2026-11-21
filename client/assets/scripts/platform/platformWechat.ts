@@ -16,11 +16,13 @@ export function inWechat(): boolean {
 
 
 /**
- * 插屏的兜底（秒）：show() 多久还没播出来就不等了；播出来以后多久还没收到关闭也不等了。都按没播算（不记频控）。
+ * 广告的兜底（秒）：show() 多久还没播出来就不等了（插屏、激励视频都用）；插屏播出来以后多久还没收到关闭也不等了。都按没播算（不记频控）。
  * 播出来以前卡住是最常见的（拉不到、SDK 不回），玩家对着遮罩最多等 10 秒；播出来以后广告盖着整个屏幕，30 秒后就算没收到关闭，游戏在广告底下照常往下走
  */
-const INTERSTITIAL_SHOW_TIMEOUT = 10;
+const AD_SHOW_TIMEOUT = 10;
 const INTERSTITIAL_CLOSE_TIMEOUT = 30;
+/** 激励视频播出来以后最多等多久收到关闭（视频本身十几到三十秒，和原生的 120 秒一样） */
+const REWARDED_CLOSE_TIMEOUT = 120;
 
 export class PlatformWechat extends PlatformBase {
   readonly id = 'wechat';
@@ -81,9 +83,11 @@ export class PlatformWechat extends PlatformBase {
     this.rewardedReady = false;
     return new Promise<AdResult>((resolve) => {
       let settled = false;
+      let clearTimer = (): void => undefined;
       const finish = (result: AdResult) => {
         if (settled) return;
         settled = true;
+        clearTimer();
         ad.offClose(onClose);
         ad.offError(onError);
         this.playingRewarded = false;
@@ -100,7 +104,17 @@ export class PlatformWechat extends PlatformBase {
       };
       ad.onClose(onClose);
       ad.onError(onError);
-      ad.show().catch(onError);
+      // 兜底：show() 10 秒还没播出来、或者播出来 120 秒还没收到关闭（微信偶尔不回调），按不可用返回，入口不会一直被遮罩挡住
+      let timer = setTimeout(onError, AD_SHOW_TIMEOUT * 1000);
+      ad.show().then(
+        () => {
+          if (settled) return;
+          clearTimeout(timer);
+          timer = setTimeout(onError, REWARDED_CLOSE_TIMEOUT * 1000);
+        },
+        onError,
+      );
+      clearTimer = () => clearTimeout(timer);
     });
   }
 
@@ -120,7 +134,7 @@ export class PlatformWechat extends PlatformBase {
       const onClose = () => finish(true);
       // 播放中出错、或者微信既不回调关闭、show() 也不报错：都按「没播」返回（不记频控），结算页照常往下走，不会一直挂着遮罩
       const onError = () => finish(false);
-      let timer = setTimeout(() => finish(false), INTERSTITIAL_SHOW_TIMEOUT * 1000);
+      let timer = setTimeout(() => finish(false), AD_SHOW_TIMEOUT * 1000);
       ad.onClose(onClose);
       ad.onError(onError);
       ad.show().then(

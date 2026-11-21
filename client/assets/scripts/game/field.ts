@@ -679,8 +679,12 @@ export class Field {
    * 依赖的气泡右上角挂一块同色雪花牌（画在最上面一层，被压住的气泡也看得见），每帧跟着气泡走；
    * 冰化了、或者依赖泡破了 / 还没落到场上就收起。一个气泡被好几块冰依赖时并排挂几块
    */
+  /** placeIceLinks 用的计数，复用（气泡动的时候每帧都调，没冰的关也走这里） */
+  private iceOnDep = new Map<number, number>();
+
   private placeIceLinks(): void {
-    const onDep = new Map<number, number>();
+    const onDep = this.iceOnDep;
+    onDep.clear();
     for (const v of this.views) {
       if (!v || v.iceLinks.length === 0) continue;
       for (const l of v.iceLinks) {
