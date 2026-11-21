@@ -2,10 +2,11 @@
 // 按仓库根目录的 game.json 改写各平台的构建配置和原生工程（docs/10-开发底座.md）。
 // ./package.sh 选择微信或原生平台 打包前自动跑；改了 game.json 也可以单独跑：node tools/native/apply.mjs
 // 只改下面列出的那几处，别的不动；重复跑结果一样。
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const CLIENT = join(ROOT, 'client');
 const game = JSON.parse(readFileSync(join(ROOT, 'game.json'), 'utf8'));
 const changed = [];
@@ -65,6 +66,8 @@ write(
     version: game.version,
     languages: { app: game.languages.app, wechat: game.languages.wechat },
     adsEnabled: adsOn,
+    // 设置里「隐私政策」打开的网页
+    privacyPolicy: game.privacyPolicy ?? '',
     // 难度调试页（设置里的入口）开不开：测试包开着，上架前关掉
     levelLab: game.levelLab !== false,
     ads: { ios: units('ios'), android: units('android'), wechat: game.ads.wechat },

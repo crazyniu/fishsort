@@ -523,6 +523,16 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(ECO.dailyChallenge.levelStep, curve().cycle);
   });
 
+  it('每日挑战轮换走遍候选（候选数是 7 的倍数也不卡在一关，#170）', () => {
+    for (let lv = 20; lv <= 360; lv++) {
+      const top = Math.floor(lv / 5);
+      const n = top - Math.max(1, Math.floor((top + 1) / 2)) + 1;
+      const seen = new Set<number>();
+      for (let day = 20000; day < 20000 + n; day++) seen.add(DailyChallenge.levelFor(day, lv, 5, 360));
+      assert.equal(seen.size, n, `第 ${lv} 关的进度：${n} 个候选只轮到 ${seen.size} 个`);
+    }
+  });
+
   it('进场（再试 30 金币）、每日宝箱 200 金币 + 卡、七日大宝箱（1000 金币 + 随机技能 1 个 + 1 小时无限生命）', () => {
     const [save, eco, species] = setup(20);
     assert.ok(DailyChallenge.enter(save, eco, 100, 'free'));

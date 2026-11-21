@@ -4,13 +4,14 @@
 //   - 整张图不超过 256 种颜色（按 RGBA 算）：存成调色板 PNG（颜色表 + 透明度表），每个像素原样保留；
 //   - 超过 256 种（Cocos 给透明像素填了颜色，一般就多出二三十种）：保持全彩，换最高压缩级别重存（实测小 3% 左右）。
 // 每张新图都解码回来和原图逐像素比对，完全一样、而且确实更小才替换——画质一点不变。
+import { fileURLToPath } from 'node:url';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { deflateSync } from 'node:zlib';
 
 // sharp 装在 client/node_modules（client/package.json 的开发依赖）
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const sharp = createRequire(join(ROOT, 'client/package.json'))('sharp');
 
 const CRC_TABLE = new Uint32Array(256).map((_, n) => {

@@ -4,6 +4,7 @@
 //       npx tsx tools/level/untriple.ts --daily-only <关卡号>…   只修这几关的每日挑战关
 //       npx tsx tools/level/untriple.ts --merge     把各关改过的调试页读数合进 levels_lab/index.json（几关并行时各写各的一小份）
 // 同样的关卡同样的结果（换法的随机数按关卡号和第几种换法定）。
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -15,7 +16,7 @@ import { Rng } from '../../assets/scripts/core/rng/rng';
 import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
 import * as Players from '../../assets/scripts/core/solver/players';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const CFG = join(CLIENT, 'assets/resources/config');
 const LEVELS = join(CFG, 'levels');
 const LAB = join(CFG, 'levels_lab');

@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 // 上传后清掉静态网站托管上用不到的旧资源（./package.sh 选择微信小游戏、上传成功后自动跑）。
 // 用户 2026-11-18：网上只放有用的文件。资源文件名带 MD5，改过的文件换了名字，旧文件不清会越攒越多。
-// 做法：列出托管上 remote/ 下的全部文件，本地这次打包出来的 client/build/wechatgame-remote/remote 里没有的就删掉。
+// 做法：列出托管上 remote/ 下的全部文件，最近 KEEP_BUILDS 次上传（含这次）都没用到的才删。
+// 只按这次的包删不行（#170）：新包审核、体验期间线上还是旧包，旧包的资源被删了，没缓存的玩家启动就卡住。
+// 每次上传用到哪些文件记在这台电脑的 ~/.fishsort/wechat-builds/<环境 ID>/ 里；记录不到 KEEP_BUILDS 次就先不删（宁可多留）。
 // 用法：node tools/wechat/prune.mjs <云开发环境 ID> [--dry-run]
+import { fileURLToPath } from 'node:url';
 import { execFile, execFileSync } from 'node:child_process';
 import { promisify } from 'node:util';
-import { readdirSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const LOCAL = join(ROOT, 'client/build/wechatgame-remote');
 const env = process.argv[2];
 const dry = process.argv.includes('--dry-run');
@@ -27,21 +31,45 @@ function files(dir) {
   return out;
 }
 
-const keep = new Set(files(join(LOCAL, 'remote')));
-if (keep.size === 0) {
+const current = files(join(LOCAL, 'remote')).sort();
+if (current.length === 0) {
   console.error('✗ 本地没有打包好的资源，不清理（免得把网上的全删了）');
   process.exit(1);
 }
 const listed = JSON.parse(execFileSync('tcb', ['hosting', 'list', 'remote', '--json', '-e', env], { encoding: 'utf8', maxBuffer: 64 << 20 }));
 const remote = (listed.data ?? []).map((f) => f.key);
-// 网上缺本地的文件说明上传没传全，这时不清理
-const missing = Array.from(keep).filter((k) => !remote.includes(k));
+// 网上缺本地的文件说明上传没传全，这时不清理，也不记这次上传
+const remoteSet = new Set(remote);
+const missing = current.filter((k) => !remoteSet.has(k));
 if (missing.length) {
   console.error(`✗ 网上还缺 ${missing.length} 个文件（如 ${missing[0]}），先把上传补全再清理`);
   process.exit(1);
 }
+
+// 记下这次上传用到的文件；和上一次一模一样就不另记（同一个包传两遍不该把更早的版本挤出去）
+const KEEP_BUILDS = 3;
+const HISTORY = join(homedir(), '.fishsort', 'wechat-builds', env);
+mkdirSync(HISTORY, { recursive: true });
+const readBuild = (f) => JSON.parse(readFileSync(join(HISTORY, f), 'utf8'));
+let builds = readdirSync(HISTORY).filter((f) => f.endsWith('.json')).sort();
+const last = builds.length ? readBuild(builds[builds.length - 1]) : null;
+if (!dry && (!last || last.join('\n') !== current.join('\n'))) {
+  const name = `${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  writeFileSync(join(HISTORY, name), JSON.stringify(current));
+  builds.push(name);
+}
+// 记录只留最近 10 次
+for (const f of builds.slice(0, Math.max(0, builds.length - 10))) rmSync(join(HISTORY, f), { force: true });
+builds = builds.slice(-10);
+const recent = builds.slice(-KEEP_BUILDS);
+if (recent.length < KEEP_BUILDS && !dry) {
+  console.log(`· 这台电脑只记到 ${recent.length} 次上传（${HISTORY}），不到 ${KEEP_BUILDS} 次先不清：旧版本可能还在用网上的文件`);
+  process.exit(0);
+}
+const keep = new Set(current);
+for (const f of recent) for (const k of readBuild(f)) keep.add(k);
 const stale = remote.filter((k) => !keep.has(k));
-console.log(`· 托管上 ${remote.length} 个文件，这次用到 ${keep.size} 个，用不到的旧文件 ${stale.length} 个${dry ? '（只预演，不删）' : ''}`);
+console.log(`· 托管上 ${remote.length} 个文件，最近 ${recent.length} 次上传用到 ${keep.size} 个，都用不到的旧文件 ${stale.length} 个${dry ? '（只预演，不删）' : ''}`);
 if (dry) {
   for (const k of stale.slice(0, 20)) console.log(`  ${k}`);
   process.exit(0);

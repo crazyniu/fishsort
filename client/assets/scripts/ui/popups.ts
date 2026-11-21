@@ -8,7 +8,7 @@ import * as Meta from '../core/meta/meta';
 import * as Tasks from '../core/meta/tasks';
 import { App } from '../services/app';
 import { buzz, applySettings, sfx } from '../services/audio';
-import { mono, now, today } from '../services/clock';
+import { adNow, now, today } from '../services/clock';
 import * as fx from './fx';
 import * as Alive from './alive';
 import { LANGUAGE_NAMES, language, setLanguage, tr } from './i18n';
@@ -17,7 +17,7 @@ import { at, box, button, COLOR, DARK_INK, fit, fmt, hex, img, INK, onTap, opaci
 /** 语言选择里没选中那一段的字色 */
 const SEG_DIM = hex('#5E86C0');
 import { openPopup, Popup } from './popup';
-import { loadFont } from './res';
+import { fontFor, loadFont, uiFont } from './res';
 import { Screen } from './screen';
 import { ui } from './shell';
 import { lab } from '../devtools/levelLab';
@@ -34,7 +34,7 @@ export async function watchAd(placement: string): Promise<boolean> {
   const r = await App.platform.showRewarded(placement);
   ui.busy(false);
   if (r === 'done') {
-    Meta.markRewarded(App.save.data, mono());
+    Meta.markRewarded(App.save.data, adNow());
     Tasks.add(App.save.data, App.config.eco, today(), 'ad');
     App.platform.track('ad_rewarded', { placement });
     return true;
@@ -325,7 +325,11 @@ export function livesPopup(onChange?: () => void): void {
       tap: async () => {
         if (isFull()) return ui.toast(tr('H_LIVES_FULL'));
         if (!(await watchAd('rv_life'))) return;
-        Lives.claimAd(s, eco, today(), now());
+        // 看广告的这会儿自然回满了：不加也不扣次数，如实说已满（#170）
+        if (!Lives.claimAd(s, eco, today(), now())) {
+          refresh();
+          return ui.toast(tr('H_LIVES_FULL'));
+        }
         changed();
       },
     });
@@ -438,13 +442,20 @@ function languagePopup(): void {
         void switchLanguage(c);
       },
     });
+    // 自称用那种语言自己的字体写：游戏字体没有韩文，韩文字体没有简体字和西里尔字母，各用各的（#170）
+    void fontFor(c)
+      .then((f) => {
+        const lb = b.label;
+        if (f !== uiFont() && lb?.node.isValid) lb.font = f;
+      })
+      .catch(() => undefined);
     at(b.node, (col - 0.5) * (bw + gap), h / 2 - 76 - r * (bh + gap) - bh / 2);
   });
 }
 
 export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; onRetry?: () => void; onClose?: () => void } = {}): void {
   const s = App.save.data;
-  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0) + (lab.enabled ? 112 : 0);
+  const extra = (App.platform.hasCapability('ad_test') ? 112 : 0) + (App.platform.hasCapability('privacy_options') ? 112 : 0) + (App.platform.hasCapability('privacy_policy') ? 112 : 0) + (lab.enabled ? 112 : 0);
   const h = mode === 'pause' ? 528 : 512 + extra;
   const p = openPopup({ w: 620, h, title: tr(mode === 'pause' ? 'PAUSE_TITLE' : 'UI_SETTINGS'), onClose: o.onClose });
   const rows: [string, string, keyof typeof s.settings][] = [
@@ -513,6 +524,12 @@ export function settingsPopup(mode: 'home' | 'pause', o: { onHome?: () => void; 
       onTap(row, () => languagePopup());
     }
     y -= 96 + 16;
+    // 隐私政策：不管有没有广告都要能打开（苹果 5.1.1、Google Play 用户数据政策，docs/06 第 1 节）
+    if (App.platform.hasCapability('privacy_policy')) {
+      const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_PRIVACY_POLICY'), fontSize: 32, onTap: () => App.platform.openPrivacyPolicy() });
+      at(b.node, 0, y - 8);
+      y -= 112;
+    }
     // 广告的隐私选项（欧洲等地要能随时改同意，docs/10 第 5 节）
     if (App.platform.hasCapability('privacy_options')) {
       const b = button(p.body, { color: 'blue', w: 556, h: 88, label: tr('UI_PRIVACY_OPTIONS'), fontSize: 32, onTap: () => App.platform.openPrivacyOptions() });

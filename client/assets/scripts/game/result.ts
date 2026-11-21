@@ -222,6 +222,8 @@ export class ResultPage extends Page {
       at(chest, 0, chestC);
       chest.setScale(1, 1, 1);
       chest.angle = 0;
+      // 淡入没播完就跳过的话宝箱会停在半透明（#170）
+      opacity(chest).opacity = 255;
       if (d.chest) setImg(chest, 'icon/chest_open', chestS, chestS);
       opacity(rays).opacity = 255;
       rays.setScale(1, 1, 1);

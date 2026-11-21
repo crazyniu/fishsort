@@ -14,12 +14,13 @@
 //   5. PNG 无损重压（pngpack.mjs，每张解码回来逐像素比对，一样才替换）。
 // 文件名里的 MD5 是 Cocos 按构建时的内容算的，这两步不改文件名：同样的源文件每次处理结果都一样。
 // 之后把 client/build/wechatgame-remote/remote 整个传到静态网站托管根目录（package.sh 里有 tcb 就自动传）。
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { packPng } from './pngpack.mjs';
 import { slimImportJson } from './slimlevel.mjs';
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const BUILD = join(ROOT, 'client/build/wechatgame');
 const OUT = join(ROOT, 'client/build/wechatgame-remote');
 const MAIN_LIMIT = 4 * 1024 * 1024;

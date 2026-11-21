@@ -25,6 +25,11 @@ function loadJson<T>(path: string): Promise<T> {
 
 const pad = (n: number) => String(n).padStart(4, '0');
 
+/** 包里有没有这个配置（看资源清单，不下载）：用来区分「没有这一份」和「有但这次没读下来」（断网），后者要报错，不能悄悄换成别的关 */
+function hasJson(path: string): boolean {
+  return resources.getInfoWithPath(path, JsonAsset) !== null;
+}
+
 export class Config {
   eco!: EconomyConfig;
   ads!: AdsConfig;
@@ -62,23 +67,15 @@ export class Config {
    * daily：每日挑战先读专用难关 config/levels_daily/（docs/01 5.11），没有这一关就用普通版
    */
   async loadLevel(fileId: number, ease: number, daily = false): Promise<LevelData> {
-    if (daily) {
-      try {
-        return LevelData.fromDict(await loadJson<Record<string, unknown>>(`config/levels_daily/level_${pad(fileId)}`));
-      } catch {
-        // 没生成过这一关的每日版：退回普通版
-      }
-    }
+    // 没生成过这一关的每日版才退回普通版；有但读不下来（微信断网）照样报错，进关失败（#170）
+    const dailyPath = `config/levels_daily/level_${pad(fileId)}`;
+    if (daily && hasJson(dailyPath)) return LevelData.fromDict(await loadJson<Record<string, unknown>>(dailyPath));
     // 开发版难度调试页挑了档的关（devtools/levelLab.ts）：本体和变体都换成挑的那一档
     const custom = lab.override(fileId);
     if (custom) return LevelData.fromDict(custom);
     const base = `config/levels/level_${pad(fileId)}`;
-    let raw: Record<string, unknown>;
-    try {
-      raw = await loadJson<Record<string, unknown>>(ease > 0 ? `${base}_e${ease}` : base);
-    } catch {
-      raw = await loadJson<Record<string, unknown>>(base);
-    }
-    return LevelData.fromDict(raw);
+    // 易化变体同理：没有这一档才用普通版
+    const eased = `${base}_e${ease}`;
+    return LevelData.fromDict(await loadJson<Record<string, unknown>>(ease > 0 && hasJson(eased) ? eased : base));
   }
 }

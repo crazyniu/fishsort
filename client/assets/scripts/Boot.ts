@@ -171,6 +171,10 @@ export class Boot extends Component {
       profile: () => profilePopup(),
     };
     ui.init(canvas, topActions);
+    // 广告拉到了 / 改了同意：商城、抽奖、每日挑战这些已经打开的页面跟着亮起来（局内不重画，#170）
+    App.platform.onAdsChange = () => {
+      if (ui.currentName !== 'game') ui.refresh();
+    };
     // 调试平台：广告弹模拟广告页（docs/01 7.2）；机器人代打时直接算看完
     if (App.platform instanceof PlatformDebug && !App.flags.autoplay) App.platform.view = mockAdView(() => ui.toasts);
     ui.register('home', () => new HomePage());

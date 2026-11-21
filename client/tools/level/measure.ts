@@ -4,6 +4,7 @@
 //   --buffer   另外再量哪几种格数变化（逗号隔开，默认 -1 = 调试页的「困难」）
 //   --games    每个玩家打几局（默认 100；想清楚的玩家慢，打它的一半）
 //   --preview  看得到后面几缸（默认 level_curve.json 的 route.preview）
+import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -11,7 +12,7 @@ import * as LevelCurve from '../../assets/scripts/core/gen/levelCurve';
 import { LevelData } from '../../assets/scripts/core/model/levelData';
 import * as Players from '../../assets/scripts/core/solver/players';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
 const arg = (name: string, def: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? def;
 const ids = (process.argv[2] ?? '').split(',').map(Number).filter((x) => x > 0);

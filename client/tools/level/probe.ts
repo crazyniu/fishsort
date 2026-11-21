@@ -9,6 +9,7 @@
 //   free   现在的规则：开放气泡里的鱼随便点
 //   front  每个气泡只能点最前面一条（下标最大的那条：生成器的参考解就是按这个顺序取的），后面的看得见、点不到
 //   half   编号为偶数的气泡按 front，其余按 free
+import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -19,7 +20,7 @@ import { LevelData } from '../../assets/scripts/core/model/levelData';
 import { Rng } from '../../assets/scripts/core/rng/rng';
 import { findSlot, openBubbles, start, tap, tick } from '../../assets/scripts/core/rules/rules';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
 

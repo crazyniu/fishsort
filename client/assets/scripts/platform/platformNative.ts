@@ -5,7 +5,7 @@
 //   脚本 → 原生                         原生 → 脚本
 //   fs.init    {ads: 广告位}             fs.ads      {ready: 广告能播了没有, off: 这一版没有广告（没配广告位、包里没有 SDK）}
 //   fs.rewarded {placement}              fs.rewarded {result: done | skipped | unavailable}
-//   fs.interstitial {placement}          fs.interstitial {}（关掉了）
+//   fs.interstitial {placement}          fs.interstitial {shown: 播出来了没有}（关掉了，或者没播成）
 //   fs.banner  {show: true | false}
 //   fs.vibrate {kind}
 //   fs.share   {text}                    fs.share    {ok}
@@ -54,8 +54,10 @@ export class PlatformNative extends PlatformBase {
     const bridge = native.jsbBridgeWrapper;
     bridge.addNativeEventListener(EV.ads, (arg: string) => {
       const r = parse(arg);
+      const was = this.ready;
       this.ready = r.ready === true;
       if (r.off === true) this.off = true;
+      if (was !== this.ready) this.onAdsChange();
     });
     for (const ev of [EV.rewarded, EV.interstitial, EV.share]) {
       bridge.addNativeEventListener(ev, (arg: string) => {
@@ -100,9 +102,10 @@ export class PlatformNative extends PlatformBase {
     return result === 'done' || result === 'skipped' ? result : 'unavailable';
   }
 
-  override async showInterstitial(placement: string): Promise<void> {
-    if (!this.ready) return;
-    await this.ask(EV.interstitial, { placement }, AD_TIMEOUT);
+  override async showInterstitial(placement: string): Promise<boolean> {
+    if (!this.ready) return false;
+    const r = await this.ask(EV.interstitial, { placement }, AD_TIMEOUT);
+    return r.shown === true;
   }
 
   override showBanner(_placement: string): void {
@@ -135,6 +138,8 @@ export class PlatformNative extends PlatformBase {
   override hasCapability(cap: Capability): boolean {
     // 隐私选项是广告的同意设置，没有广告就不要
     if (cap === 'ads' || cap === 'privacy_options') return this.hasAds();
+    // 隐私政策和有没有广告无关，一直要有（苹果 5.1.1、Google Play 用户数据政策）
+    if (cap === 'privacy_policy') return !!this.cfg?.privacyPolicy;
     return cap === 'share' || cap === 'vibrate';
   }
 
@@ -144,6 +149,11 @@ export class PlatformNative extends PlatformBase {
 
   override openPrivacyOptions(): void {
     native.jsbBridgeWrapper.dispatchEventToNative(EV.privacy, '{}');
+  }
+
+  /** 用系统浏览器打开隐私政策网页 */
+  override openPrivacyPolicy(): void {
+    if (this.cfg?.privacyPolicy) sys.openURL(this.cfg.privacyPolicy);
   }
 }
 

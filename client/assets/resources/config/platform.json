@@ -35,6 +35,7 @@
     ]
   },
   "adsEnabled": true,
+  "privacyPolicy": "https://shopkivoo.com/privacy/",
   "levelLab": true,
   "ads": {
     "ios": {

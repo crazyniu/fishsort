@@ -20,7 +20,16 @@ export function levelFor(day: number, playerLevel: number, cycle: number, levelC
   const top = idiv(clampi(playerLevel, cycle, levelCount), cycle);
   // 只在最难的后一半里轮换，前面的太容易
   const from = Math.max(1, idiv(top + 1, 2));
-  return (from + posmod(day * 7 + 3, top - from + 1)) * cycle;
+  const n = top - from + 1;
+  // 每天往后跳 7 个；候选数是 7 的倍数时跳 7 只能走到一部分（7 个候选就天天同一关），换一个和它互质的步长（#170）
+  let step = 7;
+  while (gcd(step, n) !== 1) step++;
+  return (from + posmod(day * step + 3, n)) * cycle;
+}
+
+function gcd(a: number, b: number): number {
+  while (b !== 0) [a, b] = [b, a % b];
+  return a;
 }
 
 export function wonToday(save: SaveData, day: number): boolean {

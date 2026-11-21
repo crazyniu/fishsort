@@ -71,6 +71,8 @@
     "cloudEnv": "cloud1-d8g4d0pyi6699a102",
     "remoteUrl": "https://cloud1-d8g4d0pyi6699a102-1535223200.tcloudbaseapp.com/"
   },
+  "privacyPolicy": "https://shopkivoo.com/privacy/",
+  "_privacyPolicyComment": "隐私政策网页（docs/06 第 1 节）：商店后台填的也是这个地址；App 设置里的「隐私政策」打开它（苹果 5.1.1、Google Play 用户数据政策都要求 App 内能打开）",
   "levelLab": true,
   "_levelLabComment": "难度调试页（设置里的「难度调试」，docs/01 第 9.7 节、docs/10 第 9 节）：只在开发版出现（编辑器预览、调试构建、微信开发版和体验版），正式版自动不出，不用上架前改；写 false 连开发版也不出",
   "ads": {

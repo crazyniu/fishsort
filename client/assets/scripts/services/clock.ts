@@ -11,7 +11,16 @@ export function today(): number {
   return Math.floor((d.getTime() / 1000 - d.getTimezoneOffset() * 60) / 86400);
 }
 
-/** 单调递增的秒数：广告频控用，改系统时间不影响 */
-export function mono(): number {
-  return performance.now() / 1000;
+/**
+ * 广告频控用的秒数（系统时间）。频控的时刻存在存档里、下次启动还要拿来比，所以不能用 performance.now()——
+ * 它每次启动从 0 起，冷启动后差值是负的，插屏要等很久才弹（#170）。
+ * 给了 ads（存档的 save.ads）时，比现在还晚的时刻（系统时间往回调过）拉回现在
+ */
+export function adNow(ads?: { interstitialAt: number; rewardedAt: number }): number {
+  const t = Date.now() / 1000;
+  if (ads) {
+    if (ads.interstitialAt > t) ads.interstitialAt = t;
+    if (ads.rewardedAt > t) ads.rewardedAt = t;
+  }
+  return t;
 }
