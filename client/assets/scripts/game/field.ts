@@ -77,6 +77,17 @@ const ICE_COLORS = [new Color(64, 156, 255, 255), new Color(176, 104, 255, 255),
 const ICE_BADGE = 46;
 const ICE_BADGE_STEP = 40;
 
+
+/** fillHeight 的试算结果：键是场地大小 + 这关气泡的大小、位置、遮挡关系，值是放大倍数 */
+const fillCache = new Map<string, number>();
+const FILL_CACHE_MAX = 16;
+
+function fillKey(w: number, h: number, n: number, covered: boolean, radii: number[], centers: [number, number][], bubbles: readonly { under: readonly number[] }[]): string {
+  let k = `${w}|${h}|${n}|${covered ? 1 : 0}|${radii.join(',')}`;
+  if (covered) k += `|${centers.map((c) => `${c[0]},${c[1]}`).join(';')}|${bubbles.map((d) => d.under.join('.')).join('/')}`;
+  return k;
+}
+
 export class Field {
   node: Node;
   views: View[] = [];
@@ -268,8 +279,8 @@ export class Field {
             for (let i = 0; i < this.views.length; i++) {
               const v = this.views[i];
               if (v.gone) continue;
-              const q = this.pile.pos(i);
-              if (q) v.node.setPosition(q[0], q[1], 0);
+              const q = this.pile.body(i);
+              if (q) v.node.setPosition(q.x, q.y, 0);
             }
             this.placeIceLinks();
             if (!this.pile.awake) {
@@ -346,15 +357,25 @@ export class Field {
     const limit = -this.h / 2 + this.h * cfg.pile.maxHeight;
     const biggest = radii.reduce((m, x) => Math.max(m, x), 1);
     const cap = Math.min(cfg.field.maxRadius, this.w * 0.24) / biggest;
-    let lo = 0.5;
-    let hi = Math.max(lo, cap);
-    if (this.settledTop(centers, radii, n, covered, hi) > limit) {
-      for (let k = 0; k < 7; k++) {
-        const mid = (lo + hi) / 2;
-        if (this.settledTop(centers, radii, n, covered, mid) > limit) hi = mid;
-        else lo = mid;
+    // 试算最多 8 次、每次几百步，进关和撤销时会卡一下。结果只取决于场地大小和这关的气泡（同样的输入结果一样），
+    // 所以记下来：撤销、重开同一关直接用（微信性能报告 2026-11-21）
+    const key = fillKey(this.w, this.h, n, covered, radii, centers, this.lv.bubbles);
+    const cached = fillCache.get(key);
+    let hi: number;
+    if (cached !== undefined) hi = cached;
+    else {
+      let lo = 0.5;
+      hi = Math.max(lo, cap);
+      if (this.settledTop(centers, radii, n, covered, hi) > limit) {
+        for (let k = 0; k < 7; k++) {
+          const mid = (lo + hi) / 2;
+          if (this.settledTop(centers, radii, n, covered, mid) > limit) hi = mid;
+          else lo = mid;
+        }
+        hi = lo;
       }
-      hi = lo;
+      if (fillCache.size >= FILL_CACHE_MAX) fillCache.delete(fillCache.keys().next().value as string);
+      fillCache.set(key, hi);
     }
     for (let i = 0; i < radii.length; i++) {
       radii[i] *= hi;

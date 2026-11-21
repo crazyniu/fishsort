@@ -16,7 +16,7 @@ import * as Flow from '../game/flow';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { tr } from '../ui/i18n';
-import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, hex, img, lazyImg, onTap, opacity, plate, redDot, text } from '../ui/kit';
+import { Btn, PLATE_TEXT_LIFT, at, box, button, fit, fxImg, hex, img, lazyImg, onTap, opacity, plate, recycleFx, redDot, text } from '../ui/kit';
 import { openPopup } from '../ui/popup';
 import { settingsPopup } from '../ui/popups';
 import { Screen } from '../ui/screen';
@@ -339,7 +339,7 @@ export class HomePage extends Page {
           .start();
         for (let j = 0; j < 2; j++) {
           const s = b.r * (0.09 + Math.random() * 0.05);
-          const air = img(b.node, 'kit/bubble_small', s, s, 'air');
+          const air = fxImg(b.node, 'kit/bubble_small', s, s, 'air');
           // 从鱼嘴前面冒出来，往上漂到泡顶淡掉
           const x0 = b.drift.position.x + step - b.dir * b.r * 0.38;
           at(air, x0, b.drift.position.y + b.r * 0.05);
@@ -348,7 +348,7 @@ export class HomePage extends Page {
           tween(air)
             .delay(0.12 + j * 0.16)
             .to(1, { position: new Vec3(x0 - b.dir * b.r * (0.05 + j * 0.08), b.r * 0.62, 0) }, { easing: 'sineOut' })
-            .call(() => air.destroy())
+            .call(() => recycleFx(air))
             .start();
         }
       }
@@ -368,11 +368,11 @@ export class HomePage extends Page {
     fx.ring(this.bubbles, p.x, p.y, 60, 190);
     for (let i = 0; i < 4; i++) {
       const s = 16 + Math.random() * 18;
-      const b = img(this.bubbles, 'kit/bubble_small', s, s, 'b');
+      const b = fxImg(this.bubbles, 'kit/bubble_small', s, s, 'b');
       at(b, p.x + (Math.random() - 0.5) * 60, p.y + 20);
       tween(b)
         .to(0.9 + Math.random() * 0.5, { position: new Vec3(p.x + (Math.random() - 0.5) * 140, p.y + 150 + Math.random() * 120, 0) }, { easing: 'quadOut' })
-        .call(() => b.destroy())
+        .call(() => recycleFx(b))
         .start();
       tween(opacity(b)).delay(0.6).to(0.5, { opacity: 0 }).start();
     }
@@ -451,7 +451,7 @@ export class HomePage extends Page {
     // 水里的亮点：随机位置闪一下
     const glint = () => {
       if (!this.node.active) return;
-      const g = img(L, 'kit/fx_spark', 26, 26, 'glint');
+      const g = fxImg(L, 'kit/fx_spark', 26, 26, 'glint');
       at(g, (Math.random() - 0.5) * (Screen.W - 60), Screen.bottom + 80 + Math.random() * (Screen.H - 320));
       g.setScale(0.1, 0.1, 1);
       opacity(g).opacity = 200;
@@ -459,7 +459,7 @@ export class HomePage extends Page {
       tween(g)
         .to(0.35, { scale: new Vec3(k, k, 1), angle: 45 }, { easing: 'quadOut' })
         .to(0.45, { scale: new Vec3(0.05, 0.05, 1), angle: 90 }, { easing: 'quadIn' })
-        .call(() => g.destroy())
+        .call(() => recycleFx(g))
         .start();
       fx.delay(L, 0.35 + Math.random() * 0.5, glint);
     };
@@ -471,13 +471,13 @@ export class HomePage extends Page {
     const spawn = () => {
       if (!this.node.active) return;
       const s = 14 + Math.random() * 26;
-      const b = img(this.bubbles, 'kit/bubble_small', s, s, 'b');
+      const b = fxImg(this.bubbles, 'kit/bubble_small', s, s, 'b');
       const x = (Math.random() - 0.5) * (Screen.W - 60);
       at(b, x, Screen.bottom + 40);
       opacity(b).opacity = 200;
       tween(b)
         .to(5 + Math.random() * 3, { position: new Vec3(x + (Math.random() - 0.5) * 80, Screen.top + 40, 0) }, { easing: 'sineIn' })
-        .call(() => b.destroy())
+        .call(() => recycleFx(b))
         .start();
       fx.delay(this.bubbles, 0.5 + Math.random() * 0.8, spawn);
     };

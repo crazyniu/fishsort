@@ -75,6 +75,8 @@ const pairKey = (a: number, b: number): number => (a < b ? (b * (b + 1)) / 2 + a
 
 export class Pile {
   private bodies = new Map<number, Body>();
+  /** bodies 的值，按插入顺序（和 Map 遍历顺序一致）。每步直接用它，不再每步 Array.from 复制一份 */
+  private list: Body[] = [];
   private links: Link[] = [];
   /** 连着弹性带的对：不互相碰撞 */
   private linked = new Set<number>();
@@ -108,14 +110,19 @@ export class Pile {
   }
 
   add(id: number, x: number, y: number, r: number): void {
-    this.bodies.set(id, { id, x, y, r, vx: 0, vy: 0, dx: 0, dy: 0, w: 1 / (r * r) });
+    const body: Body = { id, x, y, r, vx: 0, vy: 0, dx: 0, dy: 0, w: 1 / (r * r) };
+    const old = this.bodies.get(id);
+    // 同一个 id 再加一次：Map 里原位替换，列表里也原位替换（保持遍历顺序不变）
+    if (old) this.list[this.list.indexOf(old)] = body;
+    else this.list.push(body);
+    this.bodies.set(id, body);
     this.forgive();
     this.wake();
   }
 
   /** 给现在就叠着的、没连弹性带的每一对记上宽限（已有的宽限只增不减） */
   private forgive(): void {
-    const list = Array.from(this.bodies.values());
+    const list = this.list;
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
         const a = list[i];
@@ -130,7 +137,10 @@ export class Pile {
   }
 
   remove(id: number): void {
-    if (!this.bodies.delete(id)) return;
+    const old = this.bodies.get(id);
+    if (!old) return;
+    this.bodies.delete(id);
+    this.list.splice(this.list.indexOf(old), 1);
     this.links = this.links.filter((l) => l.a.id !== id && l.b.id !== id);
     this.wake();
   }
@@ -197,6 +207,11 @@ export class Pile {
     return b ? [b.x, b.y] : null;
   }
 
+  /** 每帧摆节点用：直接给内部的那一份（只读），不新建数组 */
+  body(id: number): Readonly<Body> | undefined {
+    return this.bodies.get(id);
+  }
+
   /** 推进 dt 秒（按固定步长 1/60 秒一步算，和帧率无关；一帧最多补 4 步）。睡着时什么都不做 */
   step(dt: number): void {
     if (!this.awake) return;
@@ -223,17 +238,18 @@ export class Pile {
     const c = this.cfg;
     const n = Math.max(1, c.substeps);
     const h = Math.min(dt, 1 / 30) / n;
-    const list = Array.from(this.bodies.values());
+    const list = this.list;
     let fastest = 0;
     // 宽限按时间收回
     if (this.slack.size > 0) {
       const back = c.separate * Math.min(dt, 1 / 30);
-      for (const key of Array.from(this.slack.keys())) {
-        if (this.keep.has(key)) continue;
-        const left = (this.slack.get(key) as number) - back;
+      // 遍历中删掉或改写当前这一项是安全的（不新增键），不用先复制一份键
+      this.slack.forEach((v, key) => {
+        if (this.keep.has(key)) return;
+        const left = v - back;
         if (left <= 0) this.slack.delete(key);
         else this.slack.set(key, left);
-      }
+      });
     }
     for (let s = 0; s < n; s++) {
       const k = Math.max(0, 1 - c.damping * h);
