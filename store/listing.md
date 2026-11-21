@@ -477,6 +477,44 @@ Bubble Fish’e hoş geldin! 360 seviye, 18 deniz ve 705 deniz canlısı seni be
 
 ---
 
+### App Review 备注（App Store Connect →「App 审核信息」→「备注」，英文，上限 4000 字符）
+
+2026-11-20 第一次提交被 Guideline 2.1 Information Needed 退回：要一段真机录屏，加上用途、使用方法、外部服务、地区差异、受管制行业这几项说明。录屏传到网盘（共享链接）或附在回复里；下面这段贴进备注（录屏链接换成真的）。
+
+```
+Screen recording (physical iPhone 16 Pro Max, iOS 27.2.1, recorded from app launch):
+<link to the recording>
+
+1. Purpose and audience
+Bubble Fish is an offline-friendly casual puzzle game for all ages (players who enjoy short, relaxing sorting/matching puzzles). Little fish are trapped in bubbles; the player taps fish to send them into the matching tanks - three of a kind fill a tank. The value is light entertainment: 360 hand-tuned levels across 18 seas, 705 original sea creatures to collect, and a daily puzzle. All art, names and characters are original.
+
+2. How to use the app
+No account, login, or setup is needed. Launch the app -> (in some regions an ad-consent form and Apple's tracking prompt appear; any choice works) -> tap the green "Play" button on the home screen -> tap fish in the bubbles to send them to the matching tanks; fill every tank to win. A short tutorial guides the first levels. Other features are on the home screen: Shop (spend coins on helper skills), Album (collected creatures), Daily, Treasure, Check-in, Tasks, Levels, and Settings (gear icon: music, sound, vibration, language, privacy options). Some of these unlock after the first few levels (a locked entry shows the level that opens it). Optional rewarded video ads give bonus coins, an extra skill, or a second chance; nothing requires watching an ad.
+
+3. Accounts, user-generated content, paid content
+- No account registration or login (so no account deletion is needed).
+- No user-generated content, chat or social features.
+- No In-App Purchases and no paid content. Coins are earned only by playing.
+- Game progress is saved only on the device.
+
+4. External services
+- Google AdMob (Google Mobile Ads SDK): rewarded, interstitial and banner ads.
+- Google User Messaging Platform (UMP): ad-consent form where required (e.g. EEA, UK, Switzerland), and Privacy options in Settings.
+- Apple App Tracking Transparency: asks permission before personalized ads.
+No other servers, analytics, payment or AI services are used.
+
+5. Regional differences
+The game works the same in all regions where it is offered. The only difference is that the Google ad-consent form is shown only in regions that require it. The app supports 12 languages (English, Simplified/Traditional Chinese, Japanese, Korean, German, French, Spanish, Portuguese (Brazil), Italian, Russian, Turkish), chosen from the system language and changeable in Settings.
+
+6. Regulated industry / third-party material
+Not applicable. The app is not in a regulated industry and contains no protected third-party material; all characters, art and names are original. Sound effects use CC0 and MIT-licensed sources.
+
+Support: https://bubblefish.dabudian.top/support
+Privacy policy: https://shopkivoo.com/privacy/
+```
+
+**录屏怎么录**（用户自己的 iPhone）：控制中心「屏幕录制」→ 从桌面点图标启动开始录 → 加载 → 主页 → 进一关玩到过关（结算页「领双倍」看一次激励广告，演示广告是可选的）→ 打开商店、收藏、设置各看一眼 → 结束，两三分钟即可。用 `./package.sh` → 2 iOS → 5 装到手机 的包录（测试广告位，不会点到自己的真广告）；录屏开头要能看到从桌面点开 App。
+
 ## Google Play（海外，含台湾、香港）
 
 ### English (United States) — 默认
