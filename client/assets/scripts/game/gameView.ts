@@ -347,7 +347,11 @@ export class GamePage extends Page {
       // 结算的卡面、宝箱不等（rewardFrames，后台接着读，一局打完早就好了；没好的 img() 会自己补上）。
       // 这片海域的背景也一起等：后台还在读别的图时，它排在后面，开局会空好几秒
       const seaBg = `bg/sea_${eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore'}`;
-      await loadFrames([...species.map((sp) => `fish/${sp}`), ...gameFrames(), seaBg]);
+      // 只有关卡文件和这关的鱼读不下来才回主页；局内图和背景同时读、照样等，但有图没读下来不挡开局
+      // （弱网下一张特效图失败就被送回主页不划算）：没读到的 img() 用到时自己补读，背景 lazyImg 会退避重试
+      const extras = loadFrames([...gameFrames(), seaBg]).catch((e: unknown) => console.warn('局内图有的没读下来，用到时再补', e));
+      await loadFrames(species.map((sp) => `fish/${sp}`));
+      await extras;
     } catch (e) {
       console.warn('关卡读不出来', e);
       ui.toast(tr('BOOT_FAIL'));

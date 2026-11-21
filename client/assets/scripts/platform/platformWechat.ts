@@ -14,6 +14,10 @@ export function inWechat(): boolean {
   return typeof wx !== 'undefined' && typeof wx.getSystemInfoSync === 'function';
 }
 
+
+/** 插屏最多等几秒（拉广告带播放、关掉）：超时按没播算。比原生的 120 秒短，插屏几秒就能关 */
+const INTERSTITIAL_TIMEOUT = 60;
+
 export class PlatformWechat extends PlatformBase {
   readonly id = 'wechat';
   private units: AdUnits = { rewarded: '', interstitial: '', banner: '' };
@@ -100,15 +104,22 @@ export class PlatformWechat extends PlatformBase {
     const ad = this.interstitial;
     if (!ad) return false;
     return new Promise<boolean>((resolve) => {
-      const onClose = () => {
+      let settled = false;
+      const finish = (shown: boolean) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
         ad.offClose(onClose);
-        resolve(true);
+        ad.offError(onError);
+        resolve(shown);
       };
+      const onClose = () => finish(true);
+      // 播放中出错、或者微信既不回调关闭、show() 也不报错：都按「没播」返回（不记频控），结算页照常往下走，不会一直挂着遮罩
+      const onError = () => finish(false);
+      const timer = setTimeout(() => finish(false), INTERSTITIAL_TIMEOUT * 1000);
       ad.onClose(onClose);
-      ad.show().catch(() => {
-        ad.offClose(onClose);
-        resolve(false);
-      });
+      ad.onError(onError);
+      ad.show().catch(onError);
     });
   }
 
