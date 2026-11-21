@@ -337,8 +337,10 @@ export class GamePage extends Page {
       const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
       species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? Flow.dailyDay(this) : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
       // 局内的特效、鱼缸、障碍：启动时没等它们（首页出来后在后台读），这里等读好再开局，局内不缺图。
-      // 结算的卡面、宝箱不等（rewardFrames，后台接着读，一局打完早就好了；没好的 img() 会自己补上）
-      await loadFrames([...species.map((sp) => `fish/${sp}`), ...gameFrames()]);
+      // 结算的卡面、宝箱不等（rewardFrames，后台接着读，一局打完早就好了；没好的 img() 会自己补上）。
+      // 这片海域的背景也一起等：后台还在读别的图时，它排在后面，开局会空好几秒
+      const seaBg = `bg/sea_${eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore'}`;
+      await loadFrames([...species.map((sp) => `fish/${sp}`), ...gameFrames(), seaBg]);
     } catch (e) {
       console.warn('关卡读不出来', e);
       ui.toast(tr('BOOT_FAIL'));
