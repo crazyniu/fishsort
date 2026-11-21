@@ -5,7 +5,7 @@ import * as LevelCurve from '../core/gen/levelCurve';
 import * as Meta from '../core/meta/meta';
 import { App } from '../services/app';
 import { tr } from '../ui/i18n';
-import { at, box, hex, img, plate, resizePlate, text, textWidth } from '../ui/kit';
+import { at, box, COLOR, hex, img, Ink, plate, resizePlate, setInk, text, textWidth } from '../ui/kit';
 
 export type LevelKind = 'normal' | 'hard' | 'boss';
 
@@ -40,9 +40,18 @@ export function kindCoins(kind: LevelKind): number {
 }
 
 /** 小牌子：纯色圆头小条，左边白色图标、右边白字；宽度跟着字走 */
+/**
+ * 牌子上的字：白字不描边，下面压一道这一种关的深色（和平面按钮同一种做法）。原来没登记墨色，字取了外面的颜色——
+ * 结算页的浅色奖励条上是深紫字压在橙色牌子上，看不清（用户 2026-11-21）
+ */
+function tagInk(kind: 'hard' | 'boss'): Ink {
+  return { text: COLOR.white, accent: COLOR.white, glyph: null, outline: null, depth: KIND_STYLE[kind].outline };
+}
+
 export function kindTag(parent: Node, kind: 'hard' | 'boss', h = 40, name = 'kindTag'): Node {
   const st = KIND_STYLE[kind];
   const n = plate(parent, st.tag, h * 3, h, name);
+  setInk(n, tagInk(kind));
   const fs = Math.round(h * 0.55);
   const label = text(n, tr(st.label), fs, { align: 'left', outline: null });
   const ic = h * 0.82;
@@ -59,6 +68,7 @@ export function kindBanner(parent: Node, kind: 'hard' | 'boss'): Node {
   const st = KIND_STYLE[kind];
   const n = box('kindBanner', parent, 640, 150);
   const bar = plate(n, st.tag, 640, 150, 'bar');
+  setInk(bar, tagInk(kind));
   const title = text(bar, tr(st.banner), 48, { align: 'left', outline: null });
   const sub = text(bar, tr('UI_BANNER_COINS', kindCoins(kind)), 26, { align: 'left', outline: null });
   const w = Math.max(520, Math.ceil(64 + 20 + Math.max(textWidth(title), textWidth(sub)) + 96));
