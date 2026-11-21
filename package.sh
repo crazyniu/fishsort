@@ -179,10 +179,34 @@ PLIST
       xcodebuild -exportArchive -archivePath "$out/app.xcarchive" -exportPath "$out" \
         -exportOptionsPlist "$out/ExportOptions.plist" -allowProvisioningUpdates > "$out/export.log" 2>&1 \
         || { tail -20 "$out/export.log"; die "导出 ipa 失败"; }
-      echo "✓ ipa：$(ls "$out"/*.ipa)（用 Xcode 的 Organizer 或 Transporter 上传）"
+      echo "✓ ipa：$(ls "$out"/*.ipa)（菜单「6 上传 App Store Connect」直接传，或用 Transporter 上传）"
       ;;
     *) die "未知的 iOS 产物" ;;
   esac
+}
+
+# 把上一次「4 IPA」打好的归档传到 App Store Connect：用 Xcode 里登录的开发者账号（Xcode → Settings → Accounts），不另要密码。
+# 传完 15–30 分钟后在 App Store Connect 里出现这个构建号
+ios_upload() {
+  local out="$CLIENT/build/ios/release" team
+  [ -d "$out/app.xcarchive" ] || die "没有打好的归档（client/build/ios/release/app.xcarchive），先选「4 IPA」"
+  team="$(node -e 'console.log(require("./game.json").ios.team || "")')"
+  [ -n "$team" ] || die "game.json 的 ios.team 还没填"
+  cat > "$out/UploadOptions.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>method</key><string>app-store-connect</string>
+  <key>destination</key><string>upload</string>
+  <key>teamID</key><string>${team}</string>
+  <key>signingStyle</key><string>automatic</string>
+</dict></plist>
+PLIST
+  echo "· 上传到 App Store Connect（构建号 $(/usr/libexec/PlistBuddy -c 'Print ApplicationProperties:CFBundleVersion' "$out/app.xcarchive/Info.plist")）…"
+  xcodebuild -exportArchive -archivePath "$out/app.xcarchive" -exportPath "$out/upload" \
+    -exportOptionsPlist "$out/UploadOptions.plist" -allowProvisioningUpdates > "$out/upload.log" 2>&1 \
+    || { grep -iE "error|fail" "$out/upload.log" | sort -u | head -15; die "上传失败（全文 client/build/ios/release/upload.log）"; }
+  echo "✓ 已上传到 App Store Connect，处理完（15–30 分钟）在 App 的「构建版本」里能选到"
 }
 
 # Google Play 的上传密钥（docs/10 第 4 节）：签名配置写在 ~/.gradle/gradle.properties（不进仓库）。
@@ -312,7 +336,7 @@ while :; do
     1) wechat_build; break ;;
     2)
       while :; do
-        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '5 装到手机' '0 返回'
+        printf '%s\n' 'iOS 产物' '1 Xcode 工程' '2 模拟器 App' '3 未签名真机 App' '4 IPA' '5 装到手机' '6 上传 App Store Connect（上一次的 IPA）' '0 返回'
         read_choice
         case "$choice" in
           1) ios_build; exit ;;
@@ -320,8 +344,9 @@ while :; do
           3) ios_build dev; exit ;;
           4) ios_build ipa; exit ;;
           5) ios_build phone; exit ;;
+          6) ios_upload; exit ;;
           0) break ;;
-          *) echo '请输入 0 至 5。' ;;
+          *) echo '请输入 0 至 6。' ;;
         esac
       done ;;
     3)
