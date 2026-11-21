@@ -48,9 +48,10 @@ wechat_build() {
   elif [ -n "$env" ] && command -v tcb >/dev/null 2>&1; then
     echo "· 上传资源到云开发环境 ${env} 的静态网站托管 …"
     tcb hosting deploy "$remote" remote -e "$env" || die "上传失败：先 tcb login，或在云开发控制台「静态网站托管」里手动上传 ${remote} 整个文件夹"
-    echo "✓ 资源已上传"
-    # 网上只留这次用到的文件：文件名带 MD5，改过的资源换了名字，旧的清掉（tools/wechat/prune.mjs，网上缺文件时不清）
-    node tools/wechat/prune.mjs "$env" || echo "! 旧文件没清掉，资源照常能用；下次打包会再清"
+    echo "✓ 资源已上传（资源编号 $(cat client/build/wechatgame-remote/build-id.txt 2>/dev/null)，上传到微信时写进版本备注）"
+    # 旧资源不自动清（#170）：线上版、审核版、体验版可能各用一批文件，只有人知道哪几个包还在用。
+    # 要清时：node tools/wechat/prune.mjs <环境 ID> --keep <还在用的资源编号,...> [--yes]（docs/10 第 4 节）
+    echo "· 网上的旧资源没有清；要清时按还在用的包手动清：node tools/wechat/prune.mjs ${env} --keep <资源编号,...>"
   else
     echo "! 还要把 ${remote} 整个文件夹传到静态网站托管的根目录（云开发控制台 → 静态网站托管 → 上传文件夹；装了 tcb 并 tcb login 过会自动传）"
   fi
@@ -60,21 +61,29 @@ wechat_build() {
 # ---------------------------------------------------------------- 原生包（docs/10-开发底座.md）
 
 # iOS 的 Google Mobile Ads + UMP：下载到 client/native/engine/ios/sdk/（不进仓库），iOS 工程的 CMakeLists 链它。
-# game.json 关了广告（ads.enabled 为 false）时不下载，CMakeLists 也不链
+# game.json 关了广告（ads.enabled 为 false）时不下载，CMakeLists 也不链。
+# 上架包（ipa）开着广告却拿不到 SDK 就停下：原来下载失败照样往下打，传上去的包没有广告（#170）；测试包按没有广告编译
 ios_sdk() {
-  local dir="$CLIENT/native/engine/ios/sdk" tmp
+  local mode="${1:-}" dir="$CLIENT/native/engine/ios/sdk" tmp fw
   if [ "$(node -p "require('./game.json').ads.enabled === true")" != true ]; then
     echo "· game.json 关了广告，这次不带广告 SDK"
     return 0
   fi
-  [ -d "$dir/GoogleMobileAds.xcframework" ] && return 0
-  echo "· 下载 Google Mobile Ads iOS SDK …"
-  tmp="$(mktemp -d)"
-  curl -fsSL -o "$tmp/sdk.zip" https://dl.google.com/googleadmobadssdk/googlemobileadssdkios.zip || { echo "! SDK 下载失败，这次按没有广告编译"; return 0; }
-  (cd "$tmp" && unzip -q sdk.zip)
-  mkdir -p "$dir"
-  find "$tmp" -maxdepth 3 -name '*.xcframework' -type d -exec cp -R {} "$dir/" \;
-  rm -rf "$tmp"
+  if [ ! -d "$dir/GoogleMobileAds.xcframework" ] || [ ! -d "$dir/UserMessagingPlatform.xcframework" ]; then
+    echo "· 下载 Google Mobile Ads iOS SDK …"
+    tmp="$(mktemp -d)"
+    if curl -fsSL -o "$tmp/sdk.zip" https://dl.google.com/googleadmobadssdk/googlemobileadssdkios.zip && (cd "$tmp" && unzip -q sdk.zip); then
+      mkdir -p "$dir"
+      find "$tmp" -maxdepth 3 -name '*.xcframework' -type d -exec cp -R {} "$dir/" \;
+    fi
+    rm -rf "$tmp"
+  fi
+  for fw in GoogleMobileAds UserMessagingPlatform; do
+    [ -d "$dir/$fw.xcframework" ] && continue
+    [ "$mode" = ipa ] && die "广告 SDK 没下载下来（缺 ${fw}.xcframework）：上架包不能没有广告，检查网络后重试，或手动解压到 ${dir}/"
+    echo "! 缺 ${fw}.xcframework（SDK 下载失败），这次按没有广告编译（测试包）"
+    return 0
+  done
   ls "$dir"
 }
 
@@ -100,7 +109,7 @@ ios_build() {
   local mode="${1:-}" proj scheme team
   # 只有 IPA（传 App Store）用真实广告位，其它产物用 Google 的测试广告位（tools/native/apply.mjs）
   FS_RELEASE="$([ "$mode" = ipa ] && echo 1 || echo 0)" node tools/native/apply.mjs
-  ios_sdk
+  ios_sdk "$mode"
   ios_fix_webp
   # Preserve the working tree's launch artwork while Creator exports its templates.
   (
@@ -259,21 +268,35 @@ android_upload_key() {
   echo "✓ 上传密钥：${store}（签名配置写进了 ~/.gradle/gradle.properties）——现在就把这个文件和密码备份到别处"
 }
 
-# 16 KB 内存页（Google Play 要求，targetSdk 35 起）：AAB 里每个 .so 的 LOAD 段要按 16 KB（0x4000）对齐
+# 16 KB 内存页（Google Play 要求，targetSdk 35 起）：AAB 里每个 .so 的 LOAD 段要按 16 KB（0x4000）对齐。
+# 查不了（没有 readelf、解不开、一个 arm64 原生库都没有）或者没对齐都算失败：原来这几种都打印通过、照样出包（#170）。
+# APK 的 ZIP 对齐由 Google Play 从 AAB 生成 APK 时负责，不在这里查；传上去以后 Play Console 的 App Bundle 浏览器里还会再查一遍
 android_check_16k() {
-  local aab="$1" ndk="$2" tmp readelf so bad=0
+  local aab="$1" ndk="$2" tmp readelf so hdr aligns bad=0 n=0
   readelf="$(ls -d "$ndk"/toolchains/llvm/prebuilt/*/bin/llvm-readelf 2>/dev/null | head -1)"
-  [ -x "$readelf" ] || { echo "! 没找到 llvm-readelf，跳过 16 KB 页检查"; return 0; }
+  [ -x "$readelf" ] || { echo "✗ 没找到 llvm-readelf（${ndk}），查不了 16 KB 页"; return 1; }
   tmp="$(mktemp -d)"
-  unzip -q -o "$aab" 'base/lib/*' -d "$tmp" 2>/dev/null || true
+  if ! unzip -q -o "$aab" 'base/lib/*' -d "$tmp"; then
+    rm -rf "$tmp"; echo "✗ 解不开 ${aab} 里的原生库，查不了 16 KB 页"; return 1
+  fi
   for so in "$tmp"/base/lib/arm64-v8a/*.so; do
     [ -f "$so" ] || continue
-    if "$readelf" -lW "$so" | awk '$1=="LOAD"{print $NF}' | grep -qvE '^0x(4000|8000|10000)$'; then
-      echo "✗ $(basename "$so") 没有按 16 KB 对齐"; bad=1
+    n=$((n + 1))
+    # 先把 readelf 的结果拿出来再判断：原来直接接管道，readelf 读失败时输出是空的，grep 什么都不匹配就当成对齐了
+    if ! hdr="$("$readelf" -lW "$so" 2>&1)"; then
+      echo "✗ $(basename "$so")：readelf 读不了（${hdr%%$'\n'*}）"; bad=1; continue
+    fi
+    aligns="$(printf '%s\n' "$hdr" | awk '$1=="LOAD"{print $NF}')"
+    if [ -z "$aligns" ]; then
+      echo "✗ $(basename "$so")：没有 LOAD 段，查不了对齐"; bad=1
+    elif printf '%s\n' "$aligns" | grep -qvE '^0x(4000|8000|10000)$'; then
+      echo "✗ $(basename "$so") 没有按 16 KB 对齐（$(printf '%s' "$aligns" | sort -u | tr '\n' ' ')）"; bad=1
     fi
   done
   rm -rf "$tmp"
-  [ "$bad" = 0 ] && echo "✓ 16 KB 内存页：arm64 的原生库都按 16 KB 对齐" || echo "! 有原生库没按 16 KB 对齐，Google Play 会拒（docs/06）"
+  [ "$n" -gt 0 ] || { echo "✗ AAB 里没有 arm64-v8a 的原生库，查不了 16 KB 页"; return 1; }
+  [ "$bad" = 0 ] || { echo "✗ 16 KB 内存页检查没过（上面几个原生库），Google Play 会拒（docs/06）"; return 1; }
+  echo "✓ 16 KB 内存页：arm64 的 ${n} 个原生库都按 16 KB 对齐"
 }
 
 android_build() {
@@ -326,7 +349,7 @@ android_build() {
       aab="$(find "$proj" -path '*/outputs/bundle/release/*.aab' | head -1)"
       [ -n "$aab" ] || die "没找到打好的 AAB"
       "$(find_keytool)" -printcert -rfc -jarfile "$aab" 2>/dev/null | grep -q -- '-----BEGIN CERTIFICATE-----' || die "${aab} 没有签名（检查 ~/.gradle/gradle.properties 的 RELEASE_ 变量）"
-      android_check_16k "$aab" "$ndk"
+      android_check_16k "$aab" "$ndk" || die "16 KB 内存页检查没过，这个 AAB 不要传（${aab}）"
       echo "✓ aab：${aab}（已用上传密钥签名、真实广告位；传到 Google Play Console）" ;;
     *) die "未知的 Android 产物" ;;
   esac

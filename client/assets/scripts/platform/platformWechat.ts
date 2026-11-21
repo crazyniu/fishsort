@@ -24,6 +24,12 @@ export class PlatformWechat extends PlatformBase {
   private banner: any = null;
   private title = '';
 
+  private setReady(on: boolean): void {
+    const was = this.rewardedReady;
+    this.rewardedReady = on;
+    if (was !== on) this.onAdsChange();
+  }
+
   override async init(): Promise<void> {
     const cfg = await loadPlatformConfig();
     this.units = adUnits(cfg, 'wechat');
@@ -42,8 +48,8 @@ export class PlatformWechat extends PlatformBase {
   private createAds(): void {
     if (this.units.rewarded && typeof wx.createRewardedVideoAd === 'function') {
       this.rewarded = wx.createRewardedVideoAd({ adUnitId: this.units.rewarded });
-      this.rewarded.onLoad(() => (this.rewardedReady = true));
-      this.rewarded.onError(() => (this.rewardedReady = false));
+      this.rewarded.onLoad(() => this.setReady(true));
+      this.rewarded.onError(() => this.setReady(false));
       const preload = () => {
         if (!this.rewardedReady && !this.playingRewarded) this.rewarded.load().catch(() => (this.rewardedReady = false));
       };
@@ -90,18 +96,18 @@ export class PlatformWechat extends PlatformBase {
     });
   }
 
-  override async showInterstitial(_placement: string): Promise<void> {
+  override async showInterstitial(_placement: string): Promise<boolean> {
     const ad = this.interstitial;
-    if (!ad) return;
-    await new Promise<void>((resolve) => {
+    if (!ad) return false;
+    return new Promise<boolean>((resolve) => {
       const onClose = () => {
         ad.offClose(onClose);
-        resolve();
+        resolve(true);
       };
       ad.onClose(onClose);
       ad.show().catch(() => {
         ad.offClose(onClose);
-        resolve();
+        resolve(false);
       });
     });
   }
@@ -179,7 +185,17 @@ export class PlatformWechat extends PlatformBase {
 
   override hasCapability(cap: Capability): boolean {
     if (cap === 'ads') return this.rewarded !== null;
+    // 隐私保护指引（小游戏后台「用户隐私保护指引」填的那份），基础库 2.32.3 起有
+    if (cap === 'privacy_policy') return typeof wx.openPrivacyContract === 'function';
     return cap === 'share' || cap === 'vibrate' || cap === 'health_notice';
+  }
+
+  override openPrivacyPolicy(): void {
+    try {
+      wx.openPrivacyContract({});
+    } catch {
+      /* 老版本基础库没有 */
+    }
   }
 
   override launchQuery(): Record<string, string> {

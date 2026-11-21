@@ -14,12 +14,14 @@
 //   5. PNG 无损重压（pngpack.mjs，每张解码回来逐像素比对，一样才替换）。
 // 文件名里的 MD5 是 Cocos 按构建时的内容算的，这两步不改文件名：同样的源文件每次处理结果都一样。
 // 之后把 client/build/wechatgame-remote/remote 整个传到静态网站托管根目录（package.sh 里有 tcb 就自动传）。
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { packPng } from './pngpack.mjs';
 import { slimImportJson } from './slimlevel.mjs';
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const BUILD = join(ROOT, 'client/build/wechatgame');
 const OUT = join(ROOT, 'client/build/wechatgame-remote');
 const MAIN_LIMIT = 4 * 1024 * 1024;
@@ -119,3 +121,29 @@ const rest = sizeOf(join(OUT, 'remote'));
 console.log(`✓ resources 挪到网上：${relative(ROOT, join(OUT, 'remote'))}（${mb(rest)}），资源地址 ${server}remote/resources/`);
 console.log(`  安装包（主包）${mb(main)}，上限 4 MB`);
 if (main > MAIN_LIMIT) die(`主包超过 4 MB（${mb(main)}），微信传不上去`);
+
+// 6. 这个包用到哪些网上的文件：写成 remote/_builds/<编号>.json，跟资源一起传上去。
+// 清理旧资源（prune.mjs）按「还在用的几个包」的清单保留文件（#170），编号要记进微信开发者工具上传时的版本备注
+function listFiles(dir) {
+  const out = [];
+  for (const f of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, f.name);
+    if (f.isDirectory()) out.push(...listFiles(p));
+    else out.push(relative(OUT, p).split('\\').join('/'));
+  }
+  return out;
+}
+// 编号 = 版本号 + 这批文件（路径和内容）的哈希前 12 位：内容不同编号一定不同，同一分钟打两个包也不会互相覆盖清单；
+// 内容完全一样的两次打包编号相同，清单也一样，覆盖了没关系（原来按分钟起名会撞，#170）
+const used = listFiles(join(OUT, 'remote')).sort();
+const hash = createHash('sha256');
+for (const k of used) {
+  hash.update(k + '\0');
+  hash.update(readFileSync(join(OUT, k)));
+  hash.update('\0');
+}
+const buildId = `${game.version}-${hash.digest('hex').slice(0, 12)}`;
+mkdirSync(join(OUT, 'remote/_builds'), { recursive: true });
+writeFileSync(join(OUT, 'remote/_builds', `${buildId}.json`), JSON.stringify({ id: buildId, files: used }));
+writeFileSync(join(OUT, 'build-id.txt'), buildId + '\n');
+console.log(`✓ 这个包的资源编号：${buildId}（微信开发者工具上传时写进版本备注；以后清理旧资源时按它保留）`);

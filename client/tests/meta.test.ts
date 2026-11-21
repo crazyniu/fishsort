@@ -172,6 +172,18 @@ describe('连败、广告频控、免费金币', () => {
       assert.equal(f % 5 === 0, id % 5 === 0);
     }
   });
+
+  it('第几轮：第 360 关之后每循环一遍后半段加一轮（海图「第 N 轮」）', () => {
+    assert.equal(Meta.loopRound(360, 360), 1);
+    assert.equal(Meta.loopRound(361, 360), 2);
+    assert.equal(Meta.loopRound(540, 360), 2);
+    assert.equal(Meta.loopRound(541, 360), 3);
+    // 同一轮里关卡文件从 181 连续走到 360
+    for (let id = 361; id < 1100; id++) {
+      const r = Meta.loopRound(id, 360);
+      assert.equal(Meta.levelFile(id, 360) - 181, id - 361 - (r - 2) * 180);
+    }
+  });
 });
 
 describe('连击（docs/01 3.2）', () => {
@@ -523,6 +535,16 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.equal(ECO.dailyChallenge.levelStep, curve().cycle);
   });
 
+  it('每日挑战轮换走遍候选（候选数是 7 的倍数也不卡在一关，#170）', () => {
+    for (let lv = 20; lv <= 360; lv++) {
+      const top = Math.floor(lv / 5);
+      const n = top - Math.max(1, Math.floor((top + 1) / 2)) + 1;
+      const seen = new Set<number>();
+      for (let day = 20000; day < 20000 + n; day++) seen.add(DailyChallenge.levelFor(day, lv, 5, 360));
+      assert.equal(seen.size, n, `第 ${lv} 关的进度：${n} 个候选只轮到 ${seen.size} 个`);
+    }
+  });
+
   it('进场（再试 30 金币）、每日宝箱 200 金币 + 卡、七日大宝箱（1000 金币 + 随机技能 1 个 + 1 小时无限生命）', () => {
     const [save, eco, species] = setup(20);
     assert.ok(DailyChallenge.enter(save, eco, 100, 'free'));
@@ -564,6 +586,33 @@ describe('每日挑战（docs/01 5.11）', () => {
     const [s2] = setup(20);
     assert.ok(DailyChallenge.enter(s2, eco, 100, 'free'));
     assert.ok(!DailyChallenge.canStartFree(s2, 100));
+  });
+
+  it('跨零点过关：记在开局那天，今天的每日、任务、周进度不回滚（#170）', () => {
+    // 找一个跨周的零点：d 和 d + 1 不在同一周，周进度也一起验
+    let d = 100;
+    for (;; d++) {
+      const [a] = setup(30);
+      Daily.roll(a, d);
+      const w = a.week.id;
+      Daily.roll(a, d + 1);
+      if (a.week.id !== w) break;
+    }
+    const [save, eco, species] = setup(30);
+    Daily.roll(save, d + 1);
+    save.week.points = 40;
+    save.week.taskClaimed = [0];
+    save.daily.replay = 2;
+    save.tasks.day = -1;
+    DailyChallenge.win(save, eco, species, d, 0, new Rng(1), 0, d + 1);
+    assert.equal(save.challenge.wonDay, d, '挑战记在开局那天');
+    assert.equal(save.daily.day, d + 1, '每日数据还是今天的');
+    assert.equal(save.daily.replay, 2);
+    assert.ok(save.week.points >= 40, '周积分没被清');
+    assert.deepEqual(save.week.taskClaimed, [0], '周奖励领取记录没被清');
+    assert.ok(save.tasks.day === -1 || save.tasks.day === d + 1, '任务按今天记');
+    // 第二天照样能打今天的挑战
+    assert.ok(!DailyChallenge.wonToday(save, d + 1));
   });
 });
 

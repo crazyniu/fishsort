@@ -26,6 +26,8 @@ export class DailyPage extends Page {
   private root!: Node;
   private view: Node | null = null;
   private chest!: Node;
+  /** 刚过关回来、开箱翻卡还没演完：这期间不重画（重画会把宝箱连同动画一起销毁，#170） */
+  private celebrating = false;
 
   build(root: Node): void {
     this.root = root;
@@ -34,18 +36,20 @@ export class DailyPage extends Page {
   }
 
   override show(arg?: unknown): void {
+    this.celebrating = false;
     this.render(true);
     const won = wonOf(arg);
     if (won && won.prizes.length) this.celebrate(won);
   }
 
   override refresh(): void {
+    if (this.celebrating) return;
     this.render(false);
   }
 
+  /** 按历史返回：任务中心点进来的回任务中心，主页点进来的、过关回来的回主页（局内那层切页时已经退掉了，#170） */
   override back(): boolean {
-    ui.go('home');
-    return false;
+    return true;
   }
 
   private render(enter: boolean): void {
@@ -59,7 +63,8 @@ export class DailyPage extends Page {
     const v = box('view', this.root, Screen.W, Screen.H);
     this.view = v;
     const top = Screen.headTop;
-    pageHead(v, tr('DAILY_TITLE'), { onBack: () => this.back() });
+    // 返回键走统一的返回（ui.back → 按历史回上一页）；原来直接调 this.back()，它只返回 true、不导航，点了没反应
+    pageHead(v, tr('DAILY_TITLE'));
 
     // 自下而上：按钮 → 一行小字 → 一块白色面板（上半连续过关的进度，下半今日宝箱的奖品）→ 剩下的地方放大宝箱
     // （用户 2026-11-17：原来进度条和宝箱各自浮在背景上，和任务中心不是一个样子）
@@ -141,10 +146,14 @@ export class DailyPage extends Page {
           label: tr('DAILY_RETRY'),
           fontSize: 40,
           onTap: async () => {
-            if (!(await watchAd('rv_daily_retry'))) return;
-            if (!DailyChallenge.enter(App.save.data, eco, today(), 'ad')) return;
-            App.save.write();
-            Flow.startDaily();
+            // 看完广告就记下；进关成功才算用掉这次重试，读关卡失败的话再点不用重看（#170）
+            const day = today();
+            if (!Flow.dailyAdPaidFor(day)) {
+              if (!(await watchAd('rv_daily_retry'))) return;
+              Flow.markDailyAd(day);
+            }
+            if (DailyChallenge.wonToday(App.save.data, day)) return;
+            Flow.startDaily('ad');
           },
         });
         at(ad.node, -170, btnY);
@@ -162,9 +171,9 @@ export class DailyPage extends Page {
             needCoins(cfg.retryCoins - sv.coins, () => ui.refresh());
             return;
           }
-          if (!DailyChallenge.enter(sv, eco, today(), 'coins')) return;
-          App.save.write();
-          Flow.startDaily();
+          if (DailyChallenge.wonToday(sv, today())) return;
+          // 金币进关成功才扣（Flow.payDaily），读关卡失败不扣（#170）
+          Flow.startDaily('coins');
         },
       });
       at(coins.node, hasAds ? 170 : 0, btnY);
@@ -178,6 +187,7 @@ export class DailyPage extends Page {
   /** 刚过关回来：宝箱晃动、弹开、冒光，先翻卡再开奖 */
   private celebrate(won: { prizes: Prize[]; big: boolean }): void {
     const c = this.chest;
+    this.celebrating = true;
     setImg(c, 'icon/chest_daily', this.chestS, this.chestS);
     tween(c)
       .delay(0.3)
@@ -198,7 +208,10 @@ export class DailyPage extends Page {
         revealCards(cards, () => {
           rewardPopup(prizeItems(won.prizes.filter((p) => p.kind !== 'card')), {
             title: tr(won.big ? 'DAILY_BIG_CHEST' : 'DAILY_CHEST'),
-            onClose: () => ui.refresh(),
+            onClose: () => {
+              this.celebrating = false;
+              ui.refresh();
+            },
           });
         });
       })

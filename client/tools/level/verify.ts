@@ -3,6 +3,7 @@
 //   --measure：第 6 关起用两个只看屏幕的玩家复测难度（离目标远、想清楚过不去的标出来）；不给只查结构和参考解（CI 用）
 // 默认用验收那一组机器人种子跑 400 局（level_curve.json 的 gen.verifyRuns / verifySeedBase），和生成器复测用的是同一组，
 // 所以报告里的胜率就是生成时判的胜率。
+import { fileURLToPath } from 'node:url';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -14,8 +15,10 @@ import * as LevelCheck from '../../assets/scripts/core/solver/levelCheck';
 import * as Players from '../../assets/scripts/core/solver/players';
 import * as Jam from './jam';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
+/** 每日挑战专用难关（docs/01 5.11）：校验全部时一起查结构和参考解；难度目标和主线不同，--measure 不复测它们 */
+const DAILY_DIR = join(CLIENT, 'assets/resources/config/levels_daily');
 
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
 const gen = curve.gen;
@@ -29,6 +32,7 @@ for (const a of process.argv.slice(2)) {
 }
 const all = files.length === 0;
 if (all) for (const n of readdirSync(DIR).sort()) if (n.endsWith('.json')) files.push(join(DIR, n));
+if (all) for (const n of readdirSync(DAILY_DIR).sort()) if (n.endsWith('.json')) files.push(join(DAILY_DIR, n));
 
 const rate = (lv: LevelData, kind: Bots.BotKind, slots: number) => Bots.rate(lv, kind, slots, runs, gen.verifySeedBase, curve.bot);
 
@@ -58,7 +62,8 @@ const last = new Map<boolean, number>([
 ]);
 const baseRate = new Map<number, number>();
 for (const path of files) {
-  const name = basename(path, '.json');
+  const daily = dirname(path) === DAILY_DIR;
+  const name = (daily ? 'daily/' : '') + basename(path, '.json');
   const lv = LevelData.fromJson(readFileSync(path, 'utf8'));
   if (lv === null) {
     console.error(`✗ ${name}: 无法解析`);
@@ -88,6 +93,8 @@ for (const path of files) {
     for (const e of errs) console.error(`✗ ${name}: ${e}`);
     continue;
   }
+  // 每日挑战关只查结构和参考解（上面），不进难度报告
+  if (daily) continue;
   const kind = LevelCurve.jamKind(curve, lv.id);
   const target = route ? LevelCurve.routeTarget(curve, lv.id) : null;
   if (route && target !== null && kind !== null && !measureOn) {

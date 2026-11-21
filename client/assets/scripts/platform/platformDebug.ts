@@ -21,6 +21,7 @@ export class PlatformDebug extends PlatformBase {
   view: MockAdView | null = null;
   /** 今天每个广告位展示了几次（广告测试页看） */
   shown: Record<string, number> = {};
+  private privacyUrl = '';
 
   override async init(): Promise<void> {
     const q = this.launchQuery().ads;
@@ -29,6 +30,11 @@ export class PlatformDebug extends PlatformBase {
     // 网页调试带 App 的全部语言；?lang=ja 这样指定系统语言（看各语言的默认选择）
     if (cfg.languages?.app?.length) this.languages = cfg.languages.app;
     this.adsOn = this.hasAds;
+    this.privacyUrl = cfg.privacyPolicy ?? '';
+  }
+
+  override openPrivacyPolicy(): void {
+    if (this.privacyUrl) sys.openURL(this.privacyUrl);
   }
 
   override systemLanguage(): string {
@@ -47,10 +53,11 @@ export class PlatformDebug extends PlatformBase {
     return this.view.show('rewarded', placement);
   }
 
-  override async showInterstitial(placement: string): Promise<void> {
-    if (!this.adsOn) return;
+  override async showInterstitial(placement: string): Promise<boolean> {
+    if (!this.adsOn) return false;
     this.shown[placement] = (this.shown[placement] ?? 0) + 1;
-    if (this.view) await this.view.show('interstitial', placement);
+    if (this.view) return (await this.view.show('interstitial', placement)) !== 'unavailable';
+    return true;
   }
 
   override showBanner(placement: string): void {
@@ -100,6 +107,7 @@ export class PlatformDebug extends PlatformBase {
   override hasCapability(cap: Capability): boolean {
     if (cap === 'ads') return this.hasAds;
     if (cap === 'ad_test') return this.hasAds;
+    if (cap === 'privacy_policy') return this.privacyUrl !== '';
     return cap === 'friend_rank' || cap === 'share' || cap === 'vibrate';
   }
 

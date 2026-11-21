@@ -52,6 +52,20 @@ usage() {
 EOF
 }
 
+# 丢掉 client/ 下已跟踪文件的改动之前，先把改动存成补丁（.git/fishsort-discarded/，留最近 20 份）：
+# 多半是编辑器写的 .meta，但万一有人在 Mac 上手改了，还能 git apply 找回来（#170）
+discard_changes() {
+  local path="$1" dir patch
+  [ -n "$(git status --porcelain --untracked-files=no -- "$path")" ] || return 0
+  dir="$(git rev-parse --git-dir)/fishsort-discarded"
+  mkdir -p "$dir"
+  patch="${dir}/$(date +%Y%m%d-%H%M%S)-$$.patch"
+  git diff --binary -- "$path" > "$patch"
+  echo "  改动先存了一份：${patch}（要找回：git apply ${patch}）"
+  ls -1t "$dir"/*.patch 2>/dev/null | tail -n +21 | while IFS= read -r old; do rm -f "$old"; done
+  git checkout -- "$path"
+}
+
 cocos_build() {
   local platform="$1" code=0 try
   need_cocos
@@ -61,7 +75,7 @@ cocos_build() {
     if [ "$code" -eq 36 ] && ! import_broken; then break; fi
     if import_broken; then
       echo "! 第 $try 次构建资源导入坏了（importer \"*\"），还原 .meta 后清缓存重来"
-      git checkout -- "$CLIENT/assets"
+      discard_changes "$CLIENT/assets"
       code=1
     fi
   done
@@ -148,8 +162,8 @@ pull_latest() {
   echo "→ 拉取最新代码（${branch}）"
   if [ "$(uname)" = "Darwin" ] && [ -n "$(git status --porcelain --untracked-files=no -- client)" ]; then
     echo "  先还原 client/ 下编辑器写的改动："
-    git status --porcelain --untracked-files=no -- client | head -5 | sed 's/^/    /'
-    git checkout -- client
+    git status --porcelain --untracked-files=no -- client | head -5 | sed 's/^/    /' || true
+    discard_changes client
   fi
   if ! git pull --ff-only -q; then
     echo "⚠ 拉取失败（没网、或本地有改动 / 自己的提交），用当前代码继续" >&2

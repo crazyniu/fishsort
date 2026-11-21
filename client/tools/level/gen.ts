@@ -2,6 +2,7 @@
 // 每关逐个种子在难度旋钮上二分、微调总鱼数。搜索用 40 局机器人（快），胜率靠近瞄准值的候选再用另一组
 // 400 局复测，容差、单调、第 3 缸区间都按复测结果判，挑复测最好的那个（docs/02-关卡设计.md 第 2.1、4 节）。
 // 一关的结果只取决于关卡号和上一关的复测胜率，不依赖从哪一关开始跑，所以可以按关号分段并行生成。
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -12,7 +13,7 @@ import * as Bots from '../../assets/scripts/core/solver/bots';
 import { clampf, idiv } from '../../assets/scripts/core/util';
 import * as Jam from './jam';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const DIR = join(CLIENT, 'assets/resources/config/levels');
 const EASE_VARIANTS = 2;
 

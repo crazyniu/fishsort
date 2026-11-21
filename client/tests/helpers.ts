@@ -1,4 +1,5 @@
 // 测试共用：读配置、读黄金数据、手工搭小关卡、比较工具。
+import { fileURLToPath } from 'node:url';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
@@ -7,7 +8,7 @@ import { GameState } from '../assets/scripts/core/model/gameState';
 import { LevelData } from '../assets/scripts/core/model/levelData';
 import { start } from '../assets/scripts/core/rules/rules';
 
-export const CLIENT = join(dirname(new URL(import.meta.url).pathname), '..');
+export const CLIENT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const CONFIG = join(CLIENT, 'assets/resources/config');
 export const GOLDEN = join(CLIENT, 'tests/golden');
 

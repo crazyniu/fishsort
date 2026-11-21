@@ -43,6 +43,10 @@ import * as ComboGoal from '../core/meta/comboGoal';
 export interface GameArg {
   level: number;
   daily?: boolean;
+  /** 每日挑战：这局算哪一天的（进场时定，过了零点结算也算进场那天，#170） */
+  day?: number;
+  /** 每日挑战的重试怎么付（看过广告 / 金币）：关卡读出来了才记账，读不出来不扣（#170）；不给 = 当天的免费次 */
+  pay?: 'ad' | 'coins';
   /**
    * 难度调试页的演示（docs/01 9.7）：电脑替玩家点，每一步先圈出要点的那条鱼。不记成绩、不扣命。
    * route = 按关卡文件里的参考解（想清楚的玩家赢下来的路线，能走完就证明这一档一定过得去）；
@@ -84,6 +88,8 @@ interface UndoSnap {
   s: GameState;
   pos: ([number, number] | null)[];
   prefill: number;
+  /** 拍快照时倒计时一共走过几秒（tickTime） */
+  tick: number;
 }
 
 /** 连击四档的颜色（docs/01 3.2：蓝、金、红、紫） */
@@ -154,16 +160,23 @@ export class GamePage extends Page {
   /** 这一局的每日任务进度记过了没有（Flow.endRun） */
   tallied = false;
   ended = false;
+  /** 排好了、鱼还在飞没算的连击（编号 → 鱼缸 x）：过关结算前一次算完，最后入缸的几条也计（#170） */
+  private pendingHits = new Map<number, number>();
+  private hitSeq = 0;
   paused = false;
   used: Record<string, number> = {};
   /** 强制教学用掉的那几次（不算进星级的道具数，docs/01 9.5） */
   freebies = 0;
+  /** 这次渔网是强制教学点的：选好缸扣数量时记成不算星级的一次 */
+  netTutorial = false;
   /** 技能以外算「用了道具」的：加开鱼缸、复活，各算一次 */
   extras = 0;
   /** 这一关的关卡文件号 */
   private file = 0;
   /** 撤销：上一步点之前的局面（null = 没得撤销：还没点，或上一步是用道具） */
   private undoSnap: UndoSnap | null = null;
+  /** 这局倒计时（Rules.tick）一共走过几秒：撤销时按它扣限时缸的时间 */
+  private tickTime = 0;
   /** 每次整个重画加一：重画之前还在路上的鱼到了以后不再结算 */
   private epoch = 0;
   /** 开局占格的鱼还有几条在暂存槽里（它们总在最前面几格） */
@@ -321,7 +334,7 @@ export class GamePage extends Page {
     try {
       this.lv = await config.loadLevel(file, ease, !!this.arg.daily);
       const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
-      species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? today() : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
+      species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? Flow.dailyDay(this) : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
       await loadFrames(species.map((sp) => `fish/${sp}`));
     } catch (e) {
       console.warn('关卡读不出来', e);
@@ -331,6 +344,8 @@ export class GamePage extends Page {
     } finally {
       ui.busy(false);
     }
+    // 每日挑战的重试到这里才扣（金币不够了、已经过了今天的就回挑战页）
+    if (!Flow.payDaily(this)) return;
     this.s = GameState.fromLevel(this.lv);
     // 测试包的整体难度档（设置 → 难度调试，docs/01 9.7）：暂存槽多一格 / 少一格
     // 演示按关卡原样打（暂存槽、缸位都照关卡文件），参考解才对得上
@@ -362,10 +377,13 @@ export class GamePage extends Page {
     this.demoFatal = this.arg.demo === 'casual' ? Route.firstDead(this.lv, this.demoTaps) : -1;
     this.tallied = false;
     this.ended = false;
+    this.pendingHits.clear();
     this.paused = false;
     this.netMode = false;
     this.used = {};
     this.freebies = 0;
+    this.netTutorial = false;
+    this.tickTime = 0;
     this.extras = 0;
     this.undoSnap = null;
     this.lucky = null;
@@ -386,6 +404,8 @@ export class GamePage extends Page {
   /** snap = 撤销：按存下来的局面整个重画，不播开局的进场 */
   private layout(file: number, snap: UndoSnap | null = null): void {
     this.epoch++;
+    // 整个重画（开局、撤销）：还在飞的鱼作废，排着的连击也不再算（撤销掉的鱼不能在过关补算时算进去）
+    this.pendingHits.clear();
     this.nextRow = null;
     this.nextChips.clear();
     this.dropNext = null;
@@ -669,7 +689,7 @@ export class GamePage extends Page {
   }
 
   private snapshot(): UndoSnap {
-    return { s: this.s.clone(), pos: this.field.positions(), prefill: this.prefillLeft };
+    return { s: this.s.clone(), pos: this.field.positions(), prefill: this.prefillLeft, tick: this.tickTime };
   }
 
   /**
@@ -679,11 +699,16 @@ export class GamePage extends Page {
   undo(): boolean {
     const snap = this.undoSnap;
     if (!snap) return false;
+    // 从那一步到现在走过的时间：限时缸的倒计时都要扣掉这么多。原来只扣还在同一格的同一缸，
+    // 刚装满消失、或被换掉的缸会回到快照里的旧时间（#170）
+    const elapsed = Math.max(0, this.tickTime - snap.tick);
     snap.s.clock = this.s.clock;
     for (let i = 0; i < MAX_SLOTS; i++) {
       const was = snap.s.slots[i];
       const now = this.s.slots[i];
-      if (was && now && was.order === now.order && was.timer !== NO_TIMER) was.timer = Math.min(was.timer, now.timer);
+      if (!was || was.timer === NO_TIMER) continue;
+      was.timer = Math.max(0, was.timer - elapsed);
+      if (now && was.order === now.order && now.timer !== NO_TIMER) was.timer = Math.min(was.timer, now.timer);
     }
     this.s = snap.s;
     this.undoSnap = null;
@@ -924,6 +949,8 @@ export class GamePage extends Page {
   tapBowl(slot: number): void {
     if (!this.netMode) return;
     this.exitNetMode();
+    // 选缸时倒计时到了（输了、过了）就不用了，也不扣
+    if (this.ended || this.s.status !== Status.PLAYING) return;
     Flow.finishNet(this, slot);
   }
 
@@ -1069,7 +1096,10 @@ export class GamePage extends Page {
           this.ended = true;
           // 最后一缸消失后停半拍 → 闪白、两边彩纸炮、三发烟花 → 结算页（docs/01 3.3）
           fx.delay(this.fly, t + 0.35, () => this.celebrate());
-          fx.delay(this.fly, t + 0.35 + Number(App.config.ui.win.celebrate ?? 1), () => Flow.win(this));
+          fx.delay(this.fly, t + 0.35 + Number(App.config.ui.win.celebrate ?? 1), () => {
+            this.flushHits();
+            Flow.win(this);
+          });
           break;
         case 'lose':
           fx.delay(this.fly, t + 0.6, () => Flow.lose(this));
@@ -1077,7 +1107,13 @@ export class GamePage extends Page {
       }
     }
     // 连击按入缸的先后计（暂存槽自动补进新缸也算命中）
-    for (const [d, x] of hitAt) fx.delay(this.fly, d + cfg.fly.tapPop + cfg.fly.seconds, () => this.hitCombo(x));
+    for (const [d, x] of hitAt) {
+      const id = ++this.hitSeq;
+      this.pendingHits.set(id, x);
+      fx.delay(this.fly, d + cfg.fly.tapPop + cfg.fly.seconds, () => {
+        if (this.pendingHits.delete(id)) this.hitCombo(x);
+      });
+    }
     this.field.sync(this.s);
     this.layoutReturn(t + 0.2);
     this.syncNext(true);
@@ -1411,13 +1447,26 @@ export class GamePage extends Page {
 
   // ---------------------------------------------------------------- 连击
 
-  private hitCombo(bowlX = 0): void {
-    if (this.ended) return;
+  /** 还在飞的鱼的连击一次算完（只记数、发连击奖励，不放特效）：过关进结算前调 */
+  private flushHits(): void {
+    for (const x of Array.from(this.pendingHits.values())) this.hitCombo(x, true);
+    this.pendingHits.clear();
+  }
+
+  /**
+   * 一次入缸命中。过关以后还在飞的鱼照样计（原来过关就不计，最后一条鱼的连击总是丢，#170）；
+   * quiet：只记数和发奖励，不出声音和特效（结算前补算用）
+   */
+  private hitCombo(bowlX = 0, quiet = false): void {
     const eco = App.config.eco;
     // 连击送卡的掷骰子只留给每日挑战；主线关卡换成开局就告诉你的连击目标（docs/01 9.4）
     const cardsOpen = this.arg.daily === true && Features.isUnlocked(eco, 'album', App.save.data.level);
     const r = this.combo.hit(this.clock, eco.combo, this.rng, cardsOpen);
     this.goalProgress();
+    if (quiet) {
+      if (r.card) Flow.comboCard(this);
+      return;
+    }
     // 声音：每一击升一个音；震动：每一击轻震一下（docs/01 3.2：画面、声音、震动一起升级）
     // 进缸本身的声音在 arrive 里（每条鱼都有）；连击起算后每一击再叠一声逐级升调的「叮」，震动每一击轻震一下
     if (r.tier >= 0) sfx('hit', r.count - eco.combo.startAt);
@@ -1819,6 +1868,7 @@ export class GamePage extends Page {
     }
     // 限时缸、限时关
     if (this.s.status === Status.PLAYING && this.moved && !this.finishing) {
+      this.tickTime += dt;
       const ev = Rules.tick(this.s, dt);
       if (ev.length) this.play(ev, false);
       this.syncClock();

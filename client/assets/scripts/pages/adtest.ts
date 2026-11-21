@@ -4,7 +4,7 @@ import { Node } from 'cc';
 import * as Meta from '../core/meta/meta';
 import { PlatformDebug } from '../platform/platformDebug';
 import { App } from '../services/app';
-import { mono } from '../services/clock';
+import { adNow } from '../services/clock';
 import { tr } from '../ui/i18n';
 import { COLOR, at, box, button, lazyImg, slice, text } from '../ui/kit';
 import { Scroller } from '../ui/scroll';
@@ -53,7 +53,7 @@ export class AdTestPage extends Page {
       this.render();
     } });
     at(reset.node, 175, top - 200);
-    const can = Meta.shouldShowInterstitial(s, App.config.ads, s.level, mono());
+    const can = Meta.shouldShowInterstitial(s, App.config.ads, s.level, adNow(s.ads));
     const st = text(v, `插屏：${can ? '现在会弹' : '频控中'} · 上次插屏关 ${s.ads.interstitialLevel} · 第 ${s.level} 关`, 26, { width: 680 });
     at(st.node, 0, top - 280);
 
@@ -74,9 +74,10 @@ export class AdTestPage extends Page {
           const r = await p.showRewarded(id);
           ui.toast(`${id}：${r}`);
         } else if (type === 'interstitial') {
-          await p.showInterstitial(id);
-          Meta.markInterstitial(s, s.level, mono());
-          App.save.write();
+          if (await p.showInterstitial(id)) {
+            Meta.markInterstitial(s, s.level, adNow());
+            App.save.write();
+          } else ui.toast(`${id}：没播出来`);
         } else {
           p.showBanner(id);
           setTimeout(() => p.hideBanner(), 3000);

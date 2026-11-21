@@ -11,6 +11,7 @@
 //   --labEntry=文件  和 --lab 一起用：这一关的索引写到这个文件，不直接改 index.json（批量并行时用，tools/level/routeAll.ts）
 //   --fresh   不用难度库（tools/level/pool.ts）：不从库里拿、不往库里存，照旧从头生成
 // 最后一行打印 @@RESULT {…}（批量生成汇总用）
+import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig } from '../../assets/scripts/core/config';
@@ -26,7 +27,7 @@ import * as Route from '../../assets/scripts/core/solver/route';
 import * as Pool from './pool';
 import * as NoTriple from '../../assets/scripts/core/gen/noTriple';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
 const arg = (name: string, def: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? def;
 

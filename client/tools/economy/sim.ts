@@ -18,6 +18,7 @@
 // 新加的收入照游戏里的发奖代码算：连击目标（第一次通关、假设 GOAL_HIT 的局够得着）、首次三星（一样没花就过的那些关）、
 // 幸运泡（按 economy.json 的概率出，假设 LUCKY_GOT 的局拿得到）。
 // 技能先用今天的免费次、再用库存；都没有就花金币买，金币不够就看广告拿一个。缸位、命同理。
+import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig, EconomyConfig, Species } from '../../assets/scripts/core/config';
@@ -40,7 +41,7 @@ import * as Tasks from '../../assets/scripts/core/meta/tasks';
 import * as Wheel from '../../assets/scripts/core/meta/wheel';
 import { Rng } from '../../assets/scripts/core/rng/rng';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const CONFIG = join(CLIENT, 'assets/resources/config');
 /** 新手期（难度曲线还没开始收紧的前几关）不用道具的过关概率 */
 const EARLY_P0 = 0.9;

@@ -19,7 +19,7 @@ import {
   tween,
 } from 'cc';
 import { DEBUG } from 'cc/env';
-import { frame, frameAsync, peek, uiFont } from './res';
+import { frame, frameAsync, hasFrame, peek, uiFont } from './res';
 
 export const RES = 3;
 
@@ -215,12 +215,20 @@ export function lazyImg(parent: Node, path: string, w: number, h?: number): Node
   const n = box(path, parent, w, h ?? w);
   const sp = n.addComponent(Sprite);
   sp.sizeMode = Sprite.SizeMode.CUSTOM;
-  void frameAsync(path).then((f) => {
-    if (n.isValid && f) {
-      sp.spriteFrame = f;
-      if (h === undefined) size(n, w, (f.originalSize.height * w) / f.originalSize.width);
-    }
-  });
+  const load = (wait: number): void => {
+    void frameAsync(path).then((f) => {
+      if (!n.isValid) return;
+      if (f) {
+        sp.spriteFrame = f;
+        if (h === undefined) size(n, w, (f.originalSize.height * w) / f.originalSize.width);
+        return;
+      }
+      // 包里有这张图但这次没读下来（微信断网）：节点还在就过一会儿再试，间隔逐次加倍、最长 60 秒。
+      // 页面是缓存着复用的，不重试的话网好了也一直是空的（#170）
+      if (hasFrame(path)) setTimeout(() => load(Math.min(wait * 2, 60)), wait * 1000);
+    });
+  };
+  load(3);
   return n;
 }
 

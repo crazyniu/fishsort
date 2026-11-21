@@ -4,6 +4,7 @@
 // 用户试玩校准过：细心玩家机器人比真人强得多（第 140 关它不花 67%，用户不花根本过不去），普通玩家机器人和用户对得上。
 // 生成：按难度曲线的参数生成候选（排队泡 + 只打乱后面一段），细心玩家机器人找一条不花道具的参考解（关卡必须可解），
 // 再量普通玩家机器人；离目标远就调打乱比例再生成，取最接近的。
+import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { CurveConfig, JamKind } from '../../assets/scripts/core/config';
@@ -12,7 +13,7 @@ import { generate } from '../../assets/scripts/core/gen/levelGen';
 import { LevelData, Tap } from '../../assets/scripts/core/model/levelData';
 import * as Careful from '../../assets/scripts/core/solver/careful';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const curve = JSON.parse(readFileSync(join(CLIENT, 'assets/resources/config/level_curve.json'), 'utf8')) as CurveConfig;
 
 /** 量普通玩家机器人打几局（它不推演，一局几毫秒） */

@@ -32,7 +32,7 @@ HOW TO PLAY
 FEATURES
 • 360 hand-tuned levels across 18 seas — from Sunrise Shore and Coral Garden to Gear Harbor and Melody Cove
 • 705 original sea creatures to collect in 18 albums, from common friends to dazzling epic ones
-• Four helpful skills when you get stuck: Shuffle, Blow, Net and Current
+• Five handy helpers when you get stuck: Undo, Hint, Shuffle, Blow and Net
 • Combos, a daily puzzle, treasure chests, a daily gift and tasks
 • Calm, colorful underwater scenes and gentle sounds
 • Play offline, anytime
@@ -71,7 +71,7 @@ Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting fo
 特色
 • 360 关、18 片海域：从晨光沙滩、珊瑚花园一路到齿轮钟湾、歌声海湾
 • 705 种原创海洋生物，收进 18 本收藏册，从普通到闪闪发光的史诗卡
-• 卡住了有四个技能帮忙：洗牌、吹泡、渔网、洋流
+• 卡住了有五个技能帮忙：撤销、提示、洗牌、吹泡、渔网
 • 连击、每日挑战、抽奖宝箱、七日签到、任务中心
 • 安静好看的海底画面，轻松的音效
 • 没网也能玩
@@ -110,7 +110,7 @@ Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting fo
 特色
 • 360 關、18 片海域：從晨光沙灘、珊瑚花園一路到齒輪鐘灣、歌聲海灣
 • 705 種原創海洋生物，收進 18 本收藏冊，從普通到閃閃發光的史詩卡
-• 卡關了有四個道具幫忙：洗牌、吹泡、漁網、洋流
+• 卡關了有五個道具幫忙：復原、提示、洗牌、吹泡、漁網
 • 連擊、每日挑戰、寶箱、七日簽到、任務
 • 療癒的海底畫面和輕快的音效
 • 沒網路也能玩
@@ -149,7 +149,7 @@ Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting fo
 おすすめポイント
 ・18の海に360ステージ。朝やけビーチ、サンゴの花園から歯車の港、うたう入り江まで
 ・705種のオリジナル海の生きものを18冊の図鑑にコレクション。キラキラのエピックカードも
-・困ったときの4つのアイテム：まぜまぜ、突風、あみ、うず潮
+・困ったときの5つのアイテム：もどす、ヒント、まぜまぜ、突風、あみ
 ・コンボ、デイリーパズル、宝箱、ログインボーナス、クエスト
 ・やさしい海の景色と心地いいサウンド
 ・オフラインでも遊べる
@@ -188,7 +188,7 @@ Welcome to Bubble Fish! 360 levels, 18 seas and 705 sea creatures are waiting fo
 특징
 • 18개 바다, 360개 레벨: 아침 해변, 산호 정원부터 톱니바퀴 항구, 노래하는 만까지
 • 705종의 오리지널 바다 생물을 18권의 도감에 수집. 반짝이는 영웅 카드도
-• 막힐 땐 아이템 4가지: 섞기, 불기, 그물, 해류
+• 막힐 땐 아이템 5가지: 되돌리기, 힌트, 섞기, 불기, 그물
 • 콤보, 데일리 퍼즐, 보물상자, 출석 보상, 미션
 • 편안한 바닷속 풍경과 경쾌한 사운드
 • 오프라인 플레이 가능
@@ -227,7 +227,7 @@ SO WIRD GESPIELT
 HIGHLIGHTS
 • 360 Level in 18 Meeren – vom Sonnenstrand und Korallengarten bis zum Zahnradhafen und zur Liederbucht
 • 705 eigene Meerestiere in 18 Alben sammeln, bis hin zu glitzernden epischen Karten
-• Vier Extras für knifflige Momente: Mischen, Pusten, Netz und Strömung
+• Fünf Extras für knifflige Momente: Zurück, Tipp, Mischen, Pusten und Netz
 • Combos, Tagesrätsel, Schatztruhen, Tagesbonus und Aufgaben
 • Ruhige, bunte Unterwasserwelten und sanfte Klänge
 • Auch offline spielbar
@@ -266,7 +266,7 @@ COMMENT JOUER
 POINTS FORTS
 • 360 niveaux dans 18 mers, de la Plage de l’aube et du Récif fleuri jusqu’au Port-Rouage et à l’Anse chantante
 • 705 créatures marines originales à collectionner dans 18 albums, jusqu’aux cartes épiques scintillantes
-• Quatre bonus quand tu bloques : Mélange, Souffle, Filet et Courant
+• Cinq bonus quand tu bloques : Annuler, Indice, Mélange, Souffle et Filet
 • Combos, défi du jour, coffres, cadeau quotidien et missions
 • Des fonds marins doux et colorés, des sons apaisants
 • Jouable hors ligne
@@ -305,7 +305,7 @@ CÓMO SE JUEGA
 LO MEJOR
 • 360 niveles en 18 mares: de la Playa del Alba y Coralia al Puerto Rueda y la Cala Cantarina
 • 705 criaturas marinas originales para coleccionar en 18 álbumes, hasta cartas épicas brillantes
-• Cuatro potenciadores para salir del apuro: Mezclar, Soplar, Red y Marea
+• Cinco potenciadores para salir del apuro: Deshacer, Pista, Mezclar, Soplar y Red
 • Combos, reto diario, cofres, regalo diario y misiones
 • Fondos marinos coloridos y relajantes, sonidos suaves
 • Juega sin conexión
@@ -344,7 +344,7 @@ COMO JOGAR
 DESTAQUES
 • 360 fases em 18 mares: da Praia Aurora e da Coralina até o Porto Roda e a Baía Melodia
 • 705 criaturas marinhas originais para colecionar em 18 álbuns, até cartas épicas brilhantes
-• Quatro reforços para quando travar: Mexer, Soprar, Rede e Maré
+• Cinco reforços para quando travar: Desfazer, Dica, Mexer, Soprar e Rede
 • Combos, desafio diário, baús, presente diário e missões
 • Cenários submarinos coloridos e sons relaxantes
 • Jogue offline
@@ -383,7 +383,7 @@ COME SI GIOCA
 PUNTI DI FORZA
 • 360 livelli in 18 mari: dall’Alba Dorata e dai Coralli fino al Porto Ruote e alla Cala Canora
 • 705 creature marine originali da collezionare in 18 album, fino alle scintillanti carte epiche
-• Quattro aiuti per i momenti difficili: Mescola, Soffia, Rete e Corrente
+• Cinque aiuti per i momenti difficili: Annulla, Aiuto, Mescola, Soffia e Rete
 • Combo, sfida del giorno, forzieri, regalo giornaliero e missioni
 • Fondali colorati e rilassanti, suoni delicati
 • Si gioca anche offline
@@ -422,7 +422,7 @@ Benvenuto in Bubble Fish! Ti aspettano 360 livelli, 18 mari e 705 creature marin
 ОСОБЕННОСТИ
 • 360 уровней в 18 морях: от Пляжа зари и Кораллового сада до Механики и Поющей бухты
 • 705 оригинальных морских жителей в 18 альбомах — вплоть до сверкающих эпических карт
-• Четыре бонуса на трудный случай: Микс, Сдуть, Сеть и Течение
+• Пять бонусов на трудный случай: Назад, Совет, Микс, Сдуть и Сеть
 • Комбо, задача дня, сундуки, ежедневный подарок и задания
 • Спокойные яркие подводные пейзажи и мягкие звуки
 • Можно играть без интернета
@@ -461,7 +461,7 @@ NASIL OYNANIR
 ÖNE ÇIKANLAR
 • 18 denizde 360 seviye: Şafak Kumsalı ve Mercan Bahçesi’nden Çark Limanı ve Şarkı Koyu’na
 • 18 albümde toplanacak 705 özgün deniz canlısı, parıldayan destansı kartlara kadar
-• Takıldığında dört güçlendirici: Karıştır, Üfle, Ağ ve Akıntı
+• Takıldığında beş güçlendirici: Geri al, İpucu, Karıştır, Üfle ve Ağ
 • Kombolar, günün bulmacası, sandıklar, günlük hediye ve görevler
 • Sakin, rengârenk deniz altı manzaraları ve yumuşak sesler
 • İnternetsiz oynanabilir
@@ -489,7 +489,7 @@ Screen recording (physical iPhone 16 Pro Max, iOS 27.2.1, recorded from app laun
 Bubble Fish is an offline-friendly casual puzzle game for all ages (players who enjoy short, relaxing sorting/matching puzzles). Little fish are trapped in bubbles; the player taps fish to send them into the matching tanks - three of a kind fill a tank. The value is light entertainment: 360 hand-tuned levels across 18 seas, 705 original sea creatures to collect, and a daily puzzle. All art, names and characters are original.
 
 2. How to use the app
-No account, login, or setup is needed. Launch the app -> (in some regions an ad-consent form and Apple's tracking prompt appear; any choice works) -> tap the green "Play" button on the home screen -> tap fish in the bubbles to send them to the matching tanks; fill every tank to win. A short tutorial guides the first levels. Other features are on the home screen: Shop (spend coins on helper skills), Album (collected creatures), Daily, Treasure, Check-in, Tasks, Levels, and Settings (gear icon: music, sound, vibration, language, privacy options). Some of these unlock after the first few levels (a locked entry shows the level that opens it). Optional rewarded video ads give bonus coins, an extra skill, or a second chance; nothing requires watching an ad.
+No account, login, or setup is needed. Launch the app -> (in some regions an ad-consent form and Apple's tracking prompt appear; any choice works) -> tap the green "Play" button on the home screen -> tap fish in the bubbles to send them to the matching tanks; fill every tank to win. A short tutorial guides the first levels. Other features are on the home screen: Shop (spend coins on helper skills), Album (collected creatures), Daily, Treasure, Check-in, Tasks, Levels, and Settings (gear icon: music, sound, vibration, language, privacy policy, privacy options). Some of these unlock after the first few levels (a locked entry shows the level that opens it). Optional rewarded video ads give bonus coins, an extra skill, or a second chance; nothing requires watching an ad.
 
 3. Accounts, user-generated content, paid content
 - No account registration or login (so no account deletion is needed).
@@ -566,7 +566,7 @@ Privacy policy: https://shopkivoo.com/privacy/
 · 点出困在气泡里的小鱼，送进对应的鱼缸，同一种三条装满一缸
 · 360 关、18 片海域，难度循序渐进
 · 705 种原创海洋生物，收进 18 本收藏册
-· 洗牌、吹泡、渔网、洋流四个技能帮你过难关
+· 撤销、提示、洗牌、吹泡、渔网五个技能帮你过难关
 · 每日挑战、七日签到、任务和宝箱奖励
 ```
 

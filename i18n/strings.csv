@@ -168,6 +168,7 @@ LV_LOCKED,先过前面的关,Beat earlier levels first,先過前面的關,前の
 LV_REPLAY_LEFT,重玩奖励 %d/%d,Replay bonus %d/%d,重玩獎勵 %d/%d,再挑戦ボーナス %d/%d,재도전 보너스 %d/%d,Wiederholbonus %d/%d,Bonus rejeu %d/%d,Bonus de repetir %d/%d,Bônus de repetir %d/%d,Bonus rigioco %d/%d,Бонус за повтор %d/%d,Tekrar bonusu %d/%d
 MAP_TITLE,海图,Sea Map,海圖,海のマップ,바다 지도,Seekarte,Carte,Mapa del mar,Mapa do mar,Mappa del mare,Карта морей,Deniz haritası
 MAP_RANGE,第 %d–%d 关,Levels %d–%d,第 %d–%d 關,ステージ %d–%d,레벨 %d–%d,Level %d–%d,Niveaux %d–%d,Niveles %d–%d,Fases %d–%d,Livelli %d–%d,Уровни %d–%d,Seviye %d–%d
+MAP_ROUND,第 %d 轮,Round %d,第 %d 輪,%d周目,%d회차,Runde %d,Tour %d,Ronda %d,Rodada %d,Giro %d,Круг %d,%d. Tur
 SEA_NEW,新海域,New Sea,新海域,新しい海,새 바다,Neues Meer,Nouvelle mer,Mar nuevo,Mar novo,Nuovo mare,Новое море,Yeni deniz
 SEA_NEW_LINE,这里有 %d 种新的小鱼,%d new fish live here,這裡有 %d 種新的小魚,新しい魚が %d 種類いるよ,새 물고기 %d종이 살아요,Hier leben %d neue Fische,%d nouveaux poissons vivent ici,Aquí viven %d peces nuevos,%d peixes novos moram aqui,Qui vivono %d pesci nuovi,Здесь живут %d новых рыбок,Burada %d yeni balık yaşıyor
 SEA_GO,出发,Let's go,出發,出発！,출발!,Los geht’s,En route !,¡Vamos!,Bora!,Andiamo!,Вперёд!,Haydi!

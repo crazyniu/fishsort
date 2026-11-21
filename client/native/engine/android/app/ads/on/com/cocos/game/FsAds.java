@@ -69,7 +69,8 @@ final class FsAds {
     }
 
     static void openPrivacyOptions() {
-        UserMessagingPlatform.showPrivacyOptionsForm(activity, error -> {});
+        // 改完同意重新判断：原来不同意、现在同意了就初始化并拉广告（#170）
+        UserMessagingPlatform.showPrivacyOptionsForm(activity, error -> startSdk(UserMessagingPlatform.getConsentInformation(activity)));
     }
 
     private static void askConsentThenStart() {
@@ -149,14 +150,14 @@ final class FsAds {
                 interstitial.setFullScreenContentCallback(new FullScreenContentCallback() {
                     @Override
                     public void onAdDismissedFullScreenContent() {
-                        send("fs.interstitial", "{}");
+                        send("fs.interstitial", "{\"shown\":true}");
                         interstitial = null;
                         loadInterstitial();
                     }
 
                     @Override
                     public void onAdFailedToShowFullScreenContent(@NonNull AdError error) {
-                        send("fs.interstitial", "{}");
+                        send("fs.interstitial", "{\"shown\":false}");
                         interstitial = null;
                         loadInterstitial();
                     }
@@ -186,7 +187,7 @@ final class FsAds {
 
     static void showInterstitial() {
         if (interstitial == null) {
-            send("fs.interstitial", "{}");
+            send("fs.interstitial", "{\"shown\":false}");
             loadInterstitial();
             return;
         }

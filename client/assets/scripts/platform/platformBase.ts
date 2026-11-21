@@ -19,7 +19,8 @@ export interface RankEntry {
 /** 平台能力名 */
 /** ads：这一版有广告（game.json 的 ads.enabled、配了广告位、包里有广告 SDK）；没有时看广告的入口整个隐藏；有但暂时拉不到广告（adsAvailable 为假）时入口也不出现（用户 2026-11-20，docs/01 7.1） */
 /** health_notice：加载页显示健康游戏忠告（中国大陆上线的版本，即微信版） */
-export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options';
+/** privacy_policy：设置里有「隐私政策」，点了打开隐私政策（App 是 game.json 的 privacyPolicy 网页，微信是小游戏后台填的隐私保护指引） */
+export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options' | 'privacy_policy';
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';
 
@@ -52,11 +53,17 @@ export abstract class PlatformBase {
     return 'unavailable';
   }
 
-  async showInterstitial(_placement: string): Promise<void> {}
+  /** 插屏。真的播出来了返回 true（没拉到、播放失败返回 false，这时不记频控） */
+  async showInterstitial(_placement: string): Promise<boolean> {
+    return false;
+  }
 
   showBanner(_placement: string): void {}
 
   hideBanner(): void {}
+
+  /** 广告能不能用变了（拉到了、播完要重新拉、改了同意）时调：界面层在启动时接上，重画当前页（#170） */
+  onAdsChange: () => void = () => undefined;
 
   /** 广告当前能不能用；不能用时界面要降级（改金币支付或隐藏入口，docs/01 7.1） */
   adsAvailable(): boolean {
@@ -93,6 +100,9 @@ export abstract class PlatformBase {
 
   /** 打开广告的隐私选项（欧洲等地的同意设置）；hasCapability('privacy_options') 时设置里才有入口 */
   openPrivacyOptions(): void {}
+
+  /** 打开隐私政策；hasCapability('privacy_policy') 时设置里才有入口 */
+  openPrivacyPolicy(): void {}
 
   hasCapability(_cap: Capability): boolean {
     return false;

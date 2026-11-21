@@ -22,7 +22,7 @@ import { Rng } from '../core/rng/rng';
 import * as Rules from '../core/rules/rules';
 import { App } from '../services/app';
 import { playMusic, sfx } from '../services/audio';
-import { mono, now, today } from '../services/clock';
+import { adNow, now, today } from '../services/clock';
 import * as fx from '../ui/fx';
 import { tipArt } from './tipArt';
 import { tr } from '../ui/i18n';
@@ -76,12 +76,45 @@ export function demoStuck(g: GamePage): void {
   demoDone(g, `演示第 ${g.demoStep} 步点不下去（路线和局面对不上），截图告诉开发`);
 }
 
-export function startDaily(): void {
+/**
+ * 进每日挑战。pay 不给 = 当天的免费次（第一步有效操作时才记）；ad / coins = 重试，关卡读出来了才记账（payDaily）。
+ * 挑战日在这里定好带进局里，过了零点也按这一天结算（#170）
+ */
+export function startDaily(pay?: 'ad' | 'coins'): void {
   pendingCards.length = 0;
   const s = App.save.data;
   const eco = App.config.eco;
-  const level = DailyChallenge.levelFor(today(), s.level, eco.dailyChallenge.levelStep, App.config.levelCount);
-  ui.go('game', { level, daily: true });
+  const day = today();
+  const level = DailyChallenge.levelFor(day, s.level, eco.dailyChallenge.levelStep, App.config.levelCount);
+  ui.go('game', { level, daily: true, day, pay });
+}
+
+/** 看完了重试广告、还没进成关（读关卡失败）的那一天：再点重试不用重看（#170） */
+let dailyAdPaid = -1;
+export function markDailyAd(day: number): void {
+  dailyAdPaid = day;
+}
+export function dailyAdPaidFor(day: number): boolean {
+  return dailyAdPaid === day;
+}
+
+/** 这局每日挑战算哪一天 */
+export function dailyDay(g: GamePage): number {
+  return g.arg.day ?? today();
+}
+
+/** 关卡读出来以后记每日挑战重试的账。记不上（金币不够了、这天已经过了）回挑战页，返回 false */
+export function payDaily(g: GamePage): boolean {
+  if (!g.arg.daily || !g.arg.pay) return true;
+  const s = App.save.data;
+  const day = dailyDay(g);
+  if (!DailyChallenge.enter(s, App.config.eco, day, g.arg.pay)) {
+    ui.go('daily');
+    return false;
+  }
+  if (g.arg.pay === 'ad') dailyAdPaid = -1;
+  App.save.write();
+  return true;
 }
 
 export function onLevelStart(g: GamePage): void {
@@ -199,6 +232,8 @@ export function checkTutorial(g: GamePage): void {
   g.startTutorial(id, () => {
     // 强制教学这一次不算进星级的道具数（docs/01 9.5）
     const before = g.usedAll;
+    // 渔网选好缸才扣，那时再记这一次不算（finishNet）
+    if (id === 'net') g.netTutorial = true;
     useSkill(g, id);
     if (g.usedAll > before) g.freebies++;
   });
@@ -208,8 +243,9 @@ export function checkTutorial(g: GamePage): void {
 export function onFirstMove(g: GamePage): void {
   if (!g.arg.daily) return;
   const s = App.save.data;
-  if (DailyChallenge.isFree(s, today())) {
-    DailyChallenge.enter(s, App.config.eco, today(), 'free');
+  const day = dailyDay(g);
+  if (DailyChallenge.isFree(s, day)) {
+    DailyChallenge.enter(s, App.config.eco, day, 'free');
     App.save.write();
   }
 }
@@ -256,6 +292,14 @@ export function useSkill(g: GamePage, id: string): void {
     return;
   }
   const used = g.used[id] ?? 0;
+  // 渔网：这里只查能不能用，选好缸才扣（选缸时倒计时还在走，超时输了、离开这局都不扣，#170）
+  if (id === 'net') {
+    const why = Skills.canUse(s, eco, id, used, g.freeLevelId, g.usedAll);
+    if (why === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
+    else if (why === 'empty') buySkill(g, id);
+    if (!why) g.enterNetMode();
+    return;
+  }
   const r = Skills.tryUse(s, eco, id, used, today(), g.freeLevelId, g.usedAll);
   if (!r.ok) {
     if (r.reason === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
@@ -273,10 +317,26 @@ export function useSkill(g: GamePage, id: string): void {
   } else if (id === 'hint' && hintTap) g.showSkillHint(hintTap);
   else if (id === 'shuffle') g.act(() => Rules.useShuffle(g.s, rng.nextU32()));
   else if (id === 'blow') g.act(() => Rules.useBlow(g.s));
-  else if (id === 'net') g.enterNetMode();
 }
 
+/** 渔网选好了缸：这时才扣数量（#170） */
 export function finishNet(g: GamePage, slot: number): void {
+  const s = App.save.data;
+  const eco = App.config.eco;
+  const used = g.used.net ?? 0;
+  const tutorial = g.netTutorial;
+  g.netTutorial = false;
+  const r = Skills.tryUse(s, eco, 'net', used, today(), g.freeLevelId, g.usedAll);
+  if (!r.ok) {
+    if (r.reason === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
+    else if (r.reason === 'empty') buySkill(g, 'net');
+    return;
+  }
+  g.used.net = used + 1;
+  if (tutorial) g.freebies++;
+  App.save.write();
+  g.refreshSkills();
+  sfx('net');
   g.act(() => Rules.useNet(g.s, slot));
 }
 
@@ -699,7 +759,7 @@ export function win(g: GamePage): void {
   }
   if (g.arg.daily) {
     Dex.record(s, counts);
-    const r = DailyChallenge.win(s, eco, App.config.species, today(), now(), rng, g.combo.coins);
+    const r = DailyChallenge.win(s, eco, App.config.species, dailyDay(g), now(), rng, g.combo.coins, today());
     App.save.write();
     sfx('win');
     ui.go('daily', { won: r });
@@ -772,10 +832,10 @@ export async function afterResult(d: WinData, next: boolean): Promise<void> {
     giftPopup(gift, App.config.eco.skills.gift?.count ?? 1, () => void afterResult(d, next));
     return;
   }
-  if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, mono())) {
-    Meta.markInterstitial(s, d.level, mono());
+  // 真播出来了才记频控（没拉到广告不算一次，#170）
+  if (Meta.shouldShowInterstitial(s, App.config.ads, d.level, adNow(s.ads)) && (await App.platform.showInterstitial('int_level_end'))) {
+    Meta.markInterstitial(s, d.level, adNow());
     App.save.write();
-    await App.platform.showInterstitial('int_level_end');
   }
   for (const f of d.result.new_features) if (!pendingUnlocks.includes(f)) pendingUnlocks.push(f);
   if (next) startLevel(Math.min(d.level + 1, Math.max(s.level, App.flags.boost ? App.config.levelCount : 0)));

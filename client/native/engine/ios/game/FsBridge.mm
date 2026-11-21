@@ -169,7 +169,7 @@ static const NSTimeInterval FS_RETRY_MAX = 300;
 
 - (void)showInterstitial {
     if (!self.interstitial) {
-        FsSend(@"fs.interstitial", @{});
+        FsSend(@"fs.interstitial", @{@"shown" : @NO});
         [self loadInterstitial];
         return;
     }
@@ -197,7 +197,9 @@ static const NSTimeInterval FS_RETRY_MAX = 300;
 
 - (void)openPrivacyOptions {
     [UMPConsentForm presentPrivacyOptionsFormFromViewController:FsRootViewController()
-                                              completionHandler:^(NSError *_Nullable error){
+                                              completionHandler:^(NSError *_Nullable error) {
+                                                  // 改完同意重新判断：原来不同意、现在同意了就初始化并拉广告（#170）
+                                                  [self startSdk];
                                               }];
 }
 
@@ -210,7 +212,7 @@ static const NSTimeInterval FS_RETRY_MAX = 300;
         FsSend(@"fs.ads", @{@"ready" : @NO});
         [self loadRewarded];
     } else if (ad == self.interstitial) {
-        FsSend(@"fs.interstitial", @{});
+        FsSend(@"fs.interstitial", @{@"shown" : @YES});
         self.interstitial = nil;
         [self loadInterstitial];
     }
@@ -223,7 +225,7 @@ static const NSTimeInterval FS_RETRY_MAX = 300;
         FsSend(@"fs.ads", @{@"ready" : @NO});
         [self loadRewarded];
     } else if (ad == self.interstitial) {
-        FsSend(@"fs.interstitial", @{});
+        FsSend(@"fs.interstitial", @{@"shown" : @NO});
         self.interstitial = nil;
         [self loadInterstitial];
     }

@@ -106,23 +106,34 @@ function loadBaseFont(): Promise<Font> {
   return fontLoading;
 }
 
-/** 读这种语言要用的字体，并把它设成界面字体（换语言前先调它，读好了再换，免得新界面闪一下系统字） */
-export async function loadFont(lang = ''): Promise<Font> {
-  const base = await loadBaseFont();
+/** 这种语言专用的字体（只有韩文有），不改界面字体；没有专用字体返回 null */
+export async function langFont(lang: string): Promise<Font | null> {
   const path = LANG_FONT[lang];
-  let f = path ? langFonts.get(lang) : base;
-  if (!f && path) {
+  if (!path) return null;
+  let f = langFonts.get(lang);
+  if (!f) {
     f = await new Promise<Font>((resolve, reject) => {
       resources.load(path, TTFFont, (err: Error | null, t: TTFFont) => (err ? reject(err) : resolve(t)));
     });
     langFonts.set(lang, f);
   }
-  font = f ?? base;
+  return f;
+}
+
+/** 读这种语言要用的字体，并把它设成界面字体（换语言前先调它，读好了再换，免得新界面闪一下系统字） */
+export async function loadFont(lang = ''): Promise<Font> {
+  const base = await loadBaseFont();
+  font = (await langFont(lang)) ?? base;
   return font;
 }
 
 export function uiFont(): Font | null {
   return font;
+}
+
+/** 这种语言该用的字体：有专用字体（韩文）用专用的，否则用游戏字体 */
+export async function fontFor(lang: string): Promise<Font> {
+  return (await langFont(lang)) ?? (await loadBaseFont());
 }
 
 /** 已读好的图：'kit/dot_red'、'skin/j_btn_green'、'icon/coin'、'fish/c01'；没读的返回 null（不报警，img() 会去读） */
@@ -142,6 +153,11 @@ export function has(path: string): boolean {
 }
 
 /** 用到时再读的图（背景、收藏册封面、鱼），读到前返回 null；读不到（没网）也返回 null，下次再试 */
+/** 资源包里有没有这张图（看资源清单，不下载） */
+export function hasFrame(path: string): boolean {
+  return resources.getInfoWithPath(assetPath(path), SpriteFrame) !== null;
+}
+
 export function frameAsync(path: string): Promise<SpriteFrame | null> {
   const hit = frames.get(path);
   if (hit) return Promise.resolve(hit);

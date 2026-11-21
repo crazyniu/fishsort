@@ -10,12 +10,13 @@
 //   --seed=N  生成种子从几起（传给 route.ts，不给 = 1）：重跑离目标远的关时换一个开局布局
 // 每关的输出在 tools/level/route_logs/<关>.log（不进仓库），汇总写 tools/level/route_report.csv：关、类型、目标、包里那档的随手点 / 想清楚、
 // 有没有用放松的生成参数、各档、用时。离目标超过 10 个点的关在最后列出来
+import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { cpus, setPriority } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
-const CLIENT = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const CLIENT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const nums = process.argv.slice(2).filter((a) => !a.startsWith('--')).map(Number);
 const from = nums[0] ?? 6;
 const to = nums[1] ?? from;
