@@ -372,7 +372,8 @@ export interface GameUiConfig {
   /** unlockDropAt：开新缸位时缸多久后开始落下（不等满缸送走的演出） */
   bowlDone: { shake: number; swell: number; dropAt: number; dropSeconds: number; unlockDropAt: number };
   praise: { keys: string[]; streakSeconds: number };
-  intro: { startDelay: number; batchSize: number; batchGap: number };
+  /** decorWait：进关时纯装饰的图（夸奖字、爆炸星、海域背景）最多再等几秒，没读完就先开局、后台接着读 */
+  intro: { startDelay: number; batchSize: number; batchGap: number; decorWait?: number };
   /** 掉落关：气泡破了之后隔多久放下一个 */
   drop: { delay: number };
   /**

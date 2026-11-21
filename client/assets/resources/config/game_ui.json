@@ -23,7 +23,8 @@
  "intro": {
   "startDelay": 0.25,
   "batchSize": 4,
-  "batchGap": 0.14
+  "batchGap": 0.14,
+    "decorWait": 2
  },
  "drop": {
   "delay": 0.25
