@@ -6,6 +6,9 @@ import { Config } from './config';
 import { LaunchFlags, parseLaunch } from './launch';
 import { Save } from './save';
 
+/** 平台初始化（只做一次；失败了清掉，加载页重试时再来） */
+let platformReady: Promise<PlatformBase> | null = null;
+
 export class App {
   static platform: PlatformBase;
   static config: Config;
@@ -26,8 +29,16 @@ export class App {
   }
 
   static async start(): Promise<void> {
-    App.platform = createPlatform();
-    await App.platform.init();
+    // 平台只建、只初始化一次：加载页重试这一步（比如后面的配置没读下来）时不再新建平台、重复向原生注册监听和初始化广告（#170 复审）
+    if (!platformReady) {
+      platformReady = (async () => {
+        const p = createPlatform();
+        await p.init();
+        return p;
+      })();
+      platformReady.catch(() => (platformReady = null));
+    }
+    App.platform = await platformReady;
     App.flags = parseLaunch(App.platform.launchQuery());
     App.config = new Config();
     await App.config.load();

@@ -24,14 +24,24 @@ export interface PlatformConfig {
 
 const EMPTY: PlatformConfig = { name: {}, version: '', adsEnabled: false, ads: {} };
 
+let loading: Promise<PlatformConfig> | null = null;
+
+/**
+ * 读平台配置（只读一次，几处调用共用）。读失败要报错，由加载页重试：原来读不到就当空配置进游戏，
+ * 微信上一次网络抖动就整局没有广告、没有隐私入口（#170 复审）。失败后下次调用重新读
+ */
 export function loadPlatformConfig(): Promise<PlatformConfig> {
-  return new Promise((resolve) => {
-    resources.load('config/platform', JsonAsset, (err: Error | null, asset: JsonAsset) => {
-      // 读不到就当没有广告位，不挡启动
-      if (err || !asset?.json) resolve(EMPTY);
-      else resolve(asset.json as PlatformConfig);
+  if (!loading) {
+    loading = new Promise<PlatformConfig>((resolve, reject) => {
+      resources.load('config/platform', JsonAsset, (err: Error | null, asset: JsonAsset) => {
+        if (err) reject(err);
+        else if (!asset?.json) reject(new Error('config/platform 是空的'));
+        else resolve({ ...EMPTY, ...(asset.json as PlatformConfig) });
+      });
     });
-  });
+    loading.catch(() => (loading = null));
+  }
+  return loading;
 }
 
 /** 这个平台的广告位；广告总开关关着时全空（等于没有广告） */
