@@ -19,7 +19,7 @@ export interface RankEntry {
 /** 平台能力名 */
 /** ads：这一版有广告（game.json 的 ads.enabled、配了广告位、包里有广告 SDK）；没有时看广告的入口整个隐藏；有但暂时拉不到广告（adsAvailable 为假）时入口也不出现（用户 2026-11-20，docs/01 7.1） */
 /** health_notice：加载页显示健康游戏忠告（中国大陆上线的版本，即微信版） */
-/** privacy_policy：设置里有「隐私政策」，点了打开隐私政策（App 是 game.json 的 privacyPolicy 网页，微信是小游戏后台填的隐私保护指引） */
+/** privacy_policy：设置里有「隐私政策」，点了打开 game.json 的 privacyPolicy 网页（只有 App；微信小游戏打不开网页，不放这个入口） */
 export type Capability = 'ads' | 'health_notice' | 'iap' | 'sidebar' | 'add_to_desktop' | 'friend_rank' | 'share' | 'vibrate' | 'ad_test' | 'privacy_options' | 'privacy_policy';
 
 export type VibrateKind = 'light' | 'medium' | 'heavy';

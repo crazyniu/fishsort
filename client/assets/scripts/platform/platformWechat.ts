@@ -185,17 +185,8 @@ export class PlatformWechat extends PlatformBase {
 
   override hasCapability(cap: Capability): boolean {
     if (cap === 'ads') return this.rewarded !== null;
-    // 隐私保护指引（小游戏后台「用户隐私保护指引」填的那份），基础库 2.32.3 起有
-    if (cap === 'privacy_policy') return typeof wx.openPrivacyContract === 'function';
+    // 没有 privacy_policy：小游戏里打不开网页，设置里不放「隐私政策」（用户 2026-11-21）；隐私保护指引在小游戏后台填，微信自己弹
     return cap === 'share' || cap === 'vibrate' || cap === 'health_notice';
-  }
-
-  override openPrivacyPolicy(): void {
-    try {
-      wx.openPrivacyContract({});
-    } catch {
-      /* 老版本基础库没有 */
-    }
   }
 
   override launchQuery(): Record<string, string> {
