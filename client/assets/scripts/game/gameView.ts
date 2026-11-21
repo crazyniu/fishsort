@@ -29,7 +29,7 @@ import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, fxImg, iconButton, img, keyButton, lazyImg, onTap, opacity, recycleFx, resizeSlice, setImg, setSlice, slice, text, textWidth, tint, plate } from '../ui/kit';
 import { Screen } from '../ui/screen';
-import { gameFrames, isDecorFrame, loadFrames } from '../ui/res';
+import { gameFrames, loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
 import { CARD_ASPECT, RARITY_GLOW, miniCard, skillName, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
@@ -145,6 +145,22 @@ const BOWL_TOP = 92;
 function mmss(sec: number): string {
   const t = Math.max(0, Math.ceil(sec));
   return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+}
+
+
+/**
+ * 这一关缺了就看不出规则的图（进关必须读好）：鱼缸、目标牌、美术数字、卡背每关都有；锁链、迷雾、冰封只在这关有时才要；
+ * 引导手指只在教学关要。其余局内图（特效、夸奖字）缺了不影响判断
+ */
+function levelFrames(lv: LevelData, level: number, tutorialLevels: number): string[] {
+  const keys = ['skin/j_bowl', 'skin/j_goal', 'icon/card_back', 'skin/j_dg_x'];
+  for (let d = 0; d <= 9; d++) keys.push(`skin/j_dg_${d}`);
+  const bs = lv.bubbles;
+  if (bs.some((b) => b.chain > 0)) keys.push('skin/j_chain');
+  if (bs.some((b) => b.fog > 0)) keys.push('skin/j_fog', 'skin/j_mystery');
+  if (bs.some((b) => b.ice.length > 0)) keys.push('skin/j_frost', 'icon/ice', 'icon/ice_thick0', 'icon/ice_thick1', 'icon/ice_thick2');
+  if (level <= tutorialLevels) keys.push('skin/j_finger');
+  return keys;
 }
 
 export class GamePage extends Page {
@@ -347,12 +363,13 @@ export class GamePage extends Page {
       // 这片海域的背景也在这里读：后台还在读别的图时它排在后面，不等的话开局会空好几秒
       const seaBg = `bg/sea_${eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore'}`;
       // 分两批同时读（弱网，2026-11-21）：
-      // - 必需的：这关的鱼，和缺了就看不出规则的局内图（鱼缸、锁链、迷雾、冰封、目标牌、数字……）。读不下来重试一次，再不行回主页
-      // - 装饰的：夸奖字、爆炸星、海域背景。不挡开局：最多再等 decorWait 秒（网正常时早就读完，开局不空背景），
+      // - 必需的：这关的鱼，和这关缺了就看不出规则的图（levelFrames：鱼缸、目标牌、数字，这关有的锁链、迷雾、冰封）。
+      //   读不下来重试一次，再不行回主页。只挑这关用得到的：没有锁链的关不会因为锁链图读不下来被送回主页
+      // - 其余局内图（特效、夸奖字、别的障碍……）和海域背景：不挡开局，最多再等 decorWait 秒（网正常时早就读完，开局不空背景），
       //   没读完或失败就先开局，后台接着读；没读到的 img() 用到时补读，背景 lazyImg 退避重试
-      const game = gameFrames();
-      const decor = loadFrames([...game.filter(isDecorFrame), seaBg]).catch((e: unknown) => console.warn('装饰图有的没读下来，用到时再补', e));
-      const need = [...species.map((sp) => `fish/${sp}`), ...game.filter((k) => !isDecorFrame(k))];
+      const need = [...species.map((sp) => `fish/${sp}`), ...levelFrames(this.lv, id, config.ui.hint.tutorialLevels)];
+      const needSet = new Set(need);
+      const decor = loadFrames([...gameFrames().filter((k) => !needSet.has(k)), seaBg]).catch((e: unknown) => console.warn('局内图有的没读下来，用到时再补', e));
       await loadFrames(need).catch(() => loadFrames(need));
       const cap = config.ui.intro.decorWait ?? 2;
       await Promise.race([decor, new Promise<void>((r) => setTimeout(r, cap * 1000))]);

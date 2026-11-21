@@ -99,14 +99,6 @@ export function gameFrames(): string[] {
   return uiFrames().filter((k) => LATER.test(k) && !REWARD.test(k));
 }
 
-/**
- * 局内图里纯装饰的：夸奖字、爆炸星、连击字（约 1.5 MB，最大的几张）。缺了不影响判断，进关不挡；
- * 其余的（鱼缸、锁链、迷雾、冰封、神秘泡、目标牌、美术数字、引导手指、卡背）缺了玩家看不到规则在起作用，进关必须读好
- */
-const DECOR = /^skin\/j_(praise_|burst$|combo_word$)/;
-export function isDecorFrame(key: string): boolean {
-  return DECOR.test(key);
-}
 
 /** 首页出来以后在后台读的结算、开箱、收藏用图（REWARD），排在局内图后面 */
 export function rewardFrames(): string[] {

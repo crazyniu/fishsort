@@ -314,7 +314,7 @@ export class Shell {
     const prev = this.current;
     if (prev && prev.name === name) {
       next.show(arg);
-      this.refresh();
+      this.refreshTopbar();
       return;
     }
     closeAllPopups();
@@ -332,12 +332,22 @@ export class Shell {
     next.show(arg);
     fadeIn(next.node, 0.15);
     this.topbar.node.active = next.topBar;
-    this.refresh();
+    // show() 已经把页面画好了，这里只刷顶栏：原来还调一遍页面的 refresh()，收藏、任务、海图等整页又重建一次，
+    // 刚建好的进场动画也被销毁（2026-11-21）
+    this.refreshTopbar();
   }
 
   back(): void {
     if (!this.current || !this.current.page.back()) return;
     this.open(this.history.pop() ?? HOME, undefined, false);
+  }
+
+  private refreshTopbar(): void {
+    try {
+      if (this.topbar.node.active) this.topbar.refresh();
+    } catch (e) {
+      reportError('topbar.refresh', e);
+    }
   }
 
   /** 存档变了以后调：当前页、顶栏一起刷新 */
