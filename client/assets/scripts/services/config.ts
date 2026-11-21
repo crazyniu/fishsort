@@ -67,16 +67,17 @@ export class Config {
    * 读关卡文件；ease > 0 时取易化变体，没有就退回普通版。
    * daily：每日挑战先读专用难关 config/levels_daily/（docs/01 5.11），没有这一关就用普通版
    */
-  async loadLevel(fileId: number, ease: number, daily = false): Promise<LevelData> {
+  async loadLevel(fileId: number, ease: number, daily = false): Promise<{ level: LevelData; eased: boolean }> {
     // 没生成过这一关的每日版才退回普通版；有但读不下来（微信断网）照样报错，进关失败（#170）
     const dailyPath = `config/levels_daily/level_${pad(fileId)}`;
-    if (daily && hasJson(dailyPath)) return LevelData.fromDict(await loadJson<Record<string, unknown>>(dailyPath));
+    if (daily && hasJson(dailyPath)) return { level: LevelData.fromDict(await loadJson<Record<string, unknown>>(dailyPath)), eased: false };
     // 开发版难度调试页挑了档的关（devtools/levelLab.ts）：本体和变体都换成挑的那一档
     const custom = lab.override(fileId);
-    if (custom) return LevelData.fromDict(custom);
+    if (custom) return { level: LevelData.fromDict(custom), eased: false };
     const base = `config/levels/level_${pad(fileId)}`;
     // 易化变体同理：没有这一档才用普通版
     const eased = `${base}_e${ease}`;
-    return LevelData.fromDict(await loadJson<Record<string, unknown>>(ease > 0 && hasJson(eased) ? eased : base));
+    const useEased = ease > 0 && hasJson(eased);
+    return { level: LevelData.fromDict(await loadJson<Record<string, unknown>>(useEased ? eased : base)), eased: useEased };
   }
 }

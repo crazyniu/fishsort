@@ -867,6 +867,18 @@ describe('星级、首次三星、幸运泡（docs/01 9.3、9.5）', () => {
     assert.equal(b.first3?.skills.length, 1, '超难关送一个技能');
   });
 
+  it('易化变体最多两星，正常版随后拿到三星才发首次奖励', () => {
+    const save = PlayerData.create(ECO);
+    const coins = save.coins;
+    const eased = Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false, true);
+    assert.deepEqual(eased, { stars: 2, before: 0, first3: null });
+    assert.equal(save.coins, coins);
+    const normal = Stars.record(save, ECO, 30, 'normal', 0, [], new Rng(1), false);
+    assert.equal(normal.before, 2);
+    assert.equal(normal.stars, 3);
+    assert.ok(normal.first3);
+  });
+
   it('幸运泡：第 18 关前没有；挑在场、不是排队泡的气泡；金币、技能直接入账', () => {
     const lv = level([0, 1, 2], [{ fish: [0, 0, 0] }, { fish: [1, 1, 1] }, { fish: [2, 2, 2] }]);
     const s = GameState.fromLevel(lv);

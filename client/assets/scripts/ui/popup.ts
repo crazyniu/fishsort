@@ -1,7 +1,7 @@
 // 弹窗（docs/03 第 2 节）：压暗的背景 + 缩放回弹出现。白色圆角底板，上面写深蓝字（和别的容器一样）。
 // 有标题时底板往上长 HEAD，蓝色标题牌骑在上沿正中；右上角红色关闭键压在板角上。标题区加在 h 之外，内容坐标不受影响。
 import { Node, tween } from 'cc';
-import { popIn, popOut } from './fx';
+import { popIn, popOut, stop } from './fx';
 import { COLOR, blockInput, box, LIGHT_INK, fit, keyButton, onTap, opacity, plate, resizePlate, setInk, slice, text, textWidth, tint } from './kit';
 
 /** 标题区高度 */
@@ -70,6 +70,8 @@ export function openPopup(o: PopupOpts): Popup {
       closed = true;
       const i = stack.indexOf(p);
       if (i >= 0) stack.splice(i, 1);
+      stop(body);
+      stop(dim);
       tween(op).to(0.14, { opacity: 0 }).start();
       popOut(body, 0.14, () => root.destroy());
       o.onClose?.();

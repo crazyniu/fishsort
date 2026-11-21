@@ -83,11 +83,10 @@ export class PlatformWechat extends PlatformBase {
     this.rewardedReady = false;
     return new Promise<AdResult>((resolve) => {
       let settled = false;
-      let clearTimer = (): void => undefined;
       const finish = (result: AdResult) => {
         if (settled) return;
         settled = true;
-        clearTimer();
+        clearTimeout(timer);
         ad.offClose(onClose);
         ad.offError(onError);
         this.playingRewarded = false;
@@ -95,18 +94,20 @@ export class PlatformWechat extends PlatformBase {
       };
       // 播放失败（没填充、网络断了）：这次按不可用，同时重新加载一条，不然要等切回前台才会再加载
       const onError = () => {
+        if (settled) return;
         finish('unavailable');
         ad.load().catch(() => (this.rewardedReady = false));
       };
       const onClose = (res?: { isEnded?: boolean }) => {
+        if (settled) return;
         finish(res?.isEnded === true ? 'done' : 'skipped');
         ad.load().catch(() => (this.rewardedReady = false));
       };
-      ad.onClose(onClose);
-      ad.onError(onError);
       // 兜底：show() 10 秒还没播出来、或者播出来 120 秒还没收到关闭（微信偶尔不回调），按不可用返回，入口不会一直被遮罩挡住
       let timer = setTimeout(onError, AD_SHOW_TIMEOUT * 1000);
-      ad.show().then(
+      ad.onClose(onClose);
+      ad.onError(onError);
+      Promise.resolve().then(() => ad.show()).then(
         () => {
           if (settled) return;
           clearTimeout(timer);
@@ -114,7 +115,6 @@ export class PlatformWechat extends PlatformBase {
         },
         onError,
       );
-      clearTimer = () => clearTimeout(timer);
     });
   }
 
@@ -137,7 +137,7 @@ export class PlatformWechat extends PlatformBase {
       let timer = setTimeout(() => finish(false), AD_SHOW_TIMEOUT * 1000);
       ad.onClose(onClose);
       ad.onError(onError);
-      ad.show().then(
+      Promise.resolve().then(() => ad.show()).then(
         () => {
           if (settled) return;
           clearTimeout(timer);

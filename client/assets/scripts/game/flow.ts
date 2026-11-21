@@ -4,6 +4,7 @@ import { Mask, Node, UITransform, Vec3, tween } from 'cc';
 import * as LevelCurve from '../core/gen/levelCurve';
 import * as Album from '../core/meta/album';
 import * as Cards from '../core/meta/cards';
+import * as Daily from '../core/meta/daily';
 import * as DailyChallenge from '../core/meta/dailyChallenge';
 import * as Dex from '../core/meta/dex';
 import * as LevelChest from '../core/meta/levelChest';
@@ -296,6 +297,7 @@ export function useSkill(g: GamePage, id: string): void {
   const used = g.used[id] ?? 0;
   // 渔网：这里只查能不能用，选好缸才扣（选缸时倒计时还在走，超时输了、离开这局都不扣，#170）
   if (id === 'net') {
+    Daily.roll(s, today());
     const why = Skills.canUse(s, eco, id, used, g.freeLevelId, g.usedAll);
     if (why === 'limit') ui.toast(tr('UI_TOOL_LIMIT'));
     else if (why === 'empty') buySkill(g, id);
@@ -586,7 +588,9 @@ function afterRescue(g: GamePage): void {
 const RESCUE_SKILL = 'blow';
 
 function canRescue(g: GamePage): boolean {
-  return Skills.canUse(App.save.data, App.config.eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, g.freeLevelId, g.usedAll) === '';
+  const s = App.save.data;
+  Daily.roll(s, today());
+  return Skills.canUse(s, App.config.eco, RESCUE_SKILL, g.used[RESCUE_SKILL] ?? 0, g.freeLevelId, g.usedAll) === '';
 }
 
 /**
@@ -787,7 +791,7 @@ export function win(g: GamePage): void {
     else result.coins += rw.coins;
   }
   // 星级（docs/01 9.5）：按这一关用了几样道具记星；第一次三星多送一份（金币当场入账、卡进结算页的开卡）
-  const stars = Stars.record(s, eco, g.arg.level, levelKind(g.arg.level), g.items, Album.pool(eco, App.config.species, s.level), rng, Features.isUnlocked(eco, 'album', s.level));
+  const stars = Stars.record(s, eco, g.arg.level, levelKind(g.arg.level), g.items, Album.pool(eco, App.config.species, s.level), rng, Features.isUnlocked(eco, 'album', s.level), g.eased);
   if (stars.first3?.card) pendingCards.push(stars.first3.card);
   // 宝箱按开局定好的结果入账（开出卡的话就是关卡里救下的那只稀客，docs/01 3.4）
   const chest = result.chest_ok
