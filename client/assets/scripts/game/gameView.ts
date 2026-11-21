@@ -225,6 +225,7 @@ export class GamePage extends Page {
   private progress!: Capsule;
   /** 限时关的倒计时条（顶栏正中）；不限时的关没有 */
   private clockCap: Capsule | null = null;
+  private clockSecond = -1;
   private clockWarn = false;
   private comboRow!: Node;
   private comboBadge!: Node;
@@ -477,9 +478,11 @@ export class GamePage extends Page {
     }
     // 限时关：顶栏正中一块倒计时，和两边的信息条同一种深蓝小条；只写时间，不放时钟图标（用户 2026-11-17）
     this.clockCap = null;
+    this.clockSecond = -1;
     this.clockWarn = false;
     if (timed) {
       const ch = Screen.cap ? Screen.headH : 66;
+      this.clockSecond = Math.ceil(this.s.clock);
       this.clockCap = capsule(this.stage, Math.round((120 * ch) / 66), ch, null, mmss(this.s.clock), Math.round((34 * ch) / 66), 'skin/f_hud');
       const cw = (this.clockCap.node.getComponent(UITransform) as UITransform).width;
       at(this.clockCap.node, midX(cw), hudY);
@@ -2185,7 +2188,11 @@ export class GamePage extends Page {
   private syncClock(): void {
     const cap = this.clockCap;
     if (!cap || this.s.clock === NO_TIMER) return;
-    cap.set(mmss(this.s.clock));
+    const second = Math.ceil(this.s.clock);
+    if (second !== this.clockSecond) {
+      this.clockSecond = second;
+      cap.set(mmss(second));
+    }
     const warn = this.s.clock <= App.config.ui.clock.warn;
     if (warn !== this.clockWarn) {
       this.clockWarn = warn;

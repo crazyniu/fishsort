@@ -41,12 +41,13 @@ export class Config {
   eyes: Record<string, Eye[]> = {};
 
   async load(): Promise<void> {
-    const [eco, ads, curve, species, ui] = await Promise.all([
+    const [eco, ads, curve, species, ui, eyes] = await Promise.all([
       loadJson<EconomyConfig>('config/economy'),
       loadJson<AdsConfig>('config/ads'),
       loadJson<CurveConfig>('config/level_curve'),
       loadJson<{ species: Species[] }>('config/species'),
       loadJson<GameUiConfig>('config/game_ui'),
+      loadJson<Record<string, Eye[]>>('config/fish_eyes').catch(() => ({})),
     ]);
     this.ui = ui;
     this.eco = eco;
@@ -54,7 +55,7 @@ export class Config {
     this.curve = curve;
     this.species = species.species;
     for (const sp of this.species) this.speciesById.set(sp.id, sp);
-    this.eyes = await loadJson<Record<string, Eye[]>>('config/fish_eyes').catch(() => ({}));
+    this.eyes = eyes;
   }
 
   /** 关卡总数（第 121 关起在后半段循环，见 Meta.levelFile） */

@@ -22,6 +22,8 @@ interface View {
   skin: Node;
   /** 磨砂底：上层（能点）的气泡垫一层浅色，把下层透上来的鱼挡掉一些 */
   fill: Node;
+  dimmed: boolean | null;
+  front: number;
   fish: (Node | null)[];
   offsets: [number, number][];
   r: number;
@@ -524,6 +526,8 @@ export class Field {
       fogPips: [],
       fogMax: Math.max(1, d.fog),
       links: [],
+      dimmed: null,
+      front: -1,
       // 鱼已经取光的气泡（撤销重画时才会有）：不画
       gone: s.bubbles[i].count() === 0,
       queued: !s.bubbles[i].onField,
@@ -727,27 +731,34 @@ export class Field {
       const isOpen = open.has(i);
       // 被压住的（下层）：气泡染成深一点的蓝、鱼压暗、整颗缩小一点，和能点的上层一眼分开（用户 2026-11-16）
       const dimmed = !isOpen && b.onField;
-      const op = opacity(v.body);
-      const target = dimmed ? 215 : 255;
-      const sc = dimmed ? 0.93 : 1;
-      Tween.stopAllByTarget(op);
-      if (animate) {
-        tween(op).to(0.2, { opacity: target }).start();
-        tween(v.body).to(0.2, { scale: new Vec3(sc, sc, 1) }, { easing: 'quadOut' }).start();
-      } else {
-        op.opacity = target;
-        v.body.setScale(sc, sc, 1);
+      const changed = v.dimmed !== dimmed;
+      if (changed) {
+        const op = opacity(v.body);
+        const target = dimmed ? 215 : 255;
+        const sc = dimmed ? 0.93 : 1;
+        Tween.stopAllByTarget(op);
+        if (animate) {
+          tween(op).to(0.2, { opacity: target }).start();
+          tween(v.body).to(0.2, { scale: new Vec3(sc, sc, 1) }, { easing: 'quadOut' }).start();
+        } else {
+          op.opacity = target;
+          v.body.setScale(sc, sc, 1);
+        }
+        (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
+        // 被压住的不带流光，和能点的一眼分开
+        const sheen = v.skin.parent?.getChildByName('sheen');
+        if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
+        opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
+        v.dimmed = dimmed;
       }
-      (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
-      // 被压住的不带流光，和能点的一眼分开
-      const sheen = v.skin.parent?.getChildByName('sheen');
-      if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
-      opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
       const front = b.queue ? b.front() : -1;
-      v.fish.forEach((f, k) => {
-        if (!f) return;
-        (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : front >= 0 && k !== front ? WAIT_FISH : WHITE;
-      });
+      if (changed || front !== v.front) {
+        v.front = front;
+        v.fish.forEach((f, k) => {
+          if (!f) return;
+          (f.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_FISH : front >= 0 && k !== front ? WAIT_FISH : WHITE;
+        });
+      }
       if (v.chain) {
         if (b.chain > 0) {
           if (v.chainLabel) v.chainLabel.string = String(b.chain);
@@ -960,6 +971,8 @@ export class Field {
     this.spinning = true;
     for (const [v] of live) {
       Tween.stopAllByTarget(v.body);
+      // 洗牌可能打断正在进行的缩放，换鱼时重新同步目标。
+      v.dimmed = null;
       v.body.angle = 0;
       v.body.setPosition(0, 0, 0);
       bob(v.body, 1.5, 2.6, 0);

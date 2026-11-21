@@ -69,23 +69,25 @@ interface Link {
 /** 固定步长：每秒 60 步 */
 const FIXED = 1 / 60;
 
-const pairKey = (a: number, b: number) => (a < b ? `${a}_${b}` : `${b}_${a}`);
+// 气泡 id 是从 0 开始的关卡索引；每个较大 id 占一段不交叠的整数键。
+// 碰撞内循环不必为每一对接触的气泡构造字符串。
+const pairKey = (a: number, b: number): number => (a < b ? (b * (b + 1)) / 2 + a : (a * (a + 1)) / 2 + b);
 
 export class Pile {
   private bodies = new Map<number, Body>();
   private links: Link[] = [];
   /** 连着弹性带的对：不互相碰撞 */
-  private linked = new Set<string>();
+  private linked = new Set<number>();
   /** 每一对遮挡第一次见到时的距离（设计距离），之后重新连带都按它 */
-  private rest = new Map<string, number>();
+  private rest = new Map<number, number>();
   private calm = 0;
   /** 固定步长攒下来还没算的时间、这次醒着算了多久 */
   private acc = 0;
   private awakeFor = 0;
-  /** 成对的宽限：键是「小 id_大 id」，值是还允许叠多少 */
-  private slack = new Map<string, number>();
+  /** 成对的宽限：值是还允许叠多少 */
+  private slack = new Map<number, number>();
   /** 宽限不收回的对：连在同一个气泡上、原本就叠着的两个（见文件头） */
-  private keep = new Set<string>();
+  private keep = new Set<number>();
   awake = false;
   /** 落地回调：气泡 id、落地前的下落速度 */
   onLand: ((id: number, speed: number) => void) | null = null;
