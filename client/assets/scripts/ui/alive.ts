@@ -39,6 +39,8 @@ export function blink(node: Node, id: string, size: number): void {
     (lash.getComponent(UITransform) as UITransform).setAnchorPoint(0.5, 0);
     lash.setPosition(0, -h, 0);
     lid.setScale(1, 0, 1);
+    // 睁着眼时眼皮直接隐藏：压扁成 0 高看不见，但照样要画，每块眼皮、睫毛都打断一次合批（局内约 150 次绘制调用，2026-11-21 量的）
+    lid.active = false;
     lids.push(lid);
   }
   const loop = () => {
@@ -46,12 +48,22 @@ export function blink(node: Node, id: string, size: number): void {
     const wait = 2.2 + Math.random() * 4;
     // 偶尔连眨两下
     const twice = Math.random() < 0.2;
-    for (const lid of lids) {
-      let t = tween(lid).delay(wait).to(0.07, { scale: new Vec3(1, 1, 1) }).delay(0.05).to(0.09, { scale: new Vec3(1, 0, 1) });
-      if (twice) t = t.delay(0.08).to(0.06, { scale: new Vec3(1, 1, 1) }).to(0.08, { scale: new Vec3(1, 0, 1) });
-      t.start();
-    }
-    tween(node).delay(wait + 0.4).call(loop).start();
+    tween(node)
+      .delay(wait)
+      .call(() => {
+        for (const lid of lids) {
+          if (!lid.isValid) continue;
+          lid.active = true;
+          let t = tween(lid).to(0.07, { scale: new Vec3(1, 1, 1) }).delay(0.05).to(0.09, { scale: new Vec3(1, 0, 1) });
+          if (twice) t = t.delay(0.08).to(0.06, { scale: new Vec3(1, 1, 1) }).to(0.08, { scale: new Vec3(1, 0, 1) });
+          t.call(() => {
+            lid.active = false;
+          }).start();
+        }
+      })
+      .delay(0.4)
+      .call(loop)
+      .start();
   };
   loop();
 }
