@@ -308,6 +308,14 @@ android_build() {
   NDK_ROOT="$ndk" ANDROID_SDK_ROOT="$sdk" ANDROID_HOME="$sdk" COCOS_BUILD_CONFIG="$cfg" cocos_build android
   proj="$CLIENT/build/android/proj"
   [ -x "$proj/gradlew" ] || die "没找到 Gradle 工程：$proj"
+  # 最低 Android 版本按 game.json 的 android.minSdk 写进 Gradle 工程（Cocos 生成的不跟它走；用户 2026-11-21 在 Mac 上打 AAB 时补的）
+  node -e '
+    const fs = require("node:fs");
+    const props = process.argv[1];
+    const minSdk = require("./game.json").android.minSdk;
+    const content = fs.readFileSync(props, "utf8");
+    fs.writeFileSync(props, content.replace(/^PROP_MIN_SDK_VERSION=.*$/m, `PROP_MIN_SDK_VERSION=${minSdk}`));
+  ' "$proj/gradle.properties"
   case "$mode" in
     project) echo "Gradle 工程：$proj" ;;
     apk) (cd "$proj" && ./gradlew assembleDebug) && echo "✓ apk：$(find "$proj" -name '*.apk' -path '*debug*' | head -1)" ;;
@@ -315,9 +323,9 @@ android_build() {
       # 签名：RELEASE_STORE_FILE 等四个变量写在 ~/.gradle/gradle.properties（不进仓库，docs/10）
       local aab
       (cd "$proj" && ./gradlew bundleRelease) || die "AAB 编译失败"
-      aab="$(find "$proj" -name '*.aab' -path '*release*' | head -1)"
+      aab="$(find "$proj" -path '*/outputs/bundle/release/*.aab' | head -1)"
       [ -n "$aab" ] || die "没找到打好的 AAB"
-      "$(find_keytool)" -printcert -jarfile "$aab" 2>/dev/null | grep -q "Owner:" || die "${aab} 没有签名（检查 ~/.gradle/gradle.properties 的 RELEASE_ 变量）"
+      "$(find_keytool)" -printcert -rfc -jarfile "$aab" 2>/dev/null | grep -q -- '-----BEGIN CERTIFICATE-----' || die "${aab} 没有签名（检查 ~/.gradle/gradle.properties 的 RELEASE_ 变量）"
       android_check_16k "$aab" "$ndk"
       echo "✓ aab：${aab}（已用上传密钥签名、真实广告位；传到 Google Play Console）" ;;
     *) die "未知的 Android 产物" ;;
