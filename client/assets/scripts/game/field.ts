@@ -493,6 +493,7 @@ export class Field {
     const fill = img(shell, 'kit/circle_white', r * 1.92, r * 1.92, 'fill');
     (fill.getComponent(Sprite) as Sprite).color = FROST;
     opacity(fill).opacity = 0;
+    fill.active = false;
     const skin = img(shell, 'kit/bubble', r * 2, r * 2, 'skin');
     // 流光：再叠一层淡淡染色的气泡皮慢慢转，彩虹边和高光沿着泡边流动
     const sheen = img(shell, 'kit/bubble', r * 2, r * 2, 'sheen');
@@ -768,8 +769,14 @@ export class Field {
         (v.skin.getComponent(Sprite) as Sprite).color = dimmed ? UNDER_BUBBLE : WHITE;
         // 被压住的不带流光，和能点的一眼分开
         const sheen = v.skin.parent?.getChildByName('sheen');
-        if (sheen) opacity(sheen).opacity = dimmed ? 0 : 80;
-        opacity(v.fill).opacity = dimmed || !this.layered ? 0 : 150;
+        if (sheen) {
+          opacity(sheen).opacity = dimmed ? 0 : 80;
+          sheen.active = !dimmed;
+        }
+        // 透明度为 0 的直接隐藏：看不见但照样要画，还打断合批（2026-11-21 量的绘制调用）
+        const fillOp = dimmed || !this.layered ? 0 : 150;
+        opacity(v.fill).opacity = fillOp;
+        v.fill.active = fillOp > 0;
         v.dimmed = dimmed;
       }
       const front = b.queue ? b.front() : -1;
