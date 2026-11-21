@@ -27,7 +27,7 @@ import { today } from '../services/clock';
 import * as fx from '../ui/fx';
 import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
-import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, iconButton, img, keyButton, lazyImg, onTap, opacity, resizeSlice, setImg, setSlice, slice, text, textWidth, tint, plate } from '../ui/kit';
+import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, fxImg, iconButton, img, keyButton, lazyImg, onTap, opacity, recycleFx, resizeSlice, setImg, setSlice, slice, text, textWidth, tint, plate } from '../ui/kit';
 import { Screen } from '../ui/screen';
 import { gameFrames, loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
@@ -1645,7 +1645,7 @@ export class GamePage extends Page {
     const loop = () => {
       if (!node.isValid) return;
       const size = 6 + Math.random() * 8;
-      const b = img(node, 'kit/bubble_small', size, size, 'fizz');
+      const b = fxImg(node, 'kit/bubble_small', size, size, 'fizz');
       b.setSiblingIndex(0);
       const x = (Math.random() - 0.5) * s * 0.5;
       const y0 = -h * 0.32;
@@ -1657,7 +1657,7 @@ export class GamePage extends Page {
       tween(op).to(0.15, { opacity: 200 }).delay(dur - 0.4).to(0.25, { opacity: 0 }).start();
       tween(b)
         .to(dur, { position: new Vec3(x + (Math.random() - 0.5) * 14, y1, 0) }, { easing: 'sineOut' })
-        .call(() => b.destroy())
+        .call(() => recycleFx(b))
         .start();
       tween(node).delay(0.35 + Math.random() * 0.6).call(loop).start();
     };
@@ -1668,7 +1668,7 @@ export class GamePage extends Page {
     const tier = Math.max(0, this.comboTier);
     const bubble = Math.random() < 0.3;
     const s0 = 22 + Math.random() * 30;
-    const n = img(this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
+    const n = fxImg(this.under, bubble ? 'kit/bubble_small' : 'kit/fx_spark', s0, s0, 'rise');
     if (!bubble) (n.getComponent(Sprite) as Sprite).color = this.comboColor;
     const x = (Math.random() - 0.5) * Screen.W;
     const y0 = Screen.bottom - 30;
@@ -1679,7 +1679,7 @@ export class GamePage extends Page {
     op.opacity = 235;
     tween(n)
       .to(dur, { position: new Vec3(x + (Math.random() - 0.5) * 90, y1, 0), angle: bubble ? 0 : 200 }, { easing: 'quadOut' })
-      .call(() => n.destroy())
+      .call(() => recycleFx(n))
       .start();
     tween(op).delay(dur * 0.55).to(dur * 0.45, { opacity: 0 }).start();
   }
@@ -1752,7 +1752,8 @@ export class GamePage extends Page {
         40,
         'quadIn',
         () => {
-          holder.destroy();
+          // 飞的途中下一档的夸奖已经把它销毁了（或者这关结束清了场）：不再销毁第二次
+          if (holder.isValid) holder.destroy();
           if (!this.comboRow.active) return;
           const bd = this.comboBadge;
           Tween.stopAllByTarget(bd);

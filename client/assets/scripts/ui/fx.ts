@@ -1,6 +1,6 @@
 // 常用动效：弹出、呼吸、轻晃、上下浮、弧线飞、数字滚动、彩纸、火花、闪屏（docs/09 第 6 节、docs/01 第 3 节）。
 import { Color, Label, Node, Sprite, Tween, TweenEasing, Vec3, game, tween } from 'cc';
-import { box, img, opacity, tint } from './kit';
+import { box, fxImg, img, opacity, recycleFx } from './kit';
 
 const V = (x: number, y: number, z = 1) => new Vec3(x, y, z);
 
@@ -208,7 +208,7 @@ const CONFETTI = ['#FF5A4E', '#FFC21F', '#3DC21A', '#2F8BF5', '#A44DF5', '#FF8AD
  */
 export function cannon(layer: Node, x: number, y: number, deg: number, count = 30, power = 900, fan = 50): void {
   for (let i = 0; i < count; i++) {
-    const c = img(layer, 'kit/confetti', 14, 20, 'confetti');
+    const c = fxImg(layer, 'kit/confetti', 14, 20, 'confetti');
     (c.getComponent(Sprite) as Sprite).color = CONFETTI[i % CONFETTI.length];
     c.setPosition(x, y, 0);
     c.angle = Math.random() * 360;
@@ -221,7 +221,7 @@ export function cannon(layer: Node, x: number, y: number, deg: number, count = 3
     tween(c)
       .to(up, { position: V(tx, ty, 0), angle: c.angle + 300 }, { easing: 'quadOut' })
       .to(fall, { position: V(tx + (Math.random() - 0.5) * 160, ty - 520 - Math.random() * 200, 0), angle: c.angle + 900 }, { easing: 'sineIn' })
-      .call(() => c.destroy())
+      .call(() => recycleFx(c))
       .start();
     tween(opacity(c)).delay(up + fall * 0.6).to(fall * 0.4, { opacity: 0 }).start();
   }
@@ -230,7 +230,7 @@ export function cannon(layer: Node, x: number, y: number, deg: number, count = 3
 /** 彩纸：从 (x, y) 喷出，往下飘 */
 export function confetti(layer: Node, x: number, y: number, count = 40, spread = 360): void {
   for (let i = 0; i < count; i++) {
-    const c = img(layer, 'kit/confetti', 12, 18, 'confetti');
+    const c = fxImg(layer, 'kit/confetti', 12, 18, 'confetti');
     (c.getComponent(Sprite) as Sprite).color = CONFETTI[i % CONFETTI.length];
     c.setPosition(x, y, 0);
     c.angle = Math.random() * 360;
@@ -242,7 +242,7 @@ export function confetti(layer: Node, x: number, y: number, count = 40, spread =
     tween(c)
       .to(0.35, { position: V(tx, ty, 0) }, { easing: 'quadOut' })
       .to(dur, { position: V(tx + (Math.random() - 0.5) * 120, ty - 500, 0), angle: c.angle + 540 }, { easing: 'sineIn' })
-      .call(() => c.destroy())
+      .call(() => recycleFx(c))
       .start();
     tween(opacity(c)).delay(0.35 + dur * 0.6).to(dur * 0.4, { opacity: 0 }).start();
   }
@@ -251,7 +251,7 @@ export function confetti(layer: Node, x: number, y: number, count = 40, spread =
 /** 火花：一圈小星星往外散 */
 export function sparkle(layer: Node, x: number, y: number, count = 10, r = 110, color?: Color, sizePx = 34): void {
   for (let i = 0; i < count; i++) {
-    const s = img(layer, 'kit/fx_spark', sizePx, sizePx, 'spark');
+    const s = fxImg(layer, 'kit/fx_spark', sizePx, sizePx, 'spark');
     if (color) (s.getComponent(Sprite) as Sprite).color = color;
     s.setPosition(x, y, 0);
     const a = (i / count) * Math.PI * 2 + Math.random() * 0.4;
@@ -260,7 +260,7 @@ export function sparkle(layer: Node, x: number, y: number, count = 10, r = 110, 
     tween(s)
       .to(0.45, { position: V(x + Math.cos(a) * d, y + Math.sin(a) * d, 0), scale: V(1, 1) }, { easing: 'quadOut' })
       .to(0.25, { scale: V(0.01, 0.01) })
-      .call(() => s.destroy())
+      .call(() => recycleFx(s))
       .start();
   }
 }
@@ -272,7 +272,7 @@ export function sparkle(layer: Node, x: number, y: number, count = 10, r = 110, 
 export function fountain(layer: Node, x: number, y: number, count: number, path: string, speed = 240, gravity = 900, sizeMin = 10, sizeMax = 20, life = 0.45): void {
   for (let i = 0; i < count; i++) {
     const s0 = sizeMin + Math.random() * (sizeMax - sizeMin);
-    const b = img(layer, path, s0, s0, 'drop');
+    const b = fxImg(layer, path, s0, s0, 'drop');
     b.setPosition(x, y, 0);
     // 朝上的扇面：27°–153°
     const a = Math.PI * (0.15 + Math.random() * 0.7);
@@ -286,7 +286,7 @@ export function fountain(layer: Node, x: number, y: number, count: number, path:
           if (b.isValid) b.setPosition(x + vx * p.t, y + vy * p.t - 0.5 * gravity * p.t * p.t, 0);
         },
       })
-      .call(() => b.destroy())
+      .call(() => recycleFx(b))
       .start();
     tween(opacity(b)).to(life, { opacity: 0 }, { easing: 'quadIn' }).start();
   }
@@ -294,56 +294,57 @@ export function fountain(layer: Node, x: number, y: number, count: number, path:
 
 /** 扁的水波圈：从小放大成一个横着的椭圆、淡出（缸口的涟漪、点鱼处的水波） */
 export function ripple(layer: Node, x: number, y: number, s = 90, to: [number, number] = [1.3, 0.5], dur = 0.25, delaySec = 0, peak = 180): void {
-  const r = img(layer, 'kit/fx_ring', s, s, 'ripple');
+  const r = fxImg(layer, 'kit/fx_ring', s, s, 'ripple');
   r.setPosition(x, y, 0);
   r.setScale(to[0] * 0.25, to[1] * 0.4, 1);
   const op = opacity(r);
   op.opacity = 0;
-  tween(r).delay(delaySec).to(dur, { scale: V(to[0], to[1]) }, { easing: 'quadOut' }).call(() => r.destroy()).start();
+  tween(r).delay(delaySec).to(dur, { scale: V(to[0], to[1]) }, { easing: 'quadOut' }).call(() => recycleFx(r)).start();
   tween(op).delay(delaySec).set({ opacity: peak }).to(dur, { opacity: 0 }, { easing: 'quadIn' }).start();
 }
 
 /** 光环扩散 */
 export function ring(layer: Node, x: number, y: number, from = 60, to = 260, color?: Color, dur = 0.45): void {
-  const r = img(layer, 'kit/fx_ring', from, from, 'ring');
+  const r = fxImg(layer, 'kit/fx_ring', from, from, 'ring');
   if (color) (r.getComponent(Sprite) as Sprite).color = color;
   r.setPosition(x, y, 0);
   const k = to / from;
-  tween(r).to(dur, { scale: V(k, k) }, { easing: 'quadOut' }).call(() => r.destroy()).start();
+  tween(r).to(dur, { scale: V(k, k) }, { easing: 'quadOut' }).call(() => recycleFx(r)).start();
   tween(opacity(r)).delay(dur * 0.25).to(dur * 0.75, { opacity: 0 }).start();
 }
 
 /** 光芒炸开：一圈放射光从小放大到 to、边转边淡出（升档、开箱） */
 export function rayBurst(layer: Node, x: number, y: number, to: number, color?: Color, dur = 0.6, peak = 200): void {
-  const n = img(layer, 'kit/fx_rays', to, to, 'rayBurst');
+  const n = fxImg(layer, 'kit/fx_rays', to, to, 'rayBurst');
   if (color) (n.getComponent(Sprite) as Sprite).color = color;
   n.setPosition(x, y, 0);
   n.setScale(0.15, 0.15, 1);
   n.angle = Math.random() * 360;
   const op = opacity(n);
   op.opacity = peak;
-  tween(n).to(dur, { scale: V(1, 1), angle: n.angle + 50 }, { easing: 'quadOut' }).call(() => n.destroy()).start();
+  tween(n).to(dur, { scale: V(1, 1), angle: n.angle + 50 }, { easing: 'quadOut' }).call(() => recycleFx(n)).start();
   tween(op).delay(dur * 0.35).to(dur * 0.65, { opacity: 0 }).start();
 }
 
 /** 一团柔光闪一下：从小放大、淡出 */
 export function glowPop(layer: Node, x: number, y: number, s: number, color?: Color, dur = 0.35, peak = 255): void {
-  const g = img(layer, 'kit/fx_glow', s, s, 'glowPop');
+  const g = fxImg(layer, 'kit/fx_glow', s, s, 'glowPop');
   if (color) (g.getComponent(Sprite) as Sprite).color = color;
   g.setPosition(x, y, 0);
   g.setScale(0.3, 0.3, 1);
   const op = opacity(g);
   op.opacity = peak;
-  tween(g).to(dur, { scale: V(1, 1) }, { easing: 'quadOut' }).call(() => g.destroy()).start();
+  tween(g).to(dur, { scale: V(1, 1) }, { easing: 'quadOut' }).call(() => recycleFx(g)).start();
   tween(op).to(dur, { opacity: 0 }, { easing: 'quadIn' }).start();
 }
 
 /** 全屏闪一下（升档、史诗卡） */
 export function flash(layer: Node, w: number, h: number, peak = 180, color = new Color(255, 255, 255, 255)): void {
-  const f = tint(layer, w, h, color, 'flash');
+  const f = fxImg(layer, 'kit/white', w, h, 'flash');
+  (f.getComponent(Sprite) as Sprite).color = color;
   const op = opacity(f);
   op.opacity = peak;
-  tween(op).to(0.35, { opacity: 0 }).call(() => f.destroy()).start();
+  tween(op).to(0.35, { opacity: 0 }).call(() => recycleFx(f)).start();
 }
 
 /** 转动的光芒（开奖、宝箱背后） */
@@ -372,5 +373,23 @@ export function delay(owner: Node, sec: number, fn: () => void): void {
       console.error(e);
     }
   };
-  tween(box('timer', owner)).delay(sec).call(once).removeSelf().start();
+  // 计时用的空节点也复用（首页冒泡、缸里冒泡这些循环每隔零点几秒就要一个）：回调跑完摘下来放回池里
+  let t = timerPool.pop();
+  while (t && !t.isValid) t = timerPool.pop();
+  if (!t) t = box('timer');
+  owner.addChild(t);
+  const timer = t;
+  tween(timer)
+    .delay(sec)
+    .call(() => {
+      once();
+      if (!timer.isValid) return;
+      timer.removeFromParent();
+      if (timerPool.length < TIMER_POOL_MAX) timerPool.push(timer);
+      else timer.destroy();
+    })
+    .start();
 }
+
+const timerPool: Node[] = [];
+const TIMER_POOL_MAX = 64;

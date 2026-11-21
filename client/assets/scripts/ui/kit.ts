@@ -195,19 +195,59 @@ export function setImg(n: Node, path: string, w?: number, h?: number): void {
   showFrame(n, IMG_ALIAS[path] ?? path, w, h);
 }
 
-/** 节点最后一次要显示的图：晚到的旧图不覆盖新图 */
-const wanted = new WeakMap<Node, string>();
+/** 节点最后一次要显示的图（按调用编号）：晚到的旧图不覆盖新图；对象池复用的节点换了尺寸，旧的回调也不会按旧尺寸改回去 */
+const wanted = new WeakMap<Node, number>();
+let wantSeq = 0;
 
 /** 读好了就直接显示；没读的先按给的尺寸占位（没给尺寸就是 0），读到再显示 */
 function showFrame(n: Node, path: string, w?: number, h?: number): void {
-  wanted.set(n, path);
+  const seq = ++wantSeq;
+  wanted.set(n, seq);
   const f = peek(path);
   if (f) return setFrame(n, f, w, h);
   (n.getComponent(Sprite) as Sprite).spriteFrame = null;
   size(n, w ?? h ?? 0, h ?? w ?? 0);
   void frameAsync(path).then((sf) => {
-    if (sf && n.isValid && wanted.get(n) === path) setFrame(n, sf, w, h);
+    if (sf && n.isValid && wanted.get(n) === seq) setFrame(n, sf, w, h);
   });
+}
+
+// ---- 特效小图的对象池（微信性能报告 2026-11-21：减少临时对象和垃圾回收）。
+// 火花、水波、彩纸、冒泡这类一闪而过、源源不断的小图，播完不销毁，收回来下次接着用。
+// 只给不带染色规则的图用（不在 PART_INK 里、不是 skin/f_g_ 图标）；取出时位置、缩放、角度、颜色、透明度都复位成新建时的样子。
+const fxPool: Node[] = [];
+const FX_POOL_MAX = 256;
+
+/** 和 img() 一样建一张特效小图，但从池里取；播完用 recycleFx() 收回，不要 destroy() */
+export function fxImg(parent: Node, path: string, w: number, h: number, name: string): Node {
+  let n = fxPool.pop();
+  while (n && !n.isValid) n = fxPool.pop();
+  if (!n) return img(parent, path, w, h, name);
+  n.name = name;
+  n.setPosition(0, 0, 0);
+  n.setScale(1, 1, 1);
+  n.angle = 0;
+  (n.getComponent(Sprite) as Sprite).color = Color.WHITE;
+  const op = n.getComponent(UIOpacity);
+  if (op) op.opacity = 255;
+  parent.addChild(n);
+  n.active = true;
+  showFrame(n, IMG_ALIAS[path] ?? path, w, h);
+  return n;
+}
+
+/** 收回 fxImg() 建的图：停掉它和它透明度上的动画，从父节点摘下放回池里（池满了才销毁） */
+export function recycleFx(n: Node): void {
+  if (!n.isValid) return;
+  Tween.stopAllByTarget(n);
+  const op = n.getComponent(UIOpacity);
+  if (op) Tween.stopAllByTarget(op);
+  if (fxPool.length >= FX_POOL_MAX) {
+    n.destroy();
+    return;
+  }
+  n.removeFromParent();
+  fxPool.push(n);
 }
 
 /** 大图（背景、家园场景）：先建节点，读到再显示 */
