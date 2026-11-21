@@ -69,11 +69,27 @@ export function keysIn(dir: string): string[] {
 }
 
 /**
- * 启动时要读好的界面图：部件、图标全部，收藏册的大封面（skin/j_book_*，十几张、4 MB 多）除外，打开收藏页时再读。
- * 鱼不在这里，由 Boot 按眼前的海域另读。
+ * 首页用不到的大图：局内特效和夸奖字、美术数字、鱼缸、锁链迷雾冰封、卡面、奖牌、宝箱（约 5 MB）。
+ * 不挡首页：首页出来以后在后台读（Boot），进关前等它们读好（gameView.start）。按钮（j_btn_*）和首页装饰用的 j_bubble 留在启动里
+ */
+const LATER = /^(skin\/j_(?!btn_|bubble$)|icon\/(chest|card_back|ice))/;
+
+function uiFrames(): string[] {
+  // 收藏册的大封面（skin/j_book_*，十几张、4 MB 多）不预读，打开收藏页时再读
+  return [...keysIn('ui/kit'), ...keysIn('ui/skin'), ...keysIn('ui/icon')].filter((k) => !k.startsWith('skin/j_book_'));
+}
+
+/**
+ * 首页出来之前要读好的界面图：部件、按钮、图标（首页约 1.4 MB）。原来界面图全部读完才进首页（约 6.5 MB），
+ * 4G 下微信版冷启动二十几秒（2026-11-21 在 Mac 上按 CPU 4 倍慢、9 Mbps 量的）。鱼不在这里，由 Boot 另读
  */
 export function startupFrames(): string[] {
-  return [...keysIn('ui/kit'), ...keysIn('ui/skin'), ...keysIn('ui/icon')].filter((k) => !k.startsWith('skin/j_book_'));
+  return uiFrames().filter((k) => !LATER.test(k));
+}
+
+/** 首页出来以后在后台读、进关前要读好的界面图（见 LATER） */
+export function laterFrames(): string[] {
+  return uiFrames().filter((k) => LATER.test(k));
 }
 
 let fontLoading: Promise<Font> | null = null;
