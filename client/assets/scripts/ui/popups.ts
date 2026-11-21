@@ -2,6 +2,7 @@
 // 版式照定版图 16、18、19、08 右（docs/09 第 3、4 节）。
 import { Color, Label, Node, Sprite, Vec3, tween, UITransform } from 'cc';
 import type { CardResult, Prize } from '../core/meta/save';
+import type { AdResult } from '../platform/platformBase';
 import * as Cards from '../core/meta/cards';
 import * as Lives from '../core/meta/lives';
 import * as Meta from '../core/meta/meta';
@@ -31,8 +32,15 @@ export async function watchAd(placement: string): Promise<boolean> {
     return false;
   }
   ui.busy(true);
-  const r = await App.platform.showRewarded(placement);
-  ui.busy(false);
+  let r: AdResult = 'unavailable';
+  try {
+    r = await App.platform.showRewarded(placement);
+  } catch (e) {
+    // 广告接口抛错：按不可用，遮罩一定要撤（不然复活、翻倍等入口一直被挡着）
+    console.warn('激励视频出错', e);
+  } finally {
+    ui.busy(false);
+  }
   if (r === 'done') {
     Meta.markRewarded(App.save.data, adNow());
     Tasks.add(App.save.data, App.config.eco, today(), 'ad');

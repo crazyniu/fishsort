@@ -148,6 +148,8 @@ export class DailyPage extends Page {
           onTap: async () => {
             // 看完广告就记下；进关成功才算用掉这次重试，读关卡失败的话再点不用重看（#170）
             const day = today();
+            // 过了零点今天第一局免费：不用看广告（Flow.startDaily 里也会改成免费）
+            if (DailyChallenge.canStartFree(App.save.data, day)) return Flow.startDaily();
             if (!Flow.dailyAdPaidFor(day)) {
               if (!(await watchAd('rv_daily_retry'))) return;
               Flow.markDailyAd(day);
@@ -167,6 +169,8 @@ export class DailyPage extends Page {
         fontSize: 44,
         onTap: () => {
           const sv = App.save.data;
+          // 过了零点今天第一局免费：金币不够也能进，不扣
+          if (DailyChallenge.canStartFree(sv, today())) return Flow.startDaily();
           if (sv.coins < cfg.retryCoins) {
             needCoins(cfg.retryCoins - sv.coins, () => ui.refresh());
             return;

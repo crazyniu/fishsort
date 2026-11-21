@@ -85,6 +85,8 @@ export function startDaily(pay?: 'ad' | 'coins'): void {
   const s = App.save.data;
   const eco = App.config.eco;
   const day = today();
+  // 昨天的重试页开着过了零点：今天的第一局本来免费，不扣金币、不算看广告的那次
+  if (pay && DailyChallenge.canStartFree(s, day)) pay = undefined;
   const level = DailyChallenge.levelFor(day, s.level, eco.dailyChallenge.levelStep, App.config.levelCount);
   ui.go('game', { level, daily: true, day, pay });
 }
@@ -489,6 +491,8 @@ function restart(g: GamePage): void {
     livesPopup();
     return;
   }
+  // 上一局局内拿到的卡（已经发过、当场提示过）不再带进这一局的结算
+  pendingCards.length = 0;
   ui.go('game', { level: g.arg.level });
 }
 
