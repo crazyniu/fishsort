@@ -88,14 +88,17 @@ export function win(
   now: number,
   rng: Rng,
   comboCoins = 0,
+  taskDay = day,
 ): { prizes: Prize[]; big: boolean } {
+  // day = 挑战日（开局那天，过关记在它头上）；taskDay = 今天：每日任务、周进度按今天记。
+  // 跨零点过关时两者不同，任务要是按挑战日记会把今天的任务和周进度重置回昨天（#170）
   if (wonToday(save, day)) return { prizes: [], big: false };
   const cfg = eco.dailyChallenge;
   const c = save.challenge;
   c.streak = streak(save, day) + 1;
   c.wonDay = day;
-  Tasks.add(save, eco, day, 'win');
-  Tasks.add(save, eco, day, 'daily');
+  Tasks.add(save, eco, taskDay, 'win');
+  Tasks.add(save, eco, taskDay, 'daily');
   const prizes = Album.grant(save, cfg.reward, now, eco, rng);
   const rarity = Cards.rollRarity(eco, eco.chest.cardRates, rng);
   const open = Album.pool(eco, species, save.level);

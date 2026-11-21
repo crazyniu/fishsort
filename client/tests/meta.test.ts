@@ -587,6 +587,33 @@ describe('每日挑战（docs/01 5.11）', () => {
     assert.ok(DailyChallenge.enter(s2, eco, 100, 'free'));
     assert.ok(!DailyChallenge.canStartFree(s2, 100));
   });
+
+  it('跨零点过关：记在开局那天，今天的每日、任务、周进度不回滚（#170）', () => {
+    // 找一个跨周的零点：d 和 d + 1 不在同一周，周进度也一起验
+    let d = 100;
+    for (;; d++) {
+      const [a] = setup(30);
+      Daily.roll(a, d);
+      const w = a.week.id;
+      Daily.roll(a, d + 1);
+      if (a.week.id !== w) break;
+    }
+    const [save, eco, species] = setup(30);
+    Daily.roll(save, d + 1);
+    save.week.points = 40;
+    save.week.taskClaimed = [0];
+    save.daily.replay = 2;
+    save.tasks.day = -1;
+    DailyChallenge.win(save, eco, species, d, 0, new Rng(1), 0, d + 1);
+    assert.equal(save.challenge.wonDay, d, '挑战记在开局那天');
+    assert.equal(save.daily.day, d + 1, '每日数据还是今天的');
+    assert.equal(save.daily.replay, 2);
+    assert.ok(save.week.points >= 40, '周积分没被清');
+    assert.deepEqual(save.week.taskClaimed, [0], '周奖励领取记录没被清');
+    assert.ok(save.tasks.day === -1 || save.tasks.day === d + 1, '任务按今天记');
+    // 第二天照样能打今天的挑战
+    assert.ok(!DailyChallenge.wonToday(save, d + 1));
+  });
 });
 
 describe('收藏与救援记录（docs/01 5.0、5.4）', () => {

@@ -759,7 +759,7 @@ export function win(g: GamePage): void {
   }
   if (g.arg.daily) {
     Dex.record(s, counts);
-    const r = DailyChallenge.win(s, eco, App.config.species, dailyDay(g), now(), rng, g.combo.coins);
+    const r = DailyChallenge.win(s, eco, App.config.species, dailyDay(g), now(), rng, g.combo.coins, today());
     App.save.write();
     sfx('win');
     ui.go('daily', { won: r });

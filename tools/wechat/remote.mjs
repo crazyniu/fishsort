@@ -120,3 +120,22 @@ const rest = sizeOf(join(OUT, 'remote'));
 console.log(`✓ resources 挪到网上：${relative(ROOT, join(OUT, 'remote'))}（${mb(rest)}），资源地址 ${server}remote/resources/`);
 console.log(`  安装包（主包）${mb(main)}，上限 4 MB`);
 if (main > MAIN_LIMIT) die(`主包超过 4 MB（${mb(main)}），微信传不上去`);
+
+// 6. 这个包用到哪些网上的文件：写成 remote/_builds/<编号>.json，跟资源一起传上去。
+// 清理旧资源（prune.mjs）按「还在用的几个包」的清单保留文件（#170），编号要记进微信开发者工具上传时的版本备注
+function listFiles(dir) {
+  const out = [];
+  for (const f of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, f.name);
+    if (f.isDirectory()) out.push(...listFiles(p));
+    else out.push(relative(OUT, p).split('\\').join('/'));
+  }
+  return out;
+}
+const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 12);
+const buildId = `${game.version}-${stamp}`;
+const used = listFiles(join(OUT, 'remote')).sort();
+mkdirSync(join(OUT, 'remote/_builds'), { recursive: true });
+writeFileSync(join(OUT, 'remote/_builds', `${buildId}.json`), JSON.stringify({ id: buildId, files: used }));
+writeFileSync(join(OUT, 'build-id.txt'), buildId + '\n');
+console.log(`✓ 这个包的资源编号：${buildId}（微信开发者工具上传时写进版本备注；以后清理旧资源时按它保留）`);

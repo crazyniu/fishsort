@@ -404,6 +404,8 @@ export class GamePage extends Page {
   /** snap = 撤销：按存下来的局面整个重画，不播开局的进场 */
   private layout(file: number, snap: UndoSnap | null = null): void {
     this.epoch++;
+    // 整个重画（开局、撤销）：还在飞的鱼作废，排着的连击也不再算（撤销掉的鱼不能在过关补算时算进去）
+    this.pendingHits.clear();
     this.nextRow = null;
     this.nextChips.clear();
     this.dropNext = null;
