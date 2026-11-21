@@ -31,7 +31,7 @@ import { livesPopup, settingsPopup, switchLanguage } from './ui/popups';
 import { closeAllPopups } from './ui/popup';
 import { signInPopup } from './pages/signin';
 import * as Flow from './game/flow';
-import { ensureResources, laterFrames, loadBootBundle, loadFont, loadFrames, startupFrames } from './ui/res';
+import { ensureResources, gameFrames, loadBootBundle, loadFont, loadFrames, rewardFrames, startupFrames } from './ui/res';
 import { LoadingView } from './ui/loading';
 import { loadPlatformConfig } from './platform/platformConfig';
 import * as Seas from './core/meta/seas';
@@ -204,8 +204,10 @@ export class Boot extends Component {
     if (App.flags.play) ui.go('game', { level: App.flags.level > 0 ? App.flags.level : App.save.data.level });
     else if (App.flags.page) ui.go(App.flags.page);
     else ui.go('home');
-    // 首页用不到的大图和这片海域的鱼：首页出来以后在后台接着读，读不下来的用到时再读（进关前 gameView 会等局内要的图）
-    void loadFrames([...laterFrames(), ...this.seaFish()]).catch((e: unknown) => console.warn('后台读图没读完，用到时再读', e));
+    // 首页用不到的大图和这片海域的鱼：首页出来以后在后台接着读，先读局内的，再读结算、开箱用的。
+    // 读不下来的用到时再读（进关前 gameView 会等局内的图）
+    const later = (keys: string[]) => loadFrames(keys).catch((e: unknown) => console.warn('后台读图没读完，用到时再读', e));
+    void later([...gameFrames(), ...this.seaFish()]).then(() => later(rewardFrames()));
     // 顶栏的生命倒计时、无限生命每秒走一次
     tween(this.node)
       .repeatForever(tween(this.node).delay(1).call(() => ui.topbar.node.active && ui.topbar.refresh()))

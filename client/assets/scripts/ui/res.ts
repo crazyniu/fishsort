@@ -80,16 +80,28 @@ function uiFrames(): string[] {
 }
 
 /**
- * 首页出来之前要读好的界面图：部件、按钮、图标（首页约 1.4 MB）。原来界面图全部读完才进首页（约 6.5 MB），
- * 4G 下微信版冷启动二十几秒（2026-11-21 在 Mac 上按 CPU 4 倍慢、9 Mbps 量的）。鱼不在这里，由 Boot 另读
+ * LATER 里结算、开箱、收藏才用的：卡面、奖牌、宝箱（约 1.7 MB）。进关不等它们，一局打完早就在后台读好了。
+ * 卡背（icon/card_back）局内的连击目标卡、幸运泡也用，归局内
+ */
+const REWARD = /^(skin\/j_(card_|medal_)|icon\/chest)/;
+
+/**
+ * 首页出来之前要读好的界面图：部件、按钮、图标和首页背景（约 1.5 MB）。原来界面图全部读完才进首页（约 6.5 MB），
+ * 4G 下微信版冷启动二十几秒（2026-11-21 在 Mac 上按 CPU 4 倍慢、9 Mbps 量的）。鱼不在这里，由 Boot 另读。
+ * 首页背景原来是用到时才读，现在要和后台那几 MB 抢网速，网慢时会空好几秒，所以放进来
  */
 export function startupFrames(): string[] {
-  return uiFrames().filter((k) => !LATER.test(k));
+  return [...uiFrames().filter((k) => !LATER.test(k)), 'bg/home'];
 }
 
-/** 首页出来以后在后台读、进关前要读好的界面图（见 LATER） */
-export function laterFrames(): string[] {
-  return uiFrames().filter((k) => LATER.test(k));
+/** 首页出来以后在后台读、进关前要读好的局内图（LATER 里除了 REWARD） */
+export function gameFrames(): string[] {
+  return uiFrames().filter((k) => LATER.test(k) && !REWARD.test(k));
+}
+
+/** 首页出来以后在后台读的结算、开箱、收藏用图（REWARD），排在局内图后面 */
+export function rewardFrames(): string[] {
+  return uiFrames().filter((k) => REWARD.test(k));
 }
 
 let fontLoading: Promise<Font> | null = null;
