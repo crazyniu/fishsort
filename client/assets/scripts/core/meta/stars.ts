@@ -36,8 +36,8 @@ export interface StarResult {
 }
 
 /** 过关时记星：存最好的；第一次三星发奖励。pool = 已开放册子里的卡，albumOpen = 收藏开放了没有（没开放给卡换成金币里不给卡） */
-export function record(save: SaveData, eco: EconomyConfig, levelId: number, kind: Kind, items: number, pool: Species[], rng: Rng, albumOpen: boolean): StarResult {
-  const stars = starsFor(eco, kind, items);
+export function record(save: SaveData, eco: EconomyConfig, levelId: number, kind: Kind, items: number, pool: Species[], rng: Rng, albumOpen: boolean, eased = false): StarResult {
+  const stars = Math.min(starsFor(eco, kind, items), eased ? 2 : 3);
   const before = best(save, levelId);
   if (save.stars === undefined) save.stars = {};
   if (stars > before) save.stars[String(levelId)] = stars;
