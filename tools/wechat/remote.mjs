@@ -15,6 +15,7 @@
 // 文件名里的 MD5 是 Cocos 按构建时的内容算的，这两步不改文件名：同样的源文件每次处理结果都一样。
 // 之后把 client/build/wechatgame-remote/remote 整个传到静态网站托管根目录（package.sh 里有 tcb 就自动传）。
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { packPng } from './pngpack.mjs';
@@ -132,9 +133,16 @@ function listFiles(dir) {
   }
   return out;
 }
-const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 12);
-const buildId = `${game.version}-${stamp}`;
+// 编号 = 版本号 + 这批文件（路径和内容）的哈希前 12 位：内容不同编号一定不同，同一分钟打两个包也不会互相覆盖清单；
+// 内容完全一样的两次打包编号相同，清单也一样，覆盖了没关系（原来按分钟起名会撞，#170）
 const used = listFiles(join(OUT, 'remote')).sort();
+const hash = createHash('sha256');
+for (const k of used) {
+  hash.update(k + '\0');
+  hash.update(readFileSync(join(OUT, k)));
+  hash.update('\0');
+}
+const buildId = `${game.version}-${hash.digest('hex').slice(0, 12)}`;
 mkdirSync(join(OUT, 'remote/_builds'), { recursive: true });
 writeFileSync(join(OUT, 'remote/_builds', `${buildId}.json`), JSON.stringify({ id: buildId, files: used }));
 writeFileSync(join(OUT, 'build-id.txt'), buildId + '\n');
