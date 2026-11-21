@@ -1752,7 +1752,8 @@ export class GamePage extends Page {
         40,
         'quadIn',
         () => {
-          holder.destroy();
+          // 飞的途中下一档的夸奖已经把它销毁了（或者这关结束清了场）：不再销毁第二次
+          if (holder.isValid) holder.destroy();
           if (!this.comboRow.active) return;
           const bd = this.comboBadge;
           Tween.stopAllByTarget(bd);
