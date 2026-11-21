@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <!-- Wi-Fi 权限和竖屏会让 Google Play 推断设备必须有 Wi-Fi、竖屏，没有的平板、Chromebook 就装不了；游戏没有它们也能玩，标成非必需
+         （竖屏方向照样由 Activity 的 screenOrientation 定，来自 PR #157） -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
