@@ -15,8 +15,12 @@ export function inWechat(): boolean {
 }
 
 
-/** 插屏最多等几秒（拉广告带播放、关掉）：超时按没播算。比原生的 120 秒短，插屏几秒就能关 */
-const INTERSTITIAL_TIMEOUT = 60;
+/**
+ * 插屏的兜底（秒）：show() 多久还没播出来就不等了；播出来以后多久还没收到关闭也不等了。都按没播算（不记频控）。
+ * 播出来以前卡住是最常见的（拉不到、SDK 不回），玩家对着遮罩最多等 10 秒；播出来以后广告盖着整个屏幕，30 秒后就算没收到关闭，游戏在广告底下照常往下走
+ */
+const INTERSTITIAL_SHOW_TIMEOUT = 10;
+const INTERSTITIAL_CLOSE_TIMEOUT = 30;
 
 export class PlatformWechat extends PlatformBase {
   readonly id = 'wechat';
@@ -116,10 +120,17 @@ export class PlatformWechat extends PlatformBase {
       const onClose = () => finish(true);
       // 播放中出错、或者微信既不回调关闭、show() 也不报错：都按「没播」返回（不记频控），结算页照常往下走，不会一直挂着遮罩
       const onError = () => finish(false);
-      const timer = setTimeout(() => finish(false), INTERSTITIAL_TIMEOUT * 1000);
+      let timer = setTimeout(() => finish(false), INTERSTITIAL_SHOW_TIMEOUT * 1000);
       ad.onClose(onClose);
       ad.onError(onError);
-      ad.show().catch(onError);
+      ad.show().then(
+        () => {
+          if (settled) return;
+          clearTimeout(timer);
+          timer = setTimeout(() => finish(false), INTERSTITIAL_CLOSE_TIMEOUT * 1000);
+        },
+        onError,
+      );
     });
   }
 

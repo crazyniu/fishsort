@@ -29,7 +29,7 @@ import * as Alive from '../ui/alive';
 import { language, tr } from '../ui/i18n';
 import { artNumber, at, blockInput, box, Capsule, capsule, COLOR, fit, fxImg, iconButton, img, keyButton, lazyImg, onTap, opacity, recycleFx, resizeSlice, setImg, setSlice, slice, text, textWidth, tint, plate } from '../ui/kit';
 import { Screen } from '../ui/screen';
-import { gameFrames, loadFrames } from '../ui/res';
+import { gameFrames, isDecorFrame, loadFrames } from '../ui/res';
 import { popupCount } from '../ui/popup';
 import { CARD_ASPECT, RARITY_GLOW, miniCard, skillName, speciesName } from '../ui/popups';
 import { Page, ui } from '../ui/shell';
@@ -343,15 +343,19 @@ export class GamePage extends Page {
       this.lv = await config.loadLevel(file, ease, !!this.arg.daily);
       const pools = Seas.speciesPools(eco, Seas.forLevel(eco, file));
       species = pickSpecies(config.species, this.lv.levelSeed + (this.arg.daily ? Flow.dailyDay(this) : 0), this.lv.palette, LevelCurve.colorGap(config.curve, file), pools);
-      // 局内的特效、鱼缸、障碍：启动时没等它们（首页出来后在后台读），这里等读好再开局，局内不缺图。
-      // 结算的卡面、宝箱不等（rewardFrames，后台接着读，一局打完早就好了；没好的 img() 会自己补上）。
-      // 这片海域的背景也一起等：后台还在读别的图时，它排在后面，开局会空好几秒
+      // 局内图启动时没等（首页出来后在后台读），这里补齐；结算的卡面、宝箱不等（rewardFrames，一局打完早就读好了）。
+      // 这片海域的背景也在这里读：后台还在读别的图时它排在后面，不等的话开局会空好几秒
       const seaBg = `bg/sea_${eco.seas?.[Seas.forLevel(eco, file)]?.id ?? 'shore'}`;
-      // 只有关卡文件和这关的鱼读不下来才回主页；局内图和背景同时读、照样等，但有图没读下来不挡开局
-      // （弱网下一张特效图失败就被送回主页不划算）：没读到的 img() 用到时自己补读，背景 lazyImg 会退避重试
-      const extras = loadFrames([...gameFrames(), seaBg]).catch((e: unknown) => console.warn('局内图有的没读下来，用到时再补', e));
-      await loadFrames(species.map((sp) => `fish/${sp}`));
-      await extras;
+      // 分两批同时读（弱网，2026-11-21）：
+      // - 必需的：这关的鱼，和缺了就看不出规则的局内图（鱼缸、锁链、迷雾、冰封、目标牌、数字……）。读不下来重试一次，再不行回主页
+      // - 装饰的：夸奖字、爆炸星、海域背景。不挡开局：最多再等 decorWait 秒（网正常时早就读完，开局不空背景），
+      //   没读完或失败就先开局，后台接着读；没读到的 img() 用到时补读，背景 lazyImg 退避重试
+      const game = gameFrames();
+      const decor = loadFrames([...game.filter(isDecorFrame), seaBg]).catch((e: unknown) => console.warn('装饰图有的没读下来，用到时再补', e));
+      const need = [...species.map((sp) => `fish/${sp}`), ...game.filter((k) => !isDecorFrame(k))];
+      await loadFrames(need).catch(() => loadFrames(need));
+      const cap = config.ui.intro.decorWait ?? 2;
+      await Promise.race([decor, new Promise<void>((r) => setTimeout(r, cap * 1000))]);
     } catch (e) {
       console.warn('关卡读不出来', e);
       ui.toast(tr('BOOT_FAIL'));
