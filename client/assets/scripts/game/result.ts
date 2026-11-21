@@ -118,7 +118,7 @@ export class ResultPage extends Page {
     // 难关、超难关：金币那一格左上角压同色小牌子（过关金币 60 / 90，docs/ux/level-types.md）
     const kind = levelKind(d.level);
     if (kind !== 'normal' && r.rewarded) {
-      const t = kindTag(coinCell, kind, 34);
+      const t = kindTag(coinCell, kind, 42);
       const tw = (t.getComponent(UITransform) as UITransform).width;
       at(t, -coinW / 2 + tw / 2 - 6, 70);
     }
@@ -135,9 +135,10 @@ export class ResultPage extends Page {
     const f3 = d.stars?.first3;
     if (f3) {
       const cell = prizeCell(pill, { icon: 'icon/first3', amount: `+${f3.coins}` }, 96);
-      const cap = text(cell, tr('RESULT_FIRST_3STAR'), 20, { color: COLOR.yellow, outline: COLOR.navy, outlineWidth: 4 });
-      at(cap.node, 0, 72);
-      fit(cap, 124, 20, 14);
+      // 浅色奖励条上用正文的深蓝字、不描边；原来 20 号黄字描边、英文还会缩到 14 号，看不清（用户 2026-11-21）
+      const cap = text(cell, tr('RESULT_FIRST_3STAR'), 24);
+      at(cap.node, 0, 74);
+      fit(cap, 128, 24, 20);
       extras.push(cell);
       for (const id of f3.skills) extras.push(prizeCell(pill, { icon: `icon/skill_${id}`, amount: '×1' }, 96));
     }
