@@ -325,6 +325,13 @@ export class GamePage extends Page {
 
   private async start(): Promise<void> {
     ui.busy(true);
+    // 读关卡、读图这段时间：先把上一关的残局（过关时的连击满屏、烟花、棋盘）清掉，也不让点、不走倒计时。
+    // 原来这段时间一直显示上一关结束前的画面，读得慢时像卡住了；还能点到旧棋盘
+    this.ended = true;
+    this.pendingHits.clear();
+    this.under.destroyAllChildren();
+    this.stage.destroyAllChildren();
+    this.fly.destroyAllChildren();
     const { config, save } = App;
     const eco = config.eco;
     const id = this.arg.level;
@@ -1465,6 +1472,8 @@ export class GamePage extends Page {
    * quiet：只记数和发奖励，不出声音和特效（结算前补算用）
    */
   private hitCombo(bowlX = 0, quiet = false): void {
+    // 过关以后才落缸的鱼：照样计数、发奖励，但不再打开连击计和满屏（庆祝时已经收掉了，打开了会留到下一关读关卡时）
+    if (this.ended) quiet = true;
     const eco = App.config.eco;
     // 连击送卡的掷骰子只留给每日挑战；主线关卡换成开局就告诉你的连击目标（docs/01 9.4）
     const cardsOpen = this.arg.daily === true && Features.isUnlocked(eco, 'album', App.save.data.level);
