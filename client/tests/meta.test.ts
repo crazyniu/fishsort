@@ -172,6 +172,18 @@ describe('连败、广告频控、免费金币', () => {
       assert.equal(f % 5 === 0, id % 5 === 0);
     }
   });
+
+  it('第几轮：第 360 关之后每循环一遍后半段加一轮（海图「第 N 轮」）', () => {
+    assert.equal(Meta.loopRound(360, 360), 1);
+    assert.equal(Meta.loopRound(361, 360), 2);
+    assert.equal(Meta.loopRound(540, 360), 2);
+    assert.equal(Meta.loopRound(541, 360), 3);
+    // 同一轮里关卡文件从 181 连续走到 360
+    for (let id = 361; id < 1100; id++) {
+      const r = Meta.loopRound(id, 360);
+      assert.equal(Meta.levelFile(id, 360) - 181, id - 361 - (r - 2) * 180);
+    }
+  });
 });
 
 describe('连击（docs/01 3.2）', () => {

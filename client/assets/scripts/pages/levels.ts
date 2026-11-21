@@ -54,10 +54,14 @@ export class LevelsPage extends Page {
     });
   }
 
-  /** 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有），不超过总关数 */
+  /**
+   * 一共几页：到当前关那一页为止，再往后多给一页（让人看到后面还有）。
+   * 没打完第 360 关时不超过总关数；之后关卡在后半段循环，页数跟着当前关往后加，格子写真实关号（docs/01 5.7，#170）
+   */
   private get pages(): number {
+    const reachPage = Math.floor((App.reach() - 1) / PER_PAGE) + 2;
     const all = Math.ceil(App.config.levelCount / PER_PAGE);
-    return Math.min(all, Math.floor((App.reach() - 1) / PER_PAGE) + 2);
+    return App.save.data.level > App.config.levelCount ? reachPage : Math.min(all, reachPage);
   }
 
   /** arg.sea：从海图点进来的那个海域，停在它那一页；不给就停在当前关那一页 */

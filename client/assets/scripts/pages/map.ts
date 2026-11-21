@@ -2,6 +2,7 @@
 // 每个海域一张竖版卡（两列）：这片海域的整张局内背景当画面，上面海域名，下面「第 N–M 关」和进度条（过了几关 / 20）；
 // 还没到的海域是灰的、中间一把锁，写「第 N 关解锁」；现在所在的海域贴一面「当前」、轻轻呼吸。点开了的海域进它那一页的选关格子。
 import { Color, Mask, Node, Sprite } from 'cc';
+import * as Meta from '../core/meta/meta';
 import * as Seas from '../core/meta/seas';
 import { App } from '../services/app';
 import { sfx } from '../services/audio';
@@ -47,7 +48,10 @@ export class MapPage extends Page {
     const level = App.save.data.level;
     const reach = App.reach();
     const total = App.config.levelCount;
-    const cur = Seas.forLevel(App.config.eco, Math.min(level, total));
+    // 第 360 关之后关卡在后半段循环（docs/01 5.7）：「当前」跟着这一关实际用的关卡文件走，卡上写第几轮
+    const file = Meta.levelFile(level, total);
+    const cur = Seas.forLevel(App.config.eco, Math.min(file, total));
+    const round = Meta.loopRound(level, total);
     const y0 = Screen.headTop - HEAD_BOTTOM - 10;
     const y1 = Screen.bottom + PAGE_BOTTOM;
     const sc = new Scroller(v, Screen.W, y0 - y1);
@@ -56,7 +60,11 @@ export class MapPage extends Page {
     const cards = seas.map((sea, i) => {
       const from = sea.levelFrom;
       const to = (seas[i + 1]?.levelFrom ?? total + 1) - 1;
-      const c = this.card(sc.content, i, sea.id, from, to, level, reach >= from, i === cur);
+      // 第 2 轮起，当前海域写这一轮的关号和这一轮的进度（第 365 关用第 185 关的文件：第 361–380 关，过了 4 关）
+      const loop = round > 1 && i === cur ? level - (file - from) : 0;
+      const c = loop
+        ? this.card(sc.content, i, sea.id, loop, loop + (to - from), level, true, true, round)
+        : this.card(sc.content, i, sea.id, from, to, level, reach >= from, i === cur);
       at(c, (i % 2 === 0 ? -1 : 1) * (CARD_W + GAP_X) / 2, -CARD_H / 2 - Math.floor(i / 2) * rowH - 10);
       return c;
     });
@@ -67,7 +75,7 @@ export class MapPage extends Page {
   }
 
   /** 一张海域卡（竖版）：整张局内背景当画面，上面海域名牌，下面一条关卡范围 + 进度 */
-  private card(parent: Node, i: number, id: string, from: number, to: number, level: number, open: boolean, current: boolean): Node {
+  private card(parent: Node, i: number, id: string, from: number, to: number, level: number, open: boolean, current: boolean, round = 1): Node {
     const n = slice(parent, 'kit/panel_blue', CARD_W, CARD_H, `sea${i}`);
     // 画面：局内背景是 2:3 的竖图，差不多整张放得下，四边留出卡的边
     const pw = CARD_W - 22;
@@ -89,6 +97,12 @@ export class MapPage extends Page {
     const name = slice(n, 'kit/title_plate', 270, 62, 'name');
     at(name, 0, ph / 2 - 30);
     fit(text(name, tr(`ALBUM_BOOK_${i + 1}`), 32), 240, 32, 22);
+    if (round > 1) {
+      // 第几轮：名牌下面一枚小牌
+      const rp = slice(n, 'kit/btn_blue', 150, 46, 'round');
+      at(rp, 0, ph / 2 - 30 - 58);
+      fit(text(rp, tr('MAP_ROUND', round), 24), 130, 24, 18);
+    }
     // 下：半透明深色底，第一行关卡范围，第二行进度条或「第 N 关解锁」
     const lowH = 100;
     const low = box('low', n, pw, lowH);
@@ -127,7 +141,8 @@ export class MapPage extends Page {
         return;
       }
       sfx('tap');
-      ui.go('levels', { sea: i });
+      // 第 2 轮起的当前海域：进当前关那一页（这一轮的关号）；别的海域进第 1 轮那一页重玩
+      ui.go('levels', round > 1 ? undefined : { sea: i });
     }, { sound: null });
     return n;
   }

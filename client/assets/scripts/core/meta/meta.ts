@@ -15,6 +15,15 @@ export function levelFile(id: number, count: number): number {
   return half + 1 + posmod(id - count - 1, count - half);
 }
 
+/**
+ * 第 id 关是第几轮：前 count 关是第 1 轮，之后后一半每循环一遍加一轮（第 361–540 关第 2 轮，541–720 第 3 轮……）。
+ * 海图上「第 N 轮」用（docs/01 第 5.7 节）
+ */
+export function loopRound(id: number, count: number): number {
+  if (id <= count) return 1;
+  return 2 + idiv(id - count - 1, count - idiv(count, 2));
+}
+
 /** 失败记一次，返回下次该用的易化档位（0 = 普通） */
 export function failLevel(save: SaveData, eco: EconomyConfig, levelId: number): number {
   const fails = save.fails;
