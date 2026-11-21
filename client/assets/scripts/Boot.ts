@@ -24,7 +24,7 @@ import { ShopPage } from './pages/shop';
 import { LockPage } from './pages/lock';
 import { App } from './services/app';
 import { initAudio, sfx, startMusic } from './services/audio';
-import { loadStrings, matchLanguage, onLanguage } from './ui/i18n';
+import { loadStrings, matchLanguage, onLanguage, tr } from './ui/i18n';
 import { fitLog, setTapSound } from './ui/kit';
 import * as Popups from './ui/popups';
 import { livesPopup, settingsPopup, switchLanguage } from './ui/popups';
@@ -168,6 +168,7 @@ export class Boot extends Component {
     // 音效不挡启动：后台读，读到之前没声音
     void initAudio(this.node);
     setTapSound((n) => sfx(n));
+    App.save.onFail = () => ui.toast(tr('SAVE_FAIL'));
     startMusic();
     const topActions = {
       coins: () => ui.go('shop'),
